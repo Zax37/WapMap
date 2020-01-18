@@ -1,0 +1,5952 @@
+# depslib dependency file v1.0
+1283520047 source:d:\cpp\waptools\src\waparchive\main.cpp
+	"hge.h"
+	"conf.h"
+	"globals.h"
+	"states/intro.h"
+
+1283345348 source:d:\cpp\waptools\src\waparchive\res.rc
+
+1384889366 source:d:\cpp\waptools\src\shared\cstatemgr.cpp
+	"cStateMgr.h"
+	"../WapMap/globals.h"
+	"hge.h"
+
+1384889380 d:\cpp\waptools\src\shared\cstatemgr.h
+	"hge.h"
+	"hgeSprite.h"
+	<vector>
+
+1283346278 d:\cpp\waptools\src\waparchive\conf.h
+
+1283523242 source:d:\cpp\waptools\src\waparchive\globals.cpp
+	"globals.h"
+	"../shared/cStateMgr.h"
+	"../shared/cSFS.h"
+	"../shared/commonFunc.h"
+
+1283522925 d:\cpp\waptools\src\waparchive\globals.h
+	"../shared/cStateMgr.h"
+	"../shared/cConsole.h"
+	"hge.h"
+	"hgeSprite.h"
+	"hgeFont.h"
+	"guichan.hpp"
+	"guichan/hge.hpp"
+
+1382454756 d:\cpp\waptools\src\shared\csfs.h
+	<vector>
+	<sys\types.h>
+	<sys\stat.h>
+	<istream>
+
+1382455243 source:d:\cpp\waptools\src\shared\csfs.cpp
+	"cSFS.h"
+	<conio.h>
+	<iostream>
+	<fstream>
+	<sstream>
+	<cstring>
+
+1351091915 source:d:\cpp\waptools\src\shared\cconsole.cpp
+	"cConsole.h"
+	"hge.h"
+	"commonFunc.h"
+	<fstream>
+
+1382454643 d:\cpp\waptools\src\shared\cconsole.h
+	<vector>
+	<fstream>
+	"hgeSprite.h"
+	"hgeFont.h"
+	"Windows.h"
+
+1283523293 source:d:\cpp\waptools\src\waparchive\states\main.cpp
+	"main.h"
+	"../globals.h"
+
+1283523280 d:\cpp\waptools\src\waparchive\states\main.h
+	"../../shared/cStateMgr.h"
+	"guichan.hpp"
+
+1387029536 source:d:\cpp\waptools\src\shared\commonfunc.cpp
+	"commonFunc.h"
+	<string>
+	<vector>
+	<cmath>
+	<cstdio>
+	<ctime>
+	<sys/types.h>
+	<dirent.h>
+	<sys/stat.h>
+	<fstream>
+
+1387029419 d:\cpp\waptools\src\shared\commonfunc.h
+	"hgeFont.h"
+	"hgeFont.h"
+	<windows.h>
+	<vector>
+	"cSFS.h"
+
+1283455685 source:d:\cpp\waptools\src\waparchive\states\intro.cpp
+	"intro.h"
+	"../globals.h"
+	"main.h"
+
+1283453089 d:\cpp\waptools\src\waparchive\states\intro.h
+	"../../shared/cStateMgr.h"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\actionevent.cpp
+	"guichan/actionevent.hpp"
+
+1302891576 source:d:\cpp\waptools\src\shared\guichan\basiccontainer.cpp
+	"guichan/basiccontainer.hpp"
+	<algorithm>
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"../gcnWidgets/cTooltip.h"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\cliprectangle.cpp
+	"guichan/cliprectangle.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\color.cpp
+	"guichan/color.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\defaultfont.cpp
+	"guichan/defaultfont.hpp"
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/rectangle.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\event.cpp
+	"guichan/event.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\exception.cpp
+	"guichan/exception.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\focushandler.cpp
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/exception.hpp"
+	"guichan/widget.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\font.cpp
+	"guichan/font.hpp"
+	<string>
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\genericinput.cpp
+	"guichan/genericinput.hpp"
+	"guichan/exception.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\graphics.cpp
+	"guichan/graphics.hpp"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/image.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\gui.cpp
+	"guichan/gui.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widget.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\guichan.cpp
+
+1383166925 source:d:\cpp\waptools\src\shared\guichan\hge\hgegraphics.cpp
+	"guichan/hge/hgegraphics.hpp"
+	"guichan/cliprectangle.hpp"
+	"guichan/exception.hpp"
+	"guichan/rectangle.hpp"
+	"guichan/hge/hgeimage.hpp"
+
+1239732490 source:d:\cpp\waptools\src\shared\guichan\hge\hgeimage.cpp
+	"guichan/hge/hgeimage.hpp"
+	"guichan/exception.hpp"
+
+1382455818 source:d:\cpp\waptools\src\shared\guichan\hge\hgeimagefont.cpp
+	<cstdio>
+	"guichan/hge/hgeimagefont.hpp"
+	"guichan/color.hpp"
+	"guichan/graphics.hpp"
+
+1383166897 source:d:\cpp\waptools\src\shared\guichan\hge\hgeimageloader.cpp
+	"guichan/hge/hgeimage.hpp"
+	"guichan/hge/hgeimageloader.hpp"
+	"guichan/exception.hpp"
+
+1383166995 source:d:\cpp\waptools\src\shared\guichan\hge\hgeinput.cpp
+	"guichan/hge/hgeinput.hpp"
+	"guichan/exception.hpp"
+	<cstdio>
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\image.cpp
+	"guichan/image.hpp"
+	"guichan/exception.hpp"
+	"guichan/imageloader.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\imagefont.cpp
+	"guichan/imagefont.hpp"
+	<sstream>
+	"guichan/color.hpp"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+	"guichan/image.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\inputevent.cpp
+	"guichan/inputevent.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\key.cpp
+	"guichan/key.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\keyevent.cpp
+	"guichan/keyevent.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\keyinput.cpp
+	"guichan/keyinput.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\mouseevent.cpp
+	"guichan/mouseevent.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\mouseinput.cpp
+	"guichan/mouseinput.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\rectangle.cpp
+	"guichan/rectangle.hpp"
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\selectionevent.cpp
+	"guichan/selectionevent.hpp"
+
+1382718056 source:d:\cpp\waptools\src\shared\guichan\widget.cpp
+	"guichan/widget.hpp"
+	"guichan/actionevent.hpp"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/defaultfont.hpp"
+	"guichan/event.hpp"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widgetlistener.hpp"
+
+1384450624 source:d:\cpp\waptools\src\shared\gcnwidgets\wbutton.cpp
+	"wButton.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1382608857 source:d:\cpp\waptools\src\shared\gcnwidgets\wcheckbox.cpp
+	"wCheckbox.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	<hgeSprite.h>
+	"../../WapMap/cInterfaceSheet.h"
+
+1385934727 source:d:\cpp\waptools\src\shared\gcnwidgets\wlabel.cpp
+	"wLabel.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	<hgeFont.h>
+	"guichan/hge/hgeimagefont.hpp"
+
+1285435333 source:d:\cpp\waptools\src\shared\gcnwidgets\wprogressbar.cpp
+	"wProgressBar.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+
+1381482068 source:d:\cpp\waptools\src\shared\gcnwidgets\wradiobut.cpp
+	"wRadioBut.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1382620895 source:d:\cpp\waptools\src\shared\gcnwidgets\wwin.cpp
+	"wWin.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"hge.h"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1283520594 source:d:\cpp\waptools\src\shared\gcnwidgets\wwinmgr.cpp
+	"wWinMgr.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1381175766 d:\cpp\waptools\src\shared\gcnwidgets\wbutton.h
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	<hgeSprite.h>
+
+1381087883 d:\cpp\waptools\src\shared\gcnwidgets\wcheckbox.h
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1352658047 d:\cpp\waptools\src\shared\gcnwidgets\wlabel.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1381177621 d:\cpp\waptools\src\shared\gcnwidgets\wradiobut.h
+	<map>
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1382619925 d:\cpp\waptools\src\shared\gcnwidgets\wwin.h
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"wContainer.h"
+	"../cGUIparts.h"
+
+1283520583 d:\cpp\waptools\src\shared\gcnwidgets\wwinmgr.h
+	<list>
+	"guichan/basiccontainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+
+1386867744 source:d:\cpp\waptools\src\wapmap\globals.cpp
+	"globals.h"
+	"../shared/cStateMgr.h"
+	"../shared/cSFS.h"
+	"../shared/commonFunc.h"
+	"funcConsole.h"
+	"conf.h"
+	"states/error.h"
+	"langID.h"
+	"cInterfaceSheet.h"
+	"cBrush.h"
+	<sys/types.h>
+	<dirent.h>
+	<direct.h>
+	"globlua.h"
+	<windows.h>
+	<sstream>
+	<process.h>
+
+1386866243 d:\cpp\waptools\src\wapmap\globals.h
+	"../shared/cStateMgr.h"
+	"../shared/cConsole.h"
+	"../shared/cLang.h"
+	"../shared/cGUIparts.h"
+	"../shared/cInterface.h"
+	"../shared/cPID.h"
+	"../shared/SimpleIni.h"
+	"hge.h"
+	"hgeSprite.h"
+	"hgeFont.h"
+	<setjmp.h>
+	"guichan.hpp"
+	"guichan/hge.hpp"
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1387720434 source:d:\cpp\waptools\src\wapmap\main.cpp
+	"hge.h"
+	"conf.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"conf.h"
+	"../shared/commonFunc.h"
+	<windows.h>
+	<tlhelp32.h>
+	"cControllerIPC.h"
+	<hgeVector.h>
+	<direct.h>
+	<dirent.h>
+
+1384721117 d:\cpp\waptools\src\wapmap\conf.h
+
+1283453089 d:\cpp\waptools\src\wapmap\states\intro.h
+	"../../shared/cStateMgr.h"
+
+1283520834 source:d:\cpp\waptools\src\wapmap\res.rc
+
+1285157180 source:d:\cpp\waptools\src\wapmap\states\intro.cpp
+	"intro.h"
+	"../globals.h"
+	"../conf.h"
+	"editing_ww.h"
+
+1285193018 d:\cpp\waptools\src\wapmap\states\main.h
+
+1285163936 source:d:\cpp\waptools\src\wapmap\states\main.cpp
+	"main.h"
+	"loadmap.h"
+	"../conf.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../../shared/HashLib/hashlibpp.h"
+	"editing_ww.h"
+	"../returncodes.h"
+	"../langID.h"
+	<Windows.h>
+	<sys\types.h>
+	<sys\stat.h>
+	<dirent.h>
+
+1252006502 source:d:\cpp\waptools\src\shared\guichan\widgets\container.cpp
+	"guichan/widgets/container.hpp"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1323002548 source:d:\cpp\waptools\src\wapmap\funcconsole.cpp
+	"funcConsole.h"
+	"globals.h"
+	<psapi.h>
+	<direct.h>
+
+1323002605 d:\cpp\waptools\src\wapmap\funcconsole.h
+
+1316444254 d:\cpp\waptools\src\shared\cguiparts.h
+	"hge.h"
+	"guichan.hpp"
+	"guichan/hge.hpp"
+
+1283542786 source:d:\cpp\waptools\src\shared\cguiparts.cpp
+
+1355173355 d:\cpp\waptools\src\shared\cinterface.h
+	"cGUIparts.h"
+
+1355173407 source:d:\cpp\waptools\src\shared\cinterface.cpp
+	"cInterface.h"
+	"hge.h"
+
+1382042760 d:\cpp\waptools\src\shared\gcnwidgets\wtextfield.h
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/focuslistener.hpp"
+	<string>
+
+1386186898 source:d:\cpp\waptools\src\shared\gcnwidgets\wtextfield.cpp
+	"hge.h"
+	"wTextField.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+	"../commonFunc.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1352658022 source:d:\cpp\waptools\src\shared\gcnwidgets\wtabbedarea.cpp
+	"wTabbedArea.h"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"wContainer.h"
+	"wTab.h"
+	<algorithm>
+
+1382619362 source:d:\cpp\waptools\src\shared\gcnwidgets\wcontainer.cpp
+	"wContainer.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+
+1382618652 d:\cpp\waptools\src\shared\gcnwidgets\wcontainer.h
+	<list>
+	"guichan/basicContainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widgetlistener.hpp"
+
+1303551987 source:d:\cpp\waptools\src\shared\gcnwidgets\wtab.cpp
+	"wTabbedArea.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"wTabbedArea.h"
+	"wButton.h"
+	"wLabel.h"
+	"wTab.h"
+
+1285434141 d:\cpp\waptools\src\shared\gcnwidgets\wtabbedarea.h
+	<map>
+	<string>
+	<vector>
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1283606507 d:\cpp\waptools\src\shared\gcnwidgets\wtab.h
+	<map>
+	<string>
+	"wLabel.h"
+	"wTabbedArea.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1387221915 source:d:\cpp\waptools\src\wapmap\states\loadmap.cpp
+	"loadmap.h"
+	"error.h"
+	"editing_ww.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../../shared/cREZ.h"
+	"../../shared/cPID.h"
+	"../databanks/tiles.h"
+	<Windows.h>
+	"../langID.h"
+	<sys/types.h>
+	<dirent.h>
+	"../cMDI.h"
+	"../io/cWWDx.h"
+	"../../shared/cProgressInfo.h"
+	"../databanks/imageSets.h"
+	"../databanks/sounds.h"
+	"../databanks/anims.h"
+	"../databanks/logics.h"
+
+1386866601 d:\cpp\waptools\src\wapmap\states\loadmap.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wProgressBar.h"
+	"../../shared/cWWD.h"
+	"../../shared/cProgressInfo.h"
+	"../cLogicsList.h"
+	"guichan.hpp"
+	"../cDataController.h"
+	"../cParallelLoop.h"
+
+1283669441 source:d:\cpp\waptools\src\wapmap\returncodes.cpp
+
+1385469345 d:\cpp\waptools\src\shared\cwwd.h
+	<zlib.h>
+	<windows.h>
+	<string>
+	<cstring>
+	<cstdio>
+	<vector>
+	<ostream>
+
+1385470415 source:d:\cpp\waptools\src\shared\cwwd.cpp
+	"cWWD.h"
+	<fstream>
+	<sstream>
+	<algorithm>
+	<Windows.h>
+	"cProgressInfo.h"
+	"../WapMap/cParallelLoop.h"
+
+1285433383 d:\cpp\waptools\src\shared\gcnwidgets\wprogressbar.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"../cGUIparts.h"
+
+1381173488 source:d:\cpp\waptools\src\wapmap\states\error.cpp
+	"error.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../langID.h"
+
+1349115437 d:\cpp\waptools\src\wapmap\states\error.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+
+1385499428 d:\cpp\waptools\src\wapmap\returncodes.h
+
+1388011705 source:d:\cpp\waptools\src\wapmap\states\editing_ww.cpp
+	"editing_ww.h"
+	"loadmap.h"
+	"../globals.h"
+	"../conf.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+	"../returncodes.h"
+	"../cObjectUserData.h"
+	"error.h"
+	<math.h>
+	<fstream>
+	"../cAppMenu.h"
+	"../../shared/gcnWidgets/wComboButton.h"
+	"../cNativeController.h"
+	"codeEditor.h"
+	"../windows/tileBrowser.h"
+	"../windows/imgsetBrowser.h"
+	"../windows/options.h"
+	"../windows/about.h"
+	<direct.h>
+	<dirent.h>
+	"../databanks/logics.h"
+	"../databanks/tiles.h"
+	"../databanks/imageSets.h"
+	"../cBrush.h"
+
+1388011397 d:\cpp\waptools\src\wapmap\states\editing_ww.h
+	"../../shared/cStateMgr.h"
+	"../../shared/cWWD.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLink.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextBox.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/gcnWidgets/wContext.h"
+	"../cMDI.h"
+	"../cSoundPlayer.h"
+	"../cColorPicker.h"
+	"../wViewport.h"
+	"../cTileGhost.h"
+	"../vpFocusWidg.h"
+	"guichan.hpp"
+	"../cAutoUpdater.h"
+	"../objQuadTree.h"
+	"../globals.h"
+	"../../shared/cPieChart.h"
+	"objedit.h"
+	"../cMRUList.h"
+	"../cInventoryController.h"
+	"../cModeMenuBar.h"
+	"hgeSprite.h"
+	"../cControllerIPC.h"
+
+1380297770 d:\cpp\waptools\src\shared\simpleini.h
+	<cstring>
+	<string>
+	<map>
+	<list>
+	<algorithm>
+	<iostream>
+	<cassert>
+	<unicode/ustring.h>
+	<wchar.h>
+	"ConvertUTF.h"
+	<unicode/ucnv.h>
+	<windows.h>
+	<mbstring.h>
+
+1359300236 source:d:\cpp\waptools\src\shared\cpid.cpp
+	"cPID.h"
+	<fstream>
+	<sstream>
+
+1353319317 d:\cpp\waptools\src\shared\cpid.h
+	<iostream>
+	<hge.h>
+	<hgeSprite.h>
+
+1382700244 source:d:\cpp\waptools\src\shared\crez.cpp
+	"cREZ.h"
+	<conio.h>
+	<fstream>
+	<cmath>
+	<algorithm>
+	"commonFunc.h"
+
+1377560198 d:\cpp\waptools\src\shared\crez.h
+	<cstring>
+	<cstdio>
+	<vector>
+	<istream>
+
+1385656529 source:d:\cpp\waptools\src\shared\gcnwidgets\wslider.cpp
+	"wSlider.h"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1381759049 d:\cpp\waptools\src\shared\gcnwidgets\wslider.h
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	<vector>
+
+1386795449 source:d:\cpp\waptools\src\wapmap\ctiles.cpp
+	"cTiles.h"
+	<algorithm>
+	<sys\types.h>
+	<sys\stat.h>
+	<dirent.h>
+	"globals.h"
+	"globlua.h"
+	"langID.h"
+	"../shared/commonFunc.h"
+	"cParallelLoop.h"
+	"../shared/cProgressInfo.h"
+	"../shared/HashLib/hashlibpp.h"
+
+1386797097 d:\cpp\waptools\src\wapmap\ctiles.h
+	"cDataController.h"
+	"hgeSprite.h"
+	"cBrush.h"
+
+1381667384 d:\cpp\waptools\src\shared\gcnwidgets\wlink.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/mouselistener.hpp"
+
+1382608010 source:d:\cpp\waptools\src\shared\gcnwidgets\wlink.cpp
+	"wLink.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	<hgeFont.h>
+	"guichan/hge/hgeimagefont.hpp"
+	<hge.h>
+	<hgeSprite.h>
+
+1312826811 source:d:\cpp\waptools\src\shared\hashlib\hl_md5.cpp
+	"hl_md5.h"
+
+1312826860 d:\cpp\waptools\src\shared\hashlib\hl_md5.h
+	<string>
+	"hl_types.h"
+
+1312826940 d:\cpp\waptools\src\shared\hashlib\hl_types.h
+
+1312827012 source:d:\cpp\waptools\src\shared\hashlib\hl_md5wrapper.cpp
+	<string>
+	<fstream>
+	<iostream>
+	<sstream>
+	"hl_md5wrapper.h"
+
+1312826867 d:\cpp\waptools\src\shared\hashlib\hl_md5wrapper.h
+	"hl_hashwrapper.h"
+	"hl_md5.h"
+	<string>
+
+1359461800 d:\cpp\waptools\src\shared\hashlib\hl_hashwrapper.h
+	<string>
+	<fstream>
+	<iostream>
+	"hl_exception.h"
+
+1312826834 d:\cpp\waptools\src\shared\hashlib\hl_exception.h
+	<string>
+
+1312827005 source:d:\cpp\waptools\src\shared\hashlib\hl_sha1.cpp
+	"hl_sha1.h"
+
+1312826877 d:\cpp\waptools\src\shared\hashlib\hl_sha1.h
+	"hl_types.h"
+
+1312826998 source:d:\cpp\waptools\src\shared\hashlib\hl_sha1wrapper.cpp
+	"hl_sha1wrapper.h"
+	"hl_sha1.h"
+	"hl_types.h"
+	<sstream>
+
+1312826885 d:\cpp\waptools\src\shared\hashlib\hl_sha1wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha1.h"
+
+1312826990 source:d:\cpp\waptools\src\shared\hashlib\hl_sha256.cpp
+	"hl_sha256.h"
+	<string.h>
+	<assert.h>
+	"hl_sha2mac.h"
+
+1312826895 d:\cpp\waptools\src\shared\hashlib\hl_sha256.h
+	"hl_types.h"
+
+1312826920 d:\cpp\waptools\src\shared\hashlib\hl_sha2mac.h
+
+1312826981 source:d:\cpp\waptools\src\shared\hashlib\hl_sha256wrapper.cpp
+	"hl_sha256wrapper.h"
+	"hl_sha256.h"
+	<string>
+
+1312826901 d:\cpp\waptools\src\shared\hashlib\hl_sha256wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha256.h"
+	<string>
+
+1312826974 source:d:\cpp\waptools\src\shared\hashlib\hl_sha2ext.cpp
+	<string.h>
+	<assert.h>
+	"hl_sha2ext.h"
+	"hl_sha2mac.h"
+
+1312826907 d:\cpp\waptools\src\shared\hashlib\hl_sha2ext.h
+	"hl_types.h"
+
+1312826967 source:d:\cpp\waptools\src\shared\hashlib\hl_sha384wrapper.cpp
+	"hl_sha384wrapper.h"
+	<string>
+
+1312826930 d:\cpp\waptools\src\shared\hashlib\hl_sha384wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha2ext.h"
+	<string>
+
+1312826961 source:d:\cpp\waptools\src\shared\hashlib\hl_sha512wrapper.cpp
+	"hl_sha512wrapper.h"
+	<string>
+
+1312826935 d:\cpp\waptools\src\shared\hashlib\hl_sha512wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha2ext.h"
+	<string>
+
+1312826825 d:\cpp\waptools\src\shared\hashlib\hashlibpp.h
+	"hl_exception.h"
+	"hl_hashwrapper.h"
+	"hl_md5wrapper.h"
+	"hl_sha1wrapper.h"
+	"hl_sha256wrapper.h"
+	"hl_sha384wrapper.h"
+	"hl_sha512wrapper.h"
+
+1284137001 source:d:\cpp\waptools\src\wapmap\wviewport.cpp
+	"wViewport.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"hge.h"
+
+1351861654 d:\cpp\waptools\src\wapmap\wviewport.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1284138656 d:\cpp\waptools\src\shared\gcnwidgets\wscrollarea.h
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1302901247 source:d:\cpp\waptools\src\shared\gcnwidgets\wscrollarea.cpp
+	"wScrollArea.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1384456471 source:d:\cpp\waptools\src\shared\gcnwidgets\wdropdown.cpp
+	"wDropDown.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1382609490 d:\cpp\waptools\src\shared\gcnwidgets\wdropdown.h
+	"../cGUIparts.h"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+
+1384353724 d:\cpp\waptools\src\shared\gcnwidgets\wlistbox.h
+	<list>
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/selectionlistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1384353966 source:d:\cpp\waptools\src\shared\gcnwidgets\wlistbox.cpp
+	"wListbox.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/selectionlistener.hpp"
+
+1386868799 source:d:\cpp\waptools\src\wapmap\states\editing_ww\modeobject.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../objprop.h"
+	<math.h>
+	"../../cNativeController.h"
+	"../../objEdit/editCurse.h"
+	"../../objEdit/editElevPath.h"
+	"../../objEdit/editCheckpoint.h"
+	"../../objEdit/editWarp.h"
+	"../../objEdit/editWallCannon.h"
+	"../../objEdit/editCrumblingPeg.h"
+	"../../objEdit/editStatue.h"
+	"../../objEdit/editBreakPlank.h"
+	"../../objEdit/editCrate.h"
+	"../../objEdit/editTreasure.h"
+	"../../objEdit/editRope.h"
+	"../../objEdit/editHealth.h"
+	"../../objEdit/editSpecialPowerup.h"
+	"../../objEdit/editTogglePeg.h"
+	"../../objEdit/editCandy.h"
+	"../../objEdit/editSpringboard.h"
+	"../../objEdit/editDialog.h"
+	"../../objEdit/editProjectile.h"
+	"../../objEdit/editElevator.h"
+	"../../objEdit/editCrabNest.h"
+	"../../objEdit/editShake.h"
+	"../../objEdit/editLaser.h"
+	"../../objEdit/editStalactite.h"
+	"../../objEdit/editAmbient.h"
+	"../../objEdit/editEnemy.h"
+	"../../objEdit/editText.h"
+	"../../databanks/logics.h"
+
+1386868831 source:d:\cpp\waptools\src\wapmap\states\editing_ww\modetile.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	<cmath>
+	"../../databanks/tiles.h"
+	"../../cBrush.h"
+
+1284294872 source:d:\cpp\waptools\src\wapmap\states\editing_ww\toolpencil.cpp
+
+1388005538 source:d:\cpp\waptools\src\wapmap\states\editing_ww\winabout.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cNativeController.h"
+
+1381089874 source:d:\cpp\waptools\src\wapmap\states\editing_ww\windrawoptions.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+
+1388010732 source:d:\cpp\waptools\src\wapmap\states\editing_ww\alactionlistener.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../loadmap.h"
+	"../mapshot.h"
+	"../codeEditor.h"
+	"../../langID.h"
+	"../error.h"
+	"../../cObjectUserData.h"
+	"../stats.h"
+	"../../returncodes.h"
+	<fstream>
+	"../../cAppMenu.h"
+	"../../../shared/gcnWidgets/wComboButton.h"
+	"../../cNativeController.h"
+	<cmath>
+	"../../databanks/logics.h"
+	"../../databanks/tiles.h"
+	"../../databanks/sounds.h"
+	"../../databanks/anims.h"
+	"../../databanks/imageSets.h"
+	"../../../shared/cANI.h"
+
+1388009571 source:d:\cpp\waptools\src\wapmap\states\editing_ww\lmlistmodel.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	<sys/types.h>
+	<dirent.h>
+	"../../databanks/imageSets.h"
+	"../../databanks/anims.h"
+	"../../databanks/sounds.h"
+
+1388011175 source:d:\cpp\waptools\src\wapmap\states\editing_ww\vpcallback.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+
+1388007912 d:\cpp\waptools\src\wapmap\cbrush.h
+	"../shared/cWWD.h"
+	"cTileGhost.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wScrollArea.h"
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1388007976 source:d:\cpp\waptools\src\wapmap\cbrush.cpp
+	"cBrush.h"
+	"globals.h"
+	"globlua.h"
+	"langID.h"
+	"states/editing_ww.h"
+	"databanks/tiles.h"
+
+1218007812 d:\cpp\waptools\src\shared\lua\lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1219916376 d:\cpp\waptools\src\shared\lua\luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1198749744 d:\cpp\waptools\src\shared\lua\lualib.h
+	"lua.h"
+
+1198749744 d:\cpp\waptools\src\shared\lua\lauxlib.h
+	<stddef.h>
+	"lua.h"
+
+1316360919 d:\cpp\waptools\src\shared\clang.h
+	"SimpleIni.h"
+
+1384795928 source:d:\cpp\waptools\src\shared\clang.cpp
+	"cLang.h"
+	<algorithm>
+
+1352498662 d:\cpp\waptools\src\wapmap\langid.h
+
+1386612037 d:\cpp\waptools\src\wapmap\csprbank.h
+	<vector>
+	"hgeSprite.h"
+	"../shared/cREZ.h"
+	"../shared/cWWD.h"
+	"../shared/cPID.h"
+	"../shared/cProgressInfo.h"
+	"guichan/listmodel.hpp"
+	"cDataController.h"
+
+1386612139 source:d:\cpp\waptools\src\wapmap\csprbank.cpp
+	"cSprBank.h"
+	"../shared/commonFunc.h"
+	"cObjectUserData.h"
+	"states/editing_ww.h"
+	"globals.h"
+	"../shared/HashLib/hashlibpp.h"
+	"cTextureAtlas.h"
+	"cParallelLoop.h"
+	"../shared/cProgressInfo.h"
+
+1300910530 source:d:\cpp\waptools\src\wapmap\cobjectprop.cpp
+	"cObjectProp.h"
+	"globals.h"
+	"langID.h"
+	"cObjectUserData.h"
+	<math.h>
+	"states/editing_ww.h"
+
+1300739579 d:\cpp\waptools\src\wapmap\cobjectprop.h
+	"../shared/gcnWidgets/wContainer.h"
+	"../shared/gcnWidgets/wSlider.h"
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wScrollArea.h"
+	"../shared/gcnWidgets/wCheckbox.h"
+	"../shared/gcnWidgets/wDropDown.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"../shared/gcnWidgets/wTextField.h"
+	"../shared/gcnWidgets/wTabbedArea.h"
+	"../shared/gcnWidgets/wRadioBut.h"
+	"../shared/cWWD.h"
+	"wViewport.h"
+	"guichan.hpp"
+
+1285190483 source:d:\cpp\waptools\src\wapmap\cprogressinfo.cpp
+	"cProgressInfo.h"
+
+1285184060 d:\cpp\waptools\src\wapmap\cprogressinfo.h
+	<windows.h>
+	<process.h>
+
+1384523306 source:d:\cpp\waptools\src\wapmap\states\editing_ww\vport.cpp
+	"../editing_ww.h"
+
+1384976569 d:\cpp\waptools\src\shared\cprogressinfo.h
+	<windows.h>
+	<process.h>
+	<string>
+
+1285422769 source:d:\cpp\waptools\src\shared\cprogressinfo.cpp
+	"cProgressInfo.h"
+
+1386868656 d:\cpp\waptools\src\wapmap\states\mapshot.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wProgressBar.h"
+	"../../shared/cWWD.h"
+	"../../shared/cProgressInfo.h"
+	"../../shared/gd/gd.h"
+
+1384523321 source:d:\cpp\waptools\src\wapmap\states\mapshot.cpp
+	"mapshot.h"
+	"../globals.h"
+	"../conf.h"
+	<cmath>
+	"../langID.h"
+	"editing_ww.h"
+	"../returncodes.h"
+	"error.h"
+	"../../shared/commonFunc.h"
+
+1386611958 source:d:\cpp\waptools\src\wapmap\csndbank.cpp
+	"cSndBank.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+	"cParallelLoop.h"
+	"../shared/cProgressInfo.h"
+
+1386611967 d:\cpp\waptools\src\wapmap\csndbank.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cProgressInfo.h"
+	<sys/types.h>
+	<dirent.h>
+	<guichan/listModel.hpp>
+	"cDataController.h"
+
+1139871430 d:\cpp\waptools\src\shared\audiere.h
+	<vector>
+	<string>
+
+1384518404 source:d:\cpp\waptools\src\shared\gcnwidgets\wcontext.cpp
+	"wContext.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1384518298 d:\cpp\waptools\src\shared\gcnwidgets\wcontext.h
+	"../cGUIparts.h"
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/selectionlistener.hpp"
+
+1386868189 source:d:\cpp\waptools\src\wapmap\objquadtree.cpp
+	"objQuadTree.h"
+	"globals.h"
+	"cObjectUserData.h"
+	"databanks/imageSets.h"
+
+1386866884 d:\cpp\waptools\src\wapmap\objquadtree.h
+	"../shared/cWWD.h"
+
+1285662820 d:\cpp\waptools\src\wapmap\ctileghost.h
+
+1285679109 d:\cpp\waptools\src\wapmap\cwar.h
+	<vector>
+
+1310502088 source:d:\cpp\waptools\src\wapmap\cwar.cpp
+	"cWAR.h"
+	"states/editing_ww.h"
+	"../shared/commonFunc.h"
+
+1382454502 source:d:\cpp\waptools\src\shared\cani.cpp
+	"cANI.h"
+	<cstring>
+
+1303471560 d:\cpp\waptools\src\shared\cani.h
+	<vector>
+	<sstream>
+
+1285771770 source:d:\cpp\waptools\src\wapmap\cassetbank.cpp
+	"cAssetBank.h"
+
+1285772743 d:\cpp\waptools\src\wapmap\cassetbank.h
+	<vector>
+	"hgeSprite.h"
+	"../shared/cREZ.h"
+	"../shared/cWWD.h"
+	"../shared/cPID.h"
+	"../shared/cANI.h"
+	"../shared/cProgressInfo.h"
+
+1348902915 d:\cpp\waptools\src\shared\gcnwidgets\wtextbox.h
+	<ctime>
+	<string>
+	<vector>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1356090815 source:d:\cpp\waptools\src\shared\gcnwidgets\wtextbox.cpp
+	"wTextBox.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+
+1356015913 source:d:\cpp\waptools\src\wapmap\globlua.cpp
+	"globlua.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cObjectUserData.h"
+
+1356013100 d:\cpp\waptools\src\wapmap\globlua.h
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1354824840 source:d:\cpp\waptools\src\wapmap\vpfocuswidg.cpp
+	"vpFocusWidg.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"hge.h"
+
+1309905551 d:\cpp\waptools\src\wapmap\vpfocuswidg.h
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widgets/container.hpp"
+
+1348757881 source:d:\cpp\waptools\src\wapmap\states\editing_ww\mgrimagesets.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+
+1388010908 source:d:\cpp\waptools\src\wapmap\states\editing_ww\rendering.cpp
+	"../editing_ww.h"
+	"../loadmap.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../returncodes.h"
+	"../../cObjectUserData.h"
+	"../error.h"
+	<math.h>
+	<hgeVector.h>
+	"../../objEdit/editElevPath.h"
+	"../../objEdit/editWarp.h"
+	"../../objEdit/editCrate.h"
+	"../../objEdit/editStatue.h"
+	"../../objEdit/editSpringboard.h"
+	"../../objEdit/editDialog.h"
+	"../../cAppMenu.h"
+	"../../cInterfaceSheet.h"
+	"../../rendering/cRenderableItem.h"
+	"../../databanks/imageSets.h"
+	"../../databanks/anims.h"
+	"../../databanks/tiles.h"
+	"../../cBrush.h"
+
+1291549980 d:\cpp\waptools\src\wapmap\newsreader.h
+
+1300754130 source:d:\cpp\waptools\src\wapmap\newsreader.cpp
+	"newsReader.h"
+	"../shared/curl/curl.h"
+	"../shared/curl/types.h"
+	"../shared/curl/easy.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+	"conf.h"
+
+1258906851 d:\cpp\waptools\src\shared\curl\curl.h
+	"curlver.h"
+	"curlbuild.h"
+	"curlrules.h"
+	<limits.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"typecheck-gcc.h"
+
+1312496119 d:\cpp\waptools\src\shared\curl\curlver.h
+
+1312496081 d:\cpp\waptools\src\shared\curl\curlbuild.h
+	<sys/types.h>
+	<sys/socket.h>
+
+1312496092 d:\cpp\waptools\src\shared\curl\curlrules.h
+
+1210625008 d:\cpp\waptools\src\shared\curl\easy.h
+
+1312496188 d:\cpp\waptools\src\shared\curl\multi.h
+	"curl.h"
+
+1312496208 d:\cpp\waptools\src\shared\curl\typecheck-gcc.h
+
+1198539750 d:\cpp\waptools\src\shared\curl\types.h
+
+1388010926 source:d:\cpp\waptools\src\wapmap\cautoupdater.cpp
+	"cAutoUpdater.h"
+	"../shared/curl/curl.h"
+	"../shared/curl/types.h"
+	"../shared/curl/easy.h"
+	"conf.h"
+	"globals.h"
+	"langID.h"
+	"../shared/commonFunc.h"
+	"states/editing_ww.h"
+	"../shared/HashLib/hashlibpp.h"
+	<direct.h>
+
+1320862970 d:\cpp\waptools\src\wapmap\cautoupdater.h
+	<windows.h>
+	<process.h>
+	"../shared/gcnWidgets/wContainer.h"
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wLink.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"../shared/gcnWidgets/wContext.h"
+	"../shared/gcnWidgets/wProgressBar.h"
+	"wViewport.h"
+	"../shared/curl/curl.h"
+	"../shared/curl/types.h"
+	"../shared/curl/easy.h"
+
+1384520463 source:d:\cpp\waptools\src\wapmap\states\editing_ww\cobjectrenderbuffer.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+
+1385068459 source:d:\cpp\waptools\src\wapmap\states\editing_ww\clayerrenderbuffer.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+
+1353930099 source:d:\cpp\waptools\src\wapmap\cobjectuserdata.cpp
+	"cObjectUserData.h"
+
+1352638540 d:\cpp\waptools\src\wapmap\cobjectuserdata.h
+	"../shared/cWWD.h"
+	"objQuadTree.h"
+
+1355668366 d:\cpp\waptools\src\wapmap\cgamesimulator.h
+	"../shared/cWWD.h"
+	"../shared/cANI.h"
+	"cAnimBank.h"
+	"cPhysics.h"
+	<map>
+	"conf.h"
+
+1356540628 source:d:\cpp\waptools\src\wapmap\cgamesimulator.cpp
+	"cGameSimulator.h"
+	"states/editing_ww.h"
+	"cObjectUserData.h"
+	"../shared/commonFunc.h"
+	"bodyQuadTree.h"
+	"conf.h"
+
+1386866092 d:\cpp\waptools\src\wapmap\states\objprop.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"../../shared/cWWD.h"
+	"../wViewport.h"
+	"../cSoundPlayer.h"
+	"guichan.hpp"
+
+1386869127 source:d:\cpp\waptools\src\wapmap\states\objprop.cpp
+	"objprop.h"
+	"../returncodes.h"
+	"../globals.h"
+	"../langID.h"
+	"../cObjectUserData.h"
+	"../../shared/gcnWidgets/wTab.h"
+	"../databanks/logics.h"
+	"codeEditor.h"
+	<math.h>
+	"editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../databanks/imageSets.h"
+	"../databanks/anims.h"
+
+1303497556 d:\cpp\waptools\src\shared\gcnwidgets\ctooltip.h
+
+1303331758 source:d:\cpp\waptools\src\shared\gcnwidgets\ctooltip.cpp
+	"cTooltip.h"
+	"hge.h"
+	"../../WapMap/globals.h"
+
+1386867197 source:d:\cpp\waptools\src\wapmap\csoundplayer.cpp
+	"cSoundPlayer.h"
+	"globals.h"
+	"langID.h"
+	"databanks/sounds.h"
+
+1386866350 d:\cpp\waptools\src\wapmap\csoundplayer.h
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wSlider.h"
+	"wViewport.h"
+
+1355539293 source:d:\cpp\waptools\src\wapmap\canimbank.cpp
+	"cAnimBank.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+
+1355539203 d:\cpp\waptools\src\wapmap\canimbank.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cANI.h"
+	"guichan/listmodel.hpp"
+
+1316360422 d:\cpp\waptools\src\shared\cpiechart.h
+	"gd/gd.h"
+	"hge.h"
+	"hgeSprite.h"
+	<vector>
+
+1099495102 d:\cpp\waptools\src\shared\gd\gd.h
+	"gd_io.h"
+	"gdfx.h"
+
+1099495102 d:\cpp\waptools\src\shared\gd\gd_io.h
+
+1099495102 d:\cpp\waptools\src\shared\gd\gdfx.h
+	"gd.h"
+
+1382454913 source:d:\cpp\waptools\src\shared\cpiechart.cpp
+	"cPieChart.h"
+	<algorithm>
+
+1303841153 d:\cpp\waptools\src\wapmap\ccolorpicker.h
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wSlider.h"
+	"../shared/gcnWidgets/wTextField.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"wViewport.h"
+
+1381742118 source:d:\cpp\waptools\src\wapmap\ccolorpicker.cpp
+	"cColorPicker.h"
+	"globals.h"
+	"../shared/commonFunc.h"
+
+1355671068 d:\cpp\waptools\src\wapmap\clogicslist.h
+
+1310393848 source:d:\cpp\waptools\src\wapmap\clogicslist.cpp
+	"cLogicsList.h"
+	"../shared/cSFS.h"
+	<sstream>
+
+1310418537 d:\cpp\waptools\src\wapmap\states\bmext.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/cREZ.h"
+	"guichan.hpp"
+
+1312567700 source:d:\cpp\waptools\src\wapmap\states\bmext.cpp
+	"bmext.h"
+	"bmupdate.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+	"../../shared/gd/gd.h"
+	<conio.h>
+	<direct.h>
+
+1310423699 d:\cpp\waptools\src\wapmap\states\bmupdate.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/cREZ.h"
+	"guichan.hpp"
+	"../cAutoUpdater.h"
+
+1320858439 source:d:\cpp\waptools\src\wapmap\states\bmupdate.cpp
+	"bmupdate.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+	"../../shared/gd/gd.h"
+	<conio.h>
+	<direct.h>
+
+1384899656 source:d:\cpp\waptools\src\wapmap\cmdi.cpp
+	"cMDI.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cObjectUserData.h"
+	"langID.h"
+	"cAppMenu.h"
+	"cInterfaceSheet.h"
+	"io/cWWDx.h"
+	"conf.h"
+	"states/loadmap.h"
+
+1386866339 d:\cpp\waptools\src\wapmap\cmdi.h
+	"../shared/cWWD.h"
+	"../shared/gcnWidgets/wContext.h"
+
+1310597096 source:d:\cpp\waptools\src\wapmap\cnavigator.cpp
+
+1312495668 source:d:\cpp\waptools\src\wapmap\bodyquadtree.cpp
+	"bodyQuadTree.h"
+	"globals.h"
+
+1382455981 d:\cpp\waptools\src\wapmap\bodyquadtree.h
+	"cPhysics.h"
+
+1313607720 d:\cpp\waptools\src\wapmap\cphysics.h
+	"../shared/cWWD.h"
+
+1313606915 source:d:\cpp\waptools\src\wapmap\cphysics.cpp
+	"cPhysics.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"bodyQuadTree.h"
+	"cObjectUserData.h"
+
+1313441009 source:d:\cpp\waptools\src\wapmap\states\updater.cpp
+	<hge.h>
+
+1316361718 d:\cpp\waptools\src\wapmap\states\stats.h
+	"../../shared/cStateMgr.h"
+	"../../shared/cWWD.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/cPieChart.h"
+
+1384111480 source:d:\cpp\waptools\src\wapmap\states\stats.cpp
+	"stats.h"
+	"../globals.h"
+	"editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+
+1321097725 source:d:\cpp\waptools\src\wapmap\cactionsmgr.cpp
+
+1384900062 source:d:\cpp\waptools\src\wapmap\states\editing_ww\winnewmap.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../loadmap.h"
+
+1381173587 source:d:\cpp\waptools\src\wapmap\states\editing_ww\winfirstrun.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+
+1386868973 source:d:\cpp\waptools\src\wapmap\states\editing_ww\winplaneproperties.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../../databanks/tiles.h"
+
+1349532141 source:d:\cpp\waptools\src\wapmap\easyobj\propwarp.cpp
+
+1349610579 source:d:\cpp\waptools\src\wapmap\easyobj\propambient.cpp
+
+1386869087 source:d:\cpp\waptools\src\wapmap\states\objedit.cpp
+	"objedit.h"
+	"editing_ww.h"
+	"../cObjectUserData.h"
+	"../langID.h"
+	"../databanks/imageSets.h"
+
+1386867822 source:d:\cpp\waptools\src\wapmap\objedit\editambient.cpp
+	"editAmbient.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/sounds.h"
+
+1386867933 source:d:\cpp\waptools\src\wapmap\objedit\editcurse.cpp
+	"editCurse.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../databanks/imageSets.h"
+
+1386868161 source:d:\cpp\waptools\src\wapmap\objedit\editwarp.cpp
+	"editWarp.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1386866087 d:\cpp\waptools\src\wapmap\states\objedit.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/cWWD.h"
+	"../wViewport.h"
+	"../cSoundPlayer.h"
+	"guichan.hpp"
+
+1354399243 d:\cpp\waptools\src\wapmap\objedit\editcurse.h
+	"../states/objedit.h"
+
+1354399517 d:\cpp\waptools\src\wapmap\objedit\editelevpath.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1386868030 source:d:\cpp\waptools\src\wapmap\objedit\editelevpath.cpp
+	"editElevPath.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1384457322 d:\cpp\waptools\src\shared\gcnwidgets\wtextdropdown.h
+	"../cGUIparts.h"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+
+1384462002 source:d:\cpp\waptools\src\shared\gcnwidgets\wtextdropdown.cpp
+	"wTextDropDown.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+	"../../WapMap/cInterfaceSheet.h"
+	"../commonFunc.h"
+	"../../WapMap/globals.h"
+	"../../WapMap/states/editing_ww.h"
+
+1384723048 source:d:\cpp\waptools\src\wapmap\cmodemenubar.cpp
+	"cModeMenuBar.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"langID.h"
+	"cAppMenu.h"
+	"../shared/gcnWidgets/wComboButton.h"
+
+1382535229 d:\cpp\waptools\src\wapmap\cmodemenubar.h
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wContext.h"
+
+1386867884 source:d:\cpp\waptools\src\wapmap\objedit\editcheckpoint.cpp
+	"editCheckpoint.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355697235 d:\cpp\waptools\src\wapmap\objedit\editcheckpoint.h
+	"../states/objedit.h"
+
+1354400156 d:\cpp\waptools\src\wapmap\objedit\editwarp.h
+	"../states/objedit.h"
+
+1355427693 d:\cpp\waptools\src\wapmap\objedit\editwallcannon.h
+	"../states/objedit.h"
+
+1381178107 source:d:\cpp\waptools\src\wapmap\objedit\editwallcannon.cpp
+	"editWallCannon.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	<cmath>
+	<hgeVector.h>
+
+1354399192 d:\cpp\waptools\src\wapmap\objedit\editcrumblingpeg.h
+	"../states/objedit.h"
+
+1386867925 source:d:\cpp\waptools\src\wapmap\objedit\editcrumblingpeg.cpp
+	"editCrumblingPeg.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354399980 d:\cpp\waptools\src\wapmap\objedit\editstatue.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+
+1386866843 source:d:\cpp\waptools\src\wapmap\cinventorycontroller.cpp
+	"cInventoryController.h"
+	"states/editing_ww.h"
+	"globals.h"
+	"../shared/gcnWidgets/wInventory.h"
+	"databanks/imageSets.h"
+
+1381178141 source:d:\cpp\waptools\src\wapmap\objedit\editstatue.cpp
+	"editStatue.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"winInventoryPickbox.h"
+
+1351881750 d:\cpp\waptools\src\wapmap\objedit\wininventorypickbox.h
+	<guichan/actionlistener.hpp>
+	"../wViewport.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wSlider.h"
+
+1386866380 source:d:\cpp\waptools\src\shared\gcnwidgets\winventory.cpp
+	"wInventory.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapMap/states/editing_ww.h"
+	"../../WapMap/databanks/imageSets.h"
+
+1386868173 source:d:\cpp\waptools\src\wapmap\objedit\wininventorypickbox.cpp
+	"winInventoryPickbox.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../databanks/imageSets.h"
+
+1351988228 d:\cpp\waptools\src\wapmap\cinventorycontroller.h
+	<string>
+	<utility>
+
+1351887680 d:\cpp\waptools\src\shared\gcnwidgets\winventory.h
+	"../cGUIparts.h"
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	"../../WapMap/cInventoryController.h"
+
+1386867843 source:d:\cpp\waptools\src\wapmap\objedit\editbreakplank.cpp
+	"editBreakPlank.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355234009 d:\cpp\waptools\src\wapmap\objedit\editbreakplank.h
+	"../states/objedit.h"
+
+1383679378 d:\cpp\waptools\src\wapmap\objedit\editcrate.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+
+1386867916 source:d:\cpp\waptools\src\wapmap\objedit\editcrate.cpp
+	"editCrate.h"
+	"editStatue.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"winInventoryPickbox.h"
+	"../databanks/imageSets.h"
+
+1386868149 source:d:\cpp\waptools\src\wapmap\objedit\edittreasure.cpp
+	"editTreasure.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354400075 d:\cpp\waptools\src\wapmap\objedit\edittreasure.h
+	"../states/objedit.h"
+
+1354399811 d:\cpp\waptools\src\wapmap\objedit\editrope.h
+	"../states/objedit.h"
+
+1381567226 source:d:\cpp\waptools\src\wapmap\objedit\editrope.cpp
+	"editRope.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1386868112 source:d:\cpp\waptools\src\wapmap\objedit\editspecialpowerup.cpp
+	"editSpecialPowerup.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354400739 d:\cpp\waptools\src\wapmap\objedit\edithealth.h
+	"../states/objedit.h"
+
+1386868094 source:d:\cpp\waptools\src\wapmap\objedit\edithealth.cpp
+	"editHealth.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355415321 d:\cpp\waptools\src\wapmap\objedit\editspecialpowerup.h
+	"../states/objedit.h"
+
+1386868141 source:d:\cpp\waptools\src\wapmap\objedit\edittogglepeg.cpp
+	"editTogglePeg.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355868858 d:\cpp\waptools\src\wapmap\objedit\edittogglepeg.h
+	"../states/objedit.h"
+
+1386867875 source:d:\cpp\waptools\src\wapmap\objedit\editcandy.cpp
+	"editCandy.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354399094 d:\cpp\waptools\src\wapmap\objedit\editcandy.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1352756377 d:\cpp\waptools\src\wapmap\cmrulist.h
+	<string>
+
+1381690626 source:d:\cpp\waptools\src\wapmap\cmrulist.cpp
+	"cMRUList.h"
+	"globals.h"
+	"states/editing_ww.h"
+	<Shlobj.h>
+
+1386868852 source:d:\cpp\waptools\src\wapmap\states\editing_ww\prochotkeyshandle.cpp
+	"../editing_ww.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../../../shared/gcnWidgets/wComboButton.h"
+	"../../databanks/tiles.h"
+
+1381173641 source:d:\cpp\waptools\src\wapmap\objedit\editspringboard.cpp
+	"editSpringboard.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354399915 d:\cpp\waptools\src\wapmap\objedit\editspringboard.h
+	"../states/objedit.h"
+
+1386868023 source:d:\cpp\waptools\src\wapmap\objedit\editdialog.cpp
+	"editDialog.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/sounds.h"
+
+1355537401 d:\cpp\waptools\src\wapmap\objedit\editdialog.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1353239996 d:\cpp\waptools\src\wapgraphic\globals.h
+	"../shared/cStateMgr.h"
+	"../shared/cConsole.h"
+	"../shared/cGUIparts.h"
+	"../shared/cInterface.h"
+	"../shared/cPID.h"
+	"hge.h"
+	"hgeSprite.h"
+	"hgeFont.h"
+	<setjmp.h>
+	"guichan.hpp"
+	"guichan/hge.hpp"
+
+1354399628 d:\cpp\waptools\src\wapmap\objedit\editprojectile.h
+	"../states/objedit.h"
+
+1383747732 source:d:\cpp\waptools\src\wapmap\objedit\editprojectile.cpp
+	"editProjectile.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1381178221 source:d:\cpp\waptools\src\wapmap\objedit\editelevator.cpp
+	"editElevator.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	<cmath>
+
+1355771644 d:\cpp\waptools\src\wapmap\objedit\editelevator.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"procPickRect.h"
+
+1354815963 source:d:\cpp\waptools\src\wapmap\objedit\editcrabnest.cpp
+	"editCrabNest.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354815969 d:\cpp\waptools\src\wapmap\objedit\editcrabnest.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1381176054 d:\cpp\waptools\src\wapmap\objedit\procpickrect.h
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	<guichan/actionlistener.hpp>
+	"../../shared/cWWD.h"
+
+1381173601 source:d:\cpp\waptools\src\wapmap\objedit\procpickrect.cpp
+	"procPickRect.h"
+	"../langID.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+
+1354823931 source:d:\cpp\waptools\src\wapmap\objedit\editshake.cpp
+	"editShake.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354822870 d:\cpp\waptools\src\wapmap\objedit\editshake.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1354961452 source:d:\cpp\waptools\src\wapmap\objedit\editlaser.cpp
+	"editLaser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354959688 d:\cpp\waptools\src\wapmap\objedit\editlaser.h
+	"../states/objedit.h"
+
+1355254265 source:d:\cpp\waptools\src\wapmap\objedit\editstalactite.cpp
+	"editStalactite.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1355254228 d:\cpp\waptools\src\wapmap\objedit\editstalactite.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1356197841 d:\cpp\waptools\src\wapmap\ccontrolleripc.h
+	<windows.h>
+
+1356200490 source:d:\cpp\waptools\src\wapmap\ccontrolleripc.cpp
+	"cControllerIPC.h"
+	"globals.h"
+	"states/loadmap.h"
+
+1355532825 d:\cpp\waptools\src\wapmap\objedit\editambient.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"procPickRect.h"
+
+1356022013 d:\cpp\waptools\src\wapmap\objedit\editenemy.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+	"winInventoryPickbox.h"
+	"procPickRect.h"
+
+1386868044 source:d:\cpp\waptools\src\wapmap\objedit\editenemy.cpp
+	"editEnemy.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1356036395 source:d:\cpp\waptools\src\wapmap\objedit\edittits.cpp
+
+1356037481 source:d:\cpp\waptools\src\wapmap\states\editing_ww\cinterestpoints.cpp
+
+1386868132 source:d:\cpp\waptools\src\wapmap\objedit\edittext.cpp
+	"editText.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1356097562 d:\cpp\waptools\src\wapmap\objedit\edittext.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextBox.h"
+
+1388011459 source:d:\cpp\waptools\src\wapmap\cappmenu.cpp
+	"cAppMenu.h"
+	"states/editing_ww.h"
+	"../shared/commonFunc.h"
+	"langID.h"
+	"states/error.h"
+	"cNativeController.h"
+	"states/stats.h"
+	"states/loadmap.h"
+	"states/codeEditor.h"
+	"windows/tileBrowser.h"
+	"windows/imgsetBrowser.h"
+	"windows/options.h"
+	"windows/about.h"
+	"databanks/logics.h"
+
+1386869336 d:\cpp\waptools\src\wapmap\cappmenu.h
+	"globals.h"
+	"../shared/gcnWidgets/wContext.h"
+	"cRulers.h"
+
+1357492246 d:\cpp\waptools\src\wapmap\crulers.h
+
+1383774972 source:d:\cpp\waptools\src\wapmap\crulers.cpp
+	"cRulers.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cAppMenu.h"
+	"../shared/commonFunc.h"
+
+1386868954 source:d:\cpp\waptools\src\wapmap\states\editing_ww\windatabase.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cInterfaceSheet.h"
+	"../../databanks/imageSets.h"
+
+1386695132 source:d:\cpp\waptools\src\wapmap\cfilesystem.cpp
+	"cFileSystem.h"
+	<algorithm>
+	<dirent.h>
+	<unistd.h>
+	<sys/stat.h>
+	<sys/types.h>
+	<windows.h>
+	"../shared/commonFunc.h"
+
+1387228097 source:d:\cpp\waptools\src\wapmap\cdatacontroller.cpp
+	<dirent.h>
+	"../shared/commonFunc.h"
+	"cDataController.h"
+	"../shared/cPID.h"
+	"globals.h"
+	"../shared/HashLib/hashlibpp.h"
+	"cParallelLoop.h"
+
+1387032034 d:\cpp\waptools\src\wapmap\cdatacontroller.h
+	"../shared/cPID.h"
+	"cFileSystem.h"
+	<hge.h>
+
+1386609043 d:\cpp\waptools\src\wapmap\cfilesystem.h
+	"../shared/cREZ.h"
+	<windows.h>
+
+1382536035 d:\cpp\waptools\src\wapmap\cinterfacesheet.h
+	<hge.h>
+	<hgeSprite.h>
+
+1381263207 source:d:\cpp\waptools\src\shared\gcnwidgets\wcombobutton.cpp
+	"wComboButton.h"
+	"wButton.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+	"../../WapMap/globals.h"
+
+1381258248 d:\cpp\waptools\src\shared\gcnwidgets\wcombobutton.h
+	<string>
+	<vector>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	<hgeSprite.h>
+
+1383691429 source:d:\cpp\waptools\src\wapmap\cnativecontroller.cpp
+	"cNativeController.h"
+	<cstdio>
+	<windows.h>
+	<hge.h>
+	"globals.h"
+
+1382452340 d:\cpp\waptools\src\wapmap\ctextureatlas.h
+	<hgeSprite.h>
+	<vector>
+
+1382452550 source:d:\cpp\waptools\src\wapmap\ctextureatlas.cpp
+	"cTextureAtlas.h"
+	<algorithm>
+
+1292882834 d:\cpp\waptools\src\incl\hgesprite.h
+	"hge.h"
+	"hgerect.h"
+
+1384892903 d:\cpp\waptools\src\incl\hge.h
+	<windows.h>
+	<vector>
+
+1176900486 d:\cpp\waptools\src\incl\hgerect.h
+
+1377211209 d:\cpp\waptools\src\incl\hgefont.h
+	"hge.h"
+	"hgesprite.h"
+
+1252006502 d:\cpp\waptools\src\incl\guichan.hpp
+	<guichan/actionevent.hpp>
+	<guichan/actionlistener.hpp>
+	<guichan/cliprectangle.hpp>
+	<guichan/color.hpp>
+	<guichan/deathlistener.hpp>
+	<guichan/event.hpp>
+	<guichan/exception.hpp>
+	<guichan/focushandler.hpp>
+	<guichan/focuslistener.hpp>
+	<guichan/font.hpp>
+	<guichan/genericinput.hpp>
+	<guichan/graphics.hpp>
+	<guichan/gui.hpp>
+	<guichan/image.hpp>
+	<guichan/imagefont.hpp>
+	<guichan/imageloader.hpp>
+	<guichan/input.hpp>
+	<guichan/inputevent.hpp>
+	<guichan/key.hpp>
+	<guichan/keyevent.hpp>
+	<guichan/keyinput.hpp>
+	<guichan/keylistener.hpp>
+	<guichan/listmodel.hpp>
+	<guichan/mouseevent.hpp>
+	<guichan/mouseinput.hpp>
+	<guichan/mouselistener.hpp>
+	<guichan/rectangle.hpp>
+	<guichan/selectionevent.hpp>
+	<guichan/selectionlistener.hpp>
+	<guichan/widget.hpp>
+	<guichan/widgetlistener.hpp>
+	<guichan/widgets/button.hpp>
+	<guichan/widgets/checkbox.hpp>
+	<guichan/widgets/container.hpp>
+	<guichan/widgets/dropdown.hpp>
+	<guichan/widgets/icon.hpp>
+	<guichan/widgets/imagebutton.hpp>
+	<guichan/widgets/label.hpp>
+	<guichan/widgets/listbox.hpp>
+	<guichan/widgets/scrollarea.hpp>
+	<guichan/widgets/slider.hpp>
+	<guichan/widgets/radiobutton.hpp>
+	<guichan/widgets/tab.hpp>
+	<guichan/widgets/tabbedarea.hpp>
+	<guichan/widgets/textbox.hpp>
+	<guichan/widgets/textfield.hpp>
+	<guichan/widgets/window.hpp>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\actionevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+	<string>
+
+1252006502 d:\cpp\waptools\src\incl\guichan\event.hpp
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\platform.hpp
+
+1252006502 d:\cpp\waptools\src\incl\guichan\actionlistener.hpp
+	<string>
+	"guichan/actionevent.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\cliprectangle.hpp
+	"guichan/rectangle.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\rectangle.hpp
+	"guichan/platform.hpp"
+	<iostream>
+
+1252006502 d:\cpp\waptools\src\incl\guichan\color.hpp
+	"guichan/platform.hpp"
+	<iostream>
+
+1252006502 d:\cpp\waptools\src\incl\guichan\deathlistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\exception.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\focushandler.hpp
+	<vector>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\focuslistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\font.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\genericinput.hpp
+	<queue>
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\input.hpp
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\keyinput.hpp
+	"guichan/key.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\key.hpp
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\mouseinput.hpp
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\graphics.hpp
+	<iosfwd>
+	<stack>
+	"guichan/cliprectangle.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\gui.hpp
+	<list>
+	<deque>
+	"guichan/keyevent.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\keyevent.hpp
+	"guichan/inputevent.hpp"
+	"guichan/key.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\inputevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\mouseevent.hpp
+	"guichan/inputevent.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\image.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\imagefont.hpp
+	<string>
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+	"guichan/rectangle.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\imageloader.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\keylistener.hpp
+	"guichan/keyevent.hpp"
+	"guichan/platform.hpp"
+
+1384370046 d:\cpp\waptools\src\incl\guichan\listmodel.hpp
+	<string>
+	<vector>
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\mouselistener.hpp
+	"guichan/mouseevent.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\selectionevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\selectionlistener.hpp
+	<string>
+	"guichan/selectionevent.hpp"
+	"guichan/platform.hpp"
+
+1382718097 d:\cpp\waptools\src\incl\guichan\widget.hpp
+	<list>
+	<string>
+	"guichan/color.hpp"
+	"guichan/rectangle.hpp"
+	"../../WapTools/src/shared/gcnWidgets/cTooltip.h"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgetlistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\button.hpp
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\checkbox.hpp
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\container.hpp
+	<list>
+	"guichan/basiccontainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+
+1302891501 d:\cpp\waptools\src\incl\guichan\basiccontainer.hpp
+	<list>
+	"guichan/deathlistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\dropdown.hpp
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"guichan/widgets/listbox.hpp"
+	"guichan/widgets/scrollarea.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\listbox.hpp
+	<list>
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\scrollarea.hpp
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\icon.hpp
+	"guichan/image.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\imagebutton.hpp
+	"guichan/platform.hpp"
+	"guichan/widgets/button.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\label.hpp
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\slider.hpp
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\radiobutton.hpp
+	<map>
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\tab.hpp
+	<map>
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\tabbedarea.hpp
+	<map>
+	<string>
+	<vector>
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\textbox.hpp
+	<ctime>
+	<string>
+	<vector>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\textfield.hpp
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	<string>
+
+1252006502 d:\cpp\waptools\src\incl\guichan\widgets\window.hpp
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widgets/container.hpp"
+
+1252006502 d:\cpp\waptools\src\incl\guichan\hge.hpp
+	<guichan/hge/hgegraphics.hpp>
+	<guichan/hge/hgeimage.hpp>
+	<guichan/hge/hgeimagefont.hpp>
+	<guichan/hge/hgeimageloader.hpp>
+	<guichan/hge/hgeinput.hpp>
+
+1243446022 d:\cpp\waptools\src\incl\guichan\hge\hgegraphics.hpp
+	<hge.h>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/color.hpp"
+
+1239732490 d:\cpp\waptools\src\incl\guichan\hge\hgeimage.hpp
+	<hge.h>
+	<hgesprite.h>
+	<string>
+	"guichan/color.hpp"
+	"guichan/platform.hpp"
+	"guichan/image.hpp"
+
+1382454731 d:\cpp\waptools\src\incl\guichan\hge\hgeimagefont.hpp
+	<string>
+	<hgefont.h>
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+
+1252004088 d:\cpp\waptools\src\incl\guichan\hge\hgeimageloader.hpp
+	<hge.h>
+	"guichan/platform.hpp"
+	"guichan/imageloader.hpp"
+
+1239732490 d:\cpp\waptools\src\incl\guichan\hge\hgeinput.hpp
+	<queue>
+	<hge.h>
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1271711568 d:\cpp\waptools\src\incl\zlib.h
+	"zconf.h"
+
+1271588286 d:\cpp\waptools\src\incl\zconf.h
+	<windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<unixio.h>
+
+1252006502 d:\cpp\waptools\src\incl\guichan\defaultfont.hpp
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+
+1176900486 d:\cpp\waptools\src\incl\hgevector.h
+	"hge.h"
+	<math.h>
+
+1382554083 d:\cpp\waptools\src\wapmap\cnativecontroller.h
+	<string>
+	<windows.h>
+
+1384116215 d:\cpp\waptools\src\wapmap\cassetadd.h
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"wViewport.h"
+
+1384129262 source:d:\cpp\waptools\src\wapmap\cassetadd.cpp
+	"cAssetAdd.h"
+	"globals.h"
+	"langID.h"
+
+1385565117 d:\cpp\waptools\src\wapmap\clogicsbank.h
+	<vector>
+	<guichan/listModel.hpp>
+	"cDataController.h"
+
+1385565938 source:d:\cpp\waptools\src\wapmap\clogicsbank.cpp
+	"cLogicsBank.h"
+	<algorithm>
+	"../shared/cProgressInfo.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+	"states/editing_ww.h"
+
+1384701277 source:d:\cpp\waptools\src\wapmap\rendering\crenderableitem.cpp
+	"cRenderableItem.h"
+	"../../shared/cWWD.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1384556876 d:\cpp\waptools\src\wapmap\rendering\crenderableitem.h
+
+1384695677 d:\cpp\waptools\src\wapmap\io\cwwdx.h
+	"../../shared/cWWD.h"
+
+1384702847 source:d:\cpp\waptools\src\wapmap\io\cwwdx.cpp
+	"cWWDx.h"
+	"../cMDI.h"
+	<fstream>
+	<sstream>
+
+1385561958 d:\cpp\waptools\src\wapmap\states\codeeditor.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+
+1386868231 source:d:\cpp\waptools\src\wapmap\states\codeeditor.cpp
+	"CodeEditor.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../langID.h"
+	"../databanks/logics.h"
+	"../../shared/Scintilla/Scintilla.h"
+	"../../shared/Scintilla/SciLexer.h"
+	"editing_ww.h"
+	<Windows.h>
+
+1381904298 d:\cpp\waptools\src\shared\scintilla\scintilla.h
+	<basetsd.h>
+
+1381904298 d:\cpp\waptools\src\shared\scintilla\scilexer.h
+
+1384898560 d:\cpp\waptools\src\wapmap\cparallelloop.h
+
+1387035806 source:d:\cpp\waptools\src\wapmap\cparallelloop.cpp
+	"cParallelLoop.h"
+	<hge.h>
+	<ctime>
+	<cstdio>
+
+1387073412 d:\cpp\waptools\src\wapmap\windows\tilebrowser.h
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"window.h"
+
+1388011695 d:\cpp\waptools\src\wapmap\windows\window.h
+	"../wViewport.h"
+	"../../shared/gcnWidgets/wWin.h"
+
+1387078571 source:d:\cpp\waptools\src\wapmap\windows\tilebrowser.cpp
+	"tileBrowser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../states/imageImport.h"
+	"../databanks/tiles.h"
+
+1387304819 source:d:\cpp\waptools\src\wapmap\states\imagedetails.cpp
+	"imageDetails.h"
+	"../globals.h"
+	"../cInterfaceSheet.h"
+	"editing_ww.h"
+	"../cTextureAtlas.h"
+	<algorithm>
+	"../cDataController.h"
+	<dirent.h>
+	"../langID.h"
+
+1387231637 d:\cpp\waptools\src\wapmap\states\imageimport.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+	"../wViewport.h"
+
+1387232674 source:d:\cpp\waptools\src\wapmap\states\imageimport.cpp
+	"imageImport.h"
+	"../globals.h"
+	"../cInterfaceSheet.h"
+	"editing_ww.h"
+	"../cTextureAtlas.h"
+	<algorithm>
+	"../cDataController.h"
+	"../databanks/tiles.h"
+	"../databanks/imageSets.h"
+	<dirent.h>
+	"../langID.h"
+
+1387137125 d:\cpp\waptools\src\wapmap\databanks\imagesets.h
+	<vector>
+	"hgeSprite.h"
+	"../shared/cREZ.h"
+	"../shared/cWWD.h"
+	"../shared/cPID.h"
+	"../shared/cProgressInfo.h"
+	"guichan/listmodel.hpp"
+	"../cDataController.h"
+
+1386866623 d:\cpp\waptools\src\wapmap\databanks\logics.h
+	<vector>
+	<guichan/listModel.hpp>
+	"../cDataController.h"
+
+1386867651 d:\cpp\waptools\src\wapmap\databanks\tiles.h
+	"hgeSprite.h"
+	"../cDataController.h"
+	"guichan/listmodel.hpp"
+
+1386867203 d:\cpp\waptools\src\wapmap\databanks\sounds.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cProgressInfo.h"
+	<sys/types.h>
+	<dirent.h>
+	<guichan/listModel.hpp>
+	"../cDataController.h"
+
+1386867288 source:d:\cpp\waptools\src\wapmap\databanks\anims.cpp
+	"anims.h"
+	"../shared/commonFunc.h"
+	"../globals.h"
+
+1386867302 d:\cpp\waptools\src\wapmap\databanks\anims.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cANI.h"
+	"guichan/listmodel.hpp"
+
+1387228838 source:d:\cpp\waptools\src\wapmap\databanks\imagesets.cpp
+	"imageSets.h"
+	"tiles.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../states/editing_ww.h"
+	"../globals.h"
+	"../../shared/HashLib/hashlibpp.h"
+	"../cTextureAtlas.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+
+1386867532 source:d:\cpp\waptools\src\wapmap\databanks\logics.cpp
+	"logics.h"
+	<algorithm>
+	"../../shared/cProgressInfo.h"
+	"../../shared/commonFunc.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+
+1386867546 source:d:\cpp\waptools\src\wapmap\databanks\sounds.cpp
+	"sounds.h"
+	"../../shared/commonFunc.h"
+	"../globals.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+
+1387135939 source:d:\cpp\waptools\src\wapmap\databanks\tiles.cpp
+	"tiles.h"
+	<algorithm>
+	<sys\types.h>
+	<sys\stat.h>
+	<dirent.h>
+	"../globals.h"
+	"../globlua.h"
+	"../langID.h"
+	"../../shared/commonFunc.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+	"../../shared/HashLib/hashlibpp.h"
+	"../../shared/cWWD.h"
+	"../cBrush.h"
+
+1387304070 source:d:\cpp\waptools\src\wapmap\windows\imgsetbrowser.cpp
+	"imgsetBrowser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../states/imageImport.h"
+	"../states/imageDetails.h"
+	"../databanks/imageSets.h"
+
+1387127420 d:\cpp\waptools\src\wapmap\windows\imgsetbrowser.h
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"window.h"
+
+1387304559 d:\cpp\waptools\src\wapmap\states\imagedetails.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"guichan.hpp"
+	"../wViewport.h"
+
+1388009698 d:\cpp\waptools\src\wapmap\windows\options.h
+	"window.h"
+
+1388010013 source:d:\cpp\waptools\src\wapmap\windows\options.cpp
+	"options.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	<dirent.h>
+	"../cNativeController.h"
+
+1388011337 d:\cpp\waptools\src\wapmap\windows\about.h
+	"window.h"
+
+1388011846 source:d:\cpp\waptools\src\wapmap\windows\about.cpp
+	"about.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cInterfaceSheet.h"
+	"../conf.h"
+
+1382458102 source:c:\projects\kijan\shared\cani.cpp
+	"cANI.h"
+	<cstring>
+
+1303475160 c:\projects\kijan\shared\cani.h
+	<vector>
+	<sstream>
+
+1351095515 source:c:\projects\kijan\shared\cconsole.cpp
+	"cConsole.h"
+	"hge.h"
+	"commonFunc.h"
+	<fstream>
+
+1382458243 c:\projects\kijan\shared\cconsole.h
+	<vector>
+	<fstream>
+	"hgeSprite.h"
+	"hgeFont.h"
+	"Windows.h"
+
+1292882834 c:\projects\kijan\incl\hgesprite.h
+	"hge.h"
+	"hgerect.h"
+
+1384892903 c:\projects\kijan\incl\hge.h
+	<windows.h>
+	<vector>
+
+1176904086 c:\projects\kijan\incl\hgerect.h
+
+1377214809 c:\projects\kijan\incl\hgefont.h
+	"hge.h"
+	"hgesprite.h"
+
+1387029419 c:\projects\kijan\shared\commonfunc.h
+	"hgeFont.h"
+	"hgeFont.h"
+	<windows.h>
+	<vector>
+	"cSFS.h"
+
+1382458356 c:\projects\kijan\shared\csfs.h
+	<vector>
+	<sys\types.h>
+	<sys\stat.h>
+	<istream>
+
+1283546386 source:c:\projects\kijan\shared\cguiparts.cpp
+
+1384795928 source:c:\projects\kijan\shared\clang.cpp
+	"cLang.h"
+	<algorithm>
+
+1316364519 c:\projects\kijan\shared\clang.h
+	"SimpleIni.h"
+
+1380301370 c:\projects\kijan\shared\simpleini.h
+	<cstring>
+	<string>
+	<map>
+	<list>
+	<algorithm>
+	<iostream>
+	<cassert>
+	<unicode/ustring.h>
+	<wchar.h>
+	"ConvertUTF.h"
+	<unicode/ucnv.h>
+	<windows.h>
+	<mbstring.h>
+
+1387029536 source:c:\projects\kijan\shared\commonfunc.cpp
+	"commonFunc.h"
+	<string>
+	<vector>
+	<cmath>
+	<cstdio>
+	<ctime>
+	<sys/types.h>
+	<dirent.h>
+	<sys/stat.h>
+	<fstream>
+
+1359300236 source:c:\projects\kijan\shared\cpid.cpp
+	"cPID.h"
+	<fstream>
+	<sstream>
+
+1353319317 c:\projects\kijan\shared\cpid.h
+	<iostream>
+	<hge.h>
+	<hgeSprite.h>
+
+1579302514 source:c:\projects\kijan\shared\cpiechart.cpp
+	"cPieChart.h"
+	<algorithm>
+	<SFML/Graphics/Image.hpp>
+
+1579302127 c:\projects\kijan\shared\cpiechart.h
+	"hge.h"
+	"hgeSprite.h"
+	<vector>
+
+1099495102 c:\projects\kijan\shared\gd\gd.h
+	"gd_io.h"
+	"gdfx.h"
+
+1099495102 c:\projects\kijan\shared\gd\gd_io.h
+
+1099495102 c:\projects\kijan\shared\gd\gdfx.h
+	"gd.h"
+
+1382703844 source:c:\projects\kijan\shared\crez.cpp
+	"cREZ.h"
+	<conio.h>
+	<fstream>
+	<cmath>
+	<algorithm>
+	"commonFunc.h"
+
+1377563798 c:\projects\kijan\shared\crez.h
+	<cstring>
+	<cstdio>
+	<vector>
+	<istream>
+
+1382458843 source:c:\projects\kijan\shared\csfs.cpp
+	"cSFS.h"
+	<conio.h>
+	<iostream>
+	<fstream>
+	<sstream>
+	<cstring>
+
+1385470415 source:c:\projects\kijan\shared\cwwd.cpp
+	"cWWD.h"
+	<fstream>
+	<sstream>
+	<algorithm>
+	<Windows.h>
+	"cProgressInfo.h"
+	"../WapMap/cParallelLoop.h"
+
+1385469345 c:\projects\kijan\shared\cwwd.h
+	<zlib.h>
+	<windows.h>
+	<string>
+	<cstring>
+	<cstdio>
+	<vector>
+	<ostream>
+
+1271715168 c:\projects\kijan\incl\zlib.h
+	"zconf.h"
+
+1271591886 c:\projects\kijan\incl\zconf.h
+	<windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<unixio.h>
+
+1384976569 c:\projects\kijan\shared\cprogressinfo.h
+	<windows.h>
+	<process.h>
+	<string>
+
+1384898560 c:\projects\kijan\wapmap\cparallelloop.h
+
+1355173407 source:c:\projects\kijan\shared\cinterface.cpp
+	"cInterface.h"
+	"hge.h"
+
+1355173355 c:\projects\kijan\shared\cinterface.h
+	"cGUIparts.h"
+
+1316447854 c:\projects\kijan\shared\cguiparts.h
+	"hge.h"
+	"guichan.hpp"
+	"guichan/hge.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan.hpp
+	<guichan/actionevent.hpp>
+	<guichan/actionlistener.hpp>
+	<guichan/cliprectangle.hpp>
+	<guichan/color.hpp>
+	<guichan/deathlistener.hpp>
+	<guichan/event.hpp>
+	<guichan/exception.hpp>
+	<guichan/focushandler.hpp>
+	<guichan/focuslistener.hpp>
+	<guichan/font.hpp>
+	<guichan/genericinput.hpp>
+	<guichan/graphics.hpp>
+	<guichan/gui.hpp>
+	<guichan/image.hpp>
+	<guichan/imagefont.hpp>
+	<guichan/imageloader.hpp>
+	<guichan/input.hpp>
+	<guichan/inputevent.hpp>
+	<guichan/key.hpp>
+	<guichan/keyevent.hpp>
+	<guichan/keyinput.hpp>
+	<guichan/keylistener.hpp>
+	<guichan/listmodel.hpp>
+	<guichan/mouseevent.hpp>
+	<guichan/mouseinput.hpp>
+	<guichan/mouselistener.hpp>
+	<guichan/rectangle.hpp>
+	<guichan/selectionevent.hpp>
+	<guichan/selectionlistener.hpp>
+	<guichan/widget.hpp>
+	<guichan/widgetlistener.hpp>
+	<guichan/widgets/button.hpp>
+	<guichan/widgets/checkbox.hpp>
+	<guichan/widgets/container.hpp>
+	<guichan/widgets/dropdown.hpp>
+	<guichan/widgets/icon.hpp>
+	<guichan/widgets/imagebutton.hpp>
+	<guichan/widgets/label.hpp>
+	<guichan/widgets/listbox.hpp>
+	<guichan/widgets/scrollarea.hpp>
+	<guichan/widgets/slider.hpp>
+	<guichan/widgets/radiobutton.hpp>
+	<guichan/widgets/tab.hpp>
+	<guichan/widgets/tabbedarea.hpp>
+	<guichan/widgets/textbox.hpp>
+	<guichan/widgets/textfield.hpp>
+	<guichan/widgets/window.hpp>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\actionevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+	<string>
+
+1252010102 c:\projects\kijan\incl\guichan\event.hpp
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\platform.hpp
+
+1252010102 c:\projects\kijan\incl\guichan\actionlistener.hpp
+	<string>
+	"guichan/actionevent.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\cliprectangle.hpp
+	"guichan/rectangle.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\rectangle.hpp
+	"guichan/platform.hpp"
+	<iostream>
+
+1252010102 c:\projects\kijan\incl\guichan\color.hpp
+	"guichan/platform.hpp"
+	<iostream>
+
+1252010102 c:\projects\kijan\incl\guichan\deathlistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\exception.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\focushandler.hpp
+	<vector>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\focuslistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\font.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\genericinput.hpp
+	<queue>
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\input.hpp
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\keyinput.hpp
+	"guichan/key.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\key.hpp
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\mouseinput.hpp
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\graphics.hpp
+	<iosfwd>
+	<stack>
+	"guichan/cliprectangle.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\gui.hpp
+	<list>
+	<deque>
+	"guichan/keyevent.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\keyevent.hpp
+	"guichan/inputevent.hpp"
+	"guichan/key.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\inputevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\mouseevent.hpp
+	"guichan/inputevent.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\image.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\imagefont.hpp
+	<string>
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+	"guichan/rectangle.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\imageloader.hpp
+	<string>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\keylistener.hpp
+	"guichan/keyevent.hpp"
+	"guichan/platform.hpp"
+
+1384370046 c:\projects\kijan\incl\guichan\listmodel.hpp
+	<string>
+	<vector>
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\mouselistener.hpp
+	"guichan/mouseevent.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\selectionevent.hpp
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\selectionlistener.hpp
+	<string>
+	"guichan/selectionevent.hpp"
+	"guichan/platform.hpp"
+
+1579211109 c:\projects\kijan\incl\guichan\widget.hpp
+	<list>
+	<string>
+	"guichan/color.hpp"
+	"guichan/rectangle.hpp"
+	"../shared/gcnWidgets/cTooltip.h"
+
+1303501156 c:\projects\kijan\shared\gcnwidgets\ctooltip.h
+
+1252010102 c:\projects\kijan\incl\guichan\widgetlistener.hpp
+	<string>
+	"guichan/event.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\button.hpp
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\checkbox.hpp
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\container.hpp
+	<list>
+	"guichan/basiccontainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+
+1302895101 c:\projects\kijan\incl\guichan\basiccontainer.hpp
+	<list>
+	"guichan/deathlistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\dropdown.hpp
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"guichan/widgets/listbox.hpp"
+	"guichan/widgets/scrollarea.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\listbox.hpp
+	<list>
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\scrollarea.hpp
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\icon.hpp
+	"guichan/image.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\imagebutton.hpp
+	"guichan/platform.hpp"
+	"guichan/widgets/button.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\label.hpp
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\slider.hpp
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\radiobutton.hpp
+	<map>
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\tab.hpp
+	<map>
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\tabbedarea.hpp
+	<map>
+	<string>
+	<vector>
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\textbox.hpp
+	<ctime>
+	<string>
+	<vector>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\textfield.hpp
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	<string>
+
+1252010102 c:\projects\kijan\incl\guichan\widgets\window.hpp
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widgets/container.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\hge.hpp
+	<guichan/hge/hgegraphics.hpp>
+	<guichan/hge/hgeimage.hpp>
+	<guichan/hge/hgeimagefont.hpp>
+	<guichan/hge/hgeimageloader.hpp>
+	<guichan/hge/hgeinput.hpp>
+
+1243449622 c:\projects\kijan\incl\guichan\hge\hgegraphics.hpp
+	<hge.h>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/color.hpp"
+
+1239736090 c:\projects\kijan\incl\guichan\hge\hgeimage.hpp
+	<hge.h>
+	<hgesprite.h>
+	<string>
+	"guichan/color.hpp"
+	"guichan/platform.hpp"
+	"guichan/image.hpp"
+
+1382458331 c:\projects\kijan\incl\guichan\hge\hgeimagefont.hpp
+	<string>
+	<hgefont.h>
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+
+1252007688 c:\projects\kijan\incl\guichan\hge\hgeimageloader.hpp
+	<hge.h>
+	"guichan/platform.hpp"
+	"guichan/imageloader.hpp"
+
+1239736090 c:\projects\kijan\incl\guichan\hge\hgeinput.hpp
+	<queue>
+	<hge.h>
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/platform.hpp"
+
+1384889366 source:c:\projects\kijan\shared\cstatemgr.cpp
+	"cStateMgr.h"
+	"../WapMap/globals.h"
+	"hge.h"
+
+1384889380 c:\projects\kijan\shared\cstatemgr.h
+	"hge.h"
+	"hgeSprite.h"
+	<vector>
+
+1386866243 c:\projects\kijan\wapmap\globals.h
+	"../shared/cStateMgr.h"
+	"../shared/cConsole.h"
+	"../shared/cLang.h"
+	"../shared/cGUIparts.h"
+	"../shared/cInterface.h"
+	"../shared/cPID.h"
+	"../shared/SimpleIni.h"
+	"hge.h"
+	"hgeSprite.h"
+	"hgeFont.h"
+	<setjmp.h>
+	"guichan.hpp"
+	"guichan/hge.hpp"
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1218011412 c:\projects\kijan\shared\lua\lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1219919976 c:\projects\kijan\shared\lua\luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1198749744 c:\projects\kijan\shared\lua\lualib.h
+	"lua.h"
+
+1579300436 c:\projects\kijan\shared\lua\lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1303335358 source:c:\projects\kijan\shared\gcnwidgets\ctooltip.cpp
+	"cTooltip.h"
+	"hge.h"
+	"../../WapMap/globals.h"
+
+1384450624 source:c:\projects\kijan\shared\gcnwidgets\wbutton.cpp
+	"wButton.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1381179366 c:\projects\kijan\shared\gcnwidgets\wbutton.h
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	<hgeSprite.h>
+
+1382539635 c:\projects\kijan\wapmap\cinterfacesheet.h
+	<hge.h>
+	<hgeSprite.h>
+
+1382612457 source:c:\projects\kijan\shared\gcnwidgets\wcheckbox.cpp
+	"wCheckbox.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	<hgeSprite.h>
+	"../../WapMap/cInterfaceSheet.h"
+
+1381091483 c:\projects\kijan\shared\gcnwidgets\wcheckbox.h
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1381266807 source:c:\projects\kijan\shared\gcnwidgets\wcombobutton.cpp
+	"wComboButton.h"
+	"wButton.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+	"../../WapMap/globals.h"
+
+1381261848 c:\projects\kijan\shared\gcnwidgets\wcombobutton.h
+	<string>
+	<vector>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	<hgeSprite.h>
+
+1382622962 source:c:\projects\kijan\shared\gcnwidgets\wcontainer.cpp
+	"wContainer.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+
+1382622252 c:\projects\kijan\shared\gcnwidgets\wcontainer.h
+	<list>
+	"guichan/basicContainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widgetlistener.hpp"
+
+1384518404 source:c:\projects\kijan\shared\gcnwidgets\wcontext.cpp
+	"wContext.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1384518298 c:\projects\kijan\shared\gcnwidgets\wcontext.h
+	"../cGUIparts.h"
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/selectionlistener.hpp"
+
+1384456471 source:c:\projects\kijan\shared\gcnwidgets\wdropdown.cpp
+	"wDropDown.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1382613090 c:\projects\kijan\shared\gcnwidgets\wdropdown.h
+	"../cGUIparts.h"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+
+1384353724 c:\projects\kijan\shared\gcnwidgets\wlistbox.h
+	<list>
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/selectionlistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1284142256 c:\projects\kijan\shared\gcnwidgets\wscrollarea.h
+	<string>
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1386866380 source:c:\projects\kijan\shared\gcnwidgets\winventory.cpp
+	"wInventory.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapMap/states/editing_ww.h"
+	"../../WapMap/databanks/imageSets.h"
+
+1351887680 c:\projects\kijan\shared\gcnwidgets\winventory.h
+	"../cGUIparts.h"
+	<string>
+	"guichan/focuslistener.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseevent.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"cTooltip.h"
+	"../../WapMap/cInventoryController.h"
+
+1351988228 c:\projects\kijan\wapmap\cinventorycontroller.h
+	<string>
+	<utility>
+
+1388011397 c:\projects\kijan\wapmap\states\editing_ww.h
+	"../../shared/cStateMgr.h"
+	"../../shared/cWWD.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLink.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextBox.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/gcnWidgets/wContext.h"
+	"../cMDI.h"
+	"../cSoundPlayer.h"
+	"../cColorPicker.h"
+	"../wViewport.h"
+	"../cTileGhost.h"
+	"../vpFocusWidg.h"
+	"guichan.hpp"
+	"../cAutoUpdater.h"
+	"../objQuadTree.h"
+	"../globals.h"
+	"../../shared/cPieChart.h"
+	"objedit.h"
+	"../cMRUList.h"
+	"../cInventoryController.h"
+	"../cModeMenuBar.h"
+	"hgeSprite.h"
+	"../cControllerIPC.h"
+
+1381762649 c:\projects\kijan\shared\gcnwidgets\wslider.h
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	<vector>
+
+1382623525 c:\projects\kijan\shared\gcnwidgets\wwin.h
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"wContainer.h"
+	"../cGUIparts.h"
+
+1381670984 c:\projects\kijan\shared\gcnwidgets\wlink.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/mouselistener.hpp"
+
+1352658047 c:\projects\kijan\shared\gcnwidgets\wlabel.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1348906515 c:\projects\kijan\shared\gcnwidgets\wtextbox.h
+	<ctime>
+	<string>
+	<vector>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1382046360 c:\projects\kijan\shared\gcnwidgets\wtextfield.h
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"guichan/focuslistener.hpp"
+	<string>
+
+1285437741 c:\projects\kijan\shared\gcnwidgets\wtabbedarea.h
+	<map>
+	<string>
+	<vector>
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1381181221 c:\projects\kijan\shared\gcnwidgets\wradiobut.h
+	<map>
+	<string>
+	"guichan/keylistener.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1386866339 c:\projects\kijan\wapmap\cmdi.h
+	"../shared/cWWD.h"
+	"../shared/gcnWidgets/wContext.h"
+
+1386866350 c:\projects\kijan\wapmap\csoundplayer.h
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wSlider.h"
+	"wViewport.h"
+
+1351861654 c:\projects\kijan\wapmap\wviewport.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+
+1303844753 c:\projects\kijan\wapmap\ccolorpicker.h
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wSlider.h"
+	"../shared/gcnWidgets/wTextField.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"wViewport.h"
+
+1285666420 c:\projects\kijan\wapmap\ctileghost.h
+
+1309909151 c:\projects\kijan\wapmap\vpfocuswidg.h
+	<string>
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/widgets/container.hpp"
+
+1320862970 c:\projects\kijan\wapmap\cautoupdater.h
+	<windows.h>
+	<process.h>
+	"../shared/gcnWidgets/wContainer.h"
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wLink.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"../shared/gcnWidgets/wContext.h"
+	"../shared/gcnWidgets/wProgressBar.h"
+	"wViewport.h"
+	"../shared/curl/curl.h"
+	"../shared/curl/types.h"
+	"../shared/curl/easy.h"
+
+1285436983 c:\projects\kijan\shared\gcnwidgets\wprogressbar.h
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+	"guichan/widget.hpp"
+	"../cGUIparts.h"
+
+1258906851 c:\projects\kijan\shared\curl\curl.h
+	"curlver.h"
+	"curlbuild.h"
+	"curlrules.h"
+	<limits.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"typecheck-gcc.h"
+
+1312499719 c:\projects\kijan\shared\curl\curlver.h
+
+1312499681 c:\projects\kijan\shared\curl\curlbuild.h
+	<sys/types.h>
+	<sys/socket.h>
+
+1312499692 c:\projects\kijan\shared\curl\curlrules.h
+
+1210628608 c:\projects\kijan\shared\curl\easy.h
+
+1312499788 c:\projects\kijan\shared\curl\multi.h
+	"curl.h"
+
+1312499808 c:\projects\kijan\shared\curl\typecheck-gcc.h
+
+1198539750 c:\projects\kijan\shared\curl\types.h
+
+1386866884 c:\projects\kijan\wapmap\objquadtree.h
+	"../shared/cWWD.h"
+
+1386866087 c:\projects\kijan\wapmap\states\objedit.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/cWWD.h"
+	"../wViewport.h"
+	"../cSoundPlayer.h"
+	"guichan.hpp"
+
+1352756377 c:\projects\kijan\wapmap\cmrulist.h
+	<string>
+
+1382538829 c:\projects\kijan\wapmap\cmodemenubar.h
+	"../shared/gcnWidgets/wButton.h"
+	"../shared/gcnWidgets/wContext.h"
+
+1356197841 c:\projects\kijan\wapmap\ccontrolleripc.h
+	<windows.h>
+
+1387137125 c:\projects\kijan\wapmap\databanks\imagesets.h
+	<vector>
+	"hgeSprite.h"
+	"../shared/cREZ.h"
+	"../shared/cWWD.h"
+	"../shared/cPID.h"
+	"../shared/cProgressInfo.h"
+	"guichan/listmodel.hpp"
+	"../cDataController.h"
+
+1387032034 c:\projects\kijan\wapmap\cdatacontroller.h
+	"../shared/cPID.h"
+	"cFileSystem.h"
+	<hge.h>
+
+1386609043 c:\projects\kijan\wapmap\cfilesystem.h
+	"../shared/cREZ.h"
+	<windows.h>
+
+1385934727 source:c:\projects\kijan\shared\gcnwidgets\wlabel.cpp
+	"wLabel.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	<hgeFont.h>
+	"guichan/hge/hgeimagefont.hpp"
+
+1382611610 source:c:\projects\kijan\shared\gcnwidgets\wlink.cpp
+	"wLink.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	<hgeFont.h>
+	"guichan/hge/hgeimagefont.hpp"
+	<hge.h>
+	<hgeSprite.h>
+
+1384353966 source:c:\projects\kijan\shared\gcnwidgets\wlistbox.cpp
+	"wListbox.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/selectionlistener.hpp"
+
+1285438933 source:c:\projects\kijan\shared\gcnwidgets\wprogressbar.cpp
+	"wProgressBar.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+
+1381485668 source:c:\projects\kijan\shared\gcnwidgets\wradiobut.cpp
+	"wRadioBut.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1302904847 source:c:\projects\kijan\shared\gcnwidgets\wscrollarea.cpp
+	"wScrollArea.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1385656529 source:c:\projects\kijan\shared\gcnwidgets\wslider.cpp
+	"wSlider.h"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/cInterfaceSheet.h"
+
+1303555587 source:c:\projects\kijan\shared\gcnwidgets\wtab.cpp
+	"wTabbedArea.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"wTabbedArea.h"
+	"wButton.h"
+	"wLabel.h"
+	"wTab.h"
+
+1283610107 c:\projects\kijan\shared\gcnwidgets\wtab.h
+	<map>
+	<string>
+	"wLabel.h"
+	"wTabbedArea.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+
+1352658022 source:c:\projects\kijan\shared\gcnwidgets\wtabbedarea.cpp
+	"wTabbedArea.h"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"wContainer.h"
+	"wTab.h"
+	<algorithm>
+
+1356090815 source:c:\projects\kijan\shared\gcnwidgets\wtextbox.cpp
+	"wTextBox.h"
+	"guichan/basiccontainer.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+
+1384462002 source:c:\projects\kijan\shared\gcnwidgets\wtextdropdown.cpp
+	"wTextDropDown.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouseinput.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+	"../../WapMap/cInterfaceSheet.h"
+	"../commonFunc.h"
+	"../../WapMap/globals.h"
+	"../../WapMap/states/editing_ww.h"
+
+1384457322 c:\projects\kijan\shared\gcnwidgets\wtextdropdown.h
+	"../cGUIparts.h"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/listmodel.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/platform.hpp"
+	"guichan/selectionlistener.hpp"
+	"wListbox.h"
+	"wScrollArea.h"
+
+1386186898 source:c:\projects\kijan\shared\gcnwidgets\wtextfield.cpp
+	"hge.h"
+	"wTextField.h"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/key.hpp"
+	"guichan/mouseinput.hpp"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+	"../commonFunc.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1382624495 source:c:\projects\kijan\shared\gcnwidgets\wwin.cpp
+	"wWin.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"hge.h"
+	"../../WapMap/globals.h"
+	"../../WapGraphic/globals.h"
+	"../../WapMap/cInterfaceSheet.h"
+
+1283524194 source:c:\projects\kijan\shared\gcnwidgets\wwinmgr.cpp
+	"wWinMgr.h"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1283524183 c:\projects\kijan\shared\gcnwidgets\wwinmgr.h
+	<list>
+	"guichan/basiccontainer.hpp"
+	"guichan/graphics.hpp"
+	"guichan/platform.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\actionevent.cpp
+	"guichan/actionevent.hpp"
+
+1302895176 source:c:\projects\kijan\shared\guichan\basiccontainer.cpp
+	"guichan/basiccontainer.hpp"
+	<algorithm>
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"../gcnWidgets/cTooltip.h"
+
+1252010102 source:c:\projects\kijan\shared\guichan\cliprectangle.cpp
+	"guichan/cliprectangle.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\color.cpp
+	"guichan/color.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\defaultfont.cpp
+	"guichan/defaultfont.hpp"
+	<string>
+	"guichan/graphics.hpp"
+	"guichan/rectangle.hpp"
+
+1252010102 c:\projects\kijan\incl\guichan\defaultfont.hpp
+	"guichan/font.hpp"
+	"guichan/platform.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\event.cpp
+	"guichan/event.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\exception.cpp
+	"guichan/exception.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\focushandler.cpp
+	"guichan/focushandler.hpp"
+	"guichan/focuslistener.hpp"
+	"guichan/exception.hpp"
+	"guichan/widget.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\font.cpp
+	"guichan/font.hpp"
+	<string>
+
+1252010102 source:c:\projects\kijan\shared\guichan\genericinput.cpp
+	"guichan/genericinput.hpp"
+	"guichan/exception.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\graphics.cpp
+	"guichan/graphics.hpp"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/image.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\gui.cpp
+	"guichan/gui.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/input.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widget.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\guichan.cpp
+
+1383166925 source:c:\projects\kijan\shared\guichan\hge\hgegraphics.cpp
+	"guichan/hge/hgegraphics.hpp"
+	"guichan/cliprectangle.hpp"
+	"guichan/exception.hpp"
+	"guichan/rectangle.hpp"
+	"guichan/hge/hgeimage.hpp"
+
+1239736090 source:c:\projects\kijan\shared\guichan\hge\hgeimage.cpp
+	"guichan/hge/hgeimage.hpp"
+	"guichan/exception.hpp"
+
+1382459418 source:c:\projects\kijan\shared\guichan\hge\hgeimagefont.cpp
+	<cstdio>
+	"guichan/hge/hgeimagefont.hpp"
+	"guichan/color.hpp"
+	"guichan/graphics.hpp"
+
+1383166897 source:c:\projects\kijan\shared\guichan\hge\hgeimageloader.cpp
+	"guichan/hge/hgeimage.hpp"
+	"guichan/hge/hgeimageloader.hpp"
+	"guichan/exception.hpp"
+
+1383166995 source:c:\projects\kijan\shared\guichan\hge\hgeinput.cpp
+	"guichan/hge/hgeinput.hpp"
+	"guichan/exception.hpp"
+	<cstdio>
+
+1252010102 source:c:\projects\kijan\shared\guichan\image.cpp
+	"guichan/image.hpp"
+	"guichan/exception.hpp"
+	"guichan/imageloader.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\imagefont.cpp
+	"guichan/imagefont.hpp"
+	<sstream>
+	"guichan/color.hpp"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+	"guichan/image.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\inputevent.cpp
+	"guichan/inputevent.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\key.cpp
+	"guichan/key.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\keyevent.cpp
+	"guichan/keyevent.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\keyinput.cpp
+	"guichan/keyinput.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\mouseevent.cpp
+	"guichan/mouseevent.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\mouseinput.cpp
+	"guichan/mouseinput.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\rectangle.cpp
+	"guichan/rectangle.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\selectionevent.cpp
+	"guichan/selectionevent.hpp"
+
+1382721656 source:c:\projects\kijan\shared\guichan\widget.cpp
+	"guichan/widget.hpp"
+	"guichan/actionevent.hpp"
+	"guichan/actionlistener.hpp"
+	"guichan/basiccontainer.hpp"
+	"guichan/deathlistener.hpp"
+	"guichan/defaultfont.hpp"
+	"guichan/event.hpp"
+	"guichan/exception.hpp"
+	"guichan/focushandler.hpp"
+	"guichan/graphics.hpp"
+	"guichan/keyinput.hpp"
+	"guichan/keylistener.hpp"
+	"guichan/mouseinput.hpp"
+	"guichan/mouselistener.hpp"
+	"guichan/widgetlistener.hpp"
+
+1252010102 source:c:\projects\kijan\shared\guichan\widgets\container.cpp
+	"guichan/widgets/container.hpp"
+	"guichan/exception.hpp"
+	"guichan/graphics.hpp"
+
+1312830411 source:c:\projects\kijan\shared\hashlib\hl_md5.cpp
+	"hl_md5.h"
+
+1312830460 c:\projects\kijan\shared\hashlib\hl_md5.h
+	<string>
+	"hl_types.h"
+
+1312830540 c:\projects\kijan\shared\hashlib\hl_types.h
+
+1312830612 source:c:\projects\kijan\shared\hashlib\hl_md5wrapper.cpp
+	<string>
+	<fstream>
+	<iostream>
+	<sstream>
+	"hl_md5wrapper.h"
+
+1312830467 c:\projects\kijan\shared\hashlib\hl_md5wrapper.h
+	"hl_hashwrapper.h"
+	"hl_md5.h"
+	<string>
+
+1359461800 c:\projects\kijan\shared\hashlib\hl_hashwrapper.h
+	<string>
+	<fstream>
+	<iostream>
+	"hl_exception.h"
+
+1312830434 c:\projects\kijan\shared\hashlib\hl_exception.h
+	<string>
+
+1312830605 source:c:\projects\kijan\shared\hashlib\hl_sha1.cpp
+	"hl_sha1.h"
+
+1312830477 c:\projects\kijan\shared\hashlib\hl_sha1.h
+	"hl_types.h"
+
+1312830598 source:c:\projects\kijan\shared\hashlib\hl_sha1wrapper.cpp
+	"hl_sha1wrapper.h"
+	"hl_sha1.h"
+	"hl_types.h"
+	<sstream>
+
+1312830485 c:\projects\kijan\shared\hashlib\hl_sha1wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha1.h"
+
+1312830590 source:c:\projects\kijan\shared\hashlib\hl_sha256.cpp
+	"hl_sha256.h"
+	<string.h>
+	<assert.h>
+	"hl_sha2mac.h"
+
+1312830495 c:\projects\kijan\shared\hashlib\hl_sha256.h
+	"hl_types.h"
+
+1312830520 c:\projects\kijan\shared\hashlib\hl_sha2mac.h
+
+1312830581 source:c:\projects\kijan\shared\hashlib\hl_sha256wrapper.cpp
+	"hl_sha256wrapper.h"
+	"hl_sha256.h"
+	<string>
+
+1312830501 c:\projects\kijan\shared\hashlib\hl_sha256wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha256.h"
+	<string>
+
+1312830574 source:c:\projects\kijan\shared\hashlib\hl_sha2ext.cpp
+	<string.h>
+	<assert.h>
+	"hl_sha2ext.h"
+	"hl_sha2mac.h"
+
+1312830507 c:\projects\kijan\shared\hashlib\hl_sha2ext.h
+	"hl_types.h"
+
+1312830567 source:c:\projects\kijan\shared\hashlib\hl_sha384wrapper.cpp
+	"hl_sha384wrapper.h"
+	<string>
+
+1312830530 c:\projects\kijan\shared\hashlib\hl_sha384wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha2ext.h"
+	<string>
+
+1312830561 source:c:\projects\kijan\shared\hashlib\hl_sha512wrapper.cpp
+	"hl_sha512wrapper.h"
+	<string>
+
+1312830535 c:\projects\kijan\shared\hashlib\hl_sha512wrapper.h
+	"hl_hashwrapper.h"
+	"hl_sha2ext.h"
+	<string>
+
+1312499268 source:c:\projects\kijan\wapmap\bodyquadtree.cpp
+	"bodyQuadTree.h"
+	"globals.h"
+
+1382459581 c:\projects\kijan\wapmap\bodyquadtree.h
+	"cPhysics.h"
+
+1313611320 c:\projects\kijan\wapmap\cphysics.h
+	"../shared/cWWD.h"
+
+1388011459 source:c:\projects\kijan\wapmap\cappmenu.cpp
+	"cAppMenu.h"
+	"states/editing_ww.h"
+	"../shared/commonFunc.h"
+	"langID.h"
+	"states/error.h"
+	"cNativeController.h"
+	"states/stats.h"
+	"states/loadmap.h"
+	"states/codeEditor.h"
+	"windows/tileBrowser.h"
+	"windows/imgsetBrowser.h"
+	"windows/options.h"
+	"windows/about.h"
+	"databanks/logics.h"
+
+1386869336 c:\projects\kijan\wapmap\cappmenu.h
+	"globals.h"
+	"../shared/gcnWidgets/wContext.h"
+	"cRulers.h"
+
+1357492246 c:\projects\kijan\wapmap\crulers.h
+
+1352498662 c:\projects\kijan\wapmap\langid.h
+
+1349119037 c:\projects\kijan\wapmap\states\error.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+
+1382557683 c:\projects\kijan\wapmap\cnativecontroller.h
+	<string>
+	<windows.h>
+
+1316365318 c:\projects\kijan\wapmap\states\stats.h
+	"../../shared/cStateMgr.h"
+	"../../shared/cWWD.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/cPieChart.h"
+
+1386866601 c:\projects\kijan\wapmap\states\loadmap.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wProgressBar.h"
+	"../../shared/cWWD.h"
+	"../../shared/cProgressInfo.h"
+	"../cLogicsList.h"
+	"guichan.hpp"
+	"../cDataController.h"
+	"../cParallelLoop.h"
+
+1355671068 c:\projects\kijan\wapmap\clogicslist.h
+
+1385561958 c:\projects\kijan\wapmap\states\codeeditor.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+
+1387073412 c:\projects\kijan\wapmap\windows\tilebrowser.h
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"window.h"
+
+1388011695 c:\projects\kijan\wapmap\windows\window.h
+	"../wViewport.h"
+	"../../shared/gcnWidgets/wWin.h"
+
+1387127420 c:\projects\kijan\wapmap\windows\imgsetbrowser.h
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"window.h"
+
+1388009698 c:\projects\kijan\wapmap\windows\options.h
+	"window.h"
+
+1388011337 c:\projects\kijan\wapmap\windows\about.h
+	"window.h"
+
+1386866623 c:\projects\kijan\wapmap\databanks\logics.h
+	<vector>
+	<guichan/listModel.hpp>
+	"../cDataController.h"
+
+1579282712 source:c:\projects\kijan\wapmap\cautoupdater.cpp
+	"cAutoUpdater.h"
+	"../shared/curl/curl.h"
+	"../shared/curl/types.h"
+	"../shared/curl/easy.h"
+	"conf.h"
+	"globals.h"
+	"langID.h"
+	"../shared/commonFunc.h"
+	"states/editing_ww.h"
+	"../shared/HashLib/hashlibpp.h"
+	<direct.h>
+
+1384721117 c:\projects\kijan\wapmap\conf.h
+
+1312830425 c:\projects\kijan\shared\hashlib\hashlibpp.h
+	"hl_exception.h"
+	"hl_hashwrapper.h"
+	"hl_md5wrapper.h"
+	"hl_sha1wrapper.h"
+	"hl_sha256wrapper.h"
+	"hl_sha384wrapper.h"
+	"hl_sha512wrapper.h"
+
+1388007976 source:c:\projects\kijan\wapmap\cbrush.cpp
+	"cBrush.h"
+	"globals.h"
+	"globlua.h"
+	"langID.h"
+	"states/editing_ww.h"
+	"databanks/tiles.h"
+
+1388007912 c:\projects\kijan\wapmap\cbrush.h
+	"../shared/cWWD.h"
+	"cTileGhost.h"
+	"../shared/gcnWidgets/wLabel.h"
+	"../shared/gcnWidgets/wWin.h"
+	"../shared/gcnWidgets/wScrollArea.h"
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1356013100 c:\projects\kijan\wapmap\globlua.h
+	"../shared/lua/lua.h"
+	"../shared/lua/lualib.h"
+	"../shared/lua/lauxlib.h"
+
+1386867651 c:\projects\kijan\wapmap\databanks\tiles.h
+	"hgeSprite.h"
+	"../cDataController.h"
+	"guichan/listmodel.hpp"
+
+1381745718 source:c:\projects\kijan\wapmap\ccolorpicker.cpp
+	"cColorPicker.h"
+	"globals.h"
+	"../shared/commonFunc.h"
+
+1356200490 source:c:\projects\kijan\wapmap\ccontrolleripc.cpp
+	"cControllerIPC.h"
+	"globals.h"
+	"states/loadmap.h"
+
+1387228097 source:c:\projects\kijan\wapmap\cdatacontroller.cpp
+	<dirent.h>
+	"../shared/commonFunc.h"
+	"cDataController.h"
+	"../shared/cPID.h"
+	"globals.h"
+	"../shared/HashLib/hashlibpp.h"
+	"cParallelLoop.h"
+
+1386695132 source:c:\projects\kijan\wapmap\cfilesystem.cpp
+	"cFileSystem.h"
+	<algorithm>
+	<dirent.h>
+	<unistd.h>
+	<sys/stat.h>
+	<sys/types.h>
+	<windows.h>
+	"../shared/commonFunc.h"
+
+1386866843 source:c:\projects\kijan\wapmap\cinventorycontroller.cpp
+	"cInventoryController.h"
+	"states/editing_ww.h"
+	"globals.h"
+	"../shared/gcnWidgets/wInventory.h"
+	"databanks/imageSets.h"
+
+1384899656 source:c:\projects\kijan\wapmap\cmdi.cpp
+	"cMDI.h"
+	"../shared/commonFunc.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cObjectUserData.h"
+	"langID.h"
+	"cAppMenu.h"
+	"cInterfaceSheet.h"
+	"io/cWWDx.h"
+	"conf.h"
+	"states/loadmap.h"
+
+1352638540 c:\projects\kijan\wapmap\cobjectuserdata.h
+	"../shared/cWWD.h"
+	"objQuadTree.h"
+
+1384695677 c:\projects\kijan\wapmap\io\cwwdx.h
+	"../../shared/cWWD.h"
+
+1384723048 source:c:\projects\kijan\wapmap\cmodemenubar.cpp
+	"cModeMenuBar.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"langID.h"
+	"cAppMenu.h"
+	"../shared/gcnWidgets/wComboButton.h"
+
+1381694226 source:c:\projects\kijan\wapmap\cmrulist.cpp
+	"cMRUList.h"
+	"globals.h"
+	"states/editing_ww.h"
+	<Shlobj.h>
+
+1383691429 source:c:\projects\kijan\wapmap\cnativecontroller.cpp
+	"cNativeController.h"
+	<cstdio>
+	<windows.h>
+	<hge.h>
+	"globals.h"
+
+1353930099 source:c:\projects\kijan\wapmap\cobjectuserdata.cpp
+	"cObjectUserData.h"
+
+1387035806 source:c:\projects\kijan\wapmap\cparallelloop.cpp
+	"cParallelLoop.h"
+	<hge.h>
+	<ctime>
+	<cstdio>
+
+1313610515 source:c:\projects\kijan\wapmap\cphysics.cpp
+	"cPhysics.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"bodyQuadTree.h"
+	"cObjectUserData.h"
+
+1383774972 source:c:\projects\kijan\wapmap\crulers.cpp
+	"cRulers.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cAppMenu.h"
+	"../shared/commonFunc.h"
+
+1386867197 source:c:\projects\kijan\wapmap\csoundplayer.cpp
+	"cSoundPlayer.h"
+	"globals.h"
+	"langID.h"
+	"databanks/sounds.h"
+
+1386867203 c:\projects\kijan\wapmap\databanks\sounds.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cProgressInfo.h"
+	<sys/types.h>
+	<dirent.h>
+	<guichan/listModel.hpp>
+	"../cDataController.h"
+
+1382456150 source:c:\projects\kijan\wapmap\ctextureatlas.cpp
+	"cTextureAtlas.h"
+	<algorithm>
+
+1382455940 c:\projects\kijan\wapmap\ctextureatlas.h
+	<hgeSprite.h>
+	<vector>
+
+1386867288 source:c:\projects\kijan\wapmap\databanks\anims.cpp
+	"anims.h"
+	"../shared/commonFunc.h"
+	"../globals.h"
+
+1386867302 c:\projects\kijan\wapmap\databanks\anims.h
+	<vector>
+	<hge.h>
+	"../shared/cREZ.h"
+	"../shared/cANI.h"
+	"guichan/listmodel.hpp"
+
+1387228838 source:c:\projects\kijan\wapmap\databanks\imagesets.cpp
+	"imageSets.h"
+	"tiles.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../states/editing_ww.h"
+	"../globals.h"
+	"../../shared/HashLib/hashlibpp.h"
+	"../cTextureAtlas.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+
+1386867532 source:c:\projects\kijan\wapmap\databanks\logics.cpp
+	"logics.h"
+	<algorithm>
+	"../../shared/cProgressInfo.h"
+	"../../shared/commonFunc.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+
+1386867546 source:c:\projects\kijan\wapmap\databanks\sounds.cpp
+	"sounds.h"
+	"../../shared/commonFunc.h"
+	"../globals.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+
+1387135939 source:c:\projects\kijan\wapmap\databanks\tiles.cpp
+	"tiles.h"
+	<algorithm>
+	<sys\types.h>
+	<sys\stat.h>
+	<dirent.h>
+	"../globals.h"
+	"../globlua.h"
+	"../langID.h"
+	"../../shared/commonFunc.h"
+	"../cParallelLoop.h"
+	"../../shared/cProgressInfo.h"
+	"../../shared/HashLib/hashlibpp.h"
+	"../../shared/cWWD.h"
+	"../cBrush.h"
+
+1323002548 source:c:\projects\kijan\wapmap\funcconsole.cpp
+	"funcConsole.h"
+	"globals.h"
+	<psapi.h>
+	<direct.h>
+
+1323002605 c:\projects\kijan\wapmap\funcconsole.h
+
+1579300143 source:c:\projects\kijan\wapmap\globals.cpp
+	"globals.h"
+	"../shared/cStateMgr.h"
+	"../shared/cSFS.h"
+	"../shared/commonFunc.h"
+	"funcConsole.h"
+	"conf.h"
+	"states/error.h"
+	"langID.h"
+	"cInterfaceSheet.h"
+	"cBrush.h"
+	<sys/types.h>
+	<dirent.h>
+	<direct.h>
+	"globlua.h"
+	<windows.h>
+	<sstream>
+	<process.h>
+
+1356015913 source:c:\projects\kijan\wapmap\globlua.cpp
+	"globlua.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"cObjectUserData.h"
+
+1384702847 source:c:\projects\kijan\wapmap\io\cwwdx.cpp
+	"cWWDx.h"
+	"../cMDI.h"
+	<fstream>
+	<sstream>
+
+1387720434 source:c:\projects\kijan\wapmap\main.cpp
+	"hge.h"
+	"conf.h"
+	"globals.h"
+	"states/editing_ww.h"
+	"conf.h"
+	"../shared/commonFunc.h"
+	<windows.h>
+	<tlhelp32.h>
+	"cControllerIPC.h"
+	<hgeVector.h>
+	<direct.h>
+	<dirent.h>
+
+1176904086 c:\projects\kijan\incl\hgevector.h
+	"hge.h"
+	<math.h>
+
+1386867822 source:c:\projects\kijan\wapmap\objedit\editambient.cpp
+	"editAmbient.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/sounds.h"
+
+1355532825 c:\projects\kijan\wapmap\objedit\editambient.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"procPickRect.h"
+
+1381179654 c:\projects\kijan\wapmap\objedit\procpickrect.h
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	<guichan/actionlistener.hpp>
+	"../../shared/cWWD.h"
+
+1386867843 source:c:\projects\kijan\wapmap\objedit\editbreakplank.cpp
+	"editBreakPlank.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355234009 c:\projects\kijan\wapmap\objedit\editbreakplank.h
+	"../states/objedit.h"
+
+1386867875 source:c:\projects\kijan\wapmap\objedit\editcandy.cpp
+	"editCandy.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354399094 c:\projects\kijan\wapmap\objedit\editcandy.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1386867884 source:c:\projects\kijan\wapmap\objedit\editcheckpoint.cpp
+	"editCheckpoint.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355697235 c:\projects\kijan\wapmap\objedit\editcheckpoint.h
+	"../states/objedit.h"
+
+1354815963 source:c:\projects\kijan\wapmap\objedit\editcrabnest.cpp
+	"editCrabNest.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354815969 c:\projects\kijan\wapmap\objedit\editcrabnest.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1386867916 source:c:\projects\kijan\wapmap\objedit\editcrate.cpp
+	"editCrate.h"
+	"editStatue.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"winInventoryPickbox.h"
+	"../databanks/imageSets.h"
+
+1383679378 c:\projects\kijan\wapmap\objedit\editcrate.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+
+1354399980 c:\projects\kijan\wapmap\objedit\editstatue.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+
+1351881750 c:\projects\kijan\wapmap\objedit\wininventorypickbox.h
+	<guichan/actionlistener.hpp>
+	"../wViewport.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wSlider.h"
+
+1386867925 source:c:\projects\kijan\wapmap\objedit\editcrumblingpeg.cpp
+	"editCrumblingPeg.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354399192 c:\projects\kijan\wapmap\objedit\editcrumblingpeg.h
+	"../states/objedit.h"
+
+1386867933 source:c:\projects\kijan\wapmap\objedit\editcurse.cpp
+	"editCurse.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../databanks/imageSets.h"
+
+1354399243 c:\projects\kijan\wapmap\objedit\editcurse.h
+	"../states/objedit.h"
+
+1386868023 source:c:\projects\kijan\wapmap\objedit\editdialog.cpp
+	"editDialog.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/sounds.h"
+
+1355537401 c:\projects\kijan\wapmap\objedit\editdialog.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1386868030 source:c:\projects\kijan\wapmap\objedit\editelevpath.cpp
+	"editElevPath.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354399517 c:\projects\kijan\wapmap\objedit\editelevpath.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+
+1386868044 source:c:\projects\kijan\wapmap\objedit\editenemy.cpp
+	"editEnemy.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1356022013 c:\projects\kijan\wapmap\objedit\editenemy.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wInventory.h"
+	"winInventoryPickbox.h"
+	"procPickRect.h"
+
+1386868094 source:c:\projects\kijan\wapmap\objedit\edithealth.cpp
+	"editHealth.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354400739 c:\projects\kijan\wapmap\objedit\edithealth.h
+	"../states/objedit.h"
+
+1354961452 source:c:\projects\kijan\wapmap\objedit\editlaser.cpp
+	"editLaser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354959688 c:\projects\kijan\wapmap\objedit\editlaser.h
+	"../states/objedit.h"
+
+1383747732 source:c:\projects\kijan\wapmap\objedit\editprojectile.cpp
+	"editProjectile.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354399628 c:\projects\kijan\wapmap\objedit\editprojectile.h
+	"../states/objedit.h"
+
+1381570826 source:c:\projects\kijan\wapmap\objedit\editrope.cpp
+	"editRope.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354399811 c:\projects\kijan\wapmap\objedit\editrope.h
+	"../states/objedit.h"
+
+1354823931 source:c:\projects\kijan\wapmap\objedit\editshake.cpp
+	"editShake.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354822870 c:\projects\kijan\wapmap\objedit\editshake.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1386868112 source:c:\projects\kijan\wapmap\objedit\editspecialpowerup.cpp
+	"editSpecialPowerup.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355415321 c:\projects\kijan\wapmap\objedit\editspecialpowerup.h
+	"../states/objedit.h"
+
+1381177241 source:c:\projects\kijan\wapmap\objedit\editspringboard.cpp
+	"editSpringboard.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1354399915 c:\projects\kijan\wapmap\objedit\editspringboard.h
+	"../states/objedit.h"
+
+1355254265 source:c:\projects\kijan\wapmap\objedit\editstalactite.cpp
+	"editStalactite.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1355254228 c:\projects\kijan\wapmap\objedit\editstalactite.h
+	"../states/objedit.h"
+	"procPickRect.h"
+
+1381181741 source:c:\projects\kijan\wapmap\objedit\editstatue.cpp
+	"editStatue.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"winInventoryPickbox.h"
+
+1381181821 source:c:\projects\kijan\wapmap\objedit\editelevator.cpp
+	"editElevator.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cObjectUserData.h"
+	<cmath>
+
+1579211155 c:\projects\kijan\wapmap\objedit\editelevator.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wListbox.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"procPickRect.h"
+
+1386868132 source:c:\projects\kijan\wapmap\objedit\edittext.cpp
+	"editText.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1356097562 c:\projects\kijan\wapmap\objedit\edittext.h
+	"../states/objedit.h"
+	"../../shared/gcnWidgets/wTextBox.h"
+
+1356036395 source:c:\projects\kijan\wapmap\objedit\edittits.cpp
+
+1386868141 source:c:\projects\kijan\wapmap\objedit\edittogglepeg.cpp
+	"editTogglePeg.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1355868858 c:\projects\kijan\wapmap\objedit\edittogglepeg.h
+	"../states/objedit.h"
+
+1386868149 source:c:\projects\kijan\wapmap\objedit\edittreasure.cpp
+	"editTreasure.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354400075 c:\projects\kijan\wapmap\objedit\edittreasure.h
+	"../states/objedit.h"
+
+1381181707 source:c:\projects\kijan\wapmap\objedit\editwallcannon.cpp
+	"editWallCannon.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	<cmath>
+	<hgeVector.h>
+
+1355427693 c:\projects\kijan\wapmap\objedit\editwallcannon.h
+	"../states/objedit.h"
+
+1386868161 source:c:\projects\kijan\wapmap\objedit\editwarp.cpp
+	"editWarp.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+	"../databanks/imageSets.h"
+
+1354400156 c:\projects\kijan\wapmap\objedit\editwarp.h
+	"../states/objedit.h"
+
+1381177201 source:c:\projects\kijan\wapmap\objedit\procpickrect.cpp
+	"procPickRect.h"
+	"../langID.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+
+1386868173 source:c:\projects\kijan\wapmap\objedit\wininventorypickbox.cpp
+	"winInventoryPickbox.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../databanks/imageSets.h"
+
+1386868189 source:c:\projects\kijan\wapmap\objquadtree.cpp
+	"objQuadTree.h"
+	"globals.h"
+	"cObjectUserData.h"
+	"databanks/imageSets.h"
+
+1384701277 source:c:\projects\kijan\wapmap\rendering\crenderableitem.cpp
+	"cRenderableItem.h"
+	"../../shared/cWWD.h"
+	"../globals.h"
+	"../states/editing_ww.h"
+	"../cObjectUserData.h"
+
+1384556876 c:\projects\kijan\wapmap\rendering\crenderableitem.h
+
+1283673041 source:c:\projects\kijan\wapmap\returncodes.cpp
+
+1386868231 source:c:\projects\kijan\wapmap\states\codeeditor.cpp
+	"CodeEditor.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../langID.h"
+	"../databanks/logics.h"
+	"../../shared/Scintilla/Scintilla.h"
+	"../../shared/Scintilla/SciLexer.h"
+	"editing_ww.h"
+	<Windows.h>
+
+1385499428 c:\projects\kijan\wapmap\returncodes.h
+
+1381907898 c:\projects\kijan\shared\scintilla\scintilla.h
+	<basetsd.h>
+
+1381907898 c:\projects\kijan\shared\scintilla\scilexer.h
+
+1579215394 source:c:\projects\kijan\wapmap\states\editing_ww.cpp
+	"editing_ww.h"
+	"loadmap.h"
+	"../globals.h"
+	"../conf.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+	"../returncodes.h"
+	"../cObjectUserData.h"
+	"error.h"
+	<math.h>
+	<fstream>
+	"../cAppMenu.h"
+	"../../shared/gcnWidgets/wComboButton.h"
+	"../cNativeController.h"
+	"codeEditor.h"
+	"../windows/tileBrowser.h"
+	"../windows/imgsetBrowser.h"
+	"../windows/options.h"
+	"../windows/about.h"
+	<direct.h>
+	<dirent.h>
+	"../databanks/logics.h"
+	"../databanks/tiles.h"
+	"../databanks/imageSets.h"
+	"../cBrush.h"
+
+1579268171 source:c:\projects\kijan\wapmap\states\editing_ww\alactionlistener.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../loadmap.h"
+	"../mapshot.h"
+	"../codeEditor.h"
+	"../../langID.h"
+	"../error.h"
+	"../../cObjectUserData.h"
+	"../stats.h"
+	"../../returncodes.h"
+	<fstream>
+	"../../cAppMenu.h"
+	"../../../shared/gcnWidgets/wComboButton.h"
+	"../../cNativeController.h"
+	<cmath>
+	"../../databanks/logics.h"
+	"../../databanks/tiles.h"
+	"../../databanks/sounds.h"
+	"../../databanks/anims.h"
+	"../../databanks/imageSets.h"
+	"../../../shared/cANI.h"
+
+1579301592 c:\projects\kijan\wapmap\states\mapshot.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wProgressBar.h"
+	"../../shared/cWWD.h"
+	"../../shared/cProgressInfo.h"
+	<SFML/Graphics/Image.hpp>
+
+1385068459 source:c:\projects\kijan\wapmap\states\editing_ww\clayerrenderbuffer.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+
+1388009571 source:c:\projects\kijan\wapmap\states\editing_ww\lmlistmodel.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	<sys/types.h>
+	<dirent.h>
+	"../../databanks/imageSets.h"
+	"../../databanks/anims.h"
+	"../../databanks/sounds.h"
+
+1386868799 source:c:\projects\kijan\wapmap\states\editing_ww\modeobject.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../objprop.h"
+	<math.h>
+	"../../cNativeController.h"
+	"../../objEdit/editCurse.h"
+	"../../objEdit/editElevPath.h"
+	"../../objEdit/editCheckpoint.h"
+	"../../objEdit/editWarp.h"
+	"../../objEdit/editWallCannon.h"
+	"../../objEdit/editCrumblingPeg.h"
+	"../../objEdit/editStatue.h"
+	"../../objEdit/editBreakPlank.h"
+	"../../objEdit/editCrate.h"
+	"../../objEdit/editTreasure.h"
+	"../../objEdit/editRope.h"
+	"../../objEdit/editHealth.h"
+	"../../objEdit/editSpecialPowerup.h"
+	"../../objEdit/editTogglePeg.h"
+	"../../objEdit/editCandy.h"
+	"../../objEdit/editSpringboard.h"
+	"../../objEdit/editDialog.h"
+	"../../objEdit/editProjectile.h"
+	"../../objEdit/editElevator.h"
+	"../../objEdit/editCrabNest.h"
+	"../../objEdit/editShake.h"
+	"../../objEdit/editLaser.h"
+	"../../objEdit/editStalactite.h"
+	"../../objEdit/editAmbient.h"
+	"../../objEdit/editEnemy.h"
+	"../../objEdit/editText.h"
+	"../../databanks/logics.h"
+
+1386866092 c:\projects\kijan\wapmap\states\objprop.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wCheckbox.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wTabbedArea.h"
+	"../../shared/gcnWidgets/wRadioBut.h"
+	"../../shared/gcnWidgets/wTextDropDown.h"
+	"../../shared/cWWD.h"
+	"../wViewport.h"
+	"../cSoundPlayer.h"
+	"guichan.hpp"
+
+1386868831 source:c:\projects\kijan\wapmap\states\editing_ww\modetile.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	<cmath>
+	"../../databanks/tiles.h"
+	"../../cBrush.h"
+
+1386868852 source:c:\projects\kijan\wapmap\states\editing_ww\prochotkeyshandle.cpp
+	"../editing_ww.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../../../shared/gcnWidgets/wComboButton.h"
+	"../../databanks/tiles.h"
+
+1388010908 source:c:\projects\kijan\wapmap\states\editing_ww\rendering.cpp
+	"../editing_ww.h"
+	"../loadmap.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../returncodes.h"
+	"../../cObjectUserData.h"
+	"../error.h"
+	<math.h>
+	<hgeVector.h>
+	"../../objEdit/editElevPath.h"
+	"../../objEdit/editWarp.h"
+	"../../objEdit/editCrate.h"
+	"../../objEdit/editStatue.h"
+	"../../objEdit/editSpringboard.h"
+	"../../objEdit/editDialog.h"
+	"../../cAppMenu.h"
+	"../../cInterfaceSheet.h"
+	"../../rendering/cRenderableItem.h"
+	"../../databanks/imageSets.h"
+	"../../databanks/anims.h"
+	"../../databanks/tiles.h"
+	"../../cBrush.h"
+
+1388011175 source:c:\projects\kijan\wapmap\states\editing_ww\vpcallback.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../../../shared/commonFunc.h"
+
+1384523306 source:c:\projects\kijan\wapmap\states\editing_ww\vport.cpp
+	"../editing_ww.h"
+
+1386868954 source:c:\projects\kijan\wapmap\states\editing_ww\windatabase.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cInterfaceSheet.h"
+	"../../databanks/imageSets.h"
+
+1381177187 source:c:\projects\kijan\wapmap\states\editing_ww\winfirstrun.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+
+1579211358 source:c:\projects\kijan\wapmap\res.rc
+
+1384900062 source:c:\projects\kijan\wapmap\states\editing_ww\winnewmap.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../loadmap.h"
+
+1386868973 source:c:\projects\kijan\wapmap\states\editing_ww\winplaneproperties.cpp
+	"../editing_ww.h"
+	"../../globals.h"
+	"../../conf.h"
+	"../error.h"
+	"../../../shared/commonFunc.h"
+	"../../langID.h"
+	"../../cObjectUserData.h"
+	"../../databanks/tiles.h"
+
+1381177088 source:c:\projects\kijan\wapmap\states\error.cpp
+	"error.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../langID.h"
+
+1387304819 source:c:\projects\kijan\wapmap\states\imagedetails.cpp
+	"imageDetails.h"
+	"../globals.h"
+	"../cInterfaceSheet.h"
+	"editing_ww.h"
+	"../cTextureAtlas.h"
+	<algorithm>
+	"../cDataController.h"
+	<dirent.h>
+	"../langID.h"
+
+1387304559 c:\projects\kijan\wapmap\states\imagedetails.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"guichan.hpp"
+	"../wViewport.h"
+
+1579301424 source:c:\projects\kijan\wapmap\states\imageimport.cpp
+	"imageImport.h"
+	"../globals.h"
+	"../cInterfaceSheet.h"
+	"editing_ww.h"
+	"../cTextureAtlas.h"
+	<algorithm>
+	"../cDataController.h"
+	"../databanks/tiles.h"
+	"../databanks/imageSets.h"
+	<dirent.h>
+	"../langID.h"
+
+1387231637 c:\projects\kijan\wapmap\states\imageimport.h
+	"../../shared/cStateMgr.h"
+	"../../shared/gcnWidgets/wWin.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wTextField.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	"../../shared/cWWD.h"
+	"guichan.hpp"
+	"../wViewport.h"
+
+1387221915 source:c:\projects\kijan\wapmap\states\loadmap.cpp
+	"loadmap.h"
+	"error.h"
+	"editing_ww.h"
+	"../globals.h"
+	"../../shared/gcnWidgets/wContainer.h"
+	"../../shared/commonFunc.h"
+	"../returncodes.h"
+	"../../shared/cREZ.h"
+	"../../shared/cPID.h"
+	"../databanks/tiles.h"
+	<Windows.h>
+	"../langID.h"
+	<sys/types.h>
+	<dirent.h>
+	"../cMDI.h"
+	"../io/cWWDx.h"
+	"../../shared/cProgressInfo.h"
+	"../databanks/imageSets.h"
+	"../databanks/sounds.h"
+	"../databanks/anims.h"
+	"../databanks/logics.h"
+
+1579303120 source:c:\projects\kijan\wapmap\states\mapshot.cpp
+	"mapshot.h"
+	"../globals.h"
+	"../conf.h"
+	<cmath>
+	"../langID.h"
+	"editing_ww.h"
+	"../returncodes.h"
+	"error.h"
+	"../../shared/commonFunc.h"
+
+1386869087 source:c:\projects\kijan\wapmap\states\objedit.cpp
+	"objedit.h"
+	"editing_ww.h"
+	"../cObjectUserData.h"
+	"../langID.h"
+	"../databanks/imageSets.h"
+
+1386869127 source:c:\projects\kijan\wapmap\states\objprop.cpp
+	"objprop.h"
+	"../returncodes.h"
+	"../globals.h"
+	"../langID.h"
+	"../cObjectUserData.h"
+	"../../shared/gcnWidgets/wTab.h"
+	"../databanks/logics.h"
+	"codeEditor.h"
+	<math.h>
+	"editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../databanks/imageSets.h"
+	"../databanks/anims.h"
+
+1384111480 source:c:\projects\kijan\wapmap\states\stats.cpp
+	"stats.h"
+	"../globals.h"
+	"editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../langID.h"
+
+1354824840 source:c:\projects\kijan\wapmap\vpfocuswidg.cpp
+	"vpFocusWidg.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"guichan/mouseinput.hpp"
+	"hge.h"
+
+1388011846 source:c:\projects\kijan\wapmap\windows\about.cpp
+	"about.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../cInterfaceSheet.h"
+	"../conf.h"
+
+1387304070 source:c:\projects\kijan\wapmap\windows\imgsetbrowser.cpp
+	"imgsetBrowser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../states/imageImport.h"
+	"../states/imageDetails.h"
+	"../databanks/imageSets.h"
+
+1388010013 source:c:\projects\kijan\wapmap\windows\options.cpp
+	"options.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../../shared/gcnWidgets/wLabel.h"
+	"../../shared/gcnWidgets/wButton.h"
+	"../../shared/gcnWidgets/wSlider.h"
+	"../../shared/gcnWidgets/wScrollArea.h"
+	"../../shared/gcnWidgets/wDropDown.h"
+	<dirent.h>
+	"../cNativeController.h"
+
+1387078571 source:c:\projects\kijan\wapmap\windows\tilebrowser.cpp
+	"tileBrowser.h"
+	"../globals.h"
+	"../langID.h"
+	"../states/editing_ww.h"
+	"../../shared/commonFunc.h"
+	"../cInterfaceSheet.h"
+	"../states/imageImport.h"
+	"../databanks/tiles.h"
+
+1388012004 source:c:\projects\kijan\wapmap\windows\worldproperties.cpp
+
+1284140601 source:c:\projects\kijan\wapmap\wviewport.cpp
+	"wViewport.h"
+	"guichan/exception.hpp"
+	"guichan/font.hpp"
+	"guichan/graphics.hpp"
+	"hge.h"
+
+1504091154 c:\projects\libgd\src\gd.h
+	<stdlib.h>
+	<stdarg.h>
+	"gd_io.h"
+	"gdfx.h"
+
+1504091154 c:\projects\libgd\src\gd_io.h
+
+1504091154 c:\projects\libgd\src\gdfx.h
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics.hpp
+	<SFML/Window.hpp>
+	<SFML/Graphics/BlendMode.hpp>
+	<SFML/Graphics/CircleShape.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/Graphics/ConvexShape.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Font.hpp>
+	<SFML/Graphics/Glyph.hpp>
+	<SFML/Graphics/Image.hpp>
+	<SFML/Graphics/PrimitiveType.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/RectangleShape.hpp>
+	<SFML/Graphics/RenderStates.hpp>
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/Graphics/RenderTexture.hpp>
+	<SFML/Graphics/RenderWindow.hpp>
+	<SFML/Graphics/Shader.hpp>
+	<SFML/Graphics/Shape.hpp>
+	<SFML/Graphics/Sprite.hpp>
+	<SFML/Graphics/Text.hpp>
+	<SFML/Graphics/Texture.hpp>
+	<SFML/Graphics/Transform.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/Graphics/Vertex.hpp>
+	<SFML/Graphics/VertexArray.hpp>
+	<SFML/Graphics/VertexBuffer.hpp>
+	<SFML/Graphics/View.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\window.hpp
+	<SFML/System.hpp>
+	<SFML/Window/Clipboard.hpp>
+	<SFML/Window/Context.hpp>
+	<SFML/Window/ContextSettings.hpp>
+	<SFML/Window/Cursor.hpp>
+	<SFML/Window/Event.hpp>
+	<SFML/Window/Joystick.hpp>
+	<SFML/Window/Keyboard.hpp>
+	<SFML/Window/Mouse.hpp>
+	<SFML/Window/Sensor.hpp>
+	<SFML/Window/Touch.hpp>
+	<SFML/Window/VideoMode.hpp>
+	<SFML/Window/Window.hpp>
+	<SFML/Window/WindowHandle.hpp>
+	<SFML/Window/WindowStyle.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\system.hpp
+	<SFML/Config.hpp>
+	<SFML/System/Clock.hpp>
+	<SFML/System/Err.hpp>
+	<SFML/System/FileInputStream.hpp>
+	<SFML/System/InputStream.hpp>
+	<SFML/System/Lock.hpp>
+	<SFML/System/MemoryInputStream.hpp>
+	<SFML/System/Mutex.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<SFML/System/Sleep.hpp>
+	<SFML/System/String.hpp>
+	<SFML/System/Thread.hpp>
+	<SFML/System/ThreadLocal.hpp>
+	<SFML/System/ThreadLocalPtr.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/System/Utf.hpp>
+	<SFML/System/Vector2.hpp>
+	<SFML/System/Vector3.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\config.hpp
+	"TargetConditionals.h"
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\clock.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/Time.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\export.hpp
+	<SFML/Config.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\time.hpp
+	<SFML/System/Export.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\err.hpp
+	<SFML/System/Export.hpp>
+	<ostream>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\fileinputstream.hpp
+	<SFML/Config.hpp>
+	<SFML/System/Export.hpp>
+	<SFML/System/InputStream.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<cstdio>
+	<string>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\inputstream.hpp
+	<SFML/Config.hpp>
+	<SFML/System/Export.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\noncopyable.hpp
+	<SFML/System/Export.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\lock.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\memoryinputstream.hpp
+	<SFML/Config.hpp>
+	<SFML/System/InputStream.hpp>
+	<SFML/System/Export.hpp>
+	<cstdlib>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\mutex.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\sleep.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/Time.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\string.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/Utf.hpp>
+	<iterator>
+	<locale>
+	<string>
+	<SFML/System/String.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\utf.hpp
+	<SFML/Config.hpp>
+	<algorithm>
+	<locale>
+	<string>
+	<cstdlib>
+	<SFML/System/Utf.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\utf.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\string.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\thread.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<cstdlib>
+	<SFML/System/Thread.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\thread.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\threadlocal.hpp
+	<SFML/System/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<cstdlib>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\threadlocalptr.hpp
+	<SFML/System/ThreadLocal.hpp>
+	<SFML/System/ThreadLocalPtr.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\threadlocalptr.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\vector2.hpp
+	<SFML/System/Vector2.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\vector2.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\vector3.hpp
+	<SFML/System/Vector3.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\system\vector3.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\clipboard.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/String.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\export.hpp
+	<SFML/Config.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\context.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/Window/GlResource.hpp>
+	<SFML/Window/ContextSettings.hpp>
+	<SFML/System/NonCopyable.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\glresource.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\contextsettings.hpp
+	<SFML/Config.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\cursor.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\event.hpp
+	<SFML/Config.hpp>
+	<SFML/Window/Joystick.hpp>
+	<SFML/Window/Keyboard.hpp>
+	<SFML/Window/Mouse.hpp>
+	<SFML/Window/Sensor.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\joystick.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/String.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\keyboard.hpp
+	<SFML/Window/Export.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\mouse.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\sensor.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/Vector3.hpp>
+	<SFML/System/Time.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\touch.hpp
+	<SFML/Window/Export.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\videomode.hpp
+	<SFML/Window/Export.hpp>
+	<vector>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\window.hpp
+	<SFML/Window/ContextSettings.hpp>
+	<SFML/Window/Cursor.hpp>
+	<SFML/Window/Export.hpp>
+	<SFML/Window/GlResource.hpp>
+	<SFML/Window/VideoMode.hpp>
+	<SFML/Window/WindowHandle.hpp>
+	<SFML/Window/WindowStyle.hpp>
+	<SFML/System/Clock.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<SFML/System/String.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\windowhandle.hpp
+	<SFML/Config.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\window\windowstyle.hpp
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\blendmode.hpp
+	<SFML/Graphics/Export.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\export.hpp
+	<SFML/Config.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\circleshape.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Shape.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\shape.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/Graphics/VertexArray.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\drawable.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/RenderStates.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\renderstates.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/BlendMode.hpp>
+	<SFML/Graphics/Transform.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\transform.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\rect.hpp
+	<SFML/System/Vector2.hpp>
+	<algorithm>
+	<SFML/Graphics/Rect.inl>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\rect.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\transformable.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Transform.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\vertexarray.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Vertex.hpp>
+	<SFML/Graphics/PrimitiveType.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<vector>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\vertex.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\color.hpp
+	<SFML/Graphics/Export.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\primitivetype.hpp
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\convexshape.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Shape.hpp>
+	<vector>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\font.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Glyph.hpp>
+	<SFML/Graphics/Texture.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/System/Vector2.hpp>
+	<SFML/System/String.hpp>
+	<map>
+	<string>
+	<vector>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\glyph.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Rect.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\texture.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Image.hpp>
+	<SFML/Window/GlResource.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\image.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<string>
+	<vector>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\rectangleshape.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Shape.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\rendertarget.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/View.hpp>
+	<SFML/Graphics/Transform.hpp>
+	<SFML/Graphics/BlendMode.hpp>
+	<SFML/Graphics/RenderStates.hpp>
+	<SFML/Graphics/PrimitiveType.hpp>
+	<SFML/Graphics/Vertex.hpp>
+	<SFML/System/NonCopyable.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\view.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Transform.hpp>
+	<SFML/System/Vector2.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\rendertexture.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Texture.hpp>
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/Window/ContextSettings.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\renderwindow.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/Graphics/Image.hpp>
+	<SFML/Window/Window.hpp>
+	<string>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\shader.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Glsl.hpp>
+	<SFML/Window/GlResource.hpp>
+	<SFML/System/NonCopyable.hpp>
+	<SFML/System/Vector2.hpp>
+	<SFML/System/Vector3.hpp>
+	<map>
+	<string>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\glsl.hpp
+	<SFML/Graphics/Transform.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/System/Vector2.hpp>
+	<SFML/System/Vector3.hpp>
+	<SFML/Graphics/Glsl.inl>
+
+1576376147 c:\projects\sfml-2.5.1\include\sfml\graphics\glsl.inl
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\sprite.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/Graphics/Vertex.hpp>
+	<SFML/Graphics/Rect.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\text.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/Graphics/Font.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/VertexArray.hpp>
+	<SFML/System/String.hpp>
+	<string>
+	<vector>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics\vertexbuffer.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/PrimitiveType.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Window/GlResource.hpp>
+
+1576376148 c:\projects\sfml-2.5.1\include\sfml\graphics
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\image.hpp
+	<SFML/Graphics/Export.hpp>
+	<SFML/Graphics/Color.hpp>
+	<SFML/Graphics/Rect.hpp>
+	<string>
+	<vector>
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\export.hpp
+	<SFML/Config.hpp>
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\config.hpp
+	"TargetConditionals.h"
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\color.hpp
+	<SFML/Graphics/Export.hpp>
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\rect.hpp
+	<SFML/System/Vector2.hpp>
+	<algorithm>
+	<SFML/Graphics/Rect.inl>
+
+1579301981 c:\projects\sfml-2.5.1-tdm\include\sfml\system\vector2.hpp
+	<SFML/System/Vector2.inl>
+
+1579301981 c:\projects\sfml-2.5.1-tdm\include\sfml\system\vector2.inl
+
+1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\rect.inl
+

@@ -1,0 +1,602 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bodyQuadTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cAppMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cAutoUpdater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cBrush.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cColorPicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cControllerIPC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cDataController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cGameSimulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cInventoryController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cLogicsList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cMDI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cModeMenuBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cMRUList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cNativeController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cObjectUserData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cParallelLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cPhysics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cRulers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cSerialManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cSoundPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cTextureAtlas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="funcConsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="globlua.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="newsReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objQuadTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="returncodes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vpFocusWidg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wViewport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databanks\anims.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databanks\imageSets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databanks\logics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databanks\sounds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databanks\tiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="io\cWWDx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editAmbient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editBreakPlank.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCandy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCheckpoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCrabNest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCrate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCrumblingPeg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editCurse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editElevator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editElevPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editHealth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editLaser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editRope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editShake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editSpecialPowerup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editSpringboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editStalactite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editStatue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editTits.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editTogglePeg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editTreasure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editWallCannon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editWarp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\procPickRect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\winInventoryPickbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\cRenderableItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\codeEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\imageDetails.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\imageImport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\loadmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\mapshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\objedit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\objprop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\stats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\updater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\alActionListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\cObjectRenderBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\lmListModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\modeObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\modeTile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\procHotkeysHandle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\rendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\vpCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\vPort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\winDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\winFirstRun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\winNewMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\winPlaneProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\brushObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\brushTile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\noTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\objectCreator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\pencil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\about.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\imgsetBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\mapShot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\tileBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\tileProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\worldProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bodyQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cAppMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cAutoUpdater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cBrush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cColorPicker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cControllerIPC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cDataController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cFileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cGameSimulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cInterfaceSheet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cInventoryController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cLogicsList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cMDI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cModeMenuBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cMRUList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cNativeController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cObjectUserData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="conf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cParallelLoop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cPhysics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cRulers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cSerialManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cSoundPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTextureAtlas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTileGhost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="funcConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globlua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="langID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="newsReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="returncodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vpFocusWidg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wViewport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databanks\anims.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databanks\imageSets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databanks\logics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databanks\sounds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databanks\tiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="io\cWWDx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editAmbient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editBreakPlank.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCandy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCheckpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCrabNest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCrate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCrumblingPeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editCurse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editElevator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editElevPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editHealth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editLaser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editProjectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editRope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editShake.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editSpecialPowerup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editSpringboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editStalactite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editStatue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editTits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editTogglePeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editTreasure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editWallCannon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editWarp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\procPickRect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\winInventoryPickbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\cRenderableItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\codeEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\editing_ww.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\imageDetails.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\imageImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\loadmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\mapshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\objedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\objprop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\about.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\imgsetBrowser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapShot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\tileBrowser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\tileProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\worldProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

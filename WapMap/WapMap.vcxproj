@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{1F8033F2-055C-4A4C-8475-B63680992F34}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WAP_MAP;WAP_TOOLS;WIN32;_DEBUG;_WINDOWS;BUILD_DEBUG;SHOWMEMUSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\incl</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Psapi;hgedx9;hgehelp;Comdlg32;zdll;Shell32;Ole32;Version;Winm;lua51;curldllminimal;bgd;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WAP_MAP;WAP_TOOLS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\incl</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hgedx9;hgehelp;Comdlg32;zdll;Shell32;Ole32;Version;Winm;lua51;curldllminimal;bgd;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="bodyQuadTree.cpp" />
+    <ClCompile Include="cAppMenu.cpp" />
+    <ClCompile Include="cAutoUpdater.cpp" />
+    <ClCompile Include="cBrush.cpp" />
+    <ClCompile Include="cColorPicker.cpp" />
+    <ClCompile Include="cControllerIPC.cpp" />
+    <ClCompile Include="cDataController.cpp" />
+    <ClCompile Include="cFileSystem.cpp" />
+    <ClCompile Include="cGameSimulator.cpp" />
+    <ClCompile Include="cInventoryController.cpp" />
+    <ClCompile Include="cLogicsList.cpp" />
+    <ClCompile Include="cMDI.cpp" />
+    <ClCompile Include="cModeMenuBar.cpp" />
+    <ClCompile Include="cMRUList.cpp" />
+    <ClCompile Include="cNativeController.cpp" />
+    <ClCompile Include="cObjectUserData.cpp" />
+    <ClCompile Include="cParallelLoop.cpp" />
+    <ClCompile Include="cPhysics.cpp" />
+    <ClCompile Include="cRulers.cpp" />
+    <ClCompile Include="cSerialManager.cpp" />
+    <ClCompile Include="cSoundPlayer.cpp" />
+    <ClCompile Include="cTextureAtlas.cpp" />
+    <ClCompile Include="databanks\anims.cpp" />
+    <ClCompile Include="databanks\imageSets.cpp" />
+    <ClCompile Include="databanks\logics.cpp" />
+    <ClCompile Include="databanks\sounds.cpp" />
+    <ClCompile Include="databanks\tiles.cpp" />
+    <ClCompile Include="funcConsole.cpp" />
+    <ClCompile Include="globals.cpp" />
+    <ClCompile Include="globlua.cpp" />
+    <ClCompile Include="io\cWWDx.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="newsReader.cpp" />
+    <ClCompile Include="objedit\editAmbient.cpp" />
+    <ClCompile Include="objedit\editBreakPlank.cpp" />
+    <ClCompile Include="objedit\editCandy.cpp" />
+    <ClCompile Include="objedit\editCheckpoint.cpp" />
+    <ClCompile Include="objedit\editCrabNest.cpp" />
+    <ClCompile Include="objedit\editCrate.cpp" />
+    <ClCompile Include="objedit\editCrumblingPeg.cpp" />
+    <ClCompile Include="objedit\editCurse.cpp" />
+    <ClCompile Include="objedit\editDialog.cpp" />
+    <ClCompile Include="objedit\editElevator.cpp" />
+    <ClCompile Include="objedit\editElevPath.cpp" />
+    <ClCompile Include="objedit\editEnemy.cpp" />
+    <ClCompile Include="objedit\editHealth.cpp" />
+    <ClCompile Include="objedit\editLaser.cpp" />
+    <ClCompile Include="objedit\editProjectile.cpp" />
+    <ClCompile Include="objedit\editRope.cpp" />
+    <ClCompile Include="objedit\editShake.cpp" />
+    <ClCompile Include="objedit\editSpecialPowerup.cpp" />
+    <ClCompile Include="objedit\editSpringboard.cpp" />
+    <ClCompile Include="objedit\editStalactite.cpp" />
+    <ClCompile Include="objedit\editStatue.cpp" />
+    <ClCompile Include="objedit\editText.cpp" />
+    <ClCompile Include="objedit\editTits.cpp" />
+    <ClCompile Include="objedit\editTogglePeg.cpp" />
+    <ClCompile Include="objedit\editTreasure.cpp" />
+    <ClCompile Include="objedit\editWallCannon.cpp" />
+    <ClCompile Include="objedit\editWarp.cpp" />
+    <ClCompile Include="objedit\procPickRect.cpp" />
+    <ClCompile Include="objedit\winInventoryPickbox.cpp" />
+    <ClCompile Include="objQuadTree.cpp" />
+    <ClCompile Include="rendering\cRenderableItem.cpp" />
+    <ClCompile Include="returncodes.cpp" />
+    <ClCompile Include="states\codeEditor.cpp" />
+    <ClCompile Include="states\editing_ww.cpp" />
+    <ClCompile Include="states\editing_ww\alActionListener.cpp" />
+    <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp" />
+    <ClCompile Include="states\editing_ww\cObjectRenderBuffer.cpp" />
+    <ClCompile Include="states\editing_ww\lmListModel.cpp" />
+    <ClCompile Include="states\editing_ww\modeObject.cpp" />
+    <ClCompile Include="states\editing_ww\modeTile.cpp" />
+    <ClCompile Include="states\editing_ww\procHotkeysHandle.cpp" />
+    <ClCompile Include="states\editing_ww\rendering.cpp" />
+    <ClCompile Include="states\editing_ww\vpCallback.cpp" />
+    <ClCompile Include="states\editing_ww\vPort.cpp" />
+    <ClCompile Include="states\editing_ww\winDatabase.cpp" />
+    <ClCompile Include="states\editing_ww\winFirstRun.cpp" />
+    <ClCompile Include="states\editing_ww\winNewMap.cpp" />
+    <ClCompile Include="states\editing_ww\winPlaneProperties.cpp" />
+    <ClCompile Include="states\error.cpp" />
+    <ClCompile Include="states\imageDetails.cpp" />
+    <ClCompile Include="states\imageImport.cpp" />
+    <ClCompile Include="states\loadmap.cpp" />
+    <ClCompile Include="states\mapshot.cpp" />
+    <ClCompile Include="states\objedit.cpp" />
+    <ClCompile Include="states\objprop.cpp" />
+    <ClCompile Include="states\stats.cpp" />
+    <ClCompile Include="states\updater.cpp" />
+    <ClCompile Include="tools\brushObject.cpp" />
+    <ClCompile Include="tools\brushTile.cpp" />
+    <ClCompile Include="tools\noTool.cpp" />
+    <ClCompile Include="tools\objectCreator.cpp" />
+    <ClCompile Include="tools\pencil.cpp" />
+    <ClCompile Include="vpFocusWidg.cpp" />
+    <ClCompile Include="windows\about.cpp" />
+    <ClCompile Include="windows\imgsetBrowser.cpp" />
+    <ClCompile Include="windows\mapShot.cpp" />
+    <ClCompile Include="windows\options.cpp" />
+    <ClCompile Include="windows\tileBrowser.cpp" />
+    <ClCompile Include="windows\tileProperties.cpp" />
+    <ClCompile Include="windows\worldProperties.cpp" />
+    <ClCompile Include="wViewport.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bodyQuadTree.h" />
+    <ClInclude Include="cAppMenu.h" />
+    <ClInclude Include="cAutoUpdater.h" />
+    <ClInclude Include="cBrush.h" />
+    <ClInclude Include="cColorPicker.h" />
+    <ClInclude Include="cControllerIPC.h" />
+    <ClInclude Include="cDataController.h" />
+    <ClInclude Include="cFileSystem.h" />
+    <ClInclude Include="cGameSimulator.h" />
+    <ClInclude Include="cInterfaceSheet.h" />
+    <ClInclude Include="cInventoryController.h" />
+    <ClInclude Include="cLogicsList.h" />
+    <ClInclude Include="cMDI.h" />
+    <ClInclude Include="cModeMenuBar.h" />
+    <ClInclude Include="cMRUList.h" />
+    <ClInclude Include="cNativeController.h" />
+    <ClInclude Include="cObjectUserData.h" />
+    <ClInclude Include="conf.h" />
+    <ClInclude Include="cParallelLoop.h" />
+    <ClInclude Include="cPhysics.h" />
+    <ClInclude Include="cRulers.h" />
+    <ClInclude Include="cSerialManager.h" />
+    <ClInclude Include="cSoundPlayer.h" />
+    <ClInclude Include="cTextureAtlas.h" />
+    <ClInclude Include="cTileGhost.h" />
+    <ClInclude Include="databanks\anims.h" />
+    <ClInclude Include="databanks\imageSets.h" />
+    <ClInclude Include="databanks\logics.h" />
+    <ClInclude Include="databanks\sounds.h" />
+    <ClInclude Include="databanks\tiles.h" />
+    <ClInclude Include="funcConsole.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="globlua.h" />
+    <ClInclude Include="io\cWWDx.h" />
+    <ClInclude Include="langID.h" />
+    <ClInclude Include="newsReader.h" />
+    <ClInclude Include="objedit\editAmbient.h" />
+    <ClInclude Include="objedit\editBreakPlank.h" />
+    <ClInclude Include="objedit\editCandy.h" />
+    <ClInclude Include="objedit\editCheckpoint.h" />
+    <ClInclude Include="objedit\editCrabNest.h" />
+    <ClInclude Include="objedit\editCrate.h" />
+    <ClInclude Include="objedit\editCrumblingPeg.h" />
+    <ClInclude Include="objedit\editCurse.h" />
+    <ClInclude Include="objedit\editDialog.h" />
+    <ClInclude Include="objedit\editElevator.h" />
+    <ClInclude Include="objedit\editElevPath.h" />
+    <ClInclude Include="objedit\editEnemy.h" />
+    <ClInclude Include="objedit\editHealth.h" />
+    <ClInclude Include="objedit\editLaser.h" />
+    <ClInclude Include="objedit\editProjectile.h" />
+    <ClInclude Include="objedit\editRope.h" />
+    <ClInclude Include="objedit\editShake.h" />
+    <ClInclude Include="objedit\editSpecialPowerup.h" />
+    <ClInclude Include="objedit\editSpringboard.h" />
+    <ClInclude Include="objedit\editStalactite.h" />
+    <ClInclude Include="objedit\editStatue.h" />
+    <ClInclude Include="objedit\editText.h" />
+    <ClInclude Include="objedit\editTits.h" />
+    <ClInclude Include="objedit\editTogglePeg.h" />
+    <ClInclude Include="objedit\editTreasure.h" />
+    <ClInclude Include="objedit\editWallCannon.h" />
+    <ClInclude Include="objedit\editWarp.h" />
+    <ClInclude Include="objedit\procPickRect.h" />
+    <ClInclude Include="objedit\winInventoryPickbox.h" />
+    <ClInclude Include="objQuadTree.h" />
+    <ClInclude Include="rendering\cRenderableItem.h" />
+    <ClInclude Include="returncodes.h" />
+    <ClInclude Include="states\codeEditor.h" />
+    <ClInclude Include="states\editing_ww.h" />
+    <ClInclude Include="states\error.h" />
+    <ClInclude Include="states\imageDetails.h" />
+    <ClInclude Include="states\imageImport.h" />
+    <ClInclude Include="states\loadmap.h" />
+    <ClInclude Include="states\mapshot.h" />
+    <ClInclude Include="states\objedit.h" />
+    <ClInclude Include="states\objprop.h" />
+    <ClInclude Include="states\stats.h" />
+    <ClInclude Include="vpFocusWidg.h" />
+    <ClInclude Include="windows\about.h" />
+    <ClInclude Include="windows\imgsetBrowser.h" />
+    <ClInclude Include="windows\mapShot.h" />
+    <ClInclude Include="windows\options.h" />
+    <ClInclude Include="windows\tileBrowser.h" />
+    <ClInclude Include="windows\tileProperties.h" />
+    <ClInclude Include="windows\window.h" />
+    <ClInclude Include="windows\worldProperties.h" />
+    <ClInclude Include="wViewport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
