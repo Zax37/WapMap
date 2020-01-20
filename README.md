@@ -27,7 +27,7 @@ git clone https://github.com/curl/curl
 git clone https://github.com/lua/lua
 ```
 
-4. Build the dependencies (I used CMake).
+4. Build the dependencies (I used CMake). You'll need to download DirectX 9 SDK, as HGE's readme says.
 
 5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
 
