@@ -1,4 +1,0 @@
-folder "incl" powinien byc podpiety jako folder z includesami do kompilatora
-folder "lib" powinien byc podpiety jako folder z libami do kompilatora
-skonfigurowany projekt do kompilacji - WapMap/WapMap.cbp
-projekt kompiluje siê pod gcc 4.7.1 tdm
