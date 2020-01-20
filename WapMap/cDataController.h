@@ -91,7 +91,7 @@ class cAssetBank
   virtual void BatchProcessEnd(cDataController * hDC){};
 
   virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix){ return ""; };
-  virtual cAsset * AllocateAssetForMountPoint(cDataController * hDC, cDC_MountEntry mountEntry){};
+  virtual cAsset * AllocateAssetForMountPoint(cDataController * hDC, cDC_MountEntry mountEntry) { return NULL; };
 
   bool GetModFlag(){ return _bModFlag; };
   int GetModCounterNew(){ return _iModNew; };

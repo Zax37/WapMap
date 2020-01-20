@@ -96,7 +96,7 @@ void SHA2ext::SHA512_Init(HL_SHA512_CTX* context)
 	}
 	MEMCPY_BCOPY(context->state, sha512_initial_hash_value, SHA512_DIGEST_LENGTH);
 	MEMSET_BZERO(context->buffer, SHA512_BLOCK_LENGTH);
-	context->bitcount[0] = context->bitcount[1] =  0;
+	context->bitcount[0] = context->bitcount[1] = 0;
 }
 
 #ifdef SHA2_UNROLL_TRANSFORM
@@ -157,26 +157,26 @@ void SHA2ext::SHA512_Transform(HL_SHA512_CTX* context, const sha2_word64* data) 
 
 	j = 0;
 	do {
-		ROUND512_0_TO_15(a,b,c,d,e,f,g,h);
-		ROUND512_0_TO_15(h,a,b,c,d,e,f,g);
-		ROUND512_0_TO_15(g,h,a,b,c,d,e,f);
-		ROUND512_0_TO_15(f,g,h,a,b,c,d,e);
-		ROUND512_0_TO_15(e,f,g,h,a,b,c,d);
-		ROUND512_0_TO_15(d,e,f,g,h,a,b,c);
-		ROUND512_0_TO_15(c,d,e,f,g,h,a,b);
-		ROUND512_0_TO_15(b,c,d,e,f,g,h,a);
+		ROUND512_0_TO_15(a, b, c, d, e, f, g, h);
+		ROUND512_0_TO_15(h, a, b, c, d, e, f, g);
+		ROUND512_0_TO_15(g, h, a, b, c, d, e, f);
+		ROUND512_0_TO_15(f, g, h, a, b, c, d, e);
+		ROUND512_0_TO_15(e, f, g, h, a, b, c, d);
+		ROUND512_0_TO_15(d, e, f, g, h, a, b, c);
+		ROUND512_0_TO_15(c, d, e, f, g, h, a, b);
+		ROUND512_0_TO_15(b, c, d, e, f, g, h, a);
 	} while (j < 16);
 
 	/* Now for the remaining rounds up to 79: */
 	do {
-		ROUND512(a,b,c,d,e,f,g,h);
-		ROUND512(h,a,b,c,d,e,f,g);
-		ROUND512(g,h,a,b,c,d,e,f);
-		ROUND512(f,g,h,a,b,c,d,e);
-		ROUND512(e,f,g,h,a,b,c,d);
-		ROUND512(d,e,f,g,h,a,b,c);
-		ROUND512(c,d,e,f,g,h,a,b);
-		ROUND512(b,c,d,e,f,g,h,a);
+		ROUND512(a, b, c, d, e, f, g, h);
+		ROUND512(h, a, b, c, d, e, f, g);
+		ROUND512(g, h, a, b, c, d, e, f);
+		ROUND512(f, g, h, a, b, c, d, e);
+		ROUND512(e, f, g, h, a, b, c, d);
+		ROUND512(d, e, f, g, h, a, b, c);
+		ROUND512(c, d, e, f, g, h, a, b);
+		ROUND512(b, c, d, e, f, g, h, a);
 	} while (j < 80);
 
 	/* Compute the current intermediate hash value */
@@ -241,14 +241,14 @@ void SHA2ext::SHA512_Transform(HL_SHA512_CTX* context, const sha2_word64* data) 
 
 	do {
 		/* Part of the message block expansion: */
-		s0 = W512[(j+1)&0x0f];
+		s0 = W512[(j + 1) & 0x0f];
 		s0 = sigma0_512(s0);
-		s1 = W512[(j+14)&0x0f];
-		s1 =  sigma1_512(s1);
+		s1 = W512[(j + 14) & 0x0f];
+		s1 = sigma1_512(s1);
 
 		/* Apply the SHA-512 compression function to update a..h */
 		T1 = h + Sigma1_512(e) + Ch(e, f, g) + K512[j] +
-		     (W512[j&0x0f] += s1 + W512[(j+9)&0x0f] + s0);
+			(W512[j & 0x0f] += s1 + W512[(j + 9) & 0x0f] + s0);
 		T2 = Sigma0_512(a) + Maj(a, b, c);
 		h = g;
 		g = f;
@@ -300,7 +300,8 @@ void SHA2ext::SHA512_Update(HL_SHA512_CTX* context, const sha2_byte *data, unsig
 			len -= freespace;
 			data += freespace;
 			SHA512_Transform(context, (sha2_word64*)context->buffer);
-		} else {
+		}
+		else {
 			/* The buffer is not yet full */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, len);
 			ADDINC128(context->bitcount, len << 3);
@@ -332,8 +333,8 @@ void SHA2ext::SHA512_Last(HL_SHA512_CTX* context)
 	usedspace = (context->bitcount[0] >> 3) % SHA512_BLOCK_LENGTH;
 #if BYTE_ORDER == LITTLE_ENDIAN
 	/* Convert FROM host byte order */
-	REVERSE64(context->bitcount[0],context->bitcount[0]);
-	REVERSE64(context->bitcount[1],context->bitcount[1]);
+	REVERSE64(context->bitcount[0], context->bitcount[0]);
+	REVERSE64(context->bitcount[1], context->bitcount[1]);
 #endif
 	if (usedspace > 0) {
 		/* Begin padding with a 1 bit: */
@@ -342,7 +343,8 @@ void SHA2ext::SHA512_Last(HL_SHA512_CTX* context)
 		if (usedspace <= SHA512_SHORT_BLOCK_LENGTH) {
 			/* Set-up for the last transform: */
 			MEMSET_BZERO(&context->buffer[usedspace], SHA512_SHORT_BLOCK_LENGTH - usedspace);
-		} else {
+		}
+		else {
 			if (usedspace < SHA512_BLOCK_LENGTH) {
 				MEMSET_BZERO(&context->buffer[usedspace], SHA512_BLOCK_LENGTH - usedspace);
 			}
@@ -352,7 +354,8 @@ void SHA2ext::SHA512_Last(HL_SHA512_CTX* context)
 			/* And set-up for the last transform: */
 			MEMSET_BZERO(context->buffer, SHA512_BLOCK_LENGTH - 2);
 		}
-	} else {
+	}
+	else {
 		/* Prepare for final transform: */
 		MEMSET_BZERO(context->buffer, SHA512_SHORT_BLOCK_LENGTH);
 
@@ -361,7 +364,7 @@ void SHA2ext::SHA512_Last(HL_SHA512_CTX* context)
 	}
 	/* Store the length of input data (in bits): */
 	*(sha2_word64*)&context->buffer[SHA512_SHORT_BLOCK_LENGTH] = context->bitcount[1];
-	*(sha2_word64*)&context->buffer[SHA512_SHORT_BLOCK_LENGTH+8] = context->bitcount[0];
+	*(sha2_word64*)&context->buffer[SHA512_SHORT_BLOCK_LENGTH + 8] = context->bitcount[0];
 
 	/* Final transform: */
 	SHA512_Transform(context, (sha2_word64*)context->buffer);
@@ -384,7 +387,7 @@ void SHA2ext::SHA512_Final(sha2_byte digest[], HL_SHA512_CTX* context)
 			/* Convert TO host byte order */
 			int	j;
 			for (j = 0; j < 8; j++) {
-				REVERSE64(context->state[j],context->state[j]);
+				REVERSE64(context->state[j], context->state[j]);
 				*d++ = context->state[j];
 			}
 		}
@@ -414,7 +417,8 @@ char* SHA2ext::SHA512_End(HL_SHA512_CTX* context, char buffer[])
 			d++;
 		}
 		*buffer = (char)0;
-	} else {
+	}
+	else {
 		MEMSET_BZERO(context, sizeof(context));
 	}
 	MEMSET_BZERO(digest, SHA512_DIGEST_LENGTH);
@@ -453,7 +457,7 @@ void SHA2ext::SHA384_Final(sha2_byte digest[], HL_SHA_384_CTX* context)
 			/* Convert TO host byte order */
 			int	j;
 			for (j = 0; j < 6; j++) {
-				REVERSE64(context->state[j],context->state[j]);
+				REVERSE64(context->state[j], context->state[j]);
 				*d++ = context->state[j];
 			}
 		}
@@ -483,7 +487,8 @@ char* SHA2ext::SHA384_End(HL_SHA_384_CTX* context, char buffer[])
 			d++;
 		}
 		*buffer = (char)0;
-	} else {
+	}
+	else {
 		MEMSET_BZERO(context, sizeof(context));
 	}
 	MEMSET_BZERO(digest, SHA384_DIGEST_LENGTH);

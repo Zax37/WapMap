@@ -16,7 +16,7 @@
 std::string sha384wrapper::hashIt(void)
 {
 	sha2_byte buff[SHA384_DIGEST_STRING_LENGTH];
-	sha384->SHA384_End(&context,(char*)buff);
+	sha384->SHA384_End(&context, (char*)buff);
 	return convToString(buff);
 }
 
@@ -47,7 +47,7 @@ std::string sha384wrapper::convToString(unsigned char *data)
  */
 void sha384wrapper::updateContext(unsigned char *data, unsigned int len)
 {
-	this->sha384->SHA384_Update(&context,data,len);
+	this->sha384->SHA384_Update(&context, data, len);
 }
 
 /**

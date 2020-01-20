@@ -41,23 +41,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
+ /*
+  * For comments regarding functions please see the header file.
+  */
 
 #include "guichan/selectionevent.hpp"
 
 namespace gcn
 {
-    SelectionEvent::SelectionEvent(Widget* source)
-            :Event(source)
-    {
+	SelectionEvent::SelectionEvent(Widget* source)
+		:Event(source)
+	{
 
-    }
+	}
 
-    SelectionEvent::~SelectionEvent()
-    {
+	SelectionEvent::~SelectionEvent()
+	{
 
-    }
+	}
 }
 

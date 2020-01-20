@@ -17,14 +17,14 @@ namespace State {
  class LoadMap : public SHR::cState, public cParallelCallback {
   private:
    void * alt_ptr;
-   int alt_size;
+   uint32_t alt_size;
    bool alt_planes;
    int alt_width, alt_height;
    char alt_name[64], alt_author[64];
    void UpdateScene(){ Think(); _ForceRender(); };
   public:
    LoadMap(const char * pszFilename);
-   LoadMap(void * ptr, int size, bool addplanes, int mw, int mh, char name[64], char author[64]);
+   LoadMap(void * ptr, uint32_t size, bool addplanes, int mw, int mh, char name[64], char author[64]);
    ~LoadMap();
    virtual bool Opaque();
    virtual void Init();

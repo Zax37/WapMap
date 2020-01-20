@@ -41,14 +41,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
+ /*
+  * For comments regarding functions please see the header file.
+  */
 
 extern "C"
 {
-    const char* gcnGuichanVersion()
-    {
-        return "0.8";
-    }
+	const char* gcnGuichanVersion()
+	{
+		return "0.8";
+	}
 }

@@ -20,7 +20,7 @@ std::string md5wrapper::hashIt(void)
 {
 	//create the hash
 	unsigned char buff[16] = "";
-	md5->MD5Final((unsigned char*)buff,&ctx);
+	md5->MD5Final((unsigned char*)buff, &ctx);
 
 	//converte the hash to a string and return it
 	return convToString(buff);
@@ -41,7 +41,7 @@ std::string md5wrapper::convToString(unsigned char *data)
 	 * hex string
 	 */
 	std::ostringstream os;
-	for(int i=0; i<16; ++i)
+	for (int i = 0; i < 16; ++i)
 	{
 		/*
 		 * set the width to 2

@@ -426,7 +426,7 @@ namespace WWD {
    //void PerformStep();
   public:
    Parser(const char * pszFilename, CustomMetaSerializer * hSerializer = 0);
-   Parser(void * ptr, int iLen, CustomMetaSerializer * hSerializer = 0);
+   Parser(void * ptr, uint32_t iLen, CustomMetaSerializer * hSerializer = 0);
    //void Step(int piIterations = 1);
    ~Parser();
    const char * GetName(){ return (const char*)m_szMapName; };

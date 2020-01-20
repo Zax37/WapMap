@@ -21,7 +21,7 @@ class cRenderableItem
   virtual ~cRenderableItem(){};
   virtual int GetZ(){ return 0; };
   virtual int GetPriority(){ return 0; };
-  virtual int Render(){};
+  virtual int Render() { return 0; };
   virtual int GetUniqueOrderID(){ return 0; };
   virtual cRenderableItem::Type GetType(){ return Unknown; };
 };

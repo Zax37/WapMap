@@ -9,9 +9,9 @@
 #include "../shared/gcnWidgets/wScrollArea.h"
 
 extern "C" {
-#include "../shared/lua/lua.h"
-#include "../shared/lua/lualib.h"
-#include "../shared/lua/lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 #define BRUSH_EMPTY -2

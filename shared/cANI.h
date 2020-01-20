@@ -14,42 +14,42 @@ typedef unsigned char byte;
 
 namespace ANI {
 
- enum FLAGS {
-  Flag_None = 0,
-  Flag_KeyFrame = 2
- };
+	enum FLAGS {
+		Flag_None = 0,
+		Flag_KeyFrame = 2
+	};
 
- class Frame {
-  private:
-   FLAGS m_iFlag;
-   short m_iIt;
-   short m_iImageID;
-   short m_iDuration;
-   char * m_szKeyFrameID;
-   ~Frame();
-  friend class Animation;
-  public:
-   FLAGS GetFlags(){ return m_iFlag; };
-   short GetIterator(){ return m_iIt; };
-   short GetImageID(){ return m_iImageID; };
-   short GetDuration(){ return m_iDuration; };
-   const char * GetKeyFrameName(){ return m_szKeyFrameID; };
- };
+	class Frame {
+	private:
+		FLAGS m_iFlag;
+		short m_iIt;
+		short m_iImageID;
+		short m_iDuration;
+		char * m_szKeyFrameID;
+		~Frame();
+		friend class Animation;
+	public:
+		FLAGS GetFlags() { return m_iFlag; };
+		short GetIterator() { return m_iIt; };
+		short GetImageID() { return m_iImageID; };
+		short GetDuration() { return m_iDuration; };
+		const char * GetKeyFrameName() { return m_szKeyFrameID; };
+	};
 
- class Animation {
-  private:
-   std::vector<Frame*> m_vFrames;
-   char * m_szImageset;
-   void Load(std::istream  * src);
-   bool bBadBit;
-  public:
-   Animation(void * data, int len);
-   ~Animation();
-   int GetFramesCount(){ return m_vFrames.size(); };
-   Frame * GetFrame(int id){ return m_vFrames[id]; };
-   bool Valid(){ return !bBadBit; };
-   const char * GetImageset(){ return (const char*)m_szImageset; };
- };
+	class Animation {
+	private:
+		std::vector<Frame*> m_vFrames;
+		char * m_szImageset;
+		void Load(std::istream  * src);
+		bool bBadBit;
+	public:
+		Animation(void * data, int len);
+		~Animation();
+		int GetFramesCount() { return m_vFrames.size(); };
+		Frame * GetFrame(int id) { return m_vFrames[id]; };
+		bool Valid() { return !bBadBit; };
+		const char * GetImageset() { return (const char*)m_szImageset; };
+	};
 }
 
 #endif

@@ -45,6 +45,8 @@
 
 #include "../cControllerIPC.h"
 
+#include "../states/mapshot.h"
+
 #ifndef byte
 typedef unsigned char byte;
 typedef unsigned long DWORD;
@@ -354,6 +356,8 @@ namespace State {
    vpFoc * GetWidget(){ return hFocuser; };
    void GfxLost();
    void ClipScreen();
+
+   friend class State::MapShot;
  };
 
  struct win_NewMap
@@ -715,6 +719,7 @@ namespace State {
 
    bool bDragWindow;
    int iWindowDragX, iWindowDragY;
+   RECT windowDragStartRect;
 
    EditingWWvpCallback * vp;
 

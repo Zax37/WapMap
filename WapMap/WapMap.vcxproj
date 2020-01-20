@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -9,40 +9,23 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{1F8033F2-055C-4A4C-8475-B63680992F34}</ProjectGuid>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{EE341A77-D262-4FB3-899D-E89DCE97EEB6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -55,55 +38,176 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+    <OutDir>..\bin\$(Configuration)\</OutDir>
+    <IntDir>..\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+    <OutDir>..\bin\$(Configuration)\</OutDir>
+    <IntDir>..\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WAP_MAP;WAP_TOOLS;WIN32;_DEBUG;_WINDOWS;BUILD_DEBUG;SHOWMEMUSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX
+;WIN32;BUILD_DEBUG;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;..\..\SFML-2.5.1-2017\include;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\curl\include;..\..\lua;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\incl</AdditionalIncludeDirectories>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Psapi;hgedx9;hgehelp;Comdlg32;zdll;Shell32;Ole32;Version;Winm;lua51;curldllminimal;bgd;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>..\lib;..\..\SFML-2.5.1-2017\lib;..\..\hge\linklib\$(Configuration);..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hge.lib;hgehelpers.lib;Version.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;libcurl-d_imp.lib;lua.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)
+copy ..\..\hge\bin\hge.dll $(TargetDir)</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WAP_MAP;WAP_TOOLS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX
+;WIN32;UILD_RELEASE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;..\..\SFML-2.5.1-2017\include;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\curl\include;..\..\lua;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\incl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Native</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hgedx9;hgehelp;Comdlg32;zdll;Shell32;Ole32;Version;Winm;lua51;curldllminimal;bgd;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;..\..\SFML-2.5.1-2017\lib;..\..\hge\linklib\$(Configuration);..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hge.lib;hgehelpers.lib;Version.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;libcurl_imp.lib;lua.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)
+copy ..\..\hge\bin\hge.dll $(TargetDir)</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\cANI.cpp" />
+    <ClCompile Include="..\shared\cConsole.cpp" />
+    <ClCompile Include="..\shared\cGUIparts.cpp" />
+    <ClCompile Include="..\shared\cInterface.cpp" />
+    <ClCompile Include="..\shared\cLang.cpp" />
+    <ClCompile Include="..\shared\commonFunc.cpp" />
+    <ClCompile Include="..\shared\cPID.cpp" />
+    <ClCompile Include="..\shared\cPieChart.cpp" />
+    <ClCompile Include="..\shared\cProgressInfo.cpp" />
+    <ClCompile Include="..\shared\cREZ.cpp" />
+    <ClCompile Include="..\shared\cSFS.cpp" />
+    <ClCompile Include="..\shared\cStateMgr.cpp" />
+    <ClCompile Include="..\shared\cTextRenderer.cpp" />
+    <ClCompile Include="..\shared\cUpdater.cpp" />
+    <ClCompile Include="..\shared\cWWD.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\cTooltip.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wButton.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wCheckbox.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wComboButton.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wContainer.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wContext.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wDropDown.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wInventory.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wLabel.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wLink.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wListbox.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wProgressBar.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wRadioBut.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wScrollArea.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wSlider.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTab.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTabbedArea.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTextBox.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTextDropDown.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTextField.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wTree.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wWin.cpp" />
+    <ClCompile Include="..\shared\gcnwidgets\wWinMgr.cpp" />
+    <ClCompile Include="..\shared\guichan\actionevent.cpp" />
+    <ClCompile Include="..\shared\guichan\basiccontainer.cpp" />
+    <ClCompile Include="..\shared\guichan\cliprectangle.cpp" />
+    <ClCompile Include="..\shared\guichan\color.cpp" />
+    <ClCompile Include="..\shared\guichan\defaultfont.cpp" />
+    <ClCompile Include="..\shared\guichan\event.cpp" />
+    <ClCompile Include="..\shared\guichan\exception.cpp" />
+    <ClCompile Include="..\shared\guichan\focushandler.cpp" />
+    <ClCompile Include="..\shared\guichan\font.cpp" />
+    <ClCompile Include="..\shared\guichan\genericinput.cpp" />
+    <ClCompile Include="..\shared\guichan\graphics.cpp" />
+    <ClCompile Include="..\shared\guichan\gui.cpp" />
+    <ClCompile Include="..\shared\guichan\guichan.cpp" />
+    <ClCompile Include="..\shared\guichan\hge\hgegraphics.cpp" />
+    <ClCompile Include="..\shared\guichan\hge\hgeimage.cpp" />
+    <ClCompile Include="..\shared\guichan\hge\hgeimagefont.cpp" />
+    <ClCompile Include="..\shared\guichan\hge\hgeimageloader.cpp" />
+    <ClCompile Include="..\shared\guichan\hge\hgeinput.cpp" />
+    <ClCompile Include="..\shared\guichan\image.cpp" />
+    <ClCompile Include="..\shared\guichan\imagefont.cpp" />
+    <ClCompile Include="..\shared\guichan\inputevent.cpp" />
+    <ClCompile Include="..\shared\guichan\key.cpp" />
+    <ClCompile Include="..\shared\guichan\keyevent.cpp" />
+    <ClCompile Include="..\shared\guichan\keyinput.cpp" />
+    <ClCompile Include="..\shared\guichan\mouseevent.cpp" />
+    <ClCompile Include="..\shared\guichan\mouseinput.cpp" />
+    <ClCompile Include="..\shared\guichan\rectangle.cpp" />
+    <ClCompile Include="..\shared\guichan\selectionevent.cpp" />
+    <ClCompile Include="..\shared\guichan\widget.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\button.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\checkbox.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\container.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\dropdown.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\icon.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\imagebutton.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\label.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\listbox.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\radiobutton.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\scrollarea.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\slider.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\tab.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\tabbedarea.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\textbox.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\textfield.cpp" />
+    <ClCompile Include="..\shared\guichan\widgets\window.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_md5.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_md5wrapper.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha1.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha1wrapper.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha256.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha256wrapper.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha2ext.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha384wrapper.cpp" />
+    <ClCompile Include="..\shared\hashlib\hl_sha512wrapper.cpp" />
     <ClCompile Include="bodyQuadTree.cpp" />
     <ClCompile Include="cAppMenu.cpp" />
     <ClCompile Include="cAutoUpdater.cpp" />
@@ -112,7 +216,6 @@
     <ClCompile Include="cControllerIPC.cpp" />
     <ClCompile Include="cDataController.cpp" />
     <ClCompile Include="cFileSystem.cpp" />
-    <ClCompile Include="cGameSimulator.cpp" />
     <ClCompile Include="cInventoryController.cpp" />
     <ClCompile Include="cLogicsList.cpp" />
     <ClCompile Include="cMDI.cpp" />
@@ -202,7 +305,6 @@
     <ClCompile Include="vpFocusWidg.cpp" />
     <ClCompile Include="windows\about.cpp" />
     <ClCompile Include="windows\imgsetBrowser.cpp" />
-    <ClCompile Include="windows\mapShot.cpp" />
     <ClCompile Include="windows\options.cpp" />
     <ClCompile Include="windows\tileBrowser.cpp" />
     <ClCompile Include="windows\tileProperties.cpp" />
@@ -210,6 +312,84 @@
     <ClCompile Include="wViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\cANI.h" />
+    <ClInclude Include="..\shared\cConsole.h" />
+    <ClInclude Include="..\shared\cGUIparts.h" />
+    <ClInclude Include="..\shared\cInterface.h" />
+    <ClInclude Include="..\shared\cLang.h" />
+    <ClInclude Include="..\shared\commonFunc.h" />
+    <ClInclude Include="..\shared\cPID.h" />
+    <ClInclude Include="..\shared\cPieChart.h" />
+    <ClInclude Include="..\shared\cProgressInfo.h" />
+    <ClInclude Include="..\shared\cREZ.h" />
+    <ClInclude Include="..\shared\cSFS.h" />
+    <ClInclude Include="..\shared\cStateMgr.h" />
+    <ClInclude Include="..\shared\cTextRenderer.h" />
+    <ClInclude Include="..\shared\cUpdater.h" />
+    <ClInclude Include="..\shared\curl\curl.h" />
+    <ClInclude Include="..\shared\curl\curlbuild.h" />
+    <ClInclude Include="..\shared\curl\curlrules.h" />
+    <ClInclude Include="..\shared\curl\curlver.h" />
+    <ClInclude Include="..\shared\curl\easy.h" />
+    <ClInclude Include="..\shared\curl\mprintf.h" />
+    <ClInclude Include="..\shared\curl\multi.h" />
+    <ClInclude Include="..\shared\curl\stdcheaders.h" />
+    <ClInclude Include="..\shared\curl\typecheck-gcc.h" />
+    <ClInclude Include="..\shared\curl\types.h" />
+    <ClInclude Include="..\shared\cWWD.h" />
+    <ClInclude Include="..\shared\gcnwidgets\cTooltip.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wButton.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wCheckbox.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wComboButton.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wContainer.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wContext.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wDropDown.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wInventory.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wLabel.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wLink.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wListbox.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wProgressBar.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wRadioBut.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wScrollArea.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wSlider.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTab.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTabbedArea.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTextBox.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTextDropDown.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTextField.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wTree.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wWin.h" />
+    <ClInclude Include="..\shared\gcnwidgets\wWinMgr.h" />
+    <ClInclude Include="..\shared\hashlib\hashlibpp.h" />
+    <ClInclude Include="..\shared\hashlib\hl_exception.h" />
+    <ClInclude Include="..\shared\hashlib\hl_hashwrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_md5.h" />
+    <ClInclude Include="..\shared\hashlib\hl_md5wrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha1.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha1wrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha256.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha256wrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha2ext.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha2mac.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha384wrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_sha512wrapper.h" />
+    <ClInclude Include="..\shared\hashlib\hl_types.h" />
+    <ClInclude Include="..\shared\il\config.h" />
+    <ClInclude Include="..\shared\il\devil_internal_exports.h" />
+    <ClInclude Include="..\shared\il\il.h" />
+    <ClInclude Include="..\shared\il\ilu.h" />
+    <ClInclude Include="..\shared\il\ilut.h" />
+    <ClInclude Include="..\shared\il\ilut_config.h" />
+    <ClInclude Include="..\shared\il\ilu_region.h" />
+    <ClInclude Include="..\shared\il\il_wrap.h" />
+    <ClInclude Include="..\shared\lua\lauxlib.h" />
+    <ClInclude Include="..\shared\lua\lua.h" />
+    <ClInclude Include="..\shared\lua\lua.hpp" />
+    <ClInclude Include="..\shared\lua\luaconf.h" />
+    <ClInclude Include="..\shared\lua\lualib.h" />
+    <ClInclude Include="..\shared\scintilla\SciLexer.h" />
+    <ClInclude Include="..\shared\scintilla\Scintilla.h" />
+    <ClInclude Include="..\shared\SimpleIni.h" />
     <ClInclude Include="bodyQuadTree.h" />
     <ClInclude Include="cAppMenu.h" />
     <ClInclude Include="cAutoUpdater.h" />
@@ -218,7 +398,6 @@
     <ClInclude Include="cControllerIPC.h" />
     <ClInclude Include="cDataController.h" />
     <ClInclude Include="cFileSystem.h" />
-    <ClInclude Include="cGameSimulator.h" />
     <ClInclude Include="cInterfaceSheet.h" />
     <ClInclude Include="cInventoryController.h" />
     <ClInclude Include="cLogicsList.h" />

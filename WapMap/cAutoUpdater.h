@@ -12,9 +12,8 @@
 #include "../shared/gcnWidgets/wContext.h"
 #include "../shared/gcnWidgets/wProgressBar.h"
 #include "wViewport.h"
-#include "../shared/curl/curl.h"
-#include "../shared/curl/types.h"
-#include "../shared/curl/easy.h"
+#include <curl/curl.h>
+#include <curl/easy.h>
 
 #define AU_NONE 0
 #define AU_SEARCHINGUPDATES 1

@@ -101,26 +101,28 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
+			<Add option="-std=c++11" />
 			<Add option="-fexceptions" />
+			<Add option="-fpermissive" />
 			<Add option="-DWAP_MAP" />
 			<Add option="-DWAP_TOOLS" />
 			<Add option="-DSFML_STATIC" />
 			<Add directory="../incl" />
 			<Add directory="../../SFML-2.5.1-TDM/include" />
+			<Add directory="../../hge/include" />
+			<Add directory="../../hge/src/zlib" />
 		</Compiler>
 		<Linker>
 			<Add option="-llua51" />
 			<Add option="-lcurldllminimal" />
-			<Add library="hgedx9" />
-			<Add library="hgehelp" />
+			<Add library="hgehelpers" />
 			<Add library="Comdlg32" />
-			<Add library="zdll" />
 			<Add library="Shell32" />
 			<Add library="Ole32" />
 			<Add library="Version" />
 			<Add directory="../lib" />
 			<Add directory="../../SFML-2.5.1-TDM/lib" />
+			<Add directory="../../hge/linklib" />
 		</Linker>
 		<Unit filename="../shared/HashLib/hashlibpp.h" />
 		<Unit filename="../shared/HashLib/hl_exception.h" />
@@ -169,6 +171,8 @@
 		<Unit filename="../shared/cStateMgr.h" />
 		<Unit filename="../shared/cWWD.cpp" />
 		<Unit filename="../shared/cWWD.h" />
+		<Unit filename="../shared/common.cpp" />
+		<Unit filename="../shared/common.h" />
 		<Unit filename="../shared/commonFunc.cpp" />
 		<Unit filename="../shared/commonFunc.h" />
 		<Unit filename="../shared/curl/curl.h" />
@@ -262,12 +266,6 @@
 		<Unit filename="../shared/lua/lualib.h" />
 		<Unit filename="bodyQuadTree.cpp" />
 		<Unit filename="bodyQuadTree.h" />
-		<Unit filename="cActionsMgr.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="cActionsMgr.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="cAppMenu.cpp" />
 		<Unit filename="cAppMenu.h" />
 		<Unit filename="cAutoUpdater.cpp" />
@@ -285,7 +283,6 @@
 		<Unit filename="cInterfaceSheet.h" />
 		<Unit filename="cInventoryController.cpp" />
 		<Unit filename="cInventoryController.h" />
-		<Unit filename="cLogicsBank.h" />
 		<Unit filename="cMDI.cpp" />
 		<Unit filename="cMDI.h" />
 		<Unit filename="cMRUList.cpp" />

@@ -8,6 +8,7 @@
 #include "../shared/cInterface.h"
 #include "../shared/cPID.h"
 #include "../shared/SimpleIni.h"
+#include "../shared/cTextRenderer.h"
 
 #include "hge.h"
 #include "hgeSprite.h"
@@ -19,9 +20,9 @@
 #include "guichan/hge.hpp"
 
 extern "C" {
-#include "../shared/lua/lua.h"
-#include "../shared/lua/lualib.h"
-#include "../shared/lua/lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 #define MEMUSAGEUPDATEDELAY 3.5f
@@ -385,8 +386,8 @@ class cGlobals {
   hgeSprite * sprContextCascadeArrow;
 
   hgeSprite * sprTile;
-
-  hgeFont * fntMyriad80, * fntMyriad20, * fntMyriad10, * fntSystem17, * fntMyriad13, * fntMinimal;
+  hgeFont * fntMyriad10, *fntSystem17, *fntMyriad13;
+  cTextRenderer * myriad10Text, * system17Text, * myriad13Text;
 
   gcn::HGEInput * gcnInput;
   gcn::HGEGraphics * gcnGraphics;

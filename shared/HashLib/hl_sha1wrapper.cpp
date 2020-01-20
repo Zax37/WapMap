@@ -34,7 +34,7 @@ std::string sha1wrapper::hashIt(void)
 std::string sha1wrapper::convToString(unsigned char *data)
 {
 	std::ostringstream os;
-	for(int i=0; i<20; ++i)
+	for (int i = 0; i < 20; ++i)
 	{
 		/*
 		 * set the width to 2

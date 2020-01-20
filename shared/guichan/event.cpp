@@ -41,28 +41,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
+ /*
+  * For comments regarding functions please see the header file.
+  */
 
 #include "guichan/event.hpp"
 
 namespace gcn
 {
-    Event::Event(Widget* source)
-            :mSource(source)
-    {
+	Event::Event(Widget* source)
+		:mSource(source)
+	{
 
-    }
+	}
 
-    Event::~Event()
-    {
+	Event::~Event()
+	{
 
-    }
+	}
 
-    Widget* Event::getSource() const
-    {
-        return mSource;
-    }
+	Widget* Event::getSource() const
+	{
+		return mSource;
+	}
 }
 

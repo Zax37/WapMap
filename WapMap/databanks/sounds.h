@@ -6,7 +6,6 @@
 #include "../shared/cREZ.h"
 #include "../shared/cProgressInfo.h"
 #include <sys/types.h>
-#include <dirent.h>
 #include <guichan/listModel.hpp>
 #include "../cDataController.h"
 

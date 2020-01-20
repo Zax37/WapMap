@@ -41,10 +41,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
- #include <cstdio>
+ /*
+  * For comments regarding functions please see the header file.
+  */
+#include <cstdio>
 
 #include "guichan/hge/hgeimagefont.hpp"
 
@@ -53,75 +53,75 @@
 
 namespace gcn
 {
-    HGEImageFont::HGEImageFont(const std::string& filename)
-    {
-        mHGEFont = new hgeFont(filename.c_str());
-        bDel = 1;
-    }
-    HGEImageFont::HGEImageFont(hgeFont * phFont, bool del)
-    {
-        bDel = del;
-        mHGEFont = phFont;
-    }
+	HGEImageFont::HGEImageFont(const std::string& filename)
+	{
+		mHGEFont = new hgeFont(filename.c_str());
+		bDel = 1;
+	}
+	HGEImageFont::HGEImageFont(hgeFont * phFont, bool del)
+	{
+		bDel = del;
+		mHGEFont = phFont;
+	}
 
-    HGEImageFont::~HGEImageFont()
-    {
-        if( bDel )
-         delete mHGEFont;
-    }
+	HGEImageFont::~HGEImageFont()
+	{
+		if (bDel)
+			delete mHGEFont;
+	}
 
-    hgeFont *HGEImageFont::getFont() const
-    {
-        return mHGEFont;
-    }
+	hgeFont *HGEImageFont::getFont() const
+	{
+		return mHGEFont;
+	}
 
-    int HGEImageFont::getWidth(const std::string &text) const
-    {
-        return static_cast<int>(mHGEFont->GetStringWidth(text.c_str())) + 1;
-    }
+	int HGEImageFont::getWidth(const std::string &text) const
+	{
+		return static_cast<int>(mHGEFont->GetStringWidth(text.c_str())) + 1;
+	}
 
-    int HGEImageFont::getWidth(char character) const
-    {
-        char buf[2];
+	int HGEImageFont::getWidth(char character) const
+	{
+		char buf[2];
 
-        sprintf(buf, "%c", character);
+		sprintf(buf, "%c", character);
 
-        return mHGEFont->GetStringWidth(buf);
-    }
+		return mHGEFont->GetStringWidth(buf);
+	}
 
-    int HGEImageFont::getHeight() const
-    {
-        return  static_cast<int>(mHGEFont->GetHeight());
-    }
+	int HGEImageFont::getHeight() const
+	{
+		return  static_cast<int>(mHGEFont->GetHeight());
+	}
 
-    int HGEImageFont::getStringIndexAt(const std::string& text, int x) const
-    {
-        unsigned int i;
-        int size = 0;
+	int HGEImageFont::getStringIndexAt(const std::string& text, int x) const
+	{
+		unsigned int i;
+		int size = 0;
 
-        for (i = 0; i < text.size(); ++i)
-        {
-            size += getWidth(text.at(i));
+		for (i = 0; i < text.size(); ++i)
+		{
+			size += getWidth(text.at(i));
 
-            if (size > x)
-            {
-                return i;
-            }
-        }
+			if (size > x)
+			{
+				return i;
+			}
+		}
 
-        return text.size();
-    }
+		return text.size();
+	}
 
-    void HGEImageFont::drawString(Graphics *graphics, const std::string &text, int x, int y)
-    {
-        ClipRectangle const &top = graphics->getCurrentClipArea();
+	void HGEImageFont::drawString(Graphics *graphics, const std::string &text, int x, int y)
+	{
+		ClipRectangle const &top = graphics->getCurrentClipArea();
 
-        x += top.xOffset;
-        y += top.yOffset;
+		x += top.xOffset;
+		y += top.yOffset;
 
-        Color color = graphics->getColor();
+		Color color = graphics->getColor();
 
-        mHGEFont->SetColor(ARGB(color.a, color.r, color.g, color.b));
-        mHGEFont->Render(x, y, HGETEXT_LEFT, text.c_str());
-    }
+		mHGEFont->SetColor(ARGB(color.a, color.r, color.g, color.b));
+		mHGEFont->Render(x, y, HGETEXT_LEFT, text.c_str());
+	}
 }

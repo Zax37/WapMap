@@ -18,7 +18,7 @@
 std::string sha256wrapper::hashIt(void)
 {
 	sha2_byte buff[SHA256_DIGEST_STRING_LENGTH];
-	sha256->SHA256_End(&context,(char*)buff);
+	sha256->SHA256_End(&context, (char*)buff);
 
 	return convToString(buff);
 }
@@ -50,7 +50,7 @@ std::string sha256wrapper::convToString(unsigned char *data)
  */
 void sha256wrapper::updateContext(unsigned char *data, unsigned int len)
 {
-	this->sha256->SHA256_Update(&context,data,len);
+	this->sha256->SHA256_Update(&context, data, len);
 }
 
 /**

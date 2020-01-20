@@ -18,6 +18,7 @@ namespace ObjEdit
    cEditObjShake(WWD::Object * obj, State::EditingWW * st);
    ~cEditObjShake();
    virtual void Action(const gcn::ActionEvent &actionEvent);
+   virtual void RenderObjectOverlay();
  };
 
 }

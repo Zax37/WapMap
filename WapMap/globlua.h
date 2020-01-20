@@ -2,9 +2,9 @@
 #define GLOBLUAFUNC
 
 extern "C" {
-#include "../shared/lua/lua.h"
-#include "../shared/lua/lualib.h"
-#include "../shared/lua/lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 //input,input; output,output
 

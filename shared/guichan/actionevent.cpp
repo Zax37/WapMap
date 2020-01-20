@@ -41,29 +41,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
+ /*
+  * For comments regarding functions please see the header file.
+  */
 
 #include "guichan/actionevent.hpp"
 
 namespace gcn
 {
-    ActionEvent::ActionEvent(Widget* source, const std::string& id)
-            :Event(source),
-             mId(id)
-    {
+	ActionEvent::ActionEvent(Widget* source, const std::string& id)
+		:Event(source),
+		mId(id)
+	{
 
-    }
+	}
 
-    ActionEvent::~ActionEvent()
-    {
+	ActionEvent::~ActionEvent()
+	{
 
-    }
+	}
 
-    const std::string& ActionEvent::getId() const
-    {
-        return mId;
-    }
+	const std::string& ActionEvent::getId() const
+	{
+		return mId;
+	}
 }
 

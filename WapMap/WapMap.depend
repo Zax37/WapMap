@@ -2943,13 +2943,13 @@
 	"hge.h"
 	"hgerect.h"
 
-1384892903 c:\projects\kijan\incl\hge.h
+1579377337 c:\projects\kijan\incl\hge.h
 	<windows.h>
 	<vector>
 
 1176904086 c:\projects\kijan\incl\hgerect.h
 
-1377214809 c:\projects\kijan\incl\hgefont.h
+1579377480 c:\projects\kijan\incl\hgefont.h
 	"hge.h"
 	"hgesprite.h"
 
@@ -2975,8 +2975,9 @@
 1316364519 c:\projects\kijan\shared\clang.h
 	"SimpleIni.h"
 
-1380301370 c:\projects\kijan\shared\simpleini.h
+1579395855 c:\projects\kijan\shared\simpleini.h
 	<cstring>
+	<cstdlib>
 	<string>
 	<map>
 	<list>
@@ -2990,7 +2991,7 @@
 	<windows.h>
 	<mbstring.h>
 
-1387029536 source:c:\projects\kijan\shared\commonfunc.cpp
+1579384119 source:c:\projects\kijan\shared\commonfunc.cpp
 	"commonFunc.h"
 	<string>
 	<vector>
@@ -3007,12 +3008,13 @@
 	<fstream>
 	<sstream>
 
-1353319317 c:\projects\kijan\shared\cpid.h
+1579377652 c:\projects\kijan\shared\cpid.h
 	<iostream>
 	<hge.h>
 	<hgeSprite.h>
+	<argb.h>
 
-1579302514 source:c:\projects\kijan\shared\cpiechart.cpp
+1579377757 source:c:\projects\kijan\shared\cpiechart.cpp
 	"cPieChart.h"
 	<algorithm>
 	<SFML/Graphics/Image.hpp>
@@ -3031,12 +3033,13 @@
 1099495102 c:\projects\kijan\shared\gd\gdfx.h
 	"gd.h"
 
-1382703844 source:c:\projects\kijan\shared\crez.cpp
+1579383544 source:c:\projects\kijan\shared\crez.cpp
 	"cREZ.h"
 	<conio.h>
 	<fstream>
 	<cmath>
 	<algorithm>
+	"common.h"
 	"commonFunc.h"
 
 1377563798 c:\projects\kijan\shared\crez.h
@@ -3071,10 +3074,10 @@
 	<vector>
 	<ostream>
 
-1271715168 c:\projects\kijan\incl\zlib.h
+1579377007 c:\projects\kijan\incl\zlib.h
 	"zconf.h"
 
-1271591886 c:\projects\kijan\incl\zconf.h
+1579377037 c:\projects\kijan\incl\zconf.h
 	<windows.h>
 	<sys/types.h>
 	<unistd.h>
@@ -3461,7 +3464,7 @@
 	"guichan/mouseinput.hpp"
 	"guichan/platform.hpp"
 
-1384889366 source:c:\projects\kijan\shared\cstatemgr.cpp
+1579380404 source:c:\projects\kijan\shared\cstatemgr.cpp
 	"cStateMgr.h"
 	"../WapMap/globals.h"
 	"hge.h"
@@ -3938,7 +3941,7 @@
 	<hgeFont.h>
 	"guichan/hge/hgeimagefont.hpp"
 
-1382611610 source:c:\projects\kijan\shared\gcnwidgets\wlink.cpp
+1579377658 source:c:\projects\kijan\shared\gcnwidgets\wlink.cpp
 	"wLink.h"
 	"guichan/exception.hpp"
 	"guichan/font.hpp"
@@ -3947,6 +3950,7 @@
 	"guichan/hge/hgeimagefont.hpp"
 	<hge.h>
 	<hgeSprite.h>
+	<argb.h>
 
 1384353966 source:c:\projects\kijan\shared\gcnwidgets\wlistbox.cpp
 	"wListbox.h"
@@ -3958,11 +3962,12 @@
 	"guichan/mouseinput.hpp"
 	"guichan/selectionlistener.hpp"
 
-1285438933 source:c:\projects\kijan\shared\gcnwidgets\wprogressbar.cpp
+1579377679 source:c:\projects\kijan\shared\gcnwidgets\wprogressbar.cpp
 	"wProgressBar.h"
 	"guichan/exception.hpp"
 	"guichan/font.hpp"
 	"guichan/graphics.hpp"
+	<argb.h>
 
 1381485668 source:c:\projects\kijan\shared\gcnwidgets\wradiobut.cpp
 	"wRadioBut.h"
@@ -4161,7 +4166,7 @@
 	"guichan/rectangle.hpp"
 	"guichan/hge/hgeimage.hpp"
 
-1239736090 source:c:\projects\kijan\shared\guichan\hge\hgeimage.cpp
+1579377747 source:c:\projects\kijan\shared\guichan\hge\hgeimage.cpp
 	"guichan/hge/hgeimage.hpp"
 	"guichan/exception.hpp"
 
@@ -4440,7 +4445,7 @@
 	<guichan/listModel.hpp>
 	"../cDataController.h"
 
-1579282712 source:c:\projects\kijan\wapmap\cautoupdater.cpp
+1579384183 source:c:\projects\kijan\wapmap\cautoupdater.cpp
 	"cAutoUpdater.h"
 	"../shared/curl/curl.h"
 	"../shared/curl/types.h"
@@ -4572,7 +4577,7 @@
 1353930099 source:c:\projects\kijan\wapmap\cobjectuserdata.cpp
 	"cObjectUserData.h"
 
-1387035806 source:c:\projects\kijan\wapmap\cparallelloop.cpp
+1579378154 source:c:\projects\kijan\wapmap\cparallelloop.cpp
 	"cParallelLoop.h"
 	<hge.h>
 	<ctime>
@@ -4598,13 +4603,12 @@
 	"langID.h"
 	"databanks/sounds.h"
 
-1386867203 c:\projects\kijan\wapmap\databanks\sounds.h
+1579397534 c:\projects\kijan\wapmap\databanks\sounds.h
 	<vector>
 	<hge.h>
 	"../shared/cREZ.h"
 	"../shared/cProgressInfo.h"
 	<sys/types.h>
-	<dirent.h>
 	<guichan/listModel.hpp>
 	"../cDataController.h"
 
@@ -4655,7 +4659,7 @@
 	"../cParallelLoop.h"
 	"../../shared/cProgressInfo.h"
 
-1387135939 source:c:\projects\kijan\wapmap\databanks\tiles.cpp
+1579383503 source:c:\projects\kijan\wapmap\databanks\tiles.cpp
 	"tiles.h"
 	<algorithm>
 	<sys\types.h>
@@ -4670,6 +4674,7 @@
 	"../../shared/HashLib/hashlibpp.h"
 	"../../shared/cWWD.h"
 	"../cBrush.h"
+	"../../shared/common.h"
 
 1323002548 source:c:\projects\kijan\wapmap\funcconsole.cpp
 	"funcConsole.h"
@@ -4710,7 +4715,7 @@
 	<fstream>
 	<sstream>
 
-1387720434 source:c:\projects\kijan\wapmap\main.cpp
+1579383514 source:c:\projects\kijan\wapmap\main.cpp
 	"hge.h"
 	"conf.h"
 	"globals.h"
@@ -4723,6 +4728,8 @@
 	<hgeVector.h>
 	<direct.h>
 	<dirent.h>
+	"../shared/common.h"
+	<wm_hge_extras.h>
 
 1176904086 c:\projects\kijan\incl\hgevector.h
 	"hge.h"
@@ -5077,7 +5084,7 @@
 
 1283673041 source:c:\projects\kijan\wapmap\returncodes.cpp
 
-1386868231 source:c:\projects\kijan\wapmap\states\codeeditor.cpp
+1579380888 source:c:\projects\kijan\wapmap\states\codeeditor.cpp
 	"CodeEditor.h"
 	"../globals.h"
 	"../../shared/gcnWidgets/wContainer.h"
@@ -5249,7 +5256,7 @@
 	"../../../shared/gcnWidgets/wComboButton.h"
 	"../../databanks/tiles.h"
 
-1388010908 source:c:\projects\kijan\wapmap\states\editing_ww\rendering.cpp
+1579384390 source:c:\projects\kijan\wapmap\states\editing_ww\rendering.cpp
 	"../editing_ww.h"
 	"../loadmap.h"
 	"../../globals.h"
@@ -5294,7 +5301,7 @@
 	"../../cInterfaceSheet.h"
 	"../../databanks/imageSets.h"
 
-1381177187 source:c:\projects\kijan\wapmap\states\editing_ww\winfirstrun.cpp
+1579384195 source:c:\projects\kijan\wapmap\states\editing_ww\winfirstrun.cpp
 	"../editing_ww.h"
 	"../../globals.h"
 	"../../conf.h"
@@ -5302,7 +5309,7 @@
 	"../../../shared/commonFunc.h"
 	"../../langID.h"
 
-1579211358 source:c:\projects\kijan\wapmap\res.rc
+1579369118 source:c:\projects\kijan\wapmap\res.rc
 
 1384900062 source:c:\projects\kijan\wapmap\states\editing_ww\winnewmap.cpp
 	"../editing_ww.h"
@@ -5323,7 +5330,7 @@
 	"../../cObjectUserData.h"
 	"../../databanks/tiles.h"
 
-1381177088 source:c:\projects\kijan\wapmap\states\error.cpp
+1579384215 source:c:\projects\kijan\wapmap\states\error.cpp
 	"error.h"
 	"../globals.h"
 	"../../shared/gcnWidgets/wContainer.h"
@@ -5352,7 +5359,7 @@
 	"guichan.hpp"
 	"../wViewport.h"
 
-1579301424 source:c:\projects\kijan\wapmap\states\imageimport.cpp
+1579381620 source:c:\projects\kijan\wapmap\states\imageimport.cpp
 	"imageImport.h"
 	"../globals.h"
 	"../cInterfaceSheet.h"
@@ -5400,7 +5407,7 @@
 	"../databanks/anims.h"
 	"../databanks/logics.h"
 
-1579303120 source:c:\projects\kijan\wapmap\states\mapshot.cpp
+1579381597 source:c:\projects\kijan\wapmap\states\mapshot.cpp
 	"mapshot.h"
 	"../globals.h"
 	"../conf.h"
@@ -5448,7 +5455,7 @@
 	"guichan/mouseinput.hpp"
 	"hge.h"
 
-1388011846 source:c:\projects\kijan\wapmap\windows\about.cpp
+1579384339 source:c:\projects\kijan\wapmap\windows\about.cpp
 	"about.h"
 	"../globals.h"
 	"../langID.h"
@@ -5456,7 +5463,7 @@
 	"../cInterfaceSheet.h"
 	"../conf.h"
 
-1387304070 source:c:\projects\kijan\wapmap\windows\imgsetbrowser.cpp
+1579382263 source:c:\projects\kijan\wapmap\windows\imgsetbrowser.cpp
 	"imgsetBrowser.h"
 	"../globals.h"
 	"../langID.h"
@@ -5482,7 +5489,7 @@
 	<dirent.h>
 	"../cNativeController.h"
 
-1387078571 source:c:\projects\kijan\wapmap\windows\tilebrowser.cpp
+1579382263 source:c:\projects\kijan\wapmap\windows\tilebrowser.cpp
 	"tileBrowser.h"
 	"../globals.h"
 	"../langID.h"
@@ -5949,4 +5956,85 @@
 1579301981 c:\projects\sfml-2.5.1-tdm\include\sfml\system\vector2.inl
 
 1579301980 c:\projects\sfml-2.5.1-tdm\include\sfml\graphics\rect.inl
+
+1579369986 c:\projects\hge\include\hgesprite.h
+	"hge.h"
+	"hgerect.h"
+
+1579394907 c:\projects\hge\include\hge.h
+	<windows.h>
+	<stdint.h>
+
+1579369986 c:\projects\hge\include\hgerect.h
+
+1579369986 c:\projects\hge\include\hgefont.h
+	"hge.h"
+	"hgesprite.h"
+
+1579369986 c:\projects\hge\include\hgevector.h
+	"hge.h"
+	<math.h>
+
+1579372435 c:\projects\hge\src\zlib\zlib.h
+	"zconf.h"
+
+1579373188 c:\projects\hge\src\zlib\zconf.h
+	<stddef.h>
+	<windows.h>
+	<limits.h>
+	<sys/types.h>
+	<stdarg.h>
+	<stddef.h>
+	<unistd.h>
+	<unixio.h>
+
+1579377641 c:\projects\kijan\incl\argb.h
+
+1579379247 c:\projects\kijan\incl\msvcrt.h
+	<stdarg.h>
+	"windef.h"
+	"winbase.h"
+
+1579379467 c:\projects\kijan\incl\mbstring.h
+	<corecrt.h>
+
+1579379499 c:\projects\kijan\incl\corecrt.h
+	<vcruntime.h>
+	<winapifamily.h>
+
+1579379519 c:\projects\kijan\incl\vcruntime.h
+	<sal.h>
+	<vadefs.h>
+
+1579379534 c:\projects\kijan\incl\sal.h
+	"codeanalysis\sourceannotations.h"
+	<ConcurrencySal.h>
+
+1579379554 c:\projects\kijan\incl\concurrencysal.h
+
+1579379569 c:\projects\kijan\incl\vadefs.h
+
+1579380316 c:\projects\kijan\incl\strcmp.h
+
+1579380833 c:\projects\kijan\incl\wm_hge_extras.h
+
+1579383466 c:\projects\kijan\shared\common.h
+	<msvcrt.h>
+	<string>
+
+1579383461 source:c:\projects\kijan\shared\common.cpp
+	"common.h"
+
+1579387035 c:\projects\hge\src\zlib-1.2.5\zlib.h
+	"zconf.h"
+
+1579387035 c:\projects\hge\src\zlib-1.2.5\zconf.h
+	<stddef.h>
+	<windows.h>
+	<limits.h>
+	<sys/types.h>
+	<stdarg.h>
+	<stddef.h>
+	<unistd.h>
+	<unixio.h>
 

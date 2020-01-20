@@ -41,9 +41,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * For comments regarding functions please see the header file.
- */
+ /*
+  * For comments regarding functions please see the header file.
+  */
 
 #include "guichan/hge/hgeimage.hpp"
 #include "guichan/hge/hgeimageloader.hpp"
@@ -51,34 +51,34 @@
 
 namespace gcn
 {
-    HGE *HGEImageLoader::mHGE = NULL;
+	HGE *HGEImageLoader::mHGE = NULL;
 
-    HGEImageLoader::HGEImageLoader()
-    {
-        mHGE = hgeCreate(HGE_VERSION);
-    }
+	HGEImageLoader::HGEImageLoader()
+	{
+		mHGE = hgeCreate(HGE_VERSION);
+	}
 
-    HGEImageLoader::~HGEImageLoader()
-    {
-        mHGE->Release();
-    }
+	HGEImageLoader::~HGEImageLoader()
+	{
+		mHGE->Release();
+	}
 
-    Image *HGEImageLoader::load(const std::string &filename, bool convertToDisplayFormat)
-    {
-        HTEXTURE texture = mHGE->Texture_Load(filename.c_str());
+	Image *HGEImageLoader::load(const std::string &filename, bool convertToDisplayFormat)
+	{
+		HTEXTURE texture = mHGE->Texture_Load(filename.c_str());
 
-        if (texture == NULL)
-        {
-            throw GCN_EXCEPTION(std::string("Unable to load: ") + filename);
-        }
+		if (texture == NULL)
+		{
+			throw GCN_EXCEPTION(std::string("Unable to load: ") + filename);
+		}
 
-        HGEImage *image = new HGEImage(texture, true);
+		HGEImage *image = new HGEImage(texture, true);
 
-        if (convertToDisplayFormat)
-        {
-            image->convertToDisplayFormat();
-        }
+		if (convertToDisplayFormat)
+		{
+			image->convertToDisplayFormat();
+		}
 
-        return image;
-    }
+		return image;
+	}
 }
