@@ -398,7 +398,6 @@ class cGlobals {
   char * szLastOpenPath, * szLastSavePath;
   char * szClawPath;
   char * szUrlTCR;
-  char * szUpdateServer;
 
   bool bFirstRun;
 

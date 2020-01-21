@@ -15,6 +15,7 @@
 #include <windows.h>
 #include <sstream>
 #include <process.h>
+#include <string>
 
 cGlobals * GV;
 extern HGE * hge;
@@ -149,14 +150,9 @@ cGlobals::cGlobals()
 	}
 
 	{
-		bFirstRun = atoi(ini->GetValue("WapMap", "FirstRun", "1"));
-		if (bFirstRun) {
-			ini->SetValue("WapMap", "FirstRun", "0");
-			ini->SaveFile("settings.cfg");
-		}
 		std::vector<SHR::DisplayMode> disp = SHR::GetDisplayModes();
-		int w = atoi(ini->GetValue("WapMap", "DisplayWidth", "1024")),
-			h = atoi(ini->GetValue("WapMap", "DisplayHeight", "768"));
+		int w = std::stoi(ini->GetValue("WapMap", "DisplayWidth", "1024")),
+			h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", "768"));
 		int smallw = 10000, smallh = 10000;
 		bool ok = 0, defok = 0;
 		for (int i = 0; i < disp.size(); i++) {
@@ -187,6 +183,15 @@ cGlobals::cGlobals()
 		}
 		iScreenW = w;
 		iScreenH = h;
+
+		bFirstRun = atoi(ini->GetValue("WapMap", "FirstRun", "1"));
+		if (bFirstRun) {
+			ini->SetValue("WapMap", "Language", lang);
+			ini->SetValue("WapMap", "FirstRun", "0");
+			ini->SetValue("WapMap", "DisplayWidth", std::to_string(iScreenW).c_str());
+			ini->SetValue("WapMap", "DisplayHeight", std::to_string(iScreenH).c_str());
+			ini->SaveFile("settings.cfg");
+		}
 	}
 }
 
@@ -199,7 +204,7 @@ cGlobals::~cGlobals()
 	delete Console;
 	delete sprConsoleBG;
 	delete sprLogoBig, sprBlank;
-	delete gcnParts.gcnfntMyriad10, gcnParts.gcnfntMyriad13;
+	delete gcnParts.gcnfntMyriad10, gcnParts.gcnfntMyriad13, gcnParts.gcnfntSystem;
 	delete fntMyriad10, fntMyriad13, fntSystem17;
 	delete gcnImageLoader;
 	delete gcnInput;
@@ -845,15 +850,6 @@ void cGlobals::Init()
 
 	bool enableconsole = atoi(ini->GetValue("WapMap", "Console", "0"));
 	Console->Enable(enableconsole);
-
-	const char * lang = ini->GetValue("RSS", "Update", "");
-	if (strlen(lang) == 0)
-		szUpdateServer = NULL;
-	else {
-		szUpdateServer = new char[strlen(lang) + 1];
-		strcpy(szUpdateServer, lang);
-	}
-
 
 	sprKijan = new hgeSprite(texMain, 939, 0, 80, 105);
 	sprKijan->SetHotSpot(40, 52);

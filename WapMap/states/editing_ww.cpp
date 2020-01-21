@@ -2008,10 +2008,8 @@ bool State::EditingWW::Think()
 	}
 
 	if (!bInitedAutoUpdate) {
-		if (GV->bAutoUpdate && strlen(GV->szUpdateServer) != 0)
+		if (GV->bAutoUpdate)
 			hAU = new cAutoUpdater();
-		else if (strlen(GV->szUpdateServer) == 0)
-			GV->Console->Print("~r~Unable to check updates: server URL not set!~w~");
 		bInitedAutoUpdate = 1;
 	}
 

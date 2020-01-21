@@ -10,6 +10,9 @@
 
 #include <direct.h>
 
+
+#define RELEASES_API "https://api.github.com/repos/Zax37/WapMap/releases/latest"
+
 extern HGE * hge;
 
 cAutoUpdater * _AU_GLOBAL_PTR;
@@ -149,6 +152,11 @@ static size_t _AU_VerCallback(void *ptr, size_t size, size_t nmemb, void *data)
 	return (size_t)(size * nmemb);
 }
 
+size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
+	data->append((char*)ptr, size * nmemb);
+	return size * nmemb;
+}
+
 cAutoUpdater::cAutoUpdater(bool checkonly)
 {
 	hPatchFile = NULL;
@@ -169,28 +177,34 @@ cAutoUpdater::cAutoUpdater(bool checkonly)
 	GetWindowRect(GetDesktopWindow(), &DesktopRect);
 
 	char client[25 + 64];
-	sprintf(client, "WapMap/%d/%s,%dx%d,%dx%d/%s",
+	sprintf(client, "WapMap/%d/%s,%dx%d,%ldx%ld/%s",
 		WA_VER,
 		GV->Lang->GetCode(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT), DesktopRect.right, DesktopRect.bottom,
 		GV->szSerial);
 	newver_curl = curl_easy_init();
 	update_curlm = curl_multi_init();
-	char adress[256];
-#ifdef BUILD_DEBUG
-	sprintf(adress, "http://%s/update/checkver.php?debug=1", GV->szUpdateServer);
-#else
-	sprintf(adress, "http://%s/update/checkver.php", GV->szUpdateServer);
-#endif
-	GV->Console->Printf("Checking for updates on ~y~%s~w~...", GV->szUpdateServer);
-	curl_easy_setopt(newver_curl, CURLOPT_URL, adress);
-	curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, client);
-	curl_easy_setopt(newver_curl, CURLOPT_WRITEFUNCTION, _AU_VerCallback);
-	curl_multi_add_handle(update_curlm, newver_curl);
+	if (newver_curl && update_curlm) {
+		std::string readBuffer;
+		GV->Console->Printf("Checking for updates on ~y~%s~w~...", RELEASES_API);
+		curl_easy_setopt(newver_curl, CURLOPT_URL, RELEASES_API);
+		curl_easy_setopt(newver_curl, CURLOPT_WRITEDATA, &readBuffer);
+		curl_easy_setopt(newver_curl, CURLOPT_WRITEFUNCTION, writeFunction/*_AU_VerCallback*/);
+		curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, "curl/7.42.0");
+		auto res = curl_easy_perform(newver_curl);
 
-	long tm;
-	curl_multi_timeout(update_curlm, &tm);
-	fDelay = tm / 1000;
-	iState = AU_SEARCHINGUPDATES;
+		if (res == CURLE_OK) {
+			GV->Console->Print(readBuffer.c_str());
+		}
+		/*curl_multi_add_handle(update_curlm, newver_curl);
+
+		long tm;
+		curl_multi_timeout(update_curlm, &tm);
+		fDelay = tm / 1000;
+		iState = AU_SEARCHINGUPDATES;*/
+	}
+	else {
+		GV->Console->Print("~r~Failed to check for updates!");
+	}
 }
 
 cAutoUpdater::~cAutoUpdater()
@@ -276,11 +290,7 @@ void cAutoUpdater::TransformToDownload()
 	winActualize->add(vpActualize, 5, 5);
 
 	newver_curl = curl_easy_init();
-	char* path = new char[strlen(GV->szUpdateServer) + 32];
-	sprintf(path, "http://%s/update/updateScript.usc", GV->szUpdateServer);
-	GV->Console->Printf("Downloading update list...", path);
-	curl_easy_setopt(newver_curl, CURLOPT_URL, path);
-	delete[] path;
+	curl_easy_setopt(newver_curl, CURLOPT_URL, RELEASES_API);
 	char client[25];
 	sprintf(client, "WapMap/%d", WA_VER);
 	curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, client);
@@ -465,7 +475,7 @@ void cAutoUpdater::Update()
 		hPatchFile = fopen(mynewf, "wb");
 		chdir("..");
 
-		newver_curl = curl_easy_init();
+		/*newver_curl = curl_easy_init();
 		char* path = new char[strlen(GV->szUpdateServer) + 21];
 		sprintf(path, "http://%s/update/repo/%s", GV->szUpdateServer, newf);
 		GV->Console->Printf("Downloading file ~y~%s~w~...", mynewf);
@@ -478,7 +488,7 @@ void cAutoUpdater::Update()
 		curl_easy_setopt(newver_curl, CURLOPT_PROGRESSFUNCTION, _AU_PatchProgressCallback);
 		curl_easy_setopt(newver_curl, CURLOPT_NOPROGRESS, 0);
 		update_curlm = curl_multi_init();
-		curl_multi_add_handle(update_curlm, newver_curl);
+		curl_multi_add_handle(update_curlm, newver_curl);*/
 
 		long tm;
 		curl_multi_timeout(update_curlm, &tm);
@@ -526,8 +536,9 @@ void cAutoUpdater::Update()
 			 char * str = SHR::FormatSize(iTotal);
 			 GV->Console->Printf("~g~Patch downloaded (%s).", str);
 			 delete [] str;
-			}else*/ if (!bReady)
-	bErrors = 1;
+			}else*/
+			if (!bReady)
+				bErrors = 1;
 		}
 	}
 

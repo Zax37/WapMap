@@ -64,9 +64,10 @@ void State::EditingWW::FirstRun_Action(bool but)
 		ShellExecute(hge->System_GetState(HGE_HWND), "open", tmp, NULL, NULL, SW_SHOWNORMAL);
 	}
 	else {
-		char* tmp = new char[strlen(GV->szUpdateServer) + 16];
+		GV->Console->Print("State::EditingWW::FirstRun_Action");
+		/*char* tmp = new char[strlen(GV->szUpdateServer) + 16];
 		sprintf(tmp, "http://%s", GV->szUpdateServer);
 		ShellExecute(hge->System_GetState(HGE_HWND), "open", tmp, NULL, NULL, SW_SHOWNORMAL);
-		delete[] tmp;
+		delete[] tmp;*/
 	}
 }
