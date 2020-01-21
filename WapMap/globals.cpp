@@ -106,7 +106,7 @@ cGlobals::cGlobals()
 	Console->Printf("%-26s`-.-'          `-.", WA_VERSTRING);
 	Console->Print("                            ;       `       `.");
 	Console->Print("Type '~y~help~w~' to view list    :.       .        \\");
-	Console->Print("of available commands.      . \  .   :   .-'   .");
+	Console->Print("of available commands.      . \\  .   :   .-'   .");
 	Console->Print("                            '  `+.;  ;  '      :");
 	Console->Print("Type '~y~help x~w~' to see how    :  '  |    ;       ;-.");
 	Console->Print("to use particular cmd.      ; '   : :`-:     _.`* ;");

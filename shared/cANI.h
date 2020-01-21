@@ -39,9 +39,9 @@ namespace ANI {
 	class Animation {
 	private:
 		std::vector<Frame*> m_vFrames;
-		char * m_szImageset{};
+		char * m_szImageset;
 		void Load(std::istream  * src);
-		bool bBadBit{};
+		bool bBadBit;
 	public:
 		Animation(void * data, int len);
 		~Animation();

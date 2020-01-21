@@ -3272,7 +3272,7 @@ void State::EditingWW::ApplicationStartup()
 				GV->Console->Print("Cleaning brushes dir...");
 				HANDLE hFind = INVALID_HANDLE_VALUE;
 				WIN32_FIND_DATA fdata;
-				hFind = FindFirstFile("brush", &fdata);
+				hFind = FindFirstFile("brush/*", &fdata);
 				if (hFind != INVALID_HANDLE_VALUE) {
 					do {
 						if (fdata.cFileName[0] != '.') {

@@ -100,7 +100,7 @@ winOptions::winOptions()
 
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA fdata;
-	hFind = FindFirstFile("lang", &fdata);
+	hFind = FindFirstFile("lang/*", &fdata);
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
 			if (fdata.cFileName[0] != '.') {

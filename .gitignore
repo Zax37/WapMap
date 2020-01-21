@@ -1,3 +1,6 @@
+.idea
 .vs
 bin
+build
+cmake-build-debug
 obj

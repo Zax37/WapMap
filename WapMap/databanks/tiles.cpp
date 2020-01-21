@@ -211,7 +211,7 @@ void cBankTile::ReloadBrushes()
 
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA fdata;
-	hFind = FindFirstFile("brush/*.lua", &fdata);
+	hFind = FindFirstFile("brush/*", &fdata);
 
 	if (hFind == INVALID_HANDLE_VALUE) {
 		GV->Console->Printf("~r~No brushes found (unable to access 'brush' directory).");
