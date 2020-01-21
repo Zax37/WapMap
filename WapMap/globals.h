@@ -414,7 +414,7 @@ class cGlobals {
   lua_State* conL;
 
   char * conLuaBuf;
-  char * szCmdLine;
+  std::string szCmdLine;
 
   CSimpleIni * ini;
 

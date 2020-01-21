@@ -62,12 +62,15 @@ bool AppFocusOffFunc()
 	return 0;
 }
 
-int main() {
-	return WinMain(NULL, NULL, "", 0);
-}
+int main(int argc, char* argv[]) {
+    std::string command;
+    for (int i = 1; i < argc; i++) {
+        command += argv[i];
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int)
-{
+        if (i != argc-1) //this check prevents adding a space after last argument.
+            command += " ";
+    }
+
 	char tmp[768];
 	::GetModuleFileName(NULL, tmp, 768);
 
@@ -80,18 +83,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int)
 	delete[] fn;
 #endif
 
-	if (cmdline[0] == '"') {
+	if (argc > 1 && argv[1][0] != '-') {
 		cClientIPC * hIPC = new cClientIPC();
 		if (hIPC->IsConnected()) {
-			char* tmp = new char[strlen(cmdline) - 1];
-			for (int i = 1; i < strlen(cmdline) - 1; i++)
-				tmp[i - 1] = cmdline[i];
-			if (hIPC->RemoteOpenMap(tmp)) {
-				delete[] tmp;
+			if (hIPC->RemoteOpenMap(argv[1])) {
 				delete hIPC;
 				return 0;
 			}
-			delete[] tmp;
 		}
 		delete hIPC;
 	}
@@ -127,9 +125,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int)
 
 	GV = new cGlobals();
 	GV->dwProcID = procid;
-	GV->szCmdLine = new char[strlen(cmdline) + 1];
-	strcpy(GV->szCmdLine, cmdline);
-	GV->Console->Printf(strlen(cmdline) > 0 ? "~w~CMD is `~y~%s~w~`." : "~w~CMD is empty.", cmdline);
+	GV->szCmdLine = command;
+	GV->Console->Printf(command.length() > 0 ? "~w~CMD is `~y~%s~w~`." : "~w~CMD is empty.", command);
 	GV->Console->Printf("~w~Process ID: ~y~%ld", procid);
 
 	hge = hgeCreate(HGE_VERSION);
@@ -144,7 +141,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int)
 	hge->System_SetState(HGE_FOCUSLOSTFUNC, AppFocusOffFunc);
 	hge->System_SetState(HGE_FOCUSGAINFUNC, AppFocusOnFunc);
 	hge->System_SetState((hgeBoolState)wmHwndState::WM_NOTIFYFUNC, AppWindowNotifyFunc);
-	if (!strncmp(cmdline, "-updateBM", 9)) {
+	if (!strncmp(command.c_str(), "-updateBM", 9)) {
 		hge->System_SetState(HGE_SCREENWIDTH, 320);
 		hge->System_SetState(HGE_SCREENHEIGHT, 140);
 	}

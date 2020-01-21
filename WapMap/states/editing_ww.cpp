@@ -1590,7 +1590,7 @@ void State::EditingWW::Init()
 	butwsWhatsnew->addActionListener(al);
 	winWelcome->add(butwsWhatsnew, 11 + 450, 133);
 
-	winWelcome->setVisible(strlen(GV->szCmdLine) == 0);
+	winWelcome->setVisible(GV->szCmdLine.empty());
 
 	for (int i = 0; i < 10; i++) {
 		lnkLastOpened[i] = NULL;
@@ -1832,7 +1832,7 @@ void State::EditingWW::Init()
 	if (GV->bFirstRun)
 		FirstRun_Open();
 
-	if (!strncmp(GV->szCmdLine, "-updateCleanup", 14)) {
+	if (!GV->szCmdLine.compare(0, 14, "-updateCleanup")) {
 		GV->Console->Printf("Cleaning up after update.");
 		unlink("updatetmp/Updater.exe");
 		rmdir("updatetmp");
@@ -3257,16 +3257,11 @@ void State::EditingWW::FileDropped()
 void State::EditingWW::ApplicationStartup()
 {
 	if (GV->szCmdLine[0] != '\0') {
-		if (GV->szCmdLine[0] == '"') {
-			char* tmp = new char[strlen(GV->szCmdLine) - 1];
-			ZeroMemory(&tmp, strlen(GV->szCmdLine) - 1);
-			for (int i = 1; i < strlen(GV->szCmdLine) - 1; i++)
-				tmp[i - 1] = GV->szCmdLine[i];
-			GV->StateMgr->Push(new State::LoadMap(tmp));
-			delete[] tmp;
+		if (GV->szCmdLine[0] != '-') {
+			GV->StateMgr->Push(new State::LoadMap(GV->szCmdLine.c_str()));
 		}
-		else if (GV->szCmdLine[0] == '-') {
-			if (!strcmp(GV->szCmdLine, "-clearBrush")) {
+		else {
+			if (!GV->szCmdLine.compare("-clearBrush")) {
 				GV->Console->Print("Cleaning brushes dir...");
 				HANDLE hFind = INVALID_HANDLE_VALUE;
 				WIN32_FIND_DATA fdata;
@@ -3290,8 +3285,6 @@ void State::EditingWW::ApplicationStartup()
 				}
 			}
 		}
-		else
-			GV->StateMgr->Push(new State::LoadMap(GV->szCmdLine));
 	}
 }
 
