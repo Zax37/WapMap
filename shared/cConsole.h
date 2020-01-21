@@ -51,9 +51,9 @@ namespace SHR {
 
 	class cConsole {
 	private:
-		CRITICAL_SECTION csLock;
+		CRITICAL_SECTION csLock{};
 		hgeSprite * m_sprBG;
-		hgeFont * m_fnt;
+		hgeFont * m_fnt{};
 		std::ofstream * m_osFile;
 		bool m_bFile, m_bEnabled, m_bFocused;
 		float m_fAnim;
@@ -63,7 +63,7 @@ namespace SHR {
 		std::vector<cConsoleVar*> m_vVars;
 
 		int m_iScroll;
-		char m_szInput[256];
+		char m_szInput[256]{};
 		bool m_bAnimSet;
 	public:
 		cConsole(hgeSprite * psprBG = NULL);

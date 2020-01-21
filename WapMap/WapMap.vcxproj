@@ -57,7 +57,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NOMINMAX
 ;WIN32;BUILD_DEBUG;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;..\..\SFML-2.5.1-2017\include;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\curl\include;..\..\lua;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;..\..\SFML-2.5.1-2017\include;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -76,7 +76,8 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)
+      <Command>copy ..\res\* $(TargetDir)
+copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)
 copy ..\..\hge\bin\hge.dll $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -128,7 +129,6 @@ copy ..\..\hge\bin\hge.dll $(TargetDir)</Command>
     <ClCompile Include="..\shared\cREZ.cpp" />
     <ClCompile Include="..\shared\cSFS.cpp" />
     <ClCompile Include="..\shared\cStateMgr.cpp" />
-    <ClCompile Include="..\shared\cTextRenderer.cpp" />
     <ClCompile Include="..\shared\cUpdater.cpp" />
     <ClCompile Include="..\shared\cWWD.cpp" />
     <ClCompile Include="..\shared\gcnwidgets\cTooltip.cpp" />
@@ -324,7 +324,6 @@ copy ..\..\hge\bin\hge.dll $(TargetDir)</Command>
     <ClInclude Include="..\shared\cREZ.h" />
     <ClInclude Include="..\shared\cSFS.h" />
     <ClInclude Include="..\shared\cStateMgr.h" />
-    <ClInclude Include="..\shared\cTextRenderer.h" />
     <ClInclude Include="..\shared\cUpdater.h" />
     <ClInclude Include="..\shared\curl\curl.h" />
     <ClInclude Include="..\shared\curl\curlbuild.h" />

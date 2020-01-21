@@ -594,9 +594,6 @@
     <ClCompile Include="..\shared\hashlib\hl_sha512wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\cTextRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bodyQuadTree.h">
@@ -1089,9 +1086,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\scintilla\Scintilla.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\cTextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

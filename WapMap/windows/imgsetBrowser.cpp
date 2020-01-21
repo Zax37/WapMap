@@ -192,6 +192,8 @@ winImageSetBrowser::~winImageSetBrowser()
 void winImageSetBrowser::Think()
 {
 	cBankImageSet * bank = GV->editState->SprBank;
+	if (bank->GetAssetsCount() == 0)
+		return;
 
 	if (bank->GetModFlag()) {
 		Synchronize();
@@ -293,109 +295,111 @@ void winImageSetBrowser::Draw(int piCode)
 		for (int x = 0; x <= (CONST_IMGSETBROWSER_ISLISTW - 9) / 128; x++)
 			GV->hGfxInterface->sprMainBackground->Render(dx + 6 + x * 128, dy + 45 + y * 128);
 	//hge->Gfx_Clear(0xFFFF00FF);
-	int startSet = saImageSets->getVerticalScrollAmount() / CONST_IMGSETBROWSER_LISTSETH;
-	for (int i = startSet; i < bank->GetAssetsCount() && i < startSet + (saImageSets->getHeight() / CONST_IMGSETBROWSER_LISTSETH) + 2; i++) {
-		int drawX = dx + 8;
-		int drawY = dy + 40 + 10 + i * CONST_IMGSETBROWSER_LISTSETH - saImageSets->getVerticalScrollAmount();
-		cSprBankAsset * ts = bank->GetAssetByIterator(i);
-		hgeSprite * ico = 0;
+	if (bank->GetAssetsCount() > 0) {
+		int startSet = saImageSets->getVerticalScrollAmount() / CONST_IMGSETBROWSER_LISTSETH;
+		for (int i = startSet; i < bank->GetAssetsCount() && i < startSet + (saImageSets->getHeight() / CONST_IMGSETBROWSER_LISTSETH) + 2; i++) {
+			int drawX = dx + 8;
+			int drawY = dy + 40 + 10 + i * CONST_IMGSETBROWSER_LISTSETH - saImageSets->getVerticalScrollAmount();
+			cSprBankAsset * ts = bank->GetAssetByIterator(i);
+			hgeSprite * ico = 0;
 
-		for (int x = 0; x < ts->GetSpritesCount(); x++)
-			if (ts->GetIMGByIterator(x)->IsLoaded()) {
-				ico = ts->GetIMGByIterator(x)->GetImage();
-				break;
+			for (int x = 0; x < ts->GetSpritesCount(); x++)
+				if (ts->GetIMGByIterator(x)->IsLoaded()) {
+					ico = ts->GetIMGByIterator(x)->GetImage();
+					break;
+				}
+			if (!ico) ico = GV->sprSmiley;
+
+			if (i == iSelectedImageSet || i == iHighlightedIS) {
+				hgeQuad q;
+				q.blend = BLEND_ALPHAADD | BLEND_COLORADD;
+				q.tex = 0;
+				SHR::SetQuad(&q, (i == iSelectedImageSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY, drawX + (CONST_IMGSETBROWSER_ISLISTW - 13), drawY + CONST_IMGSETBROWSER_LISTSETH);
+				hge->Gfx_RenderQuad(&q);
 			}
-		if (!ico) ico = GV->sprSmiley;
 
-		if (i == iSelectedImageSet || i == iHighlightedIS) {
-			hgeQuad q;
-			q.blend = BLEND_ALPHAADD | BLEND_COLORADD;
-			q.tex = 0;
-			SHR::SetQuad(&q, (i == iSelectedImageSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY, drawX + (CONST_IMGSETBROWSER_ISLISTW - 13), drawY + CONST_IMGSETBROWSER_LISTSETH);
-			hge->Gfx_RenderQuad(&q);
-		}
+			int iPreviewDim = CONST_IMGSETBROWSER_LISTSETH - 20;
 
-		int iPreviewDim = CONST_IMGSETBROWSER_LISTSETH - 20;
+			hge->Gfx_RenderLine(drawX + 10 - 2, drawY + 10 - 1, drawX + 10 + iPreviewDim + 2, drawY + 10 - 1, GV->colLineDark);
+			hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10 + iPreviewDim + 2, drawX + 10 + iPreviewDim + 2, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
+			hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10 - 1, drawX + 10 - 1, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
+			hge->Gfx_RenderLine(drawX + 10 + iPreviewDim + 2, drawY + 10 - 1, drawX + 10 + iPreviewDim + 2, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
 
-		hge->Gfx_RenderLine(drawX + 10 - 2, drawY + 10 - 1, drawX + 10 + iPreviewDim + 2, drawY + 10 - 1, GV->colLineDark);
-		hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10 + iPreviewDim + 2, drawX + 10 + iPreviewDim + 2, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
-		hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10 - 1, drawX + 10 - 1, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
-		hge->Gfx_RenderLine(drawX + 10 + iPreviewDim + 2, drawY + 10 - 1, drawX + 10 + iPreviewDim + 2, drawY + 10 + iPreviewDim + 2, GV->colLineDark);
+			hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10, drawX + 10 + iPreviewDim + 1, drawY + 10, GV->colLineBright);
+			hge->Gfx_RenderLine(drawX + 10, drawY + 10 + iPreviewDim + 1, drawX + 10 + iPreviewDim + 1, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
+			hge->Gfx_RenderLine(drawX + 10, drawY + 10, drawX + 10, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
+			hge->Gfx_RenderLine(drawX + 10 + iPreviewDim + 1, drawY + 10, drawX + 10 + iPreviewDim + 1, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
 
-		hge->Gfx_RenderLine(drawX + 10 - 1, drawY + 10, drawX + 10 + iPreviewDim + 1, drawY + 10, GV->colLineBright);
-		hge->Gfx_RenderLine(drawX + 10, drawY + 10 + iPreviewDim + 1, drawX + 10 + iPreviewDim + 1, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
-		hge->Gfx_RenderLine(drawX + 10, drawY + 10, drawX + 10, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
-		hge->Gfx_RenderLine(drawX + 10 + iPreviewDim + 1, drawY + 10, drawX + 10 + iPreviewDim + 1, drawY + 10 + iPreviewDim + 1, GV->colLineBright);
-
-		ico->SetColor(0xFFFFFFFF);
-		float fScale = 1;
-		if (ico->GetWidth() > iPreviewDim || ico->GetHeight() > iPreviewDim) {
-			float fScaleX = float(iPreviewDim) / ico->GetWidth(),
-				fScaleY = float(iPreviewDim) / ico->GetHeight();
-			fScale = (fScaleX < fScaleY ? fScaleX : fScaleY);
-		}
-		float ofx, ofy;
-		ico->GetHotSpot(&ofx, &ofy);
-		ofx -= ico->GetWidth() / 2;
-		ofy -= ico->GetHeight() / 2;
-		ofx *= fScale;
-		ofy *= fScale;
-		ico->RenderEx(drawX + 10 + iPreviewDim / 2 + ofx, drawY + 10 + iPreviewDim / 2 + ofy, 0, fScale, fScale);
-
-		int strw = CONST_IMGSETBROWSER_ISLISTW - (20 + iPreviewDim) - 10;
-		std::string str = ts->GetID();
-		bool first = 1;
-		while (GV->fntMyriad13->GetStringWidth(str.c_str(), 0) > strw) {
-			str.erase(str.length() - 2 - (!first * 3));
-			str.append("...");
-			first = 0;
-		}
-
-		GV->fntMyriad13->SetColor(0xFFc1c1c1);
-		GV->fntMyriad13->Render(drawX + 20 + iPreviewDim, drawY + 10 + 24 - 14, HGETEXT_LEFT, str.c_str());
-		GV->fntMyriad13->SetColor(0xFFa1a1a1);
-		GV->fntMyriad13->printf(drawX + 20 + iPreviewDim, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", ts->GetSpritesCount(), GETL2S("Win_ImageSetBrowser", "frames"));
-	}
-	hge->Gfx_SetClipping();
-	GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
-
-	int tilePickX = dx + (CONST_IMGSETBROWSER_ISLISTW + 15), tilePickW = myWin->getWidth() - (CONST_IMGSETBROWSER_ISLISTW + 15) - 16,
-		tilePickY = dy + 285, tilePickH = myWin->getHeight() - 290;
-	cSprBankAsset * tsPick = bank->GetAssetByIterator(iSelectedImageSet);
-
-	int tilesPerRow = (tilePickW / CONST_IMGSETBROWSER_FRAMEICOSIZE),
-		rowCount = tilePickH / (CONST_IMGSETBROWSER_FRAMEICOSIZE + 20) + 2;
-	int borderoffset = (tilePickW - (tilesPerRow*CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2;
-	int scroll = saFrames->getVerticalScrollAmount();
-	if (scroll < 0) scroll = 0;
-
-	hge->Gfx_SetClipping(tilePickX, tilePickY, tilePickW, tilePickH);
-	for (int y = 0; y <= tilePickH / 128; y++)
-		for (int x = 0; x <= tilePickW / 128; x++)
-			GV->hGfxInterface->sprMainBackground->Render(tilePickX + x * 128, tilePickY + y * 128);
-
-	if (bSingleGroup) {
-		RenderFrameGroup(*hSingleGroup, tilePickX + borderoffset, tilePickY + 10 - scroll);
-	}
-	else {
-		int ypos = 0;
-		for (int i = 0; i < 3; i++)
-			if (vtGroups[i].size() > 0) {
-				int drawX = tilePickX + borderoffset,
-					drawY = tilePickY + 10 - scroll + ypos;
-				const char * label = 0;
-				if (i == 0) label = GETL2S("Win_ImageSetBrowser", "GroupREZ");
-				else if (i == 1) label = GETL2S("Win_ImageSetBrowser", "GroupClaw");
-				else if (i == 2) label = GETL2S("Win_ImageSetBrowser", "GroupCustom");
-				hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15, 0xFFa1a1a1);
-				GV->fntMyriad13->SetColor(0xFFFFFFFF);
-				GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label);
-				RenderFrameGroup(vtGroups[i], drawX, drawY + 20);
-				ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
+			ico->SetColor(0xFFFFFFFF);
+			float fScale = 1;
+			if (ico->GetWidth() > iPreviewDim || ico->GetHeight() > iPreviewDim) {
+				float fScaleX = float(iPreviewDim) / ico->GetWidth(),
+					fScaleY = float(iPreviewDim) / ico->GetHeight();
+				fScale = (fScaleX < fScaleY ? fScaleX : fScaleY);
 			}
+			float ofx, ofy;
+			ico->GetHotSpot(&ofx, &ofy);
+			ofx -= ico->GetWidth() / 2;
+			ofy -= ico->GetHeight() / 2;
+			ofx *= fScale;
+			ofy *= fScale;
+			ico->RenderEx(drawX + 10 + iPreviewDim / 2 + ofx, drawY + 10 + iPreviewDim / 2 + ofy, 0, fScale, fScale);
+
+			int strw = CONST_IMGSETBROWSER_ISLISTW - (20 + iPreviewDim) - 10;
+			std::string str = ts->GetID();
+			bool first = 1;
+			while (GV->fntMyriad13->GetStringWidth(str.c_str(), 0) > strw) {
+				str.erase(str.length() - 2 - (!first * 3));
+				str.append("...");
+				first = 0;
+			}
+
+			GV->fntMyriad13->SetColor(0xFFc1c1c1);
+			GV->fntMyriad13->Render(drawX + 20 + iPreviewDim, drawY + 10 + 24 - 14, HGETEXT_LEFT, str.c_str());
+			GV->fntMyriad13->SetColor(0xFFa1a1a1);
+			GV->fntMyriad13->printf(drawX + 20 + iPreviewDim, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", ts->GetSpritesCount(), GETL2S("Win_ImageSetBrowser", "frames"));
+		}
+		hge->Gfx_SetClipping();
+		GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
+
+		int tilePickX = dx + (CONST_IMGSETBROWSER_ISLISTW + 15), tilePickW = myWin->getWidth() - (CONST_IMGSETBROWSER_ISLISTW + 15) - 16,
+			tilePickY = dy + 285, tilePickH = myWin->getHeight() - 290;
+		cSprBankAsset * tsPick = bank->GetAssetByIterator(iSelectedImageSet);
+
+		int tilesPerRow = (tilePickW / CONST_IMGSETBROWSER_FRAMEICOSIZE),
+			rowCount = tilePickH / (CONST_IMGSETBROWSER_FRAMEICOSIZE + 20) + 2;
+		int borderoffset = (tilePickW - (tilesPerRow*CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2;
+		int scroll = saFrames->getVerticalScrollAmount();
+		if (scroll < 0) scroll = 0;
+
+		hge->Gfx_SetClipping(tilePickX, tilePickY, tilePickW, tilePickH);
+		for (int y = 0; y <= tilePickH / 128; y++)
+			for (int x = 0; x <= tilePickW / 128; x++)
+				GV->hGfxInterface->sprMainBackground->Render(tilePickX + x * 128, tilePickY + y * 128);
+
+		if (bSingleGroup) {
+			RenderFrameGroup(*hSingleGroup, tilePickX + borderoffset, tilePickY + 10 - scroll);
+		}
+		else {
+			int ypos = 0;
+			for (int i = 0; i < 3; i++)
+				if (vtGroups[i].size() > 0) {
+					int drawX = tilePickX + borderoffset,
+						drawY = tilePickY + 10 - scroll + ypos;
+					const char * label = 0;
+					if (i == 0) label = GETL2S("Win_ImageSetBrowser", "GroupREZ");
+					else if (i == 1) label = GETL2S("Win_ImageSetBrowser", "GroupClaw");
+					else if (i == 2) label = GETL2S("Win_ImageSetBrowser", "GroupCustom");
+					hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15, 0xFFa1a1a1);
+					GV->fntMyriad13->SetColor(0xFFFFFFFF);
+					GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label);
+					RenderFrameGroup(vtGroups[i], drawX, drawY + 20);
+					ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
+				}
+		}
+		hge->Gfx_SetClipping();
+		GV->hGfxInterface->sprMainShadeBar->RenderStretch(tilePickX, tilePickY, tilePickX + tilePickW, tilePickY + 9);
 	}
-	hge->Gfx_SetClipping();
-	GV->hGfxInterface->sprMainShadeBar->RenderStretch(tilePickX, tilePickY, tilePickX + tilePickW, tilePickY + 9);
 }
 
 void winImageSetBrowser::OnDocumentChange()
@@ -407,6 +411,9 @@ void winImageSetBrowser::Synchronize()
 {
 	cBankImageSet * bank = GV->editState->SprBank;
 	cDataController * hDataCtrl = GV->editState->hDataCtrl;
+
+	if (bank->GetAssetsCount() == 0)
+		return;
 
 	if (iSelectedImageSet < 0 || iSelectedImageSet >= bank->GetAssetsCount())
 		iSelectedImageSet = 0;

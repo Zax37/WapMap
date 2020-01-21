@@ -8,13 +8,12 @@
 #include "../shared/cInterface.h"
 #include "../shared/cPID.h"
 #include "../shared/SimpleIni.h"
-#include "../shared/cTextRenderer.h"
 
 #include "hge.h"
-#include "hgeSprite.h"
-#include "hgeFont.h"
+#include "hgesprite.h"
+#include "hgefont.h"
 
-#include <setjmp.h>
+#include <csetjmp>
 
 #include "guichan.hpp"
 #include "guichan/hge.hpp"
@@ -387,7 +386,6 @@ class cGlobals {
 
   hgeSprite * sprTile;
   hgeFont * fntMyriad10, *fntSystem17, *fntMyriad13;
-  cTextRenderer * myriad10Text, * system17Text, * myriad13Text;
 
   gcn::HGEInput * gcnInput;
   gcn::HGEGraphics * gcnGraphics;

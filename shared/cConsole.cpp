@@ -9,47 +9,47 @@ extern HGE * hge;
 SHR::cConsole::cConsole(hgeSprite * psprBG)
 {
 	m_sprBG = psprBG;
-	m_bFocused = 0;
-	m_bEnabled = 1;
+	m_bFocused = false;
+	m_bEnabled = true;
 	m_fAnim = 0;
-	m_bAnimSet = 0;
+	m_bAnimSet = false;
 	m_fAnimScroll = 0;
-	m_osFile = NULL;
+	m_osFile = nullptr;
 	m_szInput[0] = '\0';
 	m_vCmds.clear();
 	m_iScroll = 0;
-	m_bFile = 0;
+	m_bFile = false;
 	InitializeCriticalSection(&csLock);
 }
 
 SHR::cConsole::~cConsole()
 {
-	for (int i = 0; i < m_vCmds.size(); i++) {
-		delete[] m_vCmds[i]->m_szName;
-		delete[] m_vCmds[i]->m_szDesc;
-		delete m_vCmds[i];
+	for (auto & m_vCmd : m_vCmds) {
+		delete[] m_vCmd->m_szName;
+		delete[] m_vCmd->m_szDesc;
+		delete m_vCmd;
 	}
 	DeleteCriticalSection(&csLock);
 }
 
 void SHR::cConsole::LogToFile(const char * pszFile)
 {
-	if (pszFile == NULL) {
-		if (m_osFile != NULL) {
+	if (pszFile == nullptr) {
+		if (m_osFile != nullptr) {
 			m_osFile->close();
 			delete m_osFile;
-			m_osFile = NULL;
+			m_osFile = nullptr;
 		}
-		m_bFile = 0;
+		m_bFile = false;
 	}
 	else {
-		if (m_osFile != NULL) {
+		if (m_osFile != nullptr) {
 			m_osFile->close();
 			delete m_osFile;
-			m_osFile = NULL;
+			m_osFile = nullptr;
 		}
 		m_osFile = new std::ofstream(pszFile, std::ios_base::out | std::ios_base::trunc);
-		m_bFile = 1;
+		m_bFile = true;
 		*m_osFile << "<html><body bgcolor='black'><pre><span style='color: white;'>" << std::endl;
 	}
 }
@@ -90,10 +90,10 @@ void SHR::cConsole::ParseCommand(const char * pszCommand)
 	}
 
 	bool bFound = 0;
-	for (int i = 0; i < m_vCmds.size(); i++) {
-		if (!strcmp(cmdName, m_vCmds[i]->m_szName)) {
-			(m_vCmds[i]->m_hFunc)(argc, argv);
-			bFound = 1;
+	for (auto & m_vCmd : m_vCmds) {
+		if (!strcmp(cmdName, m_vCmd->m_szName)) {
+			(m_vCmd->m_hFunc)(argc, argv);
+			bFound = true;
 			break;
 		}
 	}
@@ -109,7 +109,7 @@ void SHR::cConsole::Think()
 {
 	if (!m_bAnimSet) {
 		m_fAnim = -int(hge->System_GetState(HGE_SCREENHEIGHT) / 3);
-		m_bAnimSet = 1;
+		m_bAnimSet = true;
 	}
 	if (m_bEnabled) {
 		if (hge->Input_KeyDown(HGEK_GRAVE)) {
@@ -158,7 +158,7 @@ void SHR::cConsole::Think()
 		}
 	}
 	else if (m_bFocused)
-		m_bFocused = 0;
+		m_bFocused = false;
 }
 
 void SHR::cConsole::Render()

@@ -12,9 +12,8 @@ namespace ANI
 
 	Animation::~Animation()
 	{
-		for (int i = 0; i < m_vFrames.size(); i++) {
-			delete m_vFrames[i];
-			m_vFrames[i] = NULL;
+		for (auto & m_vFrame : m_vFrames) {
+			delete m_vFrame;
 		}
 		delete[] m_szImageset;
 	}
@@ -25,11 +24,11 @@ namespace ANI
 		byte b;
 		src->RBYTE(b);
 		if (b != 32) {
-			bBadBit = 1;
+			bBadBit = true;
 			return;
 		}
 		else
-			bBadBit = 0;
+			bBadBit = false;
 		src->seekg(11, std::ios_base::cur);
 		int framesCount;
 		src->RINT(framesCount);
@@ -37,7 +36,7 @@ namespace ANI
 		src->RINT(imglen);
 		src->seekg(12, std::ios_base::cur);
 		if (imglen == 0)
-			m_szImageset = NULL;
+			m_szImageset = nullptr;
 		else {
 			m_szImageset = new char[imglen + 1];
 			for (int i = 0; i < imglen + 1; i++)
@@ -47,7 +46,7 @@ namespace ANI
 
 		m_vFrames.resize(framesCount);
 		for (int i = 0; i < framesCount; i++) {
-			Frame * fr = new Frame();
+			auto * fr = new Frame();
 			src->RLEN(&(fr->m_iFlag), 2);
 			src->seekg(6, std::ios_base::cur);
 			src->RLEN(&(fr->m_iImageID), 2);
@@ -66,7 +65,7 @@ namespace ANI
 				strcpy(fr->m_szKeyFrameID, tmp);
 			}
 			else {
-				fr->m_szKeyFrameID = NULL;
+				fr->m_szKeyFrameID = nullptr;
 			}
 			/*if( fr->m_iFlag & Flag_KeyFrame )
 			 GV->Console->Printf("frame id: %d, duration %d, key %s\n", fr->m_iImageID, fr->m_iDuration, fr->m_szKeyFrameID);
