@@ -394,7 +394,7 @@ cTilesetTexture::cTilesetTexture(int w, int h)
 	hSlots = new hgeSprite*[w*h];
 	for (int i = 0; i < w*h; i++)
 		hSlots[i] = 0;
-	uint32_t * tdatatmp = hge->Texture_Lock(hTex, 0);
+	DWORD * tdatatmp = hge->Texture_Lock(hTex, 0);
 	for (int i = 0; i < (w * 64)*(h * 64); i++)
 		tdatatmp[i] = 0x00FFFFFF;
 	hge->Texture_Unlock(hTex);

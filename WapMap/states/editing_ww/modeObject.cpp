@@ -142,15 +142,15 @@ void State::EditingWW::ObjectOverlay()
 					miny = iObjDragOrigY > wmy ? wmy : iObjDragOrigY,
 					maxx = iObjDragOrigX > wmx ? iObjDragOrigX : wmx,
 					maxy = iObjDragOrigY > wmy ? iObjDragOrigY : wmy;
-				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
-				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d~l~", GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
+				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0, GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
+				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d~l~", 0, GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
 
-				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 21, HGETEXT_LEFT, "~l~%s: %d, %s: %d", GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
-				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d~l~", GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
+				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 21, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0, GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
+				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d~l~", 0, GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
 			}
 			else {
-				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", GETL(Lang_SelectedObjects), vObjectsHL.size());
-				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~l~", GETL(Lang_SelectedObjects), vObjectsHL.size());
+				GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", 0, GETL(Lang_SelectedObjects), vObjectsHL.size());
+				GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~l~", 0, GETL(Lang_SelectedObjects), vObjectsHL.size());
 			}
 		}
 		hge->Gfx_SetClipping();
@@ -169,10 +169,10 @@ void State::EditingWW::ObjectOverlay()
 			diffx = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationX) - hEditObj->_iMoveInitX;
 			diffy = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationY) - hEditObj->_iMoveInitY;
 		}
-		GV->fntMyriad13->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", diffx);
-		GV->fntMyriad13->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", diffy);
-		GV->fntMyriad13->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", diffx);
-		GV->fntMyriad13->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", diffy);
+		GV->fntMyriad13->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffx);
+		GV->fntMyriad13->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffy);
+		GV->fntMyriad13->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffx);
+		GV->fntMyriad13->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffy);
 	}
 }
 

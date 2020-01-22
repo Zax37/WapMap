@@ -29,7 +29,7 @@ hgeFont * SHR::LoadFontFromSFS(cSFS_Repository * phRepo, const char * pszDesc, c
 
 	HTEXTURE htex = hge->Texture_Load(tex, texlen);
 
-	hgeFont * fnt = new hgeFont(0); //desc, desclen, htex);
+	hgeFont * fnt = new hgeFont(desc, desclen, htex, 1, 0, 0);
 	delete[] desc;
 	delete[] tex;
 	return fnt;

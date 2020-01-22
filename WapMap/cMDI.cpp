@@ -635,7 +635,7 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast)
 		else
 			GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 13, y + 4);
 		GV->fntMyriad13->SetColor(0xFF000000);
-		GV->fntMyriad13->Render(x + 31, y + 5, HGETEXT_LEFT, desc);
+		GV->fntMyriad13->Render(x + 31, y + 5, HGETEXT_LEFT, desc, 0);
 		return tabw;
 	}
 }

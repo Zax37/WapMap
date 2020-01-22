@@ -95,7 +95,7 @@ namespace ObjEdit
 
 		if (rbType[0] != 0) {
 			GV->fntMyriad13->SetColor(0xFF000000);
-			GV->fntMyriad13->Render(dx + 6, dy + 30, HGETEXT_LEFT, GETL2S("EditObj_CrumblingPeg", "Imageset"));
+			GV->fntMyriad13->Render(dx + 6, dy + 30, HGETEXT_LEFT, GETL2S("EditObj_CrumblingPeg", "Imageset"), 0);
 			hState->SprBank->GetAssetByID("LEVEL_CRUMBLINPEG2")->GetIMGByIterator(0)->GetSprite()->Render(dx + 50, dy + 105);
 			hState->SprBank->GetAssetByID("LEVEL_CRUMBLINPEG1")->GetIMGByIterator(0)->GetSprite()->Render(dx + 140, dy + 105);
 		}

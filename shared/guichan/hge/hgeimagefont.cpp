@@ -122,6 +122,6 @@ namespace gcn
 		Color color = graphics->getColor();
 
 		mHGEFont->SetColor(ARGB(color.a, color.r, color.g, color.b));
-		mHGEFont->Render(x, y, HGETEXT_LEFT, text.c_str());
+		mHGEFont->Render(x, y, HGETEXT_LEFT, text.c_str(), 0);
 	}
 }

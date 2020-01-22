@@ -76,7 +76,7 @@ namespace SHR
 
 		fnt->SetColor(SETA(mColor, getAlpha()));
 
-		fnt->printfb(totalx, totaly, getWidth(), getHeight(), align | HGETEXT_TOP, "%s", getCaption().c_str());
+		fnt->printfb(totalx, totaly, getWidth(), getHeight(), align | HGETEXT_TOP, 0, "%s", getCaption().c_str());
 
 		//graphics->setFont(getFont());
 		//graphics->setColor(getForegroundColor());

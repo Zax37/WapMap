@@ -151,7 +151,7 @@ namespace ObjEdit
 		char tmp[64];
 		sprintf(tmp, "E_%d", hState->hInvCtrl->GetItemByID(iSpecialPowerupID[picked]).second);
 		GV->fntMyriad13->SetColor(0xFF000000);
-		GV->fntMyriad13->printf(dx + 7, dy + 28 + 267 - 125 - 19, HGETEXT_LEFT,
-			"%s: ~y~%s", GETL2S("EditObj_Inventory", "Effect"), GETL2S("EditObj_Inventory", tmp));
+		GV->fntMyriad13->printf(dx + 7, dy + 28 + 267 - 125 - 19, HGETEXT_LEFT, "%s: ~y~%s", 0,
+			GETL2S("EditObj_Inventory", "Effect"), GETL2S("EditObj_Inventory", tmp));
 	}
 }

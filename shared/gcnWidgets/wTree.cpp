@@ -186,7 +186,7 @@ namespace SHR
 	{
 		if (sprIcon != NULL)
 			sprIcon->Render(x, y);
-		GV->fntMyriad13->Render(x + 20, y, HGETEXT_LEFT, szName);
+		GV->fntMyriad13->Render(x + 20, y, HGETEXT_LEFT, szName, 0);
 		return 20;
 	}
 
@@ -195,7 +195,7 @@ namespace SHR
 		int oldy = y;
 		if (sprIcon != NULL)
 			sprIcon->Render(x, y);
-		GV->fntMyriad13->Render(x + 16, y, HGETEXT_LEFT, szName);
+		GV->fntMyriad13->Render(x + 16, y, HGETEXT_LEFT, szName, 0);
 		y += 20;
 		if (m_bOpened) {
 			x += 20;

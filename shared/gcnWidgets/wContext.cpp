@@ -214,12 +214,12 @@ namespace SHR
 			hFont->SetColor(fontcol);
 			int ifonty = y + iRowHeight * i + iRowHeight / 2 - hFont->GetHeight() / 2 + 2;
 			if (vElements[i]->GetAlign() == HGETEXT_LEFT) {
-				hFont->Render(x + xoff + 2, ifonty, HGETEXT_LEFT, vElements[i]->GetCaption());
+				hFont->Render(x + xoff + 2, ifonty, HGETEXT_LEFT, vElements[i]->GetCaption(), 0);
 			}
 			else if (vElements[i]->GetAlign() == HGETEXT_CENTER)
-				hFont->Render(x + xoff + (q.v[1].x - q.v[0].x - xoff) / 2, ifonty, HGETEXT_CENTER, vElements[i]->GetCaption());
+				hFont->Render(x + xoff + (q.v[1].x - q.v[0].x - xoff) / 2, ifonty, HGETEXT_CENTER, vElements[i]->GetCaption(), 0);
 			else if (vElements[i]->GetAlign() == HGETEXT_RIGHT)
-				hFont->Render(x + (q.v[1].x - q.v[0].x), ifonty, HGETEXT_RIGHT, vElements[i]->GetCaption());
+				hFont->Render(x + (q.v[1].x - q.v[0].x), ifonty, HGETEXT_RIGHT, vElements[i]->GetCaption(), 0);
 		}
 		//hge->Gfx_RenderLine(x+5, y, x+getWidth()-5, y, 0xFF5c5c5c);
 		//hge->Gfx_RenderLine(x+5, y+getHeight(), x+getWidth()-5, y+getHeight(), 0xFF5c5c5c);

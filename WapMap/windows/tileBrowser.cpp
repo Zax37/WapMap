@@ -294,9 +294,9 @@ void winTileBrowser::Draw(int piCode)
 			ico->GetImage()->SetColor(0xFFFFFFFF);
 			ico->GetImage()->RenderStretch(drawX + 10, drawY + 10, drawX + 10 + 48, drawY + 10 + 48);
 			GV->fntMyriad13->SetColor(0xFFc1c1c1);
-			GV->fntMyriad13->Render(drawX + 20 + 48, drawY + 10 + 24 - 14, HGETEXT_LEFT, ts->GetName());
+			GV->fntMyriad13->Render(drawX + 20 + 48, drawY + 10 + 24 - 14, HGETEXT_LEFT, ts->GetName(), 0);
 			GV->fntMyriad13->SetColor(0xFFa1a1a1);
-			GV->fntMyriad13->printf(drawX + 20 + 48, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", ts->GetTilesCount(), GETL2S("Win_TileBrowser", "tiles"));
+			GV->fntMyriad13->printf(drawX + 20 + 48, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", 0, ts->GetTilesCount(), GETL2S("Win_TileBrowser", "tiles"));
 		}
 		hge->Gfx_SetClipping();
 		GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
@@ -348,7 +348,7 @@ void winTileBrowser::Draw(int piCode)
 					else if (i == 2) label = GETL2S("Win_TileBrowser", "GroupCustom");
 					hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15, 0xFFa1a1a1);
 					GV->fntMyriad13->SetColor(0xFFFFFFFF);
-					GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label);
+					GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label, 0);
 					RenderTileGroup(vtGroups[i], drawX, drawY + 20);
 					ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
 				}
@@ -535,11 +535,7 @@ void winTileBrowser::RenderTileGroup(std::vector<cTile*> tiles, int x, int y)
 		*hlTile = (iHighlightedT == -1 ? 0 : GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTileByIterator(iHighlightedT));
 
 	int tilePickX, tilePickY, tilePickW, tilePickH;
-	tilePickX = 0;
-	tilePickY = 0;
-	tilePickW = 300;
-	tilePickH = 600;
-	//hge->Gfx_GetClipping(&tilePickX, &tilePickY, &tilePickW, &tilePickH);
+	hge->Gfx_GetClipping(&tilePickX, &tilePickY, &tilePickW, &tilePickH);
 	int tilesPerRow = tilePickW / 60;
 	for (size_t i = 0; i < tiles.size(); i++) {
 		int gridX = (i%tilesPerRow),
@@ -574,7 +570,7 @@ void winTileBrowser::RenderTileGroup(std::vector<cTile*> tiles, int x, int y)
 		tile->GetImage()->RenderStretch(drawX + 5, drawY + 5, drawX + 5 + 48, drawY + 5 + 48);
 
 		GV->fntMyriad13->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFa1a1a1));
-		GV->fntMyriad13->printf(drawX + 5 + 25, drawY + 50 + 10, HGETEXT_CENTER, "%d", tile->GetID());
+		GV->fntMyriad13->printf(drawX + 5 + 25, drawY + 50 + 10, HGETEXT_CENTER, "%d", 0, tile->GetID());
 	}
 }
 

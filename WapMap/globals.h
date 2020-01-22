@@ -385,7 +385,7 @@ class cGlobals {
   hgeSprite * sprContextCascadeArrow;
 
   hgeSprite * sprTile;
-  hgeFont * fntMyriad10, *fntSystem17, *fntMyriad13;
+  hgeFont * fntMyriad10, *fntMyriad20, *fntSystem17, *fntMyriad13, *fntMyriad80, *fntMinimal;
 
   gcn::HGEInput * gcnInput;
   gcn::HGEGraphics * gcnGraphics;

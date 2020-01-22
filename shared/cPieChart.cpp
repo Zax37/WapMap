@@ -111,7 +111,7 @@ namespace SHR
 		}
 
 		hTex = hge->Texture_Create(iW, iH);
-		uint32_t * dest = hge->Texture_Lock(hTex, 0);
+		DWORD * dest = hge->Texture_Lock(hTex, 0);
 		/*for(int y=0;y<iH;y++)
 		 for(int x=0;x<iW;x++){
 		  int gdcol = gdImageGetPixel(hImgGD, x, y);

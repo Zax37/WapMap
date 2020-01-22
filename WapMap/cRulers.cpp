@@ -202,8 +202,8 @@ void cRulers::Render()
 			if (type == 3) {
 				hge->Gfx_RenderLine(linex - 17 * rl, liney - 17 * (!rl), linex, liney, 0xFF717171);
 				hge->Gfx_RenderLine(linex - 17 * rl + 1 * (!rl), liney - 17 * (!rl) + 1 * rl, linex + 1 * (!rl), liney + 1 * rl, 0xFF717171);
-				GV->fntMyriad10->SetColor(0xFF717171);
-				GV->fntMyriad10->printf(linex + (rl ? -16 : 3), liney + (rl ? -2 : -20), HGETEXT_LEFT, text);
+				GV->fntMinimal->SetColor(0xFF717171);
+				GV->fntMinimal->printf(linex + (rl ? -16 : 3), liney + (rl ? -2 : -20), HGETEXT_LEFT, text, 0);
 			}
 			else {
 				int h = 3;
@@ -211,8 +211,8 @@ void cRulers::Render()
 				else if (type == 2) h = 17;
 				hge->Gfx_RenderLine(linex - h * rl, liney - h * (!rl), linex, liney, 0xFF616161);
 				if (type == 2 && step < 250) {
-					GV->fntMyriad10->SetColor(0xFF616161);
-					GV->fntMyriad10->printf(linex + (rl ? -16 : 3), liney + (rl ? -3 : -20), HGETEXT_LEFT, text);
+					GV->fntMinimal->SetColor(0xFF616161);
+					GV->fntMinimal->printf(linex + (rl ? -16 : 3), liney + (rl ? -3 : -20), HGETEXT_LEFT, text, 0);
 				}
 			}
 		}

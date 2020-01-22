@@ -14,8 +14,6 @@ typedef unsigned char byte;
 #define RBYTE(b) read((char*)(&b), 1)
 #define RLEN(data, len) read((char*)(data), len)
 
-#include <argb.h>
-
 namespace PID {
 
 	enum FLAGS {

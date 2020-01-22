@@ -32,15 +32,14 @@ void winAbout::Draw(int piCode)
 {
 	int dx, dy;
 	myWin->getAbsolutePosition(dx, dy);
-	GV->sprLogoBig->Render(dx + myWin->getWidth() / 2 - 151, dy + 50 - 28);
+	GV->sprLogoBig->Render(dx + myWin->getWidth() / 2 - 141, dy + 60 - 28);
 	GV->fntMyriad10->SetColor(0xFFFFFFFF);
-	GV->fntMyriad10->Render(dx + myWin->getWidth() / 2 - 35, dy + 50 + 31, HGETEXT_RIGHT, WA_VERSTRING);
+	GV->fntMyriad10->Render(dx + myWin->getWidth() / 2 - 25, dy + 60 + 31, HGETEXT_RIGHT, WA_VERSTRING, 0);
 
-	GV->sprUsedLibs->Render(dx + 350, dy + 300);
+	GV->sprUsedLibs->Render(dx + 350, dy + 315);
 
-	GV->fntMyriad13->SetColor(0xFF000000);
-	GV->fntMyriad13->printf(dx + 350, dy + 115, HGETEXT_CENTER,
-		"~y~kijanek6 ~l~ - %s\n~y~Zax37 ~l~- %s\n~y~Tomalla~l~ - %s\n~y~Zax37, wisztom ~l~- %s\n~y~Teo Phil~l~, ~y~Zuczek~l~ & ~y~The Claw Recluse ~l~- %s\n~y~Zax37 ~l~- BrushMaker~l~\n\nCopyright (c) 2010-2012 by Kijedi Studio\n%s ~w~%s~l~ compiled on ~w~%s %s~l~.",
+	GV->fntMyriad13->printf(dx + 150, dy + 125, HGETEXT_LEFT,
+		"~y~kijanek6 ~w~ - %s\n\n~y~Zax37 ~w~- %s\n\n~y~Tomalla~w~ - %s\n\n~y~wisztom, Zax37 ~w~- %s\n\n~y~Teo Phil~w~, ~y~Zuczek~w~ & ~y~The Claw Recluse ~w~- %s\n\n~w~Copyright (c) 2010-2013 kijanek6. Reborn in 2020 thanks to Zax37.",
 		0,
 		GETL2S("WinAuthors", "Func_1"),
 		GETL2S("WinAuthors", "Func_2"),
@@ -48,52 +47,63 @@ void winAbout::Draw(int piCode)
 		GETL2S("WinAuthors", "Func_4"),
 		GETL2S("WinAuthors", "Func_5"),
 		GETL2S("WinAuthors", "Version"),
-		WA_AUTHORVERSTRING,
-		__TIME__,
-		__DATE__);
+		WA_AUTHORVERSTRING);
 
-	hge->Gfx_RenderLine(dx, dy + 290, dx + myWin->getWidth(), dy + 290, GV->colLineDark);
-	hge->Gfx_RenderLine(dx, dy + 291, dx + myWin->getWidth(), dy + 291, GV->colLineBright);
+	hge->Gfx_RenderLine(dx, dy + 305, dx + myWin->getWidth(), dy + 305, GV->colLineDark);
+	hge->Gfx_RenderLine(dx, dy + 306, dx + myWin->getWidth(), dy + 306, GV->colLineBright);
 
-	int yoff = 300;
-	int h = 10;// GV->fntMyriad13->GetHeight(340, "HGE 1.81 - Copyright (c) 2003-2008 Relish Games.");
-	if (h > 10/*GV->fntMyriad13->GetHeight()*/) h -= 10/*GV->fntMyriad13->GetHeight()*/;
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "HGE 1.81 - Copyright (c) 2003-2008 Relish Games.");
-	yoff += h;
+	const int block_width = 340;
+	const int block_height = 200;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "BASS 2.3 - Copyright © 2003-2012 un4seen developments. All rights reserved.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "BASS 2.3 - Copyright © 2003-2012 un4seen developments. All rights reserved.");
-	yoff += h;
+	int yoff = 315, y_spacing = 5;
+	int h = GV->fntMyriad13->GetHeightb(340, "HGE 1.81 - Copyright (c) 2003-2008 Relish Games.");
+	if (h > GV->fntMyriad13->GetHeight()) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"HGE 1.81 - Copyright (c) 2003-2008 Relish Games.");
+	yoff += h + y_spacing;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "Guichan 0.8.3 - Copyright (c) 2004-2007 Olof Naessén and Per Larsson. All rights reserved.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "Guichan 0.8.3 - Copyright (c) 2004-2007 Olof Naessén and Per Larsson. All rights reserved.");
-	yoff += h;
+	h = GV->fntMyriad13->GetHeightb(340, "BASS 2.3 - Copyright (c) 2003-2012 un4seen developments. All rights reserved.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"BASS 2.3 - Copyright (c) 2003-2012 un4seen developments. All rights reserved.", 0);
+	yoff += h + y_spacing;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "libcurl 7.21.6 - Copyright (c) 1996 - 2012, Daniel Stenberg, <daniel@haxx.se>.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "libcurl 7.21.6 - Copyright (c) 1996 - 2012, Daniel Stenberg, <daniel@haxx.se>.");
-	yoff += h;
+	h = GV->fntMyriad13->GetHeightb(340, "Guichan 0.8.3 - Copyright (c) 2004-2007 Olof Naessen and Per Larsson. All rights reserved.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"Guichan 0.8.3 - Copyright (c) 2004-2007 Olof Naessen and Per Larsson. All rights reserved.", 0);
+	yoff += h + y_spacing;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "GD 2.0.33 - Copyright (c) 1994-2012 Boutell.Com, Inc. All rights reserved.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "GD 2.0.33 - Copyright (c) 1994-2012 Boutell.Com, Inc. All rights reserved.");
-	yoff += h;
+	h = GV->fntMyriad13->GetHeightb(340, "libcurl 7.21.6 - Copyright (c) 1996 - 2012, Daniel Stenberg, <daniel@haxx.se>.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"libcurl 7.21.6 - Copyright (c) 1996 - 2012, Daniel Stenberg, <daniel@haxx.se>.", 0);
+	yoff += h + y_spacing;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "hashlib++ 0.3.2 - Copyright (c) 2007-2011 Benjamin Grüdelbach.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "hashlib++ 0.3.2 - Copyright (c) 2007-2011 Benjamin Grüdelbach.");
-	yoff += h;
+	h = GV->fntMyriad13->GetHeightb(340, "hashlib++ 0.3.2 - Copyright (c) 2007-2011 Benjamin Grudelbach.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"hashlib++ 0.3.2 - Copyright (c) 2007-2011 Benjamin Grudelbach.", 0);
+	yoff += h + y_spacing;
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "Lua 5.1.4 - Copyright © 1994–2012 Lua.org, PUC-Rio.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 340, 200, HGETEXT_LEFT | HGETEXT_TOP, "Lua 5.1.4 - Copyright © 1994–2012 Lua.org, PUC-Rio.");
-	yoff += h;
+	h = GV->fntMyriad13->GetHeightb(340, "Lua 5.1.4 - Copyright (c) 1994-2012 Lua.org, PUC-Rio.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"Lua 5.1.4 - Copyright (c) 1994-2012 Lua.org, PUC-Rio.", 0);
 
-	h = 10;//GV->fntMyriad13->GetHeightb(340, "zlib 1.2.5 - Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.");
-	if (h > 40) h -= 10;//GV->fntMyriad13->GetHeight();
-	GV->fntMyriad13->printfb(dx + 5, dy + yoff, 500, 200, HGETEXT_LEFT | HGETEXT_TOP, "zlib 1.2.5 - Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.");
+	y_spacing = -5;
+	yoff += h + y_spacing;
+
+	h = GV->fntMyriad13->GetHeightb(340, "SFML 2.5.1 - Copyright (c) 2007-2018 Laurent Gomila.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"SFML 2.5.1 - Copyright (c) 2007-2018 Laurent Gomila.", 0);
+	yoff += h + y_spacing;
+
+	h = GV->fntMyriad13->GetHeightb(340, "zlib 1.2.5 - Copyright (c) 1995-2012 Jean-loup Gailly and Mark Adler.");
+	if (h > 40) h -= GV->fntMyriad13->GetHeight();
+	GV->fntMyriad13->printfb(dx + 5, dy + yoff, block_width, block_height, HGETEXT_LEFT | HGETEXT_TOP, 0,
+		"zlib 1.2.5 - Copyright (c) 1995-2012 Jean-loup Gailly and Mark Adler.", 0);
 }
 
 void winAbout::Open()

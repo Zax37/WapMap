@@ -393,7 +393,7 @@ namespace State
 					}
 					GV->fntMyriad10->SetColor(bMouseOver ? 0xFFFFFF00 : (condition ? 0xFF00FF00 : 0xFF000000));
 					GV->fntMyriad10->Render(x + 64, y + 130, HGETEXT_CENTER, (z ? m_hOwn->asImageSetPick->GetIMGByIterator(i)->GetName()
-						: GV->editState->SprBank->GetAssetByIterator(i)->GetID()));
+						: GV->editState->SprBank->GetAssetByIterator(i)->GetID()), 0);
 				}
 			}
 			hge->Gfx_SetClipping();

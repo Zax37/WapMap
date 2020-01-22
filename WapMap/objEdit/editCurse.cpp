@@ -113,7 +113,7 @@ namespace ObjEdit
 				sprintf(tmp, "CurseDesc%d", i);
 				break;
 			}
-		GV->fntMyriad13->printf(dx + 15, dy + 130, HGETEXT_LEFT,
-			"%s: ~y~%s~l~", GETL2S("EditObj_Curse", "CurseEffect"), GETL2S("EditObj_Curse", tmp));
+		GV->fntMyriad13->printf(dx + 15, dy + 130, HGETEXT_LEFT,"%s: ~y~%s~l~", 0,
+		        GETL2S("EditObj_Curse", "CurseEffect"), GETL2S("EditObj_Curse", tmp), 0);
 	}
 }

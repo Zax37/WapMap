@@ -98,7 +98,7 @@ namespace gcn
 
 	Color HGEImage::getPixel(int x, int y)
 	{
-		uint32_t *pLockPtr = mHGE->Texture_Lock(mTexture);
+		DWORD *pLockPtr = mHGE->Texture_Lock(mTexture);
 
 		if (pLockPtr == NULL)
 		{
@@ -119,7 +119,7 @@ namespace gcn
 	{
 		DWORD hardwareColor = ARGB(color.a, color.r, color.g, color.b);
 
-		uint32_t *pLockPtr = mHGE->Texture_Lock(mTexture, false);
+		DWORD *pLockPtr = mHGE->Texture_Lock(mTexture, false);
 
 		if (pLockPtr == NULL)
 		{
@@ -133,7 +133,7 @@ namespace gcn
 
 	void HGEImage::convertToDisplayFormat()
 	{
-		uint32_t *pLockPtr = mHGE->Texture_Lock(mTexture);
+		DWORD *pLockPtr = mHGE->Texture_Lock(mTexture);
 
 		if (pLockPtr == NULL)
 		{

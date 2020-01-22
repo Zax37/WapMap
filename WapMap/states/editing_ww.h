@@ -385,7 +385,7 @@ namespace State {
  {
   SHR::Win * win;
   WIDG::Viewport * vp;
-  SHR::But * runManual;
+  //SHR::But * runManual;
   SHR::But * website;
   bool bKill;
  };
@@ -620,7 +620,7 @@ namespace State {
 
    WWD::Object * GetObjUnderWorldPos(int mx, int my);
 
-   SHR::But * MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener * dest, bool enable = 1, bool visible = 1);
+   SHR::But * MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener * dest, bool enable = 1, bool visible = 1, gcn::ActionListener* actionListener = NULL);
 
    void RenderToViewportBuffer();
 

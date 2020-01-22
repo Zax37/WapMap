@@ -135,7 +135,7 @@ namespace SHR
 			fntcol = ARGB(getAlpha(), p, p, p);
 		}
 		fnt->SetColor(fntcol);
-		fnt->Render(dx + 5 - mXScroll, dy + 1, HGETEXT_LEFT, mText.c_str());
+		fnt->Render(dx + 5 - mXScroll, dy + 1, HGETEXT_LEFT, mText.c_str(), 0);
 
 		if (mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
 			hgeQuad q;

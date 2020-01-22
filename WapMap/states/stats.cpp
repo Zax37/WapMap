@@ -205,7 +205,7 @@ bool State::MapStats::Render()
 			q.blend = BLEND_DEFAULT;
 			SHR::SetQuad(&q, el.iColor, dx, dy + 5, dx + 10, dy + 15);
 			hge->Gfx_RenderQuad(&q);
-			GV->fntMyriad13->printf(dx + 15, dy, HGETEXT_LEFT, "%s ~l~(~y~%d~l~)", el.szDesc, el.iPart);
+			GV->fntMyriad13->printf(dx + 15, dy, HGETEXT_LEFT, "%s ~l~(~y~%d~l~)", 0, el.szDesc, el.iPart);
 		}
 	}
 	else if (tabbedArea->getSelectedTabIndex() > 1) {

@@ -256,8 +256,8 @@ namespace ObjEdit
 			hge->Gfx_RenderLine(dx, dy + 101 + 75, dx + win->getWidth(), dy + 101 + 75, GV->colLineDark);
 			hge->Gfx_RenderLine(dx, dy + 102 + 75, dx + win->getWidth(), dy + 102 + 75, GV->colLineBright);
 			GV->fntMyriad13->SetColor(0xFF000000);
-			GV->fntMyriad13->Render(dx + 7, dy + 122, HGETEXT_LEFT, "X:");
-			GV->fntMyriad13->Render(dx + 7, dy + 149, HGETEXT_LEFT, "Y:");
+			GV->fntMyriad13->Render(dx + 7, dy + 122, HGETEXT_LEFT, "X:", 0);
+			GV->fntMyriad13->Render(dx + 7, dy + 149, HGETEXT_LEFT, "Y:", 0);
 		}
 	}
 }

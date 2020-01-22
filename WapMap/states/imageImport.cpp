@@ -448,8 +448,8 @@ namespace State
 
 			if (vImages.empty()) {
 				GV->fntMyriad13->SetColor(0xFFa1a1a1);
-				GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 - 7, HGETEXT_CENTER, GETL2S("Win_ImageImport", "NoFiles"));
-				GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 + 7, HGETEXT_CENTER, GETL2S("Win_ImageImport", "DragDropHint"));
+				GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 - 7, HGETEXT_CENTER, GETL2S("Win_ImageImport", "NoFiles"), 0);
+				GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 + 7, HGETEXT_CENTER, GETL2S("Win_ImageImport", "DragDropHint"), 0);
 			}
 			else {
 				int scroll = saFileList->getVerticalScrollAmount();

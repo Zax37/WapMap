@@ -595,9 +595,9 @@ namespace ObjEdit
 				spr = GV->editState->SprBank->GetAssetByID("CLAW")->GetIMGByID(401)->GetSprite();
 			spr->SetColor(0xBBFFFFFF);
 			spr->RenderEx(mx, my, 0, GV->editState->fZoom);
-			GV->fntMyriad13->printf(mx + spr->GetWidth() / 2 + 1, my + 1, HGETEXT_LEFT, "~l~%s: %d, %d",
+			GV->fntMyriad13->printf(mx + spr->GetWidth() / 2 + 1, my + 1, HGETEXT_LEFT, "~l~%s: %d, %d", 0,
 				GETL2S("EditObj_Warp", "SpawnPos"), wmx, wmy);
-			GV->fntMyriad13->printf(mx + spr->GetWidth() / 2, my, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, ~y~%d",
+			GV->fntMyriad13->printf(mx + spr->GetWidth() / 2, my, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, ~y~%d", 0,
 				GETL2S("EditObj_Warp", "SpawnPos"), wmx, wmy);
 		}
 	}
@@ -633,8 +633,8 @@ namespace ObjEdit
 		}
 		else if (tfSpeedX->isVisible()) {
 			GV->fntMyriad13->SetColor(tfSpeedX->isEnabled() ? 0xFF000000 : 0xFF222222);
-			GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 28 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:");
-			GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 48 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:");
+			GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 28 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
+			GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 48 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
 			hge->Gfx_RenderLine(dx, dy + 160 + 173 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(), dy + 160 + 173 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
 			hge->Gfx_RenderLine(dx, dy + 161 + 173 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(), dy + 161 + 173 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
 		}

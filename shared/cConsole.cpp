@@ -185,10 +185,10 @@ void SHR::cConsole::Render()
 		if (linesc < 0)
 			linesc = 0;
 		for (int i = start; i >= linesc; i--) {
-			m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - (m_vLines.size() - i + 1 - m_iScroll) * 13, HGETEXT_LEFT, m_vLines[i]);
+			m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - (m_vLines.size() - i + 1 - m_iScroll) * 13, HGETEXT_LEFT, m_vLines[i], 0);
 		}
-		m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput);
-		m_fnt->Render(5 + m_fnt->GetStringWidth(m_szInput), (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, "_");
+		m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput, 0);
+		m_fnt->Render(5 + m_fnt->GetStringWidth(m_szInput), (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, "_", 0);
 		hge->Gfx_SetClipping();
 	}
 }

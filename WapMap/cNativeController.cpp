@@ -55,7 +55,7 @@ bool cNativeController::SetPath(std::string strPath)
 					if (verInfo->dwSignature == 0xfeef04bd) {
 						iVersion[0] = HIWORD(verInfo->dwFileVersionMS);
 						iVersion[1] = LOWORD(verInfo->dwFileVersionMS);
-						iVersion[2] = verInfo->dwFileVersionLS;
+						iVersion[2] = HIWORD(verInfo->dwFileVersionLS);
 						obtained = 1;
 					}
 				}

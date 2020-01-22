@@ -3,7 +3,7 @@
 
 //#define REAL_SIM
 
-#define WA_VER 30
+#define WA_VER 31
 //#define CONF_NOSAVE
 //#define WM_ADD_LUA_EXECUTER
 
@@ -19,10 +19,10 @@
 #ifdef BUILD_RELEASE
  //#define CONF_NOSAVE
  //#define CONF_WATERMARK ""
- #define WA_TITLEBAR "WapMap 0.3.1"
- #define WA_VERSTRING "v0.3.1 (b30)"
- #define WA_AUTHORVERSTRING "0.3.1 (b30)"
- #define WA_VERPURE "0.3.1"
+ #define WA_TITLEBAR "WapMap 0.3.2"
+ #define WA_VERSTRING "v0.3.2 (b31)"
+ #define WA_AUTHORVERSTRING "0.3.2 (b31)"
+ #define WA_VERPURE "0.3.2"
 #else
 
 #ifdef BUILD_DEVELOPER

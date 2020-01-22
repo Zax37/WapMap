@@ -214,7 +214,7 @@ bool State::Error::Render()
 		GV->gcnParts.sprIconError->Render(winError->getX() + 5, winError->getY() + 25);
 		break;
 	}
-	GV->fntMyriad13->printfb(winError->getX() + 75, winError->getY() + 25, 330, 100, HGETEXT_LEFT | HGETEXT_TOP, szErrorString);
+	GV->fntMyriad13->printfb(winError->getX() + 75, winError->getY() + 25, 330, 100, HGETEXT_LEFT | HGETEXT_TOP, 0, szErrorString);
 	GV->IF->Render();
 	GV->Console->Render();
 	return 0;

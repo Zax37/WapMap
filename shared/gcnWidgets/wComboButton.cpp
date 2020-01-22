@@ -113,7 +113,7 @@ namespace SHR
 			}
 
 			GV->fntMyriad13->SetColor(ARGB(255, p, p, p));
-			GV->fntMyriad13->Render(lx, y, HGETEXT_LEFT, vEntries[i].strCaption.c_str());
+			GV->fntMyriad13->Render(lx, y, HGETEXT_LEFT, vEntries[i].strCaption.c_str(), 0);
 			lx += GV->fntMyriad13->GetStringWidth(vEntries[i].strCaption.c_str());
 
 			lx += 6;

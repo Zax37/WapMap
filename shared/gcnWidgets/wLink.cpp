@@ -10,8 +10,6 @@
 #include <hgeSprite.h>
 extern HGE * hge;
 
-#include <argb.h>
-
 namespace SHR
 {
 	Link::Link()
@@ -105,7 +103,7 @@ namespace SHR
 		if (sprIcon != 0)
 			sprIcon->Render(dx, dy);
 
-		fnt->Render(dx + textX + textx, dy + textY, HGETEXT_LEFT, getCaption().c_str());
+		fnt->Render(dx + textX + textx, dy + textY, HGETEXT_LEFT, getCaption().c_str(), 0);
 	}
 
 	void Link::adjustSize()

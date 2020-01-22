@@ -299,7 +299,7 @@ byte * cDataController::GetImageRaw(cFile hFile, int * pW, int * pH)
 
 bool cDataController::RenderImageRaw(byte * hData, HTEXTURE texDest, int iRx, int iRy, int iRowSpan, int w, int h, PID::Palette * pal)
 {
-	uint32_t * td = hge->Texture_Lock(texDest, 0, iRx, iRy, w, h);
+	DWORD * td = hge->Texture_Lock(texDest, 0, iRx, iRy, w, h);
 	if (!td)
 		return 0;
 	PID::Palette * palptr = (pal == 0 ? hPalette

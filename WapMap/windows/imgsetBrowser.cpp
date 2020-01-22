@@ -355,9 +355,9 @@ void winImageSetBrowser::Draw(int piCode)
 			}
 
 			GV->fntMyriad13->SetColor(0xFFc1c1c1);
-			GV->fntMyriad13->Render(drawX + 20 + iPreviewDim, drawY + 10 + 24 - 14, HGETEXT_LEFT, str.c_str());
+			GV->fntMyriad13->Render(drawX + 20 + iPreviewDim, drawY + 10 + 24 - 14, HGETEXT_LEFT, str.c_str(), 0);
 			GV->fntMyriad13->SetColor(0xFFa1a1a1);
-			GV->fntMyriad13->printf(drawX + 20 + iPreviewDim, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", ts->GetSpritesCount(), GETL2S("Win_ImageSetBrowser", "frames"));
+			GV->fntMyriad13->printf(drawX + 20 + iPreviewDim, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", 0, ts->GetSpritesCount(), GETL2S("Win_ImageSetBrowser", "frames"));
 		}
 		hge->Gfx_SetClipping();
 		GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
@@ -392,7 +392,7 @@ void winImageSetBrowser::Draw(int piCode)
 					else if (i == 2) label = GETL2S("Win_ImageSetBrowser", "GroupCustom");
 					hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15, 0xFFa1a1a1);
 					GV->fntMyriad13->SetColor(0xFFFFFFFF);
-					GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label);
+					GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label, 0);
 					RenderFrameGroup(vtGroups[i], drawX, drawY + 20);
 					ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
 				}
@@ -602,7 +602,7 @@ void winImageSetBrowser::RenderFrameGroup(std::vector<cSprBankAssetIMG*> tiles, 
 		*hlTile = (iHighlightedF == -1 ? 0 : GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(iHighlightedF));
 
 	int tilePickX, tilePickY, tilePickW, tilePickH;
-	//hge->Gfx_GetClipping(&tilePickX, &tilePickY, &tilePickW, &tilePickH);
+	hge->Gfx_GetClipping(&tilePickX, &tilePickY, &tilePickW, &tilePickH);
 	int tilesPerRow = tilePickW / CONST_IMGSETBROWSER_FRAMEICOSIZE;
 	for (size_t i = 0; i < tiles.size(); i++) {
 		int gridX = (i%tilesPerRow),
@@ -654,7 +654,7 @@ void winImageSetBrowser::RenderFrameGroup(std::vector<cSprBankAssetIMG*> tiles, 
 		spr->RenderEx(drawX + 5 + iPreviewDim / 2 + ofx, drawY + 5 + iPreviewDim / 2 + ofy, 0, fScale, fScale);
 
 		GV->fntMyriad13->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFa1a1a1));
-		GV->fntMyriad13->printf(drawX + iPreviewDim / 2 + 5, drawY + 10 + iPreviewDim, HGETEXT_CENTER, "%d", tile->GetID());
+		GV->fntMyriad13->printf(drawX + iPreviewDim / 2 + 5, drawY + 10 + iPreviewDim, HGETEXT_CENTER, "%d", 0, tile->GetID());
 	}
 }
 

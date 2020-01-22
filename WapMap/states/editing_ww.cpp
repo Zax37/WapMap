@@ -2887,11 +2887,11 @@ void State::EditingWW::ExitMode(int piMode)
 	}
 }
 
-SHR::But * State::EditingWW::MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener * dest, bool enable, bool visible)
+SHR::But * State::EditingWW::MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener * dest, bool enable, bool visible, gcn::ActionListener* actionListener)
 {
 	SHR::But * but = new SHR::But(GV->hGfxInterface, GV->sprIcons[icon]);
 	but->setDimension(gcn::Rectangle(0, 0, 32, 32));
-	but->addActionListener(al);
+	but->addActionListener(actionListener ? actionListener : al);
 	but->setEnabled(enable);
 	but->setVisible(visible);
 	dest->add(but, x, y);

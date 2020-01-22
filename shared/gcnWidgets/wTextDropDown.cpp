@@ -168,7 +168,7 @@ namespace SHR
 			fntcol = ARGB(getAlpha(), p, p, p);
 		}
 		fnt->SetColor(fntcol);
-		fnt->Render(x + 5 - mXScroll, y + 1, HGETEXT_LEFT, mText.c_str());
+		fnt->Render(x + 5 - mXScroll, y + 1, HGETEXT_LEFT, mText.c_str(), 0);
 
 		if (bTextFocused && mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
 			hgeQuad q;

@@ -186,9 +186,9 @@ namespace ObjEdit
 		hState->SprBank->GetAssetByID("GAME_VERTWARP")->GetIMGByIterator(iScpAnimFrame)->GetSprite()->Render(dx + 100, dy + 155);
 		hState->SprBank->GetAssetByID("GAME_BOSSWARP")->GetIMGByIterator(iScpAnimFrame)->GetSprite()->Render(dx + 100, dy + 240);
 		GV->fntMyriad13->SetColor(0xFF000000);
-		GV->fntMyriad13->Render(dx + 5, dy + 295 - 25, HGETEXT_LEFT, GETL2S("EditObj_Warp", "TeleportDestination"));
-		GV->fntMyriad13->Render(dx + 5, dy + 318 - 25, HGETEXT_LEFT, "X:");
-		GV->fntMyriad13->Render(dx + 5, dy + 342 - 25, HGETEXT_LEFT, "Y:");
+		GV->fntMyriad13->Render(dx + 5, dy + 295 - 25, HGETEXT_LEFT, GETL2S("EditObj_Warp", "TeleportDestination"), 0);
+		GV->fntMyriad13->Render(dx + 5, dy + 318 - 25, HGETEXT_LEFT, "X:", 0);
+		GV->fntMyriad13->Render(dx + 5, dy + 342 - 25, HGETEXT_LEFT, "Y:", 0);
 
 		hge->Gfx_RenderLine(dx, dy + 295 - 27, dx + win->getWidth(), dy + 295 - 27, GV->colLineDark);
 		hge->Gfx_RenderLine(dx, dy + 295 - 26, dx + win->getWidth(), dy + 295 - 26, GV->colLineBright);

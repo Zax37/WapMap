@@ -8,15 +8,21 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
+		MinSizeRel|x86 = MinSizeRel|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Debug|x86.ActiveCfg = Debug|Win32
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Debug|x86.Build.0 = Debug|Win32
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.MinSizeRel|x86.ActiveCfg = MinSizeRel|Win32
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.MinSizeRel|x86.Build.0 = MinSizeRel|Win32
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x86.ActiveCfg = Release|Win32
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5CE00112-DFB0-47AF-A9C8-01E05A8B49C5}
 	EndGlobalSection
 EndGlobal

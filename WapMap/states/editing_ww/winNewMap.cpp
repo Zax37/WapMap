@@ -161,9 +161,9 @@ void State::EditingWW::NewMap_Think()
 				char tmp[16];
 				sprintf(tmp, "Baselvl_%d", y * 2 + x + 1);
 				GV->fntMyriad13->SetColor(ARGB(int(255.0f*NewMap_data->fBaseTimer[y * 2 + x]), 0, 0, 0));
-				GV->fntMyriad13->printf(dx + 11, dy + 128, HGETEXT_LEFT, "%d - %s", y * 2 + x + 1, GETL2S("NewMap", tmp));
+				GV->fntMyriad13->printf(dx + 11, dy + 128, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1, GETL2S("NewMap", tmp));
 				GV->fntMyriad13->SetColor(ARGB(int(255.0f*NewMap_data->fBaseTimer[y * 2 + x]), 255, 255, 255));
-				GV->fntMyriad13->printf(dx + 10, dy + 127, HGETEXT_LEFT, "%d - %s", y * 2 + x + 1, GETL2S("NewMap", tmp));
+				GV->fntMyriad13->printf(dx + 10, dy + 127, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1, GETL2S("NewMap", tmp));
 			}
 			GV->sprLevels[14]->SetColor(ARGB(255 - int(255.0f*NewMap_data->fBaseTimer[y * 2 + x]), 255, 255, 255));
 			GV->sprLevels[14]->Render(dx, dy);
@@ -180,10 +180,13 @@ void State::EditingWW::NewMap_OK()
 	}
 	//repo.PrintStructure();
 	void * ptr;
-	uint32_t size;
+	int size;
 	char tmp[32];
-	sprintf(tmp, "res/lvl%d.wms", NewMap_data->iSelectedBase + 1);
-	ptr = hge->Resource_Load(tmp, &size);
+	//sprintf(tmp, "res/lvl%d.wms", NewMap_data->iSelectedBase + 1);
+    sprintf(tmp, "lvl%d.wms", NewMap_data->iSelectedBase+1);
+    cSFS_Repository repo("data.sfs");
+	//ptr = hge->Resource_Load(tmp, &size);
+    ptr = repo.GetFileAsRawData(tmp, &size);
 	char name[64], author[64];
 	char * fixname = FixLevelName(NewMap_data->iSelectedBase + 1, NewMap_data->tfName->getText().c_str());
 	strncpy(name, fixname, 64);

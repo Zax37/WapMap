@@ -592,10 +592,10 @@ namespace ObjEdit
 
 		for (int i = 0; i < 2; i++) {
 			GV->fntMyriad13->SetColor(0xFF000000);
-			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73, HGETEXT_LEFT, "X 1:");
-			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 21, HGETEXT_LEFT, "Y 1:");
-			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 42, HGETEXT_LEFT, "X 2:");
-			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 63, HGETEXT_LEFT, "Y 2:");
+			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73, HGETEXT_LEFT, "X 1:", 0);
+			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 21, HGETEXT_LEFT, "Y 1:", 0);
+			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 42, HGETEXT_LEFT, "X 2:", 0);
+			GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 63, HGETEXT_LEFT, "Y 2:", 0);
 		}
 	}
 

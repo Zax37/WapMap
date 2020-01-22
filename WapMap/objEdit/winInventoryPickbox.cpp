@@ -127,14 +127,14 @@ namespace ObjEdit
 		if (pickedid != -1) {
 			GV->fntMyriad13->SetColor(0xFF000000);
 			GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 5, HGETEXT_LEFT,
-				"%s: (%s #~y~%d~l~)",
+				"%s: (%s #~y~%d~l~)", 0,
 				GETL2S("EditObj_Inventory", "Effect"),
 				GETL2S("EditObj_Inventory", "ItemID"),
 				pickedid);
 			char tmp[32];
 			sprintf(tmp, "E_%d", pickedid);
 			GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 7 + 15, HGETEXT_LEFT,
-				"~y~%s~l~",
+				"~y~%s~l~", 0,
 				GETL2S("EditObj_Inventory", tmp));
 		}
 	}

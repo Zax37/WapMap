@@ -72,7 +72,7 @@ winOptions::winOptions()
 	tfscpPath->addActionListener(this);
 	tfscpPath->setWidth(600 - 50 - labscpDesc->getWidth());
 	myWin->add(tfscpPath, labscpDesc->getWidth() + 10, 22);
-	butscpPath = GV->editState->MakeButton(600 - 40, 17, Icon_Open, myWin);
+	butscpPath = GV->editState->MakeButton(600 - 40, 17, Icon_Open, myWin, true, true, this);
 
 	labscpVersion = new SHR::Lab("");
 	labscpVersion->adjustSize();

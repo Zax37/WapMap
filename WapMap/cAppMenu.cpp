@@ -419,7 +419,7 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused)
 		dwText = ARGB(255, p, p, p);
 	}
 	GV->fntMyriad13->SetColor(dwText);
-	GV->fntMyriad13->Render(x + 20, y + 4, HGETEXT_LEFT, GetLabel().c_str());
+	GV->fntMyriad13->Render(x + 20, y + 4, HGETEXT_LEFT, GetLabel().c_str(), 0);
 
 	hge->Gfx_RenderLine(x + w - 1, y, x + w - 1, y + LAY_APPMENU_H, 0xFF111111);
 	return w;

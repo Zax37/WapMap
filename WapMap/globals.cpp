@@ -205,7 +205,7 @@ cGlobals::~cGlobals()
 	delete sprConsoleBG;
 	delete sprLogoBig, sprBlank;
 	delete gcnParts.gcnfntMyriad10, gcnParts.gcnfntMyriad13, gcnParts.gcnfntSystem;
-	delete fntMyriad10, fntMyriad13, fntSystem17;
+	delete fntMyriad10, fntMyriad13, fntMyriad20, fntMyriad80, fntSystem17;
 	delete gcnImageLoader;
 	delete gcnInput;
 	delete gcnGraphics;
@@ -386,25 +386,49 @@ void cGlobals::Init()
 
 	Console->Print("Loading required editor data...");
 
-	//cSFS_Repository repo("data.sfs");
-	//repo.Unpack();
+#if SFS_COMPILER
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA fdata;
+	hFind = FindFirstFile("res/*", &fdata);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		cSFS_Compiler compiler;
+		do {
+			if (fdata.cFileName[0] == '.') continue;
+			compiler.AddFile((std::string("res/") + fdata.cFileName).c_str(), fdata.cFileName);
+		} while (FindNextFile(hFind, &fdata) != 0);
+		compiler.CompileTo("data.sfs");
+	}
+#endif // SFS_COMPILER
 
-	texLevels = hge->Texture_Load("res/levels.png");
+	cSFS_Repository repo("data.sfs");
+	//mkdir("res");
+	//repo.Unpack();
+	void * ptr;
+	int size;
+
+	ptr = repo.GetFileAsRawData("levels.png", &size);
+	texLevels = hge->Texture_Load((const char*)ptr, size);
+	delete[] ptr;
+	//texLevels = hge->Texture_Load("res/levels.png");
 	for (int i = 0; i < 18; i++)
 		sprLevels[i] = new hgeSprite(texLevels, (i % 3) * 300, int(i / 3) * 150, 300, 150);
 
-	uint32_t size;
-	void * ptr = hge->Resource_Load("res/logicsClaw.wls", &size);
+	ptr = repo.GetFileAsRawData("logicsClaw.wls", &size);
+	//void * ptr = hge->Resource_Load("res/logicsClaw.wls", &size);
 	std::string line;
 	std::istringstream istr(std::string((const char*)ptr, size));
 	while (getline(istr, line)) {
 		vstrClawLogics.push_back(line.substr(0, line.length() - 1));
 	}
-	hge->Resource_Free(ptr);
+	//hge->Resource_Free(ptr);
+	delete[] ptr;
 
 	Console->Print("   Main sheet...");
 
-	texMain = hge->Texture_Load("res/main.png");
+	ptr = repo.GetFileAsRawData("main.png", &size);
+	texMain = hge->Texture_Load((const char*)ptr, size);
+	delete[] ptr;
+	//texMain = hge->Texture_Load("res/main.png");
 
 	hGfxInterface = new cInterfaceSheet;
 	_ghGfxInterface = hGfxInterface;
@@ -541,15 +565,19 @@ void cGlobals::Init()
 	printf("desc: %s\n", desc);
 	fnt = new hgeFont(desc, desclen, tex, 1, 0, 0);
 	test = new hgeSprite(tex, 0, 0, 512, 512);*/
-	/*if( !strcmp(Lang->GetCode(), "RU") ){
-	 fntMyriad13 = new hgeFont("res/16px_r.fnt");
-	}else{*/
-	fntMyriad13 = new hgeFont("res/13px.fnt");
-	//}
-	fntMyriad10 = new hgeFont("res/10px.fnt");
-	fntSystem17 = new hgeFont("res/17px.fnt");
+	if (!strcmp(Lang->GetCode(), "RU")) {
+		fntMyriad13 = SHR::LoadFontFromSFS(&repo, "16px_r.fnt", "16px_r.png");
+	}
+	else {
+		fntMyriad13 = SHR::LoadFontFromSFS(&repo, "16px.fnt", "16px.png");
+	}
+	fntMyriad10 = SHR::LoadFontFromSFS(&repo, "10px.fnt", "10px.png");
+	fntMyriad20 = SHR::LoadFontFromSFS(&repo, "20px.fnt", "20px.png");
+	fntMyriad80 = SHR::LoadFontFromSFS(&repo, "80px.fnt", "80px.png");
+	fntSystem17 = SHR::LoadFontFromSFS(&repo, "17px.fnt", "17px.png");
+	fntMinimal = SHR::LoadFontFromSFS(&repo, "minimal.fnt", "minimal.png");
+
 	Console->SetFont(fntSystem17);
-	//fnt = new hgeFont("myriad80px.fnt");
 
 	Console->Print("   UI initialization...");
 
@@ -718,8 +746,11 @@ void cGlobals::Init()
 	const char * pVal = NULL;
 	pVal = ini->GetValue("Paths", "Claw", "");
 
+#ifndef SFS_COMPILER
 	WIN32_FIND_DATA fdata;
-	HANDLE hFind = strlen(pVal) > 0 ? FindFirstFile(pVal, &fdata) : INVALID_HANDLE_VALUE;
+	HANDLE
+#endif
+	hFind = strlen(pVal) > 0 ? FindFirstFile(pVal, &fdata) : INVALID_HANDLE_VALUE;
 
 	if (hFind == INVALID_HANDLE_VALUE) {
 		if (pVal[0] != '\0')

@@ -64,7 +64,7 @@ namespace SHR
 		hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFF000000);
 		hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFF000000);
 		GV->fntMyriad13->SetColor(0xFF000000);
-		GV->fntMyriad13->Render(rx + 3, ry + 3, HGETEXT_LEFT, m_szTooltip);
+		GV->fntMyriad13->Render(rx + 3, ry + 3, HGETEXT_LEFT, m_szTooltip, 0);
 	}
 	void cTooltip::UpdateTooltip(bool hasmouse)
 	{

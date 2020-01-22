@@ -12,6 +12,9 @@ Sadly, in the package, which I got from him, there was no source files of that v
 
 He planned on rewriting the rendering to SFML, but he failed to get it working and abandoned the project.
 
+Since I don't have source code for some of the changes in HGE, which kijanek made, I've cloned the HGE repository,
+merged with the header files from his version and re-implemented some of the changes.
+
 ## Building
 
 1. Get Visual Studio 2017 (HGE won't build in 2019 from what I've seen).
@@ -22,7 +25,7 @@ He planned on rewriting the rendering to SFML, but he failed to get it working a
 
 ```
 git clone https://github.com/Zax37/WapMap
-git clone https://github.com/kvakvs/hge
+git clone https://github.com/Zax37/hge
 git clone https://github.com/curl/curl
 git clone https://github.com/lua/lua
 ```
