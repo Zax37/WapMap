@@ -2827,8 +2827,7 @@ int State::EditingWW::PromptForDocument(char * dest)
 	ofn.lpstrFilter = "WapWorld Document (*.WWD)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
 	ofn.lpstrFile = dest;
 	ofn.nMaxFile = 512;
-	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-	//((Menu*)Herculo.GameState)->ofn->Flags = OFN_FILEMUSTEXIST; // | OFN_NOCHANGEDIR
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = "wwd";
 	ofn.lpstrInitialDir = GV->szLastOpenPath;
 	return GetOpenFileName(&ofn);

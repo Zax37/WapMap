@@ -305,8 +305,7 @@ void winOptions::action(const ActionEvent& actionEvent)
 		ofn.lpstrFilter = "Kapitan Pazur (CLAW.EXE)\0claw.exe\0Wszystkie pliki (*.*)\0*.*\0\0";
 		ofn.lpstrFile = szFileopen;
 		ofn.nMaxFile = sizeof(szFileopen);
-		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-		//((Menu*)Herculo.GameState)->ofn->Flags = OFN_FILEMUSTEXIST; // | OFN_NOCHANGEDIR
+		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
 		ofn.lpstrDefExt = "exe";
 		ofn.lpstrInitialDir = GV->szLastOpenPath;
 		if (GetOpenFileName(&ofn) != 0) {
