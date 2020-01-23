@@ -53,6 +53,7 @@ bool AppFocusOffFunc() {
     return 0;
 }
 
+#if BUILD_DEBUG
 int main(int argc, char *argv[]) {
     std::string command;
     for (int i = 1; i < argc; i++) {
@@ -64,6 +65,7 @@ int main(int argc, char *argv[]) {
 
     return WinMain(NULL, NULL, const_cast<char *>(command.c_str()), 0);
 }
+#endif
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     char tmp[768];
@@ -78,23 +80,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     }
     delete[] fn;
 #endif
-
-    if (cmdline[0] == '"') {
-        cClientIPC *hIPC = new cClientIPC();
-        if (hIPC->IsConnected()) {
-            char* tmp = new char[strlen(cmdline) - 1];
-            for (int i = 1; i < strlen(cmdline) - 1; i++)
-                tmp[i - 1] = cmdline[i];
-            if (hIPC->RemoteOpenMap(tmp)) {
-                delete hIPC;
-                return 0;
-            }
-			delete[] tmp;
-        }
-        delete hIPC;
-    }
-
-    DWORD procid = 0;
+    DWORD procid = GetCurrentProcessId();
     PROCESSENTRY32 entry;
     entry.dwSize = sizeof(PROCESSENTRY32);
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
@@ -102,12 +88,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     if (Process32First(snapshot, &entry) == TRUE) {
         while (Process32Next(snapshot, &entry) == TRUE) {
             if (strcmpi(entry.szExeFile, EXENAME) == 0) {
-                refcnt++;
-                procid = entry.th32ProcessID;
-                if (refcnt == 2) {
-                    MessageBox(NULL, "WapMap is already running.", "WapMap", MB_OK | MB_ICONERROR);
-                    return 1;
-                }
+                if (procid != entry.th32ProcessID) {
+					for (int retries = 0; retries <= 2; retries++) {
+						if (cmdline[0] && cmdline[0] != '-') {
+							cClientIPC *hIPC = new cClientIPC();
+							if (hIPC->IsConnected()) {
+								if (hIPC->RemoteOpenMap(cmdline)) {
+									delete hIPC;
+									return 0;
+								}
+							}
+							delete hIPC;
+						}
+
+						_sleep(2000);
+					}
+					
+					MessageBox(NULL, "WapMap is already running.", "WapMap", MB_OK | MB_ICONERROR);
+					return 1;
+				}
+				else break;
             }
         }
     }

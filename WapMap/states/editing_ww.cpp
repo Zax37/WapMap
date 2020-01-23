@@ -3257,10 +3257,15 @@ void State::EditingWW::FileDropped()
 void State::EditingWW::ApplicationStartup()
 {
 	if (GV->szCmdLine[0] != '\0') {
-		if (GV->szCmdLine[0] != '-') {
-			GV->StateMgr->Push(new State::LoadMap(GV->szCmdLine.c_str()));
+		if (GV->szCmdLine[0] == '"') {
+			int str_length = GV->szCmdLine.length() - 1;
+			char* tmp = new char[str_length];
+			for (int i = 1; i < str_length; i++)
+				tmp[i - 1] = GV->szCmdLine[i];
+			tmp[str_length - 1] = '\0';
+			GV->StateMgr->Push(new State::LoadMap(tmp));
 		}
-		else {
+		else if (GV->szCmdLine[0] == '-') {
 			if (!GV->szCmdLine.compare("-clearBrush")) {
 				GV->Console->Print("Cleaning brushes dir...");
 				HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -3284,6 +3289,9 @@ void State::EditingWW::ApplicationStartup()
 					} while (FindNextFile(hFind, &fdata) != 0);
 				}
 			}
+		}
+		else {
+			GV->StateMgr->Push(new State::LoadMap(GV->szCmdLine.c_str()));
 		}
 	}
 }

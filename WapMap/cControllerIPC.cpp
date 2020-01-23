@@ -46,7 +46,7 @@ bool cServerIPC::Think()
 			else {
 				char * msg = (char*)buffer;
 				if (msg[0] == WM_IPC_OPENFILE) {
-					GV->Console->Printf("~g~- Remote procedure: open map.");
+					GV->Console->Printf("~g~- Remote procedure: open map. Path: %s", &msg[1]);
 					GV->StateMgr->Push(new State::LoadMap(&(msg[1])));
 				}
 				GlobalFree(buffer);
@@ -84,20 +84,30 @@ bool cClientIPC::Connect()
 bool cClientIPC::RemoteOpenMap(const char * szPath)
 {
 	if (!bConnected) return 0;
-	char msg[MAX_PATH + 1];
-	for (int i = 0; i < MAX_PATH + 1; i++) msg[i] = '\0';
-	sprintf(&msg[1], "%s", szPath);
+	int len;
+	char * msg;
+
+	if (szPath[0] == '"') {
+		len = strlen(szPath) - 1;
+		msg = new char[len + 1];
+		for (int i = 1; i < len; i++) msg[i] = szPath[i];
+	} else {
+		len = strlen(szPath) + 1;
+		msg = new char[len + 1];
+		for (int i = 1; i < len; i++) msg[i] = szPath[i - 1];
+	}
+	msg[len] = '\0';
 	msg[0] = WM_IPC_OPENFILE;
 
 	bool err;
 	DWORD numWritten;
 
-	err = WriteFile(hMailslot, msg, MAX_PATH + 1, &numWritten, 0);
+	err = WriteFile(hMailslot, msg, len + 1, &numWritten, 0);
 	if (!err) {
 		//GV->Console->Printf("~r~Unable to send IPC message: ~y~%s~r~.", GetLastError());
 		return 0;
 	}
-	if (numWritten != MAX_PATH + 1) {
+	if (numWritten != len + 1) {
 		//GV->Console->Printf("~r~Error sending IPC message, not enough data send.");
 		return 0;
 	}
