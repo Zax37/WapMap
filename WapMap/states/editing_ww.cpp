@@ -1467,13 +1467,13 @@ void State::EditingWW::Init()
 	cScrollOrientation = 2;
 	bDragDropScroll = 0;
 
-	GV->Console->AddModificableFloat("camx", &fCamX);
-	GV->Console->AddModificableFloat("camy", &fCamY);
-	GV->Console->AddModificableFloat("zoom", &fZoom);
-	GV->Console->AddModificableFloat("dzoom", &fDestZoom);
-	GV->Console->AddModificableBool("smoothz", &GV->bSmoothZoom);
-	GV->Console->AddModificableBool("redraw", &bConstRedraw);
-	GV->Console->AddModificableBool("drawprop", &bDrawTileProperties);
+    GV->Console->AddModifiableFloat("camx", &fCamX);
+    GV->Console->AddModifiableFloat("camy", &fCamY);
+    GV->Console->AddModifiableFloat("zoom", &fZoom);
+    GV->Console->AddModifiableFloat("dzoom", &fDestZoom);
+    GV->Console->AddModifiableBool("smoothz", &GV->bSmoothZoom);
+    GV->Console->AddModifiableBool("redraw", &bConstRedraw);
+    GV->Console->AddModifiableBool("drawprop", &bDrawTileProperties);
 
 	conRecentFiles = new SHR::Contener();
 	conRecentFiles->setOpaque(0);
@@ -1934,9 +1934,9 @@ void State::EditingWW::Destroy()
 	delete MDI;
 	delete hServerIPC;
 	if (hParser != NULL) FreeResources();
-	GV->Console->DeleteModificableVar("camx");
-	GV->Console->DeleteModificableVar("camy");
-	GV->Console->DeleteModificableVar("zoom");
+    GV->Console->DeleteModifiableVar("camx");
+    GV->Console->DeleteModifiableVar("camy");
+    GV->Console->DeleteModifiableVar("zoom");
 	delete al;
 	delete vp;
 	//if( szHint != 0 )

@@ -5,7 +5,6 @@
 
 #include "../../shared/cStateMgr.h"
 #include "../../shared/cWWD.h"
-
 #include "../../shared/gcnWidgets/wContainer.h"
 #include "../../shared/gcnWidgets/wSlider.h"
 #include "../../shared/gcnWidgets/wWin.h"
@@ -20,13 +19,10 @@
 #include "../../shared/gcnWidgets/wTabbedArea.h"
 #include "../../shared/gcnWidgets/wRadioBut.h"
 #include "../../shared/gcnWidgets/wContext.h"
-
 #include "../cMDI.h"
 #include "../cSoundPlayer.h"
 #include "../cColorPicker.h"
-
 #include "../wViewport.h"
-//#include "objprop.h"
 #include "../cTileGhost.h"
 #include "../vpFocusWidg.h"
 #include "guichan.hpp"
@@ -36,15 +32,10 @@
 #include "../../shared/cPieChart.h"
 #include "objedit.h"
 #include "../cMRUList.h"
-
 #include "../cInventoryController.h"
-
 #include "../cModeMenuBar.h"
-
-#include "hgeSprite.h"
-
+#include "hgesprite.h"
 #include "../cControllerIPC.h"
-
 #include "../states/mapshot.h"
 
 #ifndef byte

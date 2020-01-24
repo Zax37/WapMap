@@ -555,18 +555,23 @@ void cTile::Load()
 	}
 
 	cDC_MountEntry myEntry = hParent->GetParent()->GetMountEntry(GetMountPoint());
-	if (myEntry.vFiles[0].hFeed != GetFile().hFeed ||
-		myEntry.vFiles[0].strPath != GetFile().strPath)
-		SetFile(myEntry.vFiles[0]);
 
 	int iSlotX, iSlotY;
 	myTexture->GetFreeSlot();
 	myTexture->GetLastSlotPos(iSlotX, iSlotY);
 
 	imgSprite = new hgeSprite(myTexture->GetTexture(), iSlotX * 64, iSlotY * 64, 64, 64);
-	hParent->GetParent()->RenderImage(GetFile(), myTexture->GetTexture(), iSlotX * 64, iSlotY * 64, myTexture->GetRowSpan());
-	myTexture->SaveLastSlot(imgSprite);
-	_bLoaded = 1;
+	for (auto file : myEntry.vFiles) {
+		if (file.hFeed != GetFile().hFeed ||
+			file.strPath != GetFile().strPath)
+			SetFile(file);
+
+		if (hParent->GetParent()->RenderImage(GetFile(), myTexture->GetTexture(), iSlotX * 64, iSlotY * 64, myTexture->GetRowSpan())) {
+			myTexture->SaveLastSlot(imgSprite);
+			_bLoaded = 1;
+			return;
+		}
+	}
 }
 
 void cTile::Unload()

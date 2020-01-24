@@ -888,9 +888,9 @@ void cGlobals::Init()
 	sprNapo->SetHotSpot(31, 43);
 
 	bKijan = bNapo = 0;
-	Console->AddModificableBool("kijan", &bKijan);
-	Console->AddModificableBool("napoleon", &bNapo);
-	Console->AddModificableBool("realsim", &bRealSim);
+    Console->AddModifiableBool("kijan", &bKijan);
+    Console->AddModifiableBool("napoleon", &bNapo);
+    Console->AddModifiableBool("realsim", &bRealSim);
 
 	//SprBank = NULL;
 

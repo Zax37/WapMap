@@ -182,3 +182,23 @@ void cBankLogic::ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFi
 		vN.erase(vN.begin());
 	}
 }
+
+std::string cBankLogic::GetMountPointForFile(std::string strFilePath, std::string strPrefix) {
+	return std::string("/LOGICS/") + strPrefix + "/" + strFilePath;
+}
+
+cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {
+	int nameStart = mountEntry.vFiles[0].strPath.find_last_of("/\\") + 1;
+	int nameEnd = mountEntry.vFiles[0].strPath.find_last_of(".");
+	std::string filename = mountEntry.vFiles[0].strPath.substr(nameStart, nameEnd - nameStart);
+
+	if (filename == "main") {
+		printf("dupa");
+	}
+
+	auto customLogic = new cCustomLogic(mountEntry.vFiles[0], filename);
+
+	m_vAssets.push_back(customLogic);
+
+	return customLogic;
+}

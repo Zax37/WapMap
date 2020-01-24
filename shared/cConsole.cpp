@@ -386,7 +386,7 @@ void SHR::cConsole::AddCommand(const char * pszName, const char * pszHelp, void(
 	m_vCmds.push_back(cmd);
 }
 
-void SHR::cConsole::AddModificableInt(const char * pszName, int * piVar)
+void SHR::cConsole::AddModifiableInt(const char * pszName, int * piVar)
 {
 	cConsoleInt * topush = new cConsoleInt();
 	topush->m_szID = new char[strlen(pszName) + 1];
@@ -395,7 +395,7 @@ void SHR::cConsole::AddModificableInt(const char * pszName, int * piVar)
 	m_vVars.push_back(topush);
 }
 
-void SHR::cConsole::AddModificableFloat(const char * pszName, float * pfVar)
+void SHR::cConsole::AddModifiableFloat(const char * pszName, float * pfVar)
 {
 	cConsoleFloat * topush = new cConsoleFloat();
 	topush->m_szID = new char[strlen(pszName) + 1];
@@ -404,7 +404,7 @@ void SHR::cConsole::AddModificableFloat(const char * pszName, float * pfVar)
 	m_vVars.push_back(topush);
 }
 
-void SHR::cConsole::AddModificableBool(const char * pszName, bool * pbVar)
+void SHR::cConsole::AddModifiableBool(const char * pszName, bool * pbVar)
 {
 	cConsoleBool * topush = new cConsoleBool();
 	topush->m_szID = new char[strlen(pszName) + 1];
@@ -510,7 +510,7 @@ void SHR::cConsole::SetVar(int argc, char ** argv)
 	Printf("~r~Var '~y~%s~r~' not found.~w~", argv[0]);
 }
 
-void SHR::cConsole::DeleteModificableVar(const char * pszName)
+void SHR::cConsole::DeleteModifiableVar(const char * pszName)
 {
 	for (int i = 0; i < m_vVars.size(); i++) {
 		if (!strcmp(pszName, m_vVars[i]->m_szID)) {

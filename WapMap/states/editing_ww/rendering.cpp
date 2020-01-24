@@ -2415,8 +2415,6 @@ void State::EditingWW::ViewportOverlay()
 		for (int i = 1; i < (int(vPort->GetHeight() / 15) + 1); i++) {
 			const char * line = GV->Console->GetLine(i);
 			if (line == NULL) break;
-			GV->fntSystem17->SetColor(0xFF000000);
-			GV->fntSystem17->Render(6, vPort->GetY() + vPort->GetHeight() - i * 15 + 1, HGETEXT_LEFT, line, 0);
 			GV->fntSystem17->SetColor(0xFFFFFFFF);
 			GV->fntSystem17->Render(5, vPort->GetY() + vPort->GetHeight() - i * 15, HGETEXT_LEFT, line, 0);
 		}

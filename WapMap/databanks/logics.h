@@ -57,6 +57,9 @@ class cBankLogic : public gcn::ListModel, public cAssetBank {
   virtual void ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFiles);
   virtual std::string GetFolderName(){ return std::string("LOGICS"); };
   virtual void BatchProcessStart(cDataController * hDC);
+
+  virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix);
+  virtual cAsset * AllocateAssetForMountPoint(cDataController * hDC, cDC_MountEntry mountEntry);
 };
 
 #endif

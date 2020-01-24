@@ -256,11 +256,20 @@ byte * cDataController::GetImageRaw(cFile hFile, int * pW, int * pH)
 		}
 	}
 	else if (strExt.compare(".pcx") == 0) {
-		unsigned char * pixelptr = ptr + 128;
+		unsigned char * pixelptr = ptr + 128,
+			bitsPerPixel = *(unsigned char*)(ptr + 3),
+			colorPlanes = *(unsigned char*)(ptr + 65);
+
+		if (bitsPerPixel != 8 || colorPlanes != 1) {
+			delete[] ptr;
+			return ret; // unsupported
+		}
+
 		unsigned short xMin = *(unsigned short*)(ptr + 4),
 			yMin = *(unsigned short*)(ptr + 6),
 			xMax = *(unsigned short*)(ptr + 8),
 			yMax = *(unsigned short*)(ptr + 10);
+
 		int w = xMax - xMin + 1, h = yMax - yMin + 1;
 
 		ret = new byte[w*h];
@@ -277,8 +286,9 @@ byte * cDataController::GetImageRaw(cFile hFile, int * pW, int * pH)
 				value = *(pixelptr + 1);
 				pixelptr++;
 			}
-			for (int i = 0; i < repeat; i++)
+			for (int i = 0; i < repeat; i++) {
 				ret[(destpos / w)*w + (destpos%w) + i] = 255 - value;
+			}
 			pixelptr++;
 			destpos += repeat;
 		}
@@ -529,7 +539,9 @@ void cDataController::UpdateAllPackages()
 		for (size_t y = 0; y < vhPackages.size(); y++) {
 			vhPackages[y]->Update(vhBanks[i]);
 		}
-		for (size_t z = 0; z < vMountEntries.size(); z++)
+		for (size_t z = 0; z < vMountEntries.size(); z++) {
+			std::string folderName = vhBanks[i]->GetFolderName();
+			std::string mountPoint = vMountEntries[z].strMountPoint;
 			if (vhBanks[i]->GetFolderName().compare(0, std::string::npos, vMountEntries[z].strMountPoint, 1, vhBanks[i]->GetFolderName().length()) == 0 &&
 				vMountEntries[z].hAsset == 0) {
 				cAsset * as = vhBanks[i]->AllocateAssetForMountPoint(this, vMountEntries[z]);
@@ -540,6 +552,7 @@ void cDataController::UpdateAllPackages()
 					vMountEntries[z].hAsset = as;
 				}
 			}
+		}
 		vhBanks[i]->BatchProcessEnd(this);
 		if (GetLooper() != 0)
 			GetLooper()->Tick();

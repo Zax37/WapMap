@@ -144,11 +144,11 @@ DocumentData * cMDI::AddDocument(DocumentData * dd)
 			dd->hPlaneData[i]->ObjectData.hQuadTree = new cObjectQuadTree(dd->hParser->GetPlane(i), dd->hSprBank);
 			dd->hPlaneData[i]->ObjectData.bEmpty = 0;
 		}
-		if (dd->hParser->GetPlane(i)->GetPlaneWidthPx() <= 2048 && dd->hParser->GetPlane(i)->GetPlaneHeightPx() <= 2048) {
+		/*if (dd->hParser->GetPlane(i)->GetPlaneWidthPx() <= 2048 && dd->hParser->GetPlane(i)->GetPlaneHeightPx() <= 2048) {
 			GV->Console->Printf("Creating buffer for plane '~y~%s~w~' (%dx%d).", dd->hParser->GetPlane(i)->GetName(), dd->hParser->GetPlane(i)->GetPlaneWidthPx(), dd->hParser->GetPlane(i)->GetPlaneHeightPx());
 			dd->hPlaneData[i]->hRB = new State::cLayerRenderBuffer(GV->editState, GV->editState->vPort, dd->hParser->GetPlane(i));
 		}
-		else
+		else*/
 			dd->hPlaneData[i]->hRB = NULL;
 		if ((dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)) {
 			dd->hStartingPosObj = new WWD::Object();

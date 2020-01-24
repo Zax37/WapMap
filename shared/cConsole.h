@@ -4,8 +4,8 @@
 #include <vector>
 #include <fstream>
 
-#include "hgeSprite.h"
-#include "hgeFont.h"
+#include "hgesprite.h"
+#include "hgefont.h"
 #include "Windows.h"
 
 namespace SHR {
@@ -77,11 +77,11 @@ namespace SHR {
 		void AddCommand(const char * pszName, const char * pszHelp, void(*phFunc)(int, char **));
 		void ParseCommand(const char * pszCommand);
 
-		void AddModificableInt(const char * pszName, int * piVar);
-		void AddModificableFloat(const char * pszName, float * pfVar);
-		void AddModificableBool(const char * pszName, bool * pbVar);
-		void DeleteModificableVar(const char * pszName);
-		//void AddModificableFloat(const char * pszID, float * pfVar);
+		void AddModifiableInt(const char * pszName, int * piVar);
+		void AddModifiableFloat(const char * pszName, float * pfVar);
+		void AddModifiableBool(const char * pszName, bool * pbVar);
+		void DeleteModifiableVar(const char * pszName);
+		//void AddModifiableFloat(const char * pszID, float * pfVar);
 
 		void LogToFile(const char * pszFile);
 		bool IsLoggingToFile() { return m_bFile; };
