@@ -192,13 +192,12 @@ cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEn
 	int nameEnd = mountEntry.vFiles[0].strPath.find_last_of(".");
 	std::string filename = mountEntry.vFiles[0].strPath.substr(nameStart, nameEnd - nameStart);
 
-	if (filename == "main") {
-		printf("dupa");
-	}
-
 	auto customLogic = new cCustomLogic(mountEntry.vFiles[0], filename);
-
 	m_vAssets.push_back(customLogic);
+
+	if (filename == "main") {
+		hGlobalScript = customLogic;
+	}
 
 	return customLogic;
 }
