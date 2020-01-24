@@ -42,9 +42,6 @@
     <ClCompile Include="cInventoryController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cLogicsList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cMDI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
     <ClCompile Include="cRulers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cSerialManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cSoundPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,9 +88,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objQuadTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="returncodes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vpFocusWidg.cpp">
@@ -189,9 +180,6 @@
     <ClCompile Include="objedit\editText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="objedit\editTits.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="objedit\editTogglePeg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -243,16 +231,10 @@
     <ClCompile Include="states\stats.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="states\updater.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="states\editing_ww\alActionListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="states\editing_ww\cObjectRenderBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\editing_ww\lmListModel.cpp">
@@ -288,21 +270,6 @@
     <ClCompile Include="states\editing_ww\winPlaneProperties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tools\brushObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\brushTile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\noTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\objectCreator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\pencil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="windows\about.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -315,19 +282,10 @@
     <ClCompile Include="windows\tileBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows\tileProperties.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\worldProperties.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\cANI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\cConsole.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\cGUIparts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\cInterface.cpp">
@@ -355,9 +313,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\cStateMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\cUpdater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\cWWD.cpp">

@@ -169,7 +169,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
   <ItemGroup>
     <ClCompile Include="..\shared\cANI.cpp" />
     <ClCompile Include="..\shared\cConsole.cpp" />
-    <ClCompile Include="..\shared\cGUIparts.cpp" />
     <ClCompile Include="..\shared\cInterface.cpp" />
     <ClCompile Include="..\shared\cLang.cpp" />
     <ClCompile Include="..\shared\commonFunc.cpp" />
@@ -179,7 +178,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="..\shared\cREZ.cpp" />
     <ClCompile Include="..\shared\cSFS.cpp" />
     <ClCompile Include="..\shared\cStateMgr.cpp" />
-    <ClCompile Include="..\shared\cUpdater.cpp" />
     <ClCompile Include="..\shared\cWWD.cpp" />
     <ClCompile Include="..\shared\gcnwidgets\cTooltip.cpp" />
     <ClCompile Include="..\shared\gcnwidgets\wButton.cpp" />
@@ -267,7 +265,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="cDataController.cpp" />
     <ClCompile Include="cFileSystem.cpp" />
     <ClCompile Include="cInventoryController.cpp" />
-    <ClCompile Include="cLogicsList.cpp" />
     <ClCompile Include="cMDI.cpp" />
     <ClCompile Include="cModeMenuBar.cpp" />
     <ClCompile Include="cMRUList.cpp" />
@@ -276,7 +273,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="cParallelLoop.cpp" />
     <ClCompile Include="cPhysics.cpp" />
     <ClCompile Include="cRulers.cpp" />
-    <ClCompile Include="cSerialManager.cpp" />
     <ClCompile Include="cSoundPlayer.cpp" />
     <ClCompile Include="cTextureAtlas.cpp" />
     <ClCompile Include="databanks\anims.cpp" />
@@ -312,7 +308,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="objedit\editStalactite.cpp" />
     <ClCompile Include="objedit\editStatue.cpp" />
     <ClCompile Include="objedit\editText.cpp" />
-    <ClCompile Include="objedit\editTits.cpp" />
     <ClCompile Include="objedit\editTogglePeg.cpp" />
     <ClCompile Include="objedit\editTreasure.cpp" />
     <ClCompile Include="objedit\editWallCannon.cpp" />
@@ -321,12 +316,10 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="objedit\winInventoryPickbox.cpp" />
     <ClCompile Include="objQuadTree.cpp" />
     <ClCompile Include="rendering\cRenderableItem.cpp" />
-    <ClCompile Include="returncodes.cpp" />
     <ClCompile Include="states\codeEditor.cpp" />
     <ClCompile Include="states\editing_ww.cpp" />
     <ClCompile Include="states\editing_ww\alActionListener.cpp" />
     <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp" />
-    <ClCompile Include="states\editing_ww\cObjectRenderBuffer.cpp" />
     <ClCompile Include="states\editing_ww\lmListModel.cpp" />
     <ClCompile Include="states\editing_ww\modeObject.cpp" />
     <ClCompile Include="states\editing_ww\modeTile.cpp" />
@@ -346,19 +339,11 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="states\objedit.cpp" />
     <ClCompile Include="states\objprop.cpp" />
     <ClCompile Include="states\stats.cpp" />
-    <ClCompile Include="states\updater.cpp" />
-    <ClCompile Include="tools\brushObject.cpp" />
-    <ClCompile Include="tools\brushTile.cpp" />
-    <ClCompile Include="tools\noTool.cpp" />
-    <ClCompile Include="tools\objectCreator.cpp" />
-    <ClCompile Include="tools\pencil.cpp" />
     <ClCompile Include="vpFocusWidg.cpp" />
     <ClCompile Include="windows\about.cpp" />
     <ClCompile Include="windows\imgsetBrowser.cpp" />
     <ClCompile Include="windows\options.cpp" />
     <ClCompile Include="windows\tileBrowser.cpp" />
-    <ClCompile Include="windows\tileProperties.cpp" />
-    <ClCompile Include="windows\worldProperties.cpp" />
     <ClCompile Include="wViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
