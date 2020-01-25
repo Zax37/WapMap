@@ -65,7 +65,7 @@ link_directories(
 
 
 add_executable(WapMap
-	${PROJECT_SOURCE_DIR}/red/cANI.cpp
+	${PROJECT_SOURCE_DIR}/shared/cANI.cpp
 	${PROJECT_SOURCE_DIR}/shared/cConsole.cpp
 	${PROJECT_SOURCE_DIR}/shared/cInterface.cpp
 	${PROJECT_SOURCE_DIR}/shared/cLang.cpp
