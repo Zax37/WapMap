@@ -49,7 +49,6 @@ bool AppFocusOffFunc() {
     return 0;
 }
 
-#if BUILD_DEBUG
 int main(int argc, char *argv[]) {
     std::string command;
     for (int i = 1; i < argc; i++) {
@@ -61,7 +60,6 @@ int main(int argc, char *argv[]) {
 
     return WinMain(NULL, NULL, const_cast<char *>(command.c_str()), 0);
 }
-#endif
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     char tmp[768];

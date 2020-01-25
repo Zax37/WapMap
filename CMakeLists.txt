@@ -1,6 +1,15 @@
+project(WapMap)
 cmake_minimum_required(VERSION 3.10)
 
-project(WapMap)
+##----------------------------------------
+## Edit this to match your configuration
+##----------------------------------------
+
+SET( DIRECTX_SDK_DIR "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)" )
+
+##----------------------------------------
+## End of manual configuration section
+## try to minimize tampering with code below unless you know how CMake works
 
 ADD_CUSTOM_TARGET(debug
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
@@ -61,6 +70,7 @@ link_directories(
     "${HGE_DIR}/linklib/${CMAKE_BUILD_TYPE}"
     "${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
     "${LUA_DIR}/${CMAKE_BUILD_TYPE}"
+	"${DIRECTX_SDK_DIR}/Lib/x86"
 )
 
 
@@ -242,10 +252,12 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/windows/options.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/tileBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/wViewport.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/res.rc
 )
 
 target_link_libraries(WapMap
     ${HGE_LIBS}
+	${D3DX9_LIBS}
     ${LUA_LIB}
     ${SFML_LIBS}
     ${CURL_LIB}
