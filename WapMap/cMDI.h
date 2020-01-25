@@ -79,7 +79,7 @@ class cMDI: public gcn::ActionListener {
  private:
   std::vector<DocumentData*> m_vhDoc;
   std::vector<std::string> vstrRecentlyClosed;
-  int m_iActiveDoc;
+  int m_iActiveDoc, m_iContextMenuFocusedDoc;
   bool bBlock;
   bool bMouseHand;
   bool bUpdateCrashList;

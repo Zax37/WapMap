@@ -286,6 +286,27 @@ void winOptions::SyncWithExe()
 	action(gcn::ActionEvent(tfscpPath, ""));
 }
 
+void winOptions::PickAndSetClawLocation()
+{
+    OPENFILENAME ofn;
+    char szFileopen[512] = "\0";
+    ZeroMemory((&ofn), sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hge->System_GetState(HGE_HWND);
+    ofn.lpstrFilter = "Kapitan Pazur (CLAW.EXE)\0claw.exe\0Wszystkie pliki (*.*)\0*.*\0\0";
+    ofn.lpstrFile = szFileopen;
+    ofn.nMaxFile = sizeof(szFileopen);
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+    ofn.lpstrDefExt = "exe";
+    ofn.lpstrInitialDir = GV->szLastOpenPath;
+    if (GetOpenFileName(&ofn) != 0) {
+        char * path = SHR::GetDir(szFileopen);
+        tfscpPath->setText(std::string(path), 1);
+        GV->SetLastOpenPath(path);
+        delete[] path;
+    }
+}
+
 void winOptions::action(const ActionEvent& actionEvent)
 {
 	if (actionEvent.getSource() == ddoptLang) {
@@ -297,23 +318,7 @@ void winOptions::action(const ActionEvent& actionEvent)
 		laboptChangesRes->setVisible((x != hge->System_GetState(HGE_SCREENWIDTH) || y != hge->System_GetState(HGE_SCREENHEIGHT)));
 	}
 	else if (actionEvent.getSource() == butscpPath) {
-		OPENFILENAME ofn;
-		char szFileopen[512] = "\0";
-		ZeroMemory((&ofn), sizeof(OPENFILENAME));
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = hge->System_GetState(HGE_HWND);
-		ofn.lpstrFilter = "Kapitan Pazur (CLAW.EXE)\0claw.exe\0Wszystkie pliki (*.*)\0*.*\0\0";
-		ofn.lpstrFile = szFileopen;
-		ofn.nMaxFile = sizeof(szFileopen);
-		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-		ofn.lpstrDefExt = "exe";
-		ofn.lpstrInitialDir = GV->szLastOpenPath;
-		if (GetOpenFileName(&ofn) != 0) {
-			char * path = SHR::GetDir(szFileopen);
-			tfscpPath->setText(std::string(path), 1);
-			GV->SetLastOpenPath(path);
-			delete[] path;
-		}
+        PickAndSetClawLocation();
 	}
 	else if (actionEvent.getSource() == tfscpPath) {
 		if (!GV->editState->hNativeController->IsValid() ||

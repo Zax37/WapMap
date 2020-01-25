@@ -20,14 +20,14 @@ void cMDI::action(const gcn::ActionEvent &actionEvent)
 	if (actionEvent.getSource() == hContext) {
 		if (hContext->GetSelectedID() == MDI_CONTEXT_RELOAD) {
 			bReloadingMap = 1;
-			GV->StateMgr->Push(new State::LoadMap(m_vhDoc[m_iActiveDoc]->hParser->GetFilePath()));
+			GV->StateMgr->Push(new State::LoadMap(m_vhDoc[m_iContextMenuFocusedDoc]->hParser->GetFilePath()));
 			hContext->setVisible(0);
 			return;
 		}
 		if (hContext->GetSelectedID() == MDI_CONTEXT_PREVIOUSLYCLOSED)
 			return;
 		for (int i = 0; i < m_vhDoc.size(); i++) {
-			if (hContext->GetSelectedID() == MDI_CONTEXT_CLOSEEXCEPTACTIVE && m_iActiveDoc == i)
+			if (hContext->GetSelectedID() == MDI_CONTEXT_CLOSEEXCEPTACTIVE && m_iContextMenuFocusedDoc == i)
 				continue;
 			if (!CloseDocByIt(i)) {
 				hContext->setVisible(0);
@@ -103,99 +103,99 @@ void cMDI::UpdateCrashList()
 
 DocumentData * cMDI::AddDocument(DocumentData * dd)
 {
-	if (strlen(dd->hParser->GetFilePath()) > 0)
-		dd->szFileName = SHR::GetFile(dd->hParser->GetFilePath());
-	else {
-		const char * str = GETL2S("NewMap", "NewDoc");
-		dd->szFileName = new char[strlen(str) + 1];
-		strcpy(dd->szFileName, str);
-	}
+    bool justCreated = strlen(dd->hParser->GetFilePath()) == 0;
+    if (justCreated) {
+        const char *str = GETL2S("NewMap", "NewDoc");
+        dd->szFileName = new char[strlen(str) + 1];
+        strcpy(dd->szFileName, str);
+    } else dd->szFileName = SHR::GetFile(dd->hParser->GetFilePath());
 
-	dd->bSaved = 1;
+    dd->bSaved = 1;
 
-	dd->fZoom = 1;
-	dd->fDestZoom = 1;
+    dd->fZoom = 1;
+    dd->fDestZoom = 1;
 
-	dd->hTab = new cTabMDI();
-	dd->hTab->dd = dd;
-	dd->hTab->bFocused = 0;
-	dd->hTab->fTimer = 0;
+    dd->hTab = new cTabMDI();
+    dd->hTab->dd = dd;
+    dd->hTab->bFocused = 0;
+    dd->hTab->fTimer = 0;
 
-	dd->hTileClipboardImageSet = NULL;
-	dd->hTileClipboard = NULL;
-	dd->iTileCBw = dd->iTileCBh = -1;
+    dd->hTileClipboardImageSet = NULL;
+    dd->hTileClipboard = NULL;
+    dd->iTileCBw = dd->iTileCBh = -1;
 
-	GV->editState->hPlaneData.clear();
-	for (int i = 0; i < dd->hParser->GetPlanesCount(); i++) {
-		dd->hPlaneData.push_back(new State::PlaneData());
-		GV->editState->hPlaneData.push_back(dd->hPlaneData.back());
-		if (dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)
-			dd->iSelectedPlane = i;
-		dd->hParser->GetPlane(i)->SetObjectDeletionCallback(&EditingWW_ObjDeletionCB);
-		dd->hPlaneData[i]->bDraw = 1;
-		dd->hPlaneData[i]->bDrawGrid = 0;
-		dd->hPlaneData[i]->bDrawBoundary = 0;
-		dd->hPlaneData[i]->bDrawObjects = 1;
-		dd->hPlaneData[i]->ObjectData.hQuadTree = NULL;
-		dd->hPlaneData[i]->ObjectData.bEmpty = 1;
-		if (dd->hParser->GetPlane(i)->GetObjectsCount() != 0 || dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane) {
-			for (int z = 0; z < dd->hParser->GetPlane(i)->GetObjectsCount(); z++)
-				dd->hParser->GetPlane(i)->GetObjectByIterator(z)->SetUserData(new cObjUserData(dd->hParser->GetPlane(i)->GetObjectByIterator(z)));
-			dd->hPlaneData[i]->ObjectData.hQuadTree = new cObjectQuadTree(dd->hParser->GetPlane(i), dd->hSprBank);
-			dd->hPlaneData[i]->ObjectData.bEmpty = 0;
-		}
-		/*if (dd->hParser->GetPlane(i)->GetPlaneWidthPx() <= 2048 && dd->hParser->GetPlane(i)->GetPlaneHeightPx() <= 2048) {
-			GV->Console->Printf("Creating buffer for plane '~y~%s~w~' (%dx%d).", dd->hParser->GetPlane(i)->GetName(), dd->hParser->GetPlane(i)->GetPlaneWidthPx(), dd->hParser->GetPlane(i)->GetPlaneHeightPx());
-			dd->hPlaneData[i]->hRB = new State::cLayerRenderBuffer(GV->editState, GV->editState->vPort, dd->hParser->GetPlane(i));
-		}
-		else*/
-			dd->hPlaneData[i]->hRB = NULL;
-		if ((dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)) {
-			dd->hStartingPosObj = new WWD::Object();
-			dd->hStartingPosObj->SetLogic("_WM_STARTPOS");
-			if (dd->hParser->GetGame() == WWD::Game_Gruntz)
-				dd->hStartingPosObj->SetImageSet("GAME_GRUNTSELECTEDSPRITE");
-			else if (dd->hParser->GetGame() == WWD::Game_Claw) {
-				dd->hStartingPosObj->SetImageSet("CLAW");
-				dd->hStartingPosObj->SetParam(WWD::Param_LocationI, 13);
-				dd->hStartingPosObj->SetParam(WWD::Param_LocationZ, 4000);
-			}
-			else {
-				dd->hStartingPosObj->SetImageSet("GAME_CONFIGCONTROLS");
-				dd->hStartingPosObj->SetParam(WWD::Param_LocationI, 3);
-			}
-			dd->hStartingPosObj->SetParam(WWD::Param_LocationX, dd->hParser->GetStartX());
-			dd->hStartingPosObj->SetParam(WWD::Param_LocationY, dd->hParser->GetStartY());
-			dd->hStartingPosObj->SetUserData(new cObjUserData(dd->hStartingPosObj));
-			dd->hPlaneData[i]->ObjectData.hQuadTree->UpdateObject(dd->hStartingPosObj);
-		}
-	}
+    GV->editState->hPlaneData.clear();
+    for (int i = 0; i < dd->hParser->GetPlanesCount(); i++) {
+        dd->hPlaneData.push_back(new State::PlaneData());
+        GV->editState->hPlaneData.push_back(dd->hPlaneData.back());
+        if (dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)
+            dd->iSelectedPlane = i;
+        dd->hParser->GetPlane(i)->SetObjectDeletionCallback(&EditingWW_ObjDeletionCB);
+        dd->hPlaneData[i]->bDraw = 1;
+        dd->hPlaneData[i]->bDrawGrid = 0;
+        dd->hPlaneData[i]->bDrawBoundary = 0;
+        dd->hPlaneData[i]->bDrawObjects = 1;
+        dd->hPlaneData[i]->ObjectData.hQuadTree = NULL;
+        dd->hPlaneData[i]->ObjectData.bEmpty = 1;
+        if (dd->hParser->GetPlane(i)->GetObjectsCount() != 0 || dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane) {
+            for (int z = 0; z < dd->hParser->GetPlane(i)->GetObjectsCount(); z++)
+                dd->hParser->GetPlane(i)->GetObjectByIterator(z)->SetUserData(new cObjUserData(dd->hParser->GetPlane(i)->GetObjectByIterator(z)));
+            dd->hPlaneData[i]->ObjectData.hQuadTree = new cObjectQuadTree(dd->hParser->GetPlane(i), dd->hSprBank);
+            dd->hPlaneData[i]->ObjectData.bEmpty = 0;
+        }
+        /*if (dd->hParser->GetPlane(i)->GetPlaneWidthPx() <= 2048 && dd->hParser->GetPlane(i)->GetPlaneHeightPx() <= 2048) {
+            GV->Console->Printf("Creating buffer for plane '~y~%s~w~' (%dx%d).", dd->hParser->GetPlane(i)->GetName(), dd->hParser->GetPlane(i)->GetPlaneWidthPx(), dd->hParser->GetPlane(i)->GetPlaneHeightPx());
+            dd->hPlaneData[i]->hRB = new State::cLayerRenderBuffer(GV->editState, GV->editState->vPort, dd->hParser->GetPlane(i));
+        }
+        else*/
+        dd->hPlaneData[i]->hRB = NULL;
+        if ((dd->hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)) {
+            dd->hStartingPosObj = new WWD::Object();
+            dd->hStartingPosObj->SetLogic("_WM_STARTPOS");
+            if (dd->hParser->GetGame() == WWD::Game_Gruntz)
+                dd->hStartingPosObj->SetImageSet("GAME_GRUNTSELECTEDSPRITE");
+            else if (dd->hParser->GetGame() == WWD::Game_Claw) {
+                dd->hStartingPosObj->SetImageSet("CLAW");
+                dd->hStartingPosObj->SetParam(WWD::Param_LocationI, 13);
+                dd->hStartingPosObj->SetParam(WWD::Param_LocationZ, 4000);
+            }
+            else {
+                dd->hStartingPosObj->SetImageSet("GAME_CONFIGCONTROLS");
+                dd->hStartingPosObj->SetParam(WWD::Param_LocationI, 3);
+            }
+            dd->hStartingPosObj->SetParam(WWD::Param_LocationX, dd->hParser->GetStartX());
+            dd->hStartingPosObj->SetParam(WWD::Param_LocationY, dd->hParser->GetStartY());
+            dd->hStartingPosObj->SetUserData(new cObjUserData(dd->hStartingPosObj));
+            dd->hPlaneData[i]->ObjectData.hQuadTree->UpdateObject(dd->hStartingPosObj);
+        }
+    }
 
-	if (bReloadingMap) {
-		DeleteDocByIt(m_iActiveDoc);
-		bReloadingMap = 0;
-		m_vhDoc.insert(m_vhDoc.begin() + m_iActiveDoc, dd);
-	}
-	else {
-		m_vhDoc.push_back(dd);
-	}
-	GV->Console->Printf("~g~Document added.");
-	UpdateCrashList();
-	GV->anyMapLoaded = true;
-	if (strlen(dd->hParser->GetFilePath()) > 0) {
-		bool bRebuild = 0;
-		for (int i = 0; i < vstrRecentlyClosed.size(); i++) {
-			if (!strcmp(dd->hParser->GetFilePath(), vstrRecentlyClosed[i].c_str())) {
-				vstrRecentlyClosed.erase(vstrRecentlyClosed.begin() + i);
-				bRebuild = 1;
-			}
-		}
-		if (bRebuild)
-			RebuildContext(0);
-	}
-	hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(1);
-	hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
-	return dd;
+    if (bReloadingMap) {
+		int pos = m_iContextMenuFocusedDoc;
+        DeleteDocByIt(m_iContextMenuFocusedDoc);
+        bReloadingMap = 0;
+        m_vhDoc.insert(m_vhDoc.begin() + pos, dd);
+    }
+    else {
+        m_vhDoc.push_back(dd);
+    }
+    GV->Console->Printf("~g~Document added.");
+    UpdateCrashList();
+    GV->anyMapLoaded = true;
+    if (!justCreated) {
+        bool bRebuild = 0;
+        for (int i = 0; i < vstrRecentlyClosed.size(); i++) {
+            if (!strcmp(dd->hParser->GetFilePath(), vstrRecentlyClosed[i].c_str())) {
+                vstrRecentlyClosed.erase(vstrRecentlyClosed.begin() + i);
+                bRebuild = 1;
+            }
+        }
+        if (bRebuild)
+            RebuildContext(0);
+    }
+    hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(1);
+    hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
+    return dd;
 }
 
 void cMDI::RebuildContext(bool bForceRebuildBase)
@@ -369,11 +369,6 @@ void cMDI::Think(bool bConsumed)
 				tab->bFocused = 0;
 			xoff += w;
 		}
-
-		/*if( hge->Input_KeyDown(HGEK_RBUTTON) ){
-		 hContext->setVisible(1);
-		 hContext->setPosition(mx, my);
-		}*/
 	}
 	else
 		mout = 1;
@@ -386,6 +381,8 @@ void cMDI::Think(bool bConsumed)
 		hContext->setVisible(0);
 
 	if (!mout && iFocus >= 0 && hge->Input_KeyUp(HGEK_RBUTTON)) {
+        m_iContextMenuFocusedDoc = iFocus;
+	    hContext->GetElementByID(MDI_CONTEXT_RELOAD)->SetEnabled(strlen(m_vhDoc[iFocus]->hParser->GetFilePath()) > 0);
 		hContext->setPosition(mx, my);
 		GV->editState->conMain->moveToTop(hContext);
 		hContext->setVisible(1);

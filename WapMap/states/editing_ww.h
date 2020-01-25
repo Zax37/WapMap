@@ -376,7 +376,7 @@ namespace State {
  {
   SHR::Win * win;
   WIDG::Viewport * vp;
-  //SHR::But * runManual;
+  SHR::But * setClawDir;
   SHR::But * website;
   bool bKill;
  };

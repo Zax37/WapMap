@@ -48,6 +48,7 @@ class winOptions : public cWindow
   virtual void action(const ActionEvent& actionEvent);
 
   void SyncWithExe();
+  void PickAndSetClawLocation();
 };
 
 #endif // H_WIN_TILEBROWSER

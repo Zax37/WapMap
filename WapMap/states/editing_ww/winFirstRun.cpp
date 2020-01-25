@@ -1,9 +1,9 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../conf.h"
 #include "../error.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
+#include "../../windows/options.h"
 extern HGE * hge;
 
 void State::EditingWW::FirstRun_Open()
@@ -20,15 +20,15 @@ void State::EditingWW::FirstRun_Open()
 	FirstRun_data->win->addActionListener(al);
 	conMain->add(FirstRun_data->win, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200, hge->System_GetState(HGE_SCREENHEIGHT) / 2 - (height + 100) / 2);
 
-	/*FirstRun_data->runManual = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "ReadManual"));
-	FirstRun_data->runManual->setDimension(gcn::Rectangle(0, 0, 100, 33));
-	FirstRun_data->runManual->addActionListener(al);
-	FirstRun_data->win->add(FirstRun_data->runManual, 90, height + 5);*/
+	FirstRun_data->setClawDir = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "SetClawDir"));
+	FirstRun_data->setClawDir->setDimension(gcn::Rectangle(0, 0, 200, 33));
+	FirstRun_data->setClawDir->addActionListener(al);
+	FirstRun_data->win->add(FirstRun_data->setClawDir, 12, height - 5);
 
 	FirstRun_data->website = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "VisitWebsite"));
-	FirstRun_data->website->setDimension(gcn::Rectangle(0, 0, 100, 33));
+	FirstRun_data->website->setDimension(gcn::Rectangle(0, 0, 150, 33));
 	FirstRun_data->website->addActionListener(al);
-	FirstRun_data->win->add(FirstRun_data->website, 150, height - 5);
+	FirstRun_data->win->add(FirstRun_data->website, 225, height - 5);
 
 	FirstRun_data->vp = new WIDG::Viewport(vp, VP_FIRSTRUN);
 	FirstRun_data->win->add(FirstRun_data->vp);
@@ -40,7 +40,7 @@ void State::EditingWW::FirstRun_Close()
 {
 	delete FirstRun_data->vp;
 	delete FirstRun_data->website;
-	//delete FirstRun_data->runManual;
+	delete FirstRun_data->setClawDir;
 	delete FirstRun_data->win;
 	delete FirstRun_data;
 	FirstRun_data = 0;
@@ -59,9 +59,9 @@ void State::EditingWW::FirstRun_Think()
 void State::EditingWW::FirstRun_Action(bool but)
 {
 	if (!but) {
-		char tmp[256];
-		sprintf(tmp, "Readme%s.html", GV->Lang->GetCode());
-		ShellExecute(hge->System_GetState(HGE_HWND), "open", tmp, NULL, NULL, SW_SHOWNORMAL);
+        FirstRun_data->bKill = true;
+        GV->editState->hwinOptions->Open();
+        GV->editState->hwinOptions->PickAndSetClawLocation();
 	}
 	else {
 		ShellExecute(hge->System_GetState(HGE_HWND), "open", "http://captainclaw.net", NULL, NULL, SW_SHOWNORMAL);

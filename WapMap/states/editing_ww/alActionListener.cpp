@@ -241,9 +241,9 @@ namespace State {
 		else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->win) {
 			m_hOwn->FirstRun_data->bKill = 1;
 		}
-		/*else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->runManual) {
+		else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->setClawDir) {
 			m_hOwn->FirstRun_Action(0);
-		}*/
+		}
 		else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->website) {
 			m_hOwn->FirstRun_Action(1);
 		}
