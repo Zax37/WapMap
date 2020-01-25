@@ -128,6 +128,7 @@ cAppMenu::cAppMenu()
 	workcon->AddElement(APPMEN_TOOLS_MEASURE, GETL2S("AppMenu", "Tools_Measure"), GV->sprIcons16[Icon16_Measure]);
 	workcon->AddElement(APPMEN_TOOLS_STATS, GETL2S("AppMenu", "Tools_Stats"), GV->sprIcons16[Icon16_Stats]);
 	workcon->adjustSize();
+	workcon->GetElementByID(APPMEN_TOOLS_MAPSHOT)->SetEnabled(0);
 
 	workcon = hEntries[AppMenu_Assets]->GetContext();
 	workcon->AddElement(APPMEN_ASSETS_TILES, GETL2S("AppMenu", "Assets_Tiles"), GV->sprIcons16[Icon16_ModeTile]);
