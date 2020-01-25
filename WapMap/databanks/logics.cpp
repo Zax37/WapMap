@@ -75,18 +75,6 @@ cBankLogic::~cBankLogic()
 
 }
 
-void cBankLogic::DeleteLogic(cCustomLogic * hLogic)
-{
-	hLogic->DeleteFile();
-	for (size_t i = 0; i < m_vAssets.size(); i++) {
-		if (m_vAssets[i] == hLogic) {
-			m_vAssets.erase(m_vAssets.begin() + i);
-			break;
-		}
-	}
-	delete hLogic;
-}
-
 void cBankLogic::SetGlobalScript(cCustomLogic * h)
 {
 	hGlobalScript = h;
@@ -184,7 +172,7 @@ void cBankLogic::ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFi
 }
 
 std::string cBankLogic::GetMountPointForFile(std::string strFilePath, std::string strPrefix) {
-	return std::string("/LOGICS/") + strPrefix + "/" + strFilePath;
+	return std::string("/LOGICS/") + strFilePath;
 }
 
 cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {
@@ -199,5 +187,24 @@ cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEn
 		hGlobalScript = customLogic;
 	}
 
+	customLogic->_hBank = this;
+
 	return customLogic;
+}
+
+void cBankLogic::DeleteAsset(cAsset * hLogic)
+{
+	if (hLogic == hGlobalScript) {
+		hGlobalScript = 0;
+	}
+
+	for (size_t i = 0; i < m_vAssets.size(); i++) {
+		if (m_vAssets[i] == hLogic) {
+			m_vAssets.erase(m_vAssets.begin() + i);
+			break;
+		}
+	}
+	delete hLogic;
+
+	SortLogics();
 }

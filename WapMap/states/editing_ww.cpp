@@ -12,7 +12,6 @@
 #include "../cAppMenu.h"
 #include "../../shared/gcnWidgets/wComboButton.h"
 #include "../cNativeController.h"
-#include "codeEditor.h"
 #include "../windows/tileBrowser.h"
 #include "../windows/imgsetBrowser.h"
 #include "../windows/options.h"
@@ -44,6 +43,38 @@ State::EditingWW::EditingWW(WWD::Parser * phParser)
 bool State::EditingWW::Opaque()
 {
 	return 1;
+}
+
+void State::EditingWW::ExpandLogicBrowser()
+{
+	bLogicBrowserExpanded = true;
+
+	SHR::Lab* labs[] = { labbrlLogicName, labbrlFilePath, labbrlFileSize, labbrlFileChecksum, labbrlFileModDate };
+	int width = 0;
+	for (auto lab : labs) {
+		if (lab->getWidth() > width) {
+			width = lab->getWidth();
+		}
+	}
+
+    winLogicBrowser->setDimension(gcn::Rectangle(0, 0, 800, 221));
+    winLogicBrowser->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 400, hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 120);
+    winLogicBrowser->add(labbrlLogicName, 310, 20);
+    winLogicBrowser->add(labbrlFilePath, 310, 45);
+    winLogicBrowser->add(labbrlFileSize, 310, 70);
+    winLogicBrowser->add(labbrlFileChecksum, 310, 95);
+    winLogicBrowser->add(labbrlFileModDate, 310, 120);
+    //winLogicBrowser->add(tfbrlRename, 310 + width, 19);
+    //winLogicBrowser->add(butbrlRenameOK, 310 + width + 5 + 200, 15);
+    winLogicBrowser->add(labbrlLogicNameV, 310 + width, 20);
+    winLogicBrowser->add(labbrlFilePathV, 310 + width, 45);
+    winLogicBrowser->add(labbrlFileSizeV, 310 + width, 70);
+    winLogicBrowser->add(labbrlFileChecksumV, 310 + width, 95);
+    winLogicBrowser->add(labbrlFileModDateV, 310 + width, 120);
+    winLogicBrowser->add(butbrlBrowseDir, 310, 177);
+    winLogicBrowser->add(butbrlEdit, 310, 147);
+    winLogicBrowser->add(butbrlRename, 310 + 245, 147);
+    winLogicBrowser->add(butbrlDelete, 310 + 245, 177);
 }
 
 void State::EditingWW::Init()
@@ -709,31 +740,26 @@ void State::EditingWW::Init()
 	winCamera->add(butcamSetToSpawn, 105, 145);
 
 	winLogicBrowser = new SHR::Win(&GV->gcnParts, GETL2S("Win_LogicBrowser", "WinCaption"));
-	winLogicBrowser->setDimension(gcn::Rectangle(0, 0, 800, 240));
+	winLogicBrowser->setDimension(gcn::Rectangle(0, 0, 300, 220));//800, 240));
 	winLogicBrowser->setVisible(0);
 	winLogicBrowser->setClose(1);
 	winLogicBrowser->addActionListener(al);
-	conMain->add(winLogicBrowser, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 400, hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 120);
+	conMain->add(winLogicBrowser, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 150, hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 110);
 
 	labbrlLogicName = new SHR::Lab(GETL2S("Win_LogicBrowser", "LogicName"));
 	labbrlLogicName->adjustSize();
-	winLogicBrowser->add(labbrlLogicName, 310, 20);
 	int width = labbrlLogicName->getWidth();
 	labbrlFilePath = new SHR::Lab(GETL2S("Win_LogicBrowser", "FilePath"));
 	labbrlFilePath->adjustSize();
-	winLogicBrowser->add(labbrlFilePath, 310, 50);
 	if (labbrlFilePath->getWidth() > width) width = labbrlFilePath->getWidth();
 	labbrlFileSize = new SHR::Lab(GETL2S("Win_LogicBrowser", "FileSize"));
 	labbrlFileSize->adjustSize();
-	winLogicBrowser->add(labbrlFileSize, 310, 80);
 	if (labbrlFileSize->getWidth() > width) width = labbrlFileSize->getWidth();
 	labbrlFileChecksum = new SHR::Lab(GETL2S("Win_LogicBrowser", "FileChecksum"));
 	labbrlFileChecksum->adjustSize();
-	winLogicBrowser->add(labbrlFileChecksum, 310, 110);
 	if (labbrlFileChecksum->getWidth() > width) width = labbrlFileChecksum->getWidth();
 	labbrlFileModDate = new SHR::Lab(GETL2S("Win_LogicBrowser", "ModDate"));
 	labbrlFileModDate->adjustSize();
-	winLogicBrowser->add(labbrlFileModDate, 310, 140);
 	if (labbrlFileModDate->getWidth() > width) width = labbrlFileModDate->getWidth();
 	width += 15;
 
@@ -741,74 +767,63 @@ void State::EditingWW::Init()
 	tfbrlRename->setDimension(gcn::Rectangle(0, 0, 200, 20));
 	tfbrlRename->addActionListener(al);
 	tfbrlRename->setVisible(0);
-	winLogicBrowser->add(tfbrlRename, 310 + width, 19);
 
 	butbrlRenameOK = new SHR::But(GV->hGfxInterface, "OK");
 	butbrlRenameOK->setDimension(gcn::Rectangle(0, 0, 30, 30));
 	butbrlRenameOK->addActionListener(al);
 	butbrlRenameOK->setVisible(0);
-	winLogicBrowser->add(butbrlRenameOK, 310 + width + 5 + 200, 15);
 
 	labbrlLogicNameV = new SHR::Lab("");
 	labbrlLogicNameV->setColor(0xFFFFFF);
-	winLogicBrowser->add(labbrlLogicNameV, 310 + width, 20);
 	labbrlFilePathV = new SHR::Lab("");
 	labbrlFilePathV->setColor(0xFFFFFF);
-	winLogicBrowser->add(labbrlFilePathV, 310 + width, 50);
 	labbrlFileSizeV = new SHR::Lab("");
 	labbrlFileSizeV->setColor(0xFFFFFF);
-	winLogicBrowser->add(labbrlFileSizeV, 310 + width, 80);
 	labbrlFileChecksumV = new SHR::Lab("");
 	labbrlFileChecksumV->setColor(0xFFFFFF);
-	winLogicBrowser->add(labbrlFileChecksumV, 310 + width, 110);
 	labbrlFileModDateV = new SHR::Lab("");
 	labbrlFileModDateV->setColor(0xFFFFFF);
-	winLogicBrowser->add(labbrlFileModDateV, 310 + width, 140);
 
 	lbbrlLogicList = new SHR::ListBox(0);
 	lbbrlLogicList->addActionListener(al);
-	lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 285, 200));
+	lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 285, 215));
 
 	sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
-	sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 300, 185));
+	sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 294, 206));
 	sabrlLogicList->setOpaque(0);
 	winLogicBrowser->add(sabrlLogicList, 0, 10);
 
-	butbrlNew = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "AddNew"));
+	/*butbrlNew = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "AddNew"));
 	butbrlNew->setIcon(GV->sprIcons16[Icon16_Add]);
 	butbrlNew->setDimension(gcn::Rectangle(0, 0, 150, 25));
 	butbrlNew->addActionListener(al);
-	winLogicBrowser->add(butbrlNew, 0, 195);
+	winLogicBrowser->add(butbrlNew, 0, 195);*/
 
 	butbrlBrowseDir = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "BrowseDir"));
 	butbrlBrowseDir->setIcon(GV->sprIcons16[Icon16_Open]);
-	butbrlBrowseDir->setDimension(gcn::Rectangle(0, 0, 150, 25));
+	butbrlBrowseDir->setDimension(gcn::Rectangle(0, 0, 235, 25));
 	butbrlBrowseDir->addActionListener(al);
-	winLogicBrowser->add(butbrlBrowseDir, 150, 195);
 
 	butbrlEdit = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "Edit"));
 	butbrlEdit->setIcon(GV->sprIcons16[Icon16_Pencil]);
 	butbrlEdit->setDimension(gcn::Rectangle(0, 0, 235, 25));
 	butbrlEdit->addActionListener(al);
-	winLogicBrowser->add(butbrlEdit, 310, 160);
 
-	butbrlEditExternal = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "OpenFile"));
+	/*butbrlEditExternal = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "OpenFile"));
 	butbrlEditExternal->setIcon(GV->sprIcons16[Icon16_Open]);
 	butbrlEditExternal->setDimension(gcn::Rectangle(0, 0, 235, 25));
 	butbrlEditExternal->addActionListener(al);
-	winLogicBrowser->add(butbrlEditExternal, 310, 190);
+	winLogicBrowser->add(butbrlEditExternal, 310, 190);*/
 
 	butbrlRename = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "Rename"));
 	butbrlRename->setIcon(GV->sprIcons16[Icon16_X]);
 	butbrlRename->setDimension(gcn::Rectangle(0, 0, 235, 25));
 	butbrlRename->addActionListener(al);
-	winLogicBrowser->add(butbrlRename, 310 + 245, 160);
 
 	butbrlDelete = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "Delete"));
 	butbrlDelete->setIcon(GV->sprIcons16[Icon16_Trash]);
 	butbrlDelete->setDimension(gcn::Rectangle(0, 0, 235, 25));
 	butbrlDelete->addActionListener(al);
-	winLogicBrowser->add(butbrlDelete, 310 + 245, 190);
 
 	winDB = new SHR::Win(&GV->gcnParts, GETL(Lang_Database));
 	winDB->setDimension(gcn::Rectangle(0, 0, 800, 600));
@@ -2033,8 +2048,6 @@ bool State::EditingWW::Think()
 		conResizeRight->setVisible(0);
 	}
 	else {
-		hDataCtrl->Think();
-
 		if (fCamX < 0 && !(GetActivePlane()->GetFlags() & WWD::Flag_p_XWrapping)) {
 			conResizeLeft->setDimension(gcn::Rectangle(vPort->GetX(), vPort->GetY() + 40, -fCamX, vPort->GetHeight() - 80));
 			conResizeLeft->setVisible(1);
@@ -2522,26 +2535,6 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped)
 		else if (((returnCode*)iReturnCode)->Ptr == 2) {
 			GetActivePlane()->DeleteObject(vObjectsPicked[0]);
 		}
-	}
-	else if (((returnCode*)iReturnCode)->Type == RC_CodeEditor) {
-		stCodeEditorRC * rc = (stCodeEditorRC*)(((returnCode*)iReturnCode)->Ptr);
-		if (rc->hLogic != 0) {
-			if (rc->bSaved) {
-				if (winLogicBrowser->isVisible())
-					SyncLogicBrowser();
-				GV->editState->hDataCtrl->FixCustomDir();
-				rc->hLogic->Save();
-				if (rc->bNewLogic) {
-					if (!strcmp(rc->hLogic->GetName(), "main")) {
-						hCustomLogics->SetGlobalScript(rc->hLogic);
-					}
-					else {
-						hCustomLogics->RegisterLogic(rc->hLogic);
-					}
-				}
-			}
-		}
-		delete rc;
 	}
 	delete ((returnCode*)iReturnCode);
 }
@@ -3083,7 +3076,7 @@ void State::EditingWW::SyncLogicBrowser()
 
 	butbrlRename->setEnabled(validselect);
 	butbrlDelete->setEnabled(validselect);
-	butbrlEditExternal->setEnabled(validselect);
+	//butbrlEditExternal->setEnabled(validselect);
 	butbrlEdit->setEnabled(validselect);
 
 	labbrlLogicNameV->adjustSize();

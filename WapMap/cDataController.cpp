@@ -471,6 +471,15 @@ void cDataController::FixCustomDir()
 	hCustom = new cDiscFeed(strCustomPath);
 }
 
+std::string cDataController::CreateGlobalScriptFile()
+{
+	char * htmp = SHR::GetFileWithoutExt(strFilename.c_str());
+	std::string strGlobalScript = strFileDir + "/" + htmp + "/LOGICS/main.lua";
+	delete[] htmp;
+	std::ofstream file{ strGlobalScript };
+	return strGlobalScript;
+}
+
 std::vector<cFile> cDataController::GetFilesList(std::string strPath, int iLoadPolicy)
 {
 	cFileFeed * sourcefeed;
@@ -620,6 +629,7 @@ void cAssetPackage::RegisterAsset(cAsset * hPtr)
 
 void cDataController::UnmountFile(std::string strMountPoint, cFile hFile)
 {
+	std::transform(strMountPoint.begin(), strMountPoint.end(), strMountPoint.begin(), ::toupper);
 	for (size_t i = 0; i < vMountEntries.size(); i++)
 		if (vMountEntries[i].strMountPoint.compare(strMountPoint) == 0) {
 			for (size_t f = 0; f < vMountEntries[i].vFiles.size(); f++) {
@@ -723,6 +733,7 @@ cDC_MountEntry cDataController::GetMountEntry(std::string strMountPoint)
 
 int cDataController::GetMountPointID(std::string strMountPoint)
 {
+	std::transform(strMountPoint.begin(), strMountPoint.end(), strMountPoint.begin(), ::toupper);
 	for (size_t i = 0; i < vMountEntries.size(); i++)
 		if (strMountPoint.compare(vMountEntries[i].strMountPoint) == 0)
 			return i;
@@ -875,4 +886,12 @@ void cDataController::Think()
 
 	if (hge->Timer_GetTime() - fFeedRefreshTime > 2.5f)
 		fFeedRefreshTime = hge->Timer_GetTime();
+}
+
+void cDataController::OpenCodeEditor(std::string logicName, bool nonExisting) {
+	std::string path = GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/" + logicName + ".lua";
+	if (nonExisting) {
+		std::ofstream file{ path };
+	}
+	ShellExecute(hge->System_GetState(HGE_HWND), "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }

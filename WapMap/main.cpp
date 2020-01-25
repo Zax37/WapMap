@@ -2,13 +2,9 @@
 #include "conf.h"
 #include "globals.h"
 #include "states/editing_ww.h"
-#include "conf.h"
+#include "cDataController.h"
 #include "../shared/commonFunc.h"
-#include <windows.h>
 #include <tlhelp32.h>
-#include "cControllerIPC.h"
-
-#include <hgeVector.h>
 #include <direct.h>
 
 HGE *hge = 0;
@@ -16,8 +12,13 @@ HGE *hge = 0;
 extern bool _UpdaterThink();
 
 bool FrameFunc() {
-    //return 0;
-    return GV->StateMgr->Think();
+    if (!GV->StateMgr->Think()) {
+		if (GV->anyMapLoaded) {
+			GV->editState->hDataCtrl->Think();
+		}
+        return false;
+    }
+    return true;
 }
 
 bool RenderFunc() {
@@ -26,11 +27,6 @@ bool RenderFunc() {
 
 bool ExitFunc() {
     return GV->StateMgr->ExitFunc();
-}
-
-bool AppWindowNotifyFunc() {
-    GV->StateMgr->OS_Notify();
-    return 1;
 }
 
 bool GfxRestoreFunc() {
@@ -117,12 +113,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     _chdir(myDIR);
     delete[] myDIR;
 
-    HMODULE hmod = LoadLibrary("SciLexer.dll");
-    if (hmod == NULL) {
-        MessageBox(0, "Could not load Scintilla library.", "WapMap", MB_OK | MB_ICONERROR);
-        return 0xBAADBAAD;
-    }
-
     GV = new cGlobals();
     GV->dwProcID = procid;
     GV->szCmdLine = std::string(cmdline);
@@ -140,7 +130,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     hge->System_SetState(HGE_FILEDROPFUNC, FileDroppedFunc);
     hge->System_SetState(HGE_FOCUSLOSTFUNC, AppFocusOffFunc);
     hge->System_SetState(HGE_FOCUSGAINFUNC, AppFocusOnFunc);
-    hge->System_SetState(HGE_WMNOTIFYFUNC, AppWindowNotifyFunc);
     if (!strncmp(cmdline, "-updateBM", 9)) {
         hge->System_SetState(HGE_SCREENWIDTH, 320);
         hge->System_SetState(HGE_SCREENHEIGHT, 140);
@@ -165,9 +154,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     int top = GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION) + 1;
 
     if (hge->System_Initiate()) {
-        HWND hwnd = hge->System_GetState(HGE_HWND);
-        HRGN rgn = CreateRectRgn(left, top, left + GV->iScreenW, top + GV->iScreenH);
-        SetWindowRgn(hwnd, rgn, true);
+        //HWND hwnd = hge->System_GetState(HGE_HWND);
+        //HRGN rgn = CreateRectRgn(left, top, left + GV->iScreenW, top + GV->iScreenH);
+        //SetWindowRgn(hwnd, rgn, true);
 
         GV->Init();
         GV->StateMgr->Init();

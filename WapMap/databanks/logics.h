@@ -5,11 +5,6 @@
 #include <guichan/listModel.hpp>
 #include "../cDataController.h"
 
-namespace State
-{
- class CodeEditor;
-}
-
 class cCustomLogic : public cAsset {
  protected:
   std::string strContent;
@@ -18,7 +13,6 @@ class cCustomLogic : public cAsset {
 
   void SetName(std::string n){ _strName = n; };
  friend class cBankLogic;
- friend class State::CodeEditor;
  public:
 
   virtual void Load();
@@ -51,7 +45,6 @@ class cBankLogic : public gcn::ListModel, public cAssetBank {
   int getNumberOfElements();
 
   bool RenameLogic(cCustomLogic * hLogic, std::string strName);
-  void DeleteLogic(cCustomLogic * hLogic);
 
   void SortLogics();
   virtual void ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFiles);
@@ -60,6 +53,8 @@ class cBankLogic : public gcn::ListModel, public cAssetBank {
 
   virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix);
   virtual cAsset * AllocateAssetForMountPoint(cDataController * hDC, cDC_MountEntry mountEntry);
+
+  virtual void DeleteAsset(cAsset * hLogic) override;
 };
 
 #endif

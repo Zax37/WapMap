@@ -6,8 +6,7 @@ enum rc_type {
  RC_ErrorState,
  RC_MapShot,
  RC_ObjectProp,
- RC_ObjPropSelectedValues,
- RC_CodeEditor
+ RC_ObjPropSelectedValues
 };
 
 struct returnCode {

@@ -181,6 +181,7 @@ DocumentData * cMDI::AddDocument(DocumentData * dd)
 	}
 	GV->Console->Printf("~g~Document added.");
 	UpdateCrashList();
+	GV->anyMapLoaded = true;
 	if (strlen(dd->hParser->GetFilePath()) > 0) {
 		bool bRebuild = 0;
 		for (int i = 0; i < vstrRecentlyClosed.size(); i++) {
@@ -471,6 +472,9 @@ bool cMDI::CloseDocByIt(int i)
 		}
 	}
 	DeleteDocByIt(i);
+	if (m_vhDoc.size() == 0) {
+		GV->anyMapLoaded = false;
+	}
 	return 1;
 }
 

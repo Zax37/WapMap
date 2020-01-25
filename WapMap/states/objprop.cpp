@@ -6,7 +6,6 @@
 #include "../cObjectUserData.h"
 #include "../../shared/gcnWidgets/wTab.h"
 #include "../databanks/logics.h"
-#include "codeEditor.h"
 #include <math.h>
 
 #include "editing_ww.h"
@@ -44,7 +43,7 @@ namespace State
 					int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"), "WapMap", MB_YESNO | MB_ICONWARNING);
 					if (r == IDYES) {
 						m_hOwn->bLogicEditQuit = 1;
-						GV->StateMgr->Push(new State::CodeEditor(0, 0, m_hOwn->tddadvCustomLogic->getText()));
+						GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->tddadvCustomLogic->getText(), true);
 					}
 				}
 			}
@@ -58,13 +57,12 @@ namespace State
 		else if (actionEvent.getSource() == m_hOwn->butCustomLogicEdit) {
 			cCustomLogic * handle = GV->editState->hCustomLogics->GetLogicByName(m_hOwn->tddadvCustomLogic->getText().c_str());
 			if (handle != 0) {
-				GV->StateMgr->Push(new State::CodeEditor(handle, 0, ""));
+				GV->editState->hDataCtrl->OpenCodeEditor(handle->GetFile().strPath.c_str());
 			}
 			else {
 				int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"), "WapMap", MB_YESNO | MB_ICONWARNING);
 				if (r == IDYES) {
-
-					GV->StateMgr->Push(new State::CodeEditor(0, 0, m_hOwn->tddadvCustomLogic->getText()));
+					GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->tddadvCustomLogic->getText(), true);
 				}
 			}
 			//}else if( actionEvent.getSource() == m_hOwn->butPickMinMaxXY ){
@@ -1578,25 +1576,6 @@ void State::ObjProp::GainFocus(int iReturnCode, bool bFlipped)
 				delete[] ret;
 			}
 		}
-	}
-	if (((returnCode*)iReturnCode)->Type == RC_CodeEditor) {
-		stCodeEditorRC * rc = (stCodeEditorRC*)(((returnCode*)iReturnCode)->Ptr);
-		if (rc->hLogic != 0) {
-			if (rc->bSaved) {
-				GV->editState->hDataCtrl->FixCustomDir();
-				rc->hLogic->Save();
-				if (rc->bNewLogic) {
-					GV->editState->hCustomLogics->RegisterLogic(rc->hLogic);
-				}
-				if (hProp->bLogicEditQuit) {
-					hProp->Save();
-					GetUserDataFromObj(hObj)->SyncToObj();
-					hProp->hState->vPort->MarkToRedraw(1);
-					hProp->bKill = 1;
-				}
-			}
-		}
-		delete rc;
 	}
 	delete (returnCode*)iReturnCode;
 }

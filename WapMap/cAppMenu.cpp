@@ -6,7 +6,6 @@
 #include "cNativeController.h"
 #include "states/stats.h"
 #include "states/loadmap.h"
-#include "states/codeEditor.h"
 #include "windows/tileBrowser.h"
 #include "windows/imgsetBrowser.h"
 #include "windows/options.h"
@@ -543,11 +542,11 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent)
 			if (GV->editState->hCustomLogics->GetGlobalScript() == 0) {
 				if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"), "WapMap", MB_YESNO | MB_ICONWARNING) == IDYES) {
 					GV->editState->hDataCtrl->FixCustomDir();
-					GV->StateMgr->Push(new State::CodeEditor(0, 0, ""));
+                    GV->editState->hDataCtrl->OpenCodeEditor("main", true);
 				}
 			}
 			else {
-				GV->StateMgr->Push(new State::CodeEditor(GV->editState->hCustomLogics->GetGlobalScript(), 0, ""));
+                GV->editState->hDataCtrl->OpenCodeEditor("main");
 			}
 		}
 		//}else if( actionEvent.getSource() == conOpen ){

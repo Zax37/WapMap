@@ -212,6 +212,8 @@ class cDataController
   cParallelLoop * GetLooper(){ return hLooper; };
 
   void FixCustomDir();
+  std::string CreateGlobalScriptFile();
+  void OpenCodeEditor(std::string logicName, bool nonExisting = false);
   cFile AssignFileForLogic(std::string strLogicName);
 
   void Think();

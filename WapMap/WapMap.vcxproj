@@ -316,7 +316,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="objedit\winInventoryPickbox.cpp" />
     <ClCompile Include="objQuadTree.cpp" />
     <ClCompile Include="rendering\cRenderableItem.cpp" />
-    <ClCompile Include="states\codeEditor.cpp" />
     <ClCompile Include="states\editing_ww.cpp" />
     <ClCompile Include="states\editing_ww\alActionListener.cpp" />
     <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp" />
@@ -359,17 +358,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="..\shared\cREZ.h" />
     <ClInclude Include="..\shared\cSFS.h" />
     <ClInclude Include="..\shared\cStateMgr.h" />
-    <ClInclude Include="..\shared\cUpdater.h" />
-    <ClInclude Include="..\shared\curl\curl.h" />
-    <ClInclude Include="..\shared\curl\curlbuild.h" />
-    <ClInclude Include="..\shared\curl\curlrules.h" />
-    <ClInclude Include="..\shared\curl\curlver.h" />
-    <ClInclude Include="..\shared\curl\easy.h" />
-    <ClInclude Include="..\shared\curl\mprintf.h" />
-    <ClInclude Include="..\shared\curl\multi.h" />
-    <ClInclude Include="..\shared\curl\stdcheaders.h" />
-    <ClInclude Include="..\shared\curl\typecheck-gcc.h" />
-    <ClInclude Include="..\shared\curl\types.h" />
     <ClInclude Include="..\shared\cWWD.h" />
     <ClInclude Include="..\shared\gcnwidgets\cTooltip.h" />
     <ClInclude Include="..\shared\gcnwidgets\wButton.h" />
@@ -416,13 +404,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="..\shared\il\ilut_config.h" />
     <ClInclude Include="..\shared\il\ilu_region.h" />
     <ClInclude Include="..\shared\il\il_wrap.h" />
-    <ClInclude Include="..\shared\lua\lauxlib.h" />
-    <ClInclude Include="..\shared\lua\lua.h" />
-    <ClInclude Include="..\shared\lua\lua.hpp" />
-    <ClInclude Include="..\shared\lua\luaconf.h" />
-    <ClInclude Include="..\shared\lua\lualib.h" />
-    <ClInclude Include="..\shared\scintilla\SciLexer.h" />
-    <ClInclude Include="..\shared\scintilla\Scintilla.h" />
     <ClInclude Include="..\shared\SimpleIni.h" />
     <ClInclude Include="bodyQuadTree.h" />
     <ClInclude Include="cAppMenu.h" />
@@ -434,7 +415,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="cFileSystem.h" />
     <ClInclude Include="cInterfaceSheet.h" />
     <ClInclude Include="cInventoryController.h" />
-    <ClInclude Include="cLogicsList.h" />
     <ClInclude Include="cMDI.h" />
     <ClInclude Include="cModeMenuBar.h" />
     <ClInclude Include="cMRUList.h" />
@@ -444,7 +424,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="cParallelLoop.h" />
     <ClInclude Include="cPhysics.h" />
     <ClInclude Include="cRulers.h" />
-    <ClInclude Include="cSerialManager.h" />
     <ClInclude Include="cSoundPlayer.h" />
     <ClInclude Include="cTextureAtlas.h" />
     <ClInclude Include="cTileGhost.h" />
@@ -481,7 +460,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objedit\editStalactite.h" />
     <ClInclude Include="objedit\editStatue.h" />
     <ClInclude Include="objedit\editText.h" />
-    <ClInclude Include="objedit\editTits.h" />
     <ClInclude Include="objedit\editTogglePeg.h" />
     <ClInclude Include="objedit\editTreasure.h" />
     <ClInclude Include="objedit\editWallCannon.h" />
@@ -491,7 +469,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objQuadTree.h" />
     <ClInclude Include="rendering\cRenderableItem.h" />
     <ClInclude Include="returncodes.h" />
-    <ClInclude Include="states\codeEditor.h" />
     <ClInclude Include="states\editing_ww.h" />
     <ClInclude Include="states\error.h" />
     <ClInclude Include="states\imageDetails.h" />
@@ -504,12 +481,9 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="vpFocusWidg.h" />
     <ClInclude Include="windows\about.h" />
     <ClInclude Include="windows\imgsetBrowser.h" />
-    <ClInclude Include="windows\mapShot.h" />
     <ClInclude Include="windows\options.h" />
     <ClInclude Include="windows\tileBrowser.h" />
-    <ClInclude Include="windows\tileProperties.h" />
     <ClInclude Include="windows\window.h" />
-    <ClInclude Include="windows\worldProperties.h" />
     <ClInclude Include="wViewport.h" />
   </ItemGroup>
   <ItemGroup>

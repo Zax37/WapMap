@@ -4,7 +4,6 @@
 #include "../../../shared/commonFunc.h"
 #include "../loadmap.h"
 #include "../mapshot.h"
-#include "../codeEditor.h"
 #include "../../langID.h"
 #include "../error.h"
 #include "../../cObjectUserData.h"
@@ -72,28 +71,31 @@ namespace State {
 			std::string path = m_hOwn->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS";
 			ShellExecute(hge->System_GetState(HGE_HWND), "explore", "", "", path.c_str(), SW_SHOWNORMAL);
 		}
-		else if (actionEvent.getSource() == m_hOwn->butbrlNew) {
+		/*else if (actionEvent.getSource() == m_hOwn->butbrlNew) {
+		    // REMOVED
 			if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
 				MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NewLogicDocumentSave"), "WapMap", MB_OK | MB_ICONERROR);
 				return;
 			}
-			GV->StateMgr->Push(new State::CodeEditor(0, 1, ""));
-		}
+			//GV->StateMgr->Push(new State::CodeEditor(0, 1, ""));
+		}*/
 		else if (actionEvent.getSource() == m_hOwn->butbrlEdit) {
-			GV->StateMgr->Push(new State::CodeEditor(m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected()), 0, ""));
+            cCustomLogic * logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
+            GV->editState->hDataCtrl->OpenCodeEditor(logic->GetName());
 		}
-		else if (actionEvent.getSource() == m_hOwn->butbrlEditExternal) {
-			cCustomLogic * logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
+		//else if (actionEvent.getSource() == m_hOwn->butbrlEditExternal) {
+		    // REMOVED
+			/*cCustomLogic * logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
 			std::string path = m_hOwn->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/" + logic->GetName() + ".lua";
-			printf("%d\n", ShellExecute(hge->System_GetState(HGE_HWND), "open", path.c_str(), "", "", SW_SHOWNORMAL));
-		}
+			printf("%d\n", ShellExecute(hge->System_GetState(HGE_HWND), "open", path.c_str(), "", "", SW_SHOWNORMAL));*/
+		//}
 		else if (actionEvent.getSource() == m_hOwn->butbrlDelete) {
 			cCustomLogic * logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
 			std::string path = m_hOwn->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/" + logic->GetName() + ".lua";
 			char tmp[512];
 			sprintf(tmp, GETL2S("Win_LogicBrowser", "DeleteWarning"), path.c_str());
 			if (MessageBox(hge->System_GetState(HGE_HWND), tmp, "WapMap", MB_YESNO | MB_ICONWARNING) == IDYES) {
-				m_hOwn->hCustomLogics->DeleteLogic(logic);
+				logic->DeleteFile();
 				m_hOwn->SyncLogicBrowser();
 			}
 		}
@@ -713,7 +715,7 @@ namespace State {
 					m_hOwn->OpenObjectWindow(m_hOwn->vObjectsPicked[0]);
 				}
 				else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_EDITLOGIC) {
-					GV->StateMgr->Push(new State::CodeEditor(m_hOwn->hCustomLogics->GetLogicByName(m_hOwn->vObjectsPicked[0]->GetName()), 0, ""));
+				    GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->vObjectsPicked[0]->GetName());
 				}
 				else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_SETSPAWNP) {
 					int orix, oriy;
@@ -1153,6 +1155,9 @@ namespace State {
 				m_hOwn->htpWorkingAtrib->SetW(atoi(m_hOwn->tftpW->getText().c_str()));
 			}
 			else if (actionEvent.getSource() == m_hOwn->lbbrlLogicList) {
+				if (!m_hOwn->bLogicBrowserExpanded) {
+					m_hOwn->ExpandLogicBrowser();
+				}
 				m_hOwn->SyncLogicBrowser();
 			}
 			else if (actionEvent.getSource() == m_hOwn->tftpH) {

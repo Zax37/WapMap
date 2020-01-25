@@ -445,6 +445,8 @@ namespace State {
    cSoundPlayer * spdbSounds;
 
    SHR::Win * winLogicBrowser;
+   bool bLogicBrowserExpanded = false;
+
    SHR::ScrollArea * sabrlLogicList;
    SHR::ListBox * lbbrlLogicList;
    SHR::But * butbrlNew, * butbrlEdit, * butbrlEditExternal, * butbrlDelete, * butbrlBrowseDir, * butbrlRenameOK, * butbrlRename;
@@ -454,6 +456,7 @@ namespace State {
    WIDG::Viewport * vpLogicBrowser;
    void DrawLogicBrowser();
    void SyncLogicBrowser();
+   void ExpandLogicBrowser();
 
    float fdbAniTimer;
 

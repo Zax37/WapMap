@@ -7,7 +7,6 @@
 #include "../../shared/gcnWidgets/wProgressBar.h"
 #include "../../shared/cWWD.h"
 #include "../../shared/cProgressInfo.h"
-#include "../cLogicsList.h"
 #include "guichan.hpp"
 #include "../cDataController.h"
 #include "../cParallelLoop.h"

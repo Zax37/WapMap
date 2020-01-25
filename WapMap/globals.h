@@ -454,8 +454,9 @@ class cGlobals {
 
   cInterfaceSheet * hGfxInterface;
 
-
   std::vector<std::string> vstrClawLogics;
+
+  bool anyMapLoaded = false;
 
 #ifdef SHOWMEMUSAGE
   char szMemUsage[64];
