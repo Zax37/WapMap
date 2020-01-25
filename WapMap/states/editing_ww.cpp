@@ -3242,6 +3242,13 @@ void State::EditingWW::SetZoom(float fZ)
 
 void State::EditingWW::FileDropped()
 {
+	for (auto filepath : hge->System_GetDroppedFiles()) {
+		char * ext = SHR::ToLower(strrchr(filepath, '.') + 1);
+		if (!strcmp(ext, "wwd")) {
+			GV->StateMgr->Push(new State::LoadMap(filepath));
+		}
+		delete[] ext;
+	}
 	//if( butIconOpen->isEnabled() )
 	// GV->StateMgr->Push(new State::LoadMap(szPath));
 }
