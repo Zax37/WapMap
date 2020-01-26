@@ -7,7 +7,7 @@
 #include "cPhysics.h"
 #include <map>
 
-#include "conf.h"
+#include "version.h"
 //#include "states/editing_ww.h"
 
 #define SIM_ROPE_DEFAULT_SPEED 3.000f //in seconds

@@ -12,14 +12,14 @@ Sadly, in the package, which I got from him, there was no source files of that v
 
 He planned on rewriting the rendering to SFML, but he failed to get it working and abandoned the project.
 
-Since I don't have source code for some of the changes in HGE, which kijanek made, I've cloned the HGE repository,
-merged with the header files from his version and re-implemented some of the changes.
+Since I don't have source code for some of the changes in HGE, which kijanek made, I've cloned the HGE github repository,
+merged with the header files from his version and re-implemented most of the needed new functionalities.
 
 ## Building
 
 1. Get Visual Studio 2017 (HGE won't build in 2019 from what I've seen).
 
-2. Create some directory for the project and its dependencies.
+2. Create some directory for the project and its dependencies (e.g. WapMap).
 
 3. Clone them:
 
@@ -30,8 +30,10 @@ git clone https://github.com/curl/curl
 git clone https://github.com/lua/lua
 ```
 
-4. Build the dependencies (I used CMake). You'll need to download DirectX 9 SDK, as HGE's readme says.
+4. Build the dependencies (I used CMake). You'll need to download DirectX 9 SDK (June 2010), as HGE's readme says.
 
 5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
 
 6. Open WapMap/WapMap/WapMap.sln in Visual Studio 2017 and run it!
+
+7. I've also created CMakeLists for the project, if you'd like to use different toolset. I'll try to keep them up to date. :)

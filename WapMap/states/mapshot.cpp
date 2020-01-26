@@ -1,8 +1,7 @@
 #include "mapshot.h"
 #include "../globals.h"
-#include "../conf.h"
+#include "../version.h"
 #include <cmath>
-
 #include "../langID.h"
 #include "editing_ww.h"
 #include "../returncodes.h"

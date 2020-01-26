@@ -3,7 +3,6 @@
 
 #include <windows.h>
 #include <process.h>
-
 #include "../shared/gcnWidgets/wContainer.h"
 #include "../shared/gcnWidgets/wWin.h"
 #include "../shared/gcnWidgets/wButton.h"
@@ -14,11 +13,12 @@
 #include "wViewport.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <json.hpp>
 
 #define AU_NONE 0
-#define AU_SEARCHINGUPDATES 1
-#define AU_DOWNLOADINGLIST 2
-#define AU_DOWNLOADINGFILES 3
+#define AU_SEARCHING_FOR_UPDATES 1
+#define AU_ASKING_TO_UPDATE 2
+#define AU_DOWNLOADING_UPDATE 3
 
 /*
 cAutoUpdater checks whether there are any updates,
@@ -28,64 +28,64 @@ handling and all things done dirty way.
 
 class cAutoUpdater;
 
+struct GitAPIReleaseAsset {
+    std::string browser_download_url;
+	uint32_t size;
+};
+
+void from_json(const nlohmann::json& j, GitAPIReleaseAsset& releaseAsset);
+
 //internal action listener for gui
- class cAUAL: public gcn::ActionListener {
-  private:
-   cAutoUpdater * m_hOwn;
-  public:
-   void action(const gcn::ActionEvent &actionEvent);
-   cAUAL(cAutoUpdater * owner);
- };
+class cAUAL : public gcn::ActionListener {
+private:
+    cAutoUpdater *m_hOwn;
+public:
+    void action(const gcn::ActionEvent &actionEvent);
+
+    cAUAL(cAutoUpdater *owner);
+};
 
 //internal viewport callback for gui
- class cAUVP: public WIDG::VpCallback {
-  private:
-   cAutoUpdater * m_hOwn;
-  public:
-   virtual void Draw(int iCode);
-   cAUVP(cAutoUpdater * owner){ m_hOwn = owner; };
- };
+/*class cAUVP : public WIDG::VpCallback {
+private:
+    cAutoUpdater *m_hOwn;
+public:
+    cAUVP(cAutoUpdater *owner) { m_hOwn = owner; };
+};*/
 
 class cAutoUpdater {
- friend class cAUVP;
- private:
-  //search for updates only (embedded) or perform with gui (normal)? boolean flag
-  bool bOnlyCheck;
-  //for stats - overall files to download and already downloaded count
-  int iDownloadFilesCount, iDownloadedFiles;
- public:
-  std::vector<char*> vszFilesToDelete, vszFilesToUpdate;
-  char * szUpdateList;
-  float fTimeout;
-  char * szUpdateInfo;
-  int iState;
-  bool bUpdates, bReady, bErrors, bKill;
-  cAutoUpdater(bool checkonly = 0);
-  ~cAutoUpdater();
+    friend class cAUVP;
 
-  FILE * hPatchFile;
+public:
+	float fDelay = 0;
+    int iState, iThreadsRunning;
+    std::string response;
+	bool bKill = false;
 
-  float fDelay;
+	GitAPIReleaseAsset releaseAsset;
+	const char* hUpdatePackage = 0;
+	size_t downloadedBytes = 0;
 
-  CURL * newver_curl;
-  CURLM * update_curlm;
+    CURL *curl_handle_single;
+    CURLM *curl_handle_multi;
 
-  int iDownloaded, iTotal;
+    cAutoUpdater();
+    ~cAutoUpdater();
 
-  cAUAL * hAL;
-  cAUVP * hVP;
-  SHR::Win * winActualize;
-  SHR::Lab * labActualize;
-  SHR::But * butYes, * butNo;
-  SHR::ProgressBar * pbProgress;
-  WIDG::Viewport * vpActualize;
+    bool Think();
 
-  void PopupQuestion(SHR::Contener * dest);
-  void TransformToDownload();
-  void TransformToExit();
+    cAUAL *hAL;
+    //cAUVP *hVP;
+    SHR::Win *winActualize;
+    SHR::Lab *labActualize;
+    SHR::But *butYes, *butNo;
+    SHR::ProgressBar *pbProgress;
+    WIDG::Viewport *vpActualize;
 
-  void Update();
-  void ParseUpdateList();
+    void PopupQuestion(SHR::Contener *dest);
+
+    void TransformToDownload();
+    void TransformToExit();
 };
 
 #endif

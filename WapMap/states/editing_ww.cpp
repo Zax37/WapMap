@@ -1,14 +1,13 @@
 #include "editing_ww.h"
 #include "loadmap.h"
 #include "../globals.h"
-#include "../conf.h"
+#include "../version.h"
 #include "../../shared/commonFunc.h"
 #include "../langID.h"
 #include "../returncodes.h"
 #include "../cObjectUserData.h"
 #include "error.h"
 #include <math.h>
-#include <fstream>
 #include "../cAppMenu.h"
 #include "../../shared/gcnWidgets/wComboButton.h"
 #include "../cNativeController.h"
@@ -79,6 +78,10 @@ void State::EditingWW::ExpandLogicBrowser()
 
 void State::EditingWW::Init()
 {
+	if (GV->bAutoUpdate) {
+		hAU = new cAutoUpdater();
+	}
+
 	bWindowFocused = 1;
 	bShowHand = 0;
 	iManipulatedGuide = -1;
@@ -95,9 +98,7 @@ void State::EditingWW::Init()
 	bObjDragSelection = 0;
 	iObjDragOrigX = iObjDragOrigY = 0;
 	fDoubleClickTimer = -1;
-	hAU = NULL;
 	szObjSearchBuffer = NULL;
-	bInitedAutoUpdate = 0;
 	btpDragDropMask = 0;
 	htpWorkingAtrib = 0;
 	fObjContextX = fObjContextY = 0;
@@ -2020,17 +2021,6 @@ bool State::EditingWW::Think()
 		fDoubleClickTimer += hge->Timer_GetDelta();
 		if (fDoubleClickTimer > 0.5)
 			fDoubleClickTimer = -1;
-	}
-
-	if (!bInitedAutoUpdate) {
-		if (GV->bAutoUpdate)
-			hAU = new cAutoUpdater();
-		bInitedAutoUpdate = 1;
-	}
-
-	if (hAU != NULL) {
-		hAU->Update();
-		if (hAU->bKill) { delete hAU; hAU = NULL; }
 	}
 
 	if (NewMap_data != 0)

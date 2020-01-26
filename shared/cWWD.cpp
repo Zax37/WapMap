@@ -1,9 +1,7 @@
 #include "cWWD.h"
-
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <Windows.h> //for time functions
 #include "cProgressInfo.h"
 #include "../WapMap/cParallelLoop.h"
 

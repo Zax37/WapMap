@@ -10,7 +10,7 @@
 #include "cAppMenu.h"
 #include "cInterfaceSheet.h"
 #include "io/cWWDx.h"
-#include "conf.h"
+#include "version.h"
 #include "states/loadmap.h"
 
 extern HGE * hge;

@@ -1,6 +1,5 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../conf.h"
 
 extern HGE * hge;
 

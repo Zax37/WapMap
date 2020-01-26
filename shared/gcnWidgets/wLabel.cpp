@@ -1,10 +1,10 @@
 #include "wLabel.h"
-
 #include "guichan/exception.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 #include <hgeFont.h>
 #include "guichan/hge/hgeimagefont.hpp"
+#include "../shared/commonFunc.h"
 
 namespace SHR
 {
@@ -16,7 +16,15 @@ namespace SHR
 
 	Lab::Lab(const std::string& caption)
 	{
-		mCaption = caption;
+		if (strchr(caption.c_str(), '~') == NULL) {
+			mCaption = caption;
+		}
+		else {
+			char * val = SHR::Replace(caption.c_str(), "~n~", "\n");
+			mCaption = std::string(val);
+			delete[] val;
+		}
+
 		mAlignment = Graphics::LEFT;
 
 		setWidth(getFont()->getWidth(caption));

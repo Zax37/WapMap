@@ -2,14 +2,14 @@
 
 #include "../loadmap.h"
 #include "../../globals.h"
-#include "../../conf.h"
+#include "../../version.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../returncodes.h"
 #include "../../cObjectUserData.h"
 #include "../error.h"
 #include <math.h>
-#include <hgeVector.h>
+#include <hgevector.h>
 #include "../../objEdit/editElevPath.h"
 #include "../../objEdit/editWarp.h"
 #include "../../objEdit/editCrate.h"

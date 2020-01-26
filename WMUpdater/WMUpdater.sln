@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WMUpdater", "WMUpdater.vcxproj", "{8B8349C2-1B9B-4DFB-8ADB-7041ACAFFC80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B8349C2-1B9B-4DFB-8ADB-7041ACAFFC80}.Debug|x86.ActiveCfg = Debug|Win32
+		{8B8349C2-1B9B-4DFB-8ADB-7041ACAFFC80}.Debug|x86.Build.0 = Debug|Win32
+		{8B8349C2-1B9B-4DFB-8ADB-7041ACAFFC80}.Release|x86.ActiveCfg = Release|Win32
+		{8B8349C2-1B9B-4DFB-8ADB-7041ACAFFC80}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FE3694EE-A571-4876-8760-72CBE73878F0}
+	EndGlobalSection
+EndGlobal

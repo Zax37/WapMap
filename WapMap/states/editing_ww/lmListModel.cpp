@@ -1,9 +1,7 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../conf.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
-#include <sys/types.h>
 #include "../../databanks/imageSets.h"
 #include "../../databanks/anims.h"
 #include "../../databanks/sounds.h"

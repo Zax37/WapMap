@@ -1,79 +1,110 @@
 #include "cAutoUpdater.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
-#include "conf.h"
+#include <sstream>
 #include "globals.h"
 #include "langID.h"
 #include "../shared/commonFunc.h"
 #include "states/editing_ww.h"
-#include "../shared/HashLib/hashlibpp.h"
-
-#include <direct.h>
+#include "resources.h"
+#include "version.h"
+#include "../shared/ZipLib/ZipArchive.h"
+#include "../shared/ZipLib/utils/stream_utils.h"
 
 
 #define RELEASES_API "https://api.github.com/repos/Zax37/WapMap/releases/latest"
 
-extern HGE * hge;
+extern HGE *hge;
 
-cAutoUpdater * _AU_GLOBAL_PTR;
+cAutoUpdater *_AU_GLOBAL_PTR;
+int DOWNLOAD_PROGRESS = 0;
 
-void cAUAL::action(const gcn::ActionEvent &actionEvent)
-{
-	if (actionEvent.getSource() == m_hOwn->butYes) {
-		/*if( m_hOwn->bPatchReady ){
-		 GV->Console->Print("Terminating process and executing patch...");
-		 ShellExecute(NULL, "open", "Patch.exe", "", "", SW_SHOWNORMAL);
-		 exit(666);
-		}else*/
-		m_hOwn->TransformToDownload();
-	}
-	else if (actionEvent.getSource() == m_hOwn->butNo) {
-		m_hOwn->bKill = 1;
-	}
+void from_json(const nlohmann::json& j, GitAPIReleaseAsset& releaseAsset) {
+	j.at("browser_download_url").get_to(releaseAsset.browser_download_url);
+	j.at("size").get_to(releaseAsset.size);
 }
 
-cAUAL::cAUAL(cAutoUpdater * owner)
-{
-	m_hOwn = owner;
+size_t writeToString(void *ptr, size_t size, size_t nmemb, std::string *data) {
+	data->append((char *)ptr, size * nmemb);
+	return size * nmemb;
 }
 
-void cAUVP::Draw(int iCode)
-{
-	if (m_hOwn->iTotal != 0) {
-		m_hOwn->pbProgress->setEnd(m_hOwn->iTotal);
-		m_hOwn->pbProgress->setProgress(m_hOwn->iDownloaded);
-	}
-	if (m_hOwn->iState == AU_DOWNLOADINGFILES && m_hOwn->vszFilesToUpdate.size() != 0) {
-		char tmp[256];
-		char * f1 = SHR::FormatSize(m_hOwn->iDownloaded), *f2 = SHR::FormatSize(m_hOwn->iTotal);
-		sprintf(tmp, "%s... %.2f%% [%s/%s] (%d/%d)", m_hOwn->vszFilesToUpdate[0], m_hOwn->pbProgress->getPercentageProgress(), f1, f2, m_hOwn->iDownloadFilesCount - m_hOwn->vszFilesToUpdate.size() + 1, m_hOwn->iDownloadFilesCount);
-		delete[] f1;
-		delete[] f2;
-		m_hOwn->labActualize->setCaption(tmp);
-		m_hOwn->labActualize->adjustSize();
-	}
+size_t writeToMemory(void *ptr, size_t size, size_t nmemb, const char *data) {
+	void* target = (void*)(data + _AU_GLOBAL_PTR->downloadedBytes);
+	size_t realsize = size * nmemb;
+	memcpy(target, ptr, realsize);
+	_AU_GLOBAL_PTR->downloadedBytes += realsize;
+	DOWNLOAD_PROGRESS = ((100.0 * _AU_GLOBAL_PTR->downloadedBytes) / _AU_GLOBAL_PTR->releaseAsset.size);
+	return realsize;
 }
 
-static size_t _AU_ListCallback(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	int len = size * nmemb, offset = 0;
-	if (_AU_GLOBAL_PTR->szUpdateList != NULL) {
-		offset = strlen(_AU_GLOBAL_PTR->szUpdateList);
-		len += offset;
-	}
-	char * tmp = new char[len + 1];
-	tmp[len] = '\0';
-	for (int i = 0; i < offset; i++)
-		tmp[i] = _AU_GLOBAL_PTR->szUpdateList[i];
-	for (int i = offset; i < len; i++)
-		tmp[i] = ((char*)ptr)[i - offset];
-	if (_AU_GLOBAL_PTR->szUpdateList != NULL)
-		delete _AU_GLOBAL_PTR->szUpdateList;
-	_AU_GLOBAL_PTR->szUpdateList = tmp;
-	return (size_t)(size * nmemb);
+void cAUAL::action(const gcn::ActionEvent &actionEvent) {
+    if (actionEvent.getSource() == m_hOwn->butYes) {
+        if (m_hOwn->hUpdatePackage) {
+            std::stringbuf sb(std::string(m_hOwn->hUpdatePackage, m_hOwn->downloadedBytes), std::ios_base::in);
+            std::istream is(&sb);
+			auto archive = ZipArchive::Create(is);
+			size_t entries_count = archive->GetEntriesCount();
+
+			std::string prefix = ".wm_update";
+
+			CreateDirectory(prefix.c_str(), NULL);
+			SetFileAttributes(prefix.c_str(), FILE_ATTRIBUTE_HIDDEN);
+
+			prefix += '/';
+
+            std::ofstream fs;
+			for (size_t i = 0; i < entries_count; i++) {
+			    auto entry = archive->GetEntry(i);
+			    std::string filepath = prefix + entry->GetFullName();
+			    auto dataStream = entry->GetDecompressionStream();
+
+				fs.open(filepath, std::fstream::binary | std::fstream::out);
+				utils::stream::copy(*dataStream, fs);
+				fs.flush();
+				fs.close();
+
+				entry->CloseDecompressionStream();
+			}
+
+			prefix.pop_back();
+			prefix += ".exe";
+
+			HRSRC hResource = FindResource(nullptr, MAKEINTRESOURCEA(WM_UPDATER), "TEXT");
+			HGLOBAL hMemory = LoadResource(nullptr, hResource);
+			size_t dwSize = SizeofResource(nullptr, hResource);
+			void* lpLock = LockResource(hMemory);
+			HANDLE hFile = CreateFile(prefix.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			DWORD dwByteWritten;
+			WriteFile(hFile, lpLock, dwSize, &dwByteWritten, NULL);
+			CloseHandle(hFile);
+			FreeResource(hMemory);
+
+			if (dwByteWritten == dwSize) {
+				ShellExecuteA(
+					NULL,
+					"open",
+					prefix.c_str(),
+					"",
+					"",
+					SW_SHOWNORMAL
+				);
+				exit(666);
+			}
+			else {
+				GV->Console->Print("~r~Couldn't create updater executable! (no write access?)");
+			}
+        } else m_hOwn->TransformToDownload();
+    } else if (actionEvent.getSource() == m_hOwn->butNo) {
+        m_hOwn->bKill = 1;
+    }
 }
 
-static int _AU_PatchProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+cAUAL::cAUAL(cAutoUpdater *owner) {
+    m_hOwn = owner;
+}
+
+/*static int _AU_PatchProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
 {
 	_AU_GLOBAL_PTR->iDownloaded = dlnow;
 	_AU_GLOBAL_PTR->iTotal = dltotal;
@@ -85,190 +116,177 @@ static size_t _AU_PatchCallback(void *ptr, size_t size, size_t nmemb, void *data
 	//Herculo.Log(LOG_INFO, "got %d bytes", size * nmemb);
 	fwrite(ptr, size, nmemb, _AU_GLOBAL_PTR->hPatchFile);
 	return (size_t)(size * nmemb);
+}*/
+
+cAutoUpdater::cAutoUpdater() {
+    iState = AU_NONE;
+    _AU_GLOBAL_PTR = this;
+    winActualize = NULL;
+    hAL = NULL;
+    //hVP = NULL;
+    vpActualize = NULL;
+    labActualize = NULL;
+    butYes = butNo = NULL;
+
+    curl_handle_single = curl_easy_init();
+    curl_handle_multi = curl_multi_init();
+    if (curl_handle_single && curl_handle_multi) {
+        GV->Console->Printf("Checking for updates on ~y~%s~w~...", RELEASES_API);
+        curl_easy_setopt(curl_handle_single, CURLOPT_URL, RELEASES_API);
+        curl_easy_setopt(curl_handle_single, CURLOPT_WRITEDATA, &response);
+        curl_easy_setopt(curl_handle_single, CURLOPT_WRITEFUNCTION, writeToString);
+        curl_easy_setopt(curl_handle_single, CURLOPT_USERAGENT, "curl/7.42.0");
+        curl_multi_add_handle(curl_handle_multi, curl_handle_single);
+        curl_multi_perform(curl_handle_multi, &iThreadsRunning);
+
+        iState = AU_SEARCHING_FOR_UPDATES;
+    } else {
+        GV->Console->Print("~r~Failed to check for updates!");
+    }
 }
 
-static size_t _AU_VerCallback(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	char* temp = new char[nmemb + 1];
-	strncpy(temp, (char*)ptr, nmemb);
-	temp[nmemb] = '\0';
+bool cAutoUpdater::Think() {
+    if (fDelay > 0) {
+        fDelay -= hge->Timer_GetDelta();
+        return false;
+    }
 
-	char * line = strtok(temp, "\n");
-	delete[] temp;
-	while (line != NULL) {
-		if (!strncmp(line, "update", 6) && GV->bAutoUpdate) {
-			if (line[7] == '0') {
-				_AU_GLOBAL_PTR->bUpdates = 0;
-				GV->Console->Print("No updates found.");
+	if (hUpdatePackage) {
+		pbProgress->setProgress(DOWNLOAD_PROGRESS / 10);
+	}
+
+    if (iThreadsRunning > 0) {
+		long tm; int dontTakeTooLong = 0;
+        while (iThreadsRunning > 0) {
+            curl_multi_perform(curl_handle_multi, &iThreadsRunning);
+            curl_multi_timeout(curl_handle_multi, &tm);
+
+            if (tm > 0) {
+                fDelay = tm / 1000.0;
+                return false;
+            }
+
+            fDelay = 0;
+			if (++dontTakeTooLong > 3) {
+				fDelay = 0.001;
+				return false;
 			}
-			else if (line[7] == '1') {
-				_AU_GLOBAL_PTR->bUpdates = 1;
-				if (strlen(line) == 8) {
-					_AU_GLOBAL_PTR->szUpdateInfo = NULL;
+        }
+    }
+
+    switch (iState) {
+        case AU_SEARCHING_FOR_UPDATES:
+            curl_easy_cleanup(curl_handle_single);
+            curl_multi_cleanup(curl_handle_multi);
+
+            if (response.empty()) {
+                GV->Console->Print("~r~Failed to check for updates!");
+                return true;
+			}
+            else {
+				auto parsed = nlohmann::json::parse(response);
+				auto tag_name = parsed["tag_name"].get<std::string>();
+				int majorVersion, minorVersion, patchVersion;
+
+				if (sscanf(tag_name.c_str(), "v%d.%d.%d", &majorVersion, &minorVersion, &patchVersion) != 3) {
+					GV->Console->Print("~r~Received unexpected response from Git API when checking for updates!");
+					GV->Console->Print(response.c_str());
+					return true;
 				}
-				else {
-					char * tmp = new char[strlen(line) - 8 + 1];
-					for (int i = 8; i < strlen(line); i++)
-						tmp[i - 8] = line[i];
-					tmp[strlen(line) - 8] = '\0';
-					_AU_GLOBAL_PTR->szUpdateInfo = SHR::Replace(tmp, "~n~", "\n");
-					delete tmp;
+
+				if (majorVersion > MAJOR_VERSION ||
+					(majorVersion == MAJOR_VERSION && (minorVersion > MINOR_VERSION ||
+					(minorVersion == MINOR_VERSION && patchVersion > PATCH_VERSION)
+						))
+					) {
+					GV->Console->Printf("New version available to download: %s", tag_name.c_str());
+
+					auto assets = parsed["assets"].get<std::vector<GitAPIReleaseAsset>>();
+					for (auto asset : assets) {
+					    if (!asset.browser_download_url.empty()) {
+					        releaseAsset = asset;
+                            PopupQuestion(GV->editState->conMain);
+                            return false;
+					    }
+					}
+
+                    GV->Console->Printf("~r~Just kidding. Nothing to download there.");
+					return true;
 				}
-				GV->Console->Printf("~g~Found update.");
+                GV->Console->Printf("All up to date!");
+                return true;
 			}
-			else {
-				GV->Console->Print("~r~Unknown update response.");
-				_AU_GLOBAL_PTR->bErrors = 1;
-			}
-		}
-		else if (!strncmp(line, "serial", 6)) {
-			GV->szSerial = new char[32];
-			char * serialptr = line + 7;
-			strncpy(GV->szSerial, serialptr, 30);
-			GV->szSerial[31] = '\0';
-			HKEY key;
-			if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Kijedi Studio\\WapMap", 0, KEY_SET_VALUE, &key) == ERROR_SUCCESS) {
-				DWORD size = 32;
-				RegSetValueEx(key, "UID", 0, REG_SZ, (BYTE*)GV->szSerial, size);
-				RegCloseKey(key);
-				GV->Console->Printf("~g~UID obtained: ~y~%s", GV->szSerial);
-			}
-			else {
-				GV->Console->Printf("~r~UID obtained, unable to save (key open fail).");
-			}
-		}
-		else if (!strncmp(line, "message", 7) && GV->editState != NULL) {
-			int iMsgID, iTitleLen;
-			sscanf(line, "message %d %d %*s", &iMsgID, &iTitleLen);
-
-			//GV->Console->Printf("Received message ID ~y~%d~w~ (title: ~y~%s~w~).", iMsgID, GV->editState->szServerMsgTitle);
-		}
-		else {
-			GV->Console->Printf("~r~Unknown response from update server [~y~%s~r~].", line);
-		}
-		line = strtok(NULL, "\n");
-	}
-	_AU_GLOBAL_PTR->bReady = 1;
-	return (size_t)(size * nmemb);
+			break;
+		case AU_ASKING_TO_UPDATE:
+			return bKill;
+			break;
+        case AU_DOWNLOADING_UPDATE:
+            curl_easy_cleanup(curl_handle_single);
+            curl_multi_cleanup(curl_handle_multi);
+            TransformToExit();
+            break;
+        default:
+            return true;
+    }
+    return false;
 }
 
-size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
-	data->append((char*)ptr, size * nmemb);
-	return size * nmemb;
+cAutoUpdater::~cAutoUpdater() {
+    if (winActualize != NULL) {
+        delete butYes, butNo;
+        delete labActualize;
+        delete winActualize;
+        delete hAL;
+        delete vpActualize;
+        //delete hVP;
+    }
 }
 
-cAutoUpdater::cAutoUpdater(bool checkonly)
-{
-	hPatchFile = NULL;
-	szUpdateList = 0;
-	iState = AU_NONE;
-	_AU_GLOBAL_PTR = this;
-	szUpdateInfo = NULL;
-	bUpdates = bReady = bKill = bErrors = 0;
-	winActualize = NULL;
-	hAL = NULL;
-	hVP = NULL;
-	bOnlyCheck = checkonly;
-	vpActualize = NULL;
-	labActualize = NULL;
-	butYes = butNo = NULL;
+void cAutoUpdater::PopupQuestion(SHR::Contener *dest) {
+    hAL = new cAUAL(this);
+    if (winActualize == NULL)
+        winActualize = new SHR::Win(&GV->gcnParts, GETL(Lang_ActualizeCaption));
+    else
+        winActualize->setCaption(GETL(Lang_ActualizeCaption));
+    winActualize->setDimension(gcn::Rectangle(0, 0, 400, 80 + GV->fntMyriad13->GetHeightb(390, GETL(Lang_ActualizeQuestion))));
+	winActualize->setMovable(false);
+    if (labActualize == NULL)
+        labActualize = new SHR::Lab(GETL(Lang_ActualizeQuestion));
+    else
+        labActualize->setCaption(GETL(Lang_ActualizeQuestion));
+	labActualize->setAlignment(Graphics::CENTER);
+    labActualize->adjustSize();
+    labActualize->setHeight(winActualize->getHeight() - 60);
+    winActualize->add(labActualize, (winActualize->getWidth() - labActualize->getWidth()) / 2, 15);
+    dest->add(winActualize, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200,
+              hge->System_GetState(HGE_SCREENHEIGHT) / 2 - winActualize->getHeight() / 2);
 
-	RECT DesktopRect;
-	GetWindowRect(GetDesktopWindow(), &DesktopRect);
+    butYes = new SHR::But(GV->hGfxInterface, GETL(Lang_Yes));
+    butYes->setDimension(gcn::Rectangle(0, 0, 100, 32));
+    butYes->addActionListener(hAL);
+    winActualize->add(butYes, 75, winActualize->getHeight() - 55);
 
-	char client[25 + 64];
-	sprintf(client, "WapMap/%d/%s,%dx%d,%ldx%ld/%s",
-		WA_VER,
-		GV->Lang->GetCode(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT), DesktopRect.right, DesktopRect.bottom,
-		GV->szSerial);
-	newver_curl = curl_easy_init();
-	update_curlm = curl_multi_init();
-	if (newver_curl && update_curlm) {
-		std::string readBuffer;
-		GV->Console->Printf("Checking for updates on ~y~%s~w~...", RELEASES_API);
-		curl_easy_setopt(newver_curl, CURLOPT_URL, RELEASES_API);
-		curl_easy_setopt(newver_curl, CURLOPT_WRITEDATA, &readBuffer);
-		curl_easy_setopt(newver_curl, CURLOPT_WRITEFUNCTION, writeFunction/*_AU_VerCallback*/);
-		curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, "curl/7.42.0");
-		auto res = curl_easy_perform(newver_curl);
+    butNo = new SHR::But(GV->hGfxInterface, GETL(Lang_No));
+    butNo->setDimension(gcn::Rectangle(0, 0, 100, 32));
+    butNo->addActionListener(hAL);
+    winActualize->add(butNo, 225, winActualize->getHeight() - 55);
 
-		if (res == CURLE_OK) {
-			GV->Console->Print(readBuffer.c_str());
-		}
-		/*curl_multi_add_handle(update_curlm, newver_curl);
-
-		long tm;
-		curl_multi_timeout(update_curlm, &tm);
-		fDelay = tm / 1000;
-		iState = AU_SEARCHINGUPDATES;*/
-	}
-	else {
-		GV->Console->Print("~r~Failed to check for updates!");
-	}
+	iState = AU_ASKING_TO_UPDATE;
 }
 
-cAutoUpdater::~cAutoUpdater()
-{
-	if (winActualize != NULL) {
-		delete butYes, butNo;
-		delete labActualize;
-		delete winActualize;
-		delete hAL;
-		delete vpActualize;
-		delete hVP;
-	}
-	if (szUpdateInfo != NULL)
-		delete szUpdateInfo;
-}
+void cAutoUpdater::TransformToExit() {
+    pbProgress->setVisible(0);
+    butNo->setVisible(0);
 
-void cAutoUpdater::PopupQuestion(SHR::Contener * dest)
-{
-	/*if( iProtocolVersion == 2 ){
-	 winActualize = new SHR::Win(&GV->gcnParts, "Aktualizacja");
-	 winActualize->setDimension(gcn::Rectangle(0, 0, 300, 150));
-	 dest->add(winActualize, hge->System_GetState(HGE_SCREENWIDTH)/2-150, hge->System_GetState(HGE_SCREENHEIGHT)/2-75);
-	 GV->editState->FakeRender();
-	}*/
-	hAL = new cAUAL(this);
-	if (winActualize == NULL)
-		winActualize = new SHR::Win(&GV->gcnParts, GETL(Lang_ActualizeCaption));
-	else
-		winActualize->setCaption(GETL(Lang_ActualizeCaption));
-	char tmp[512];
-	sprintf(tmp, "%s\n%s", szUpdateInfo, GETL(Lang_ActualizeQuestion));
-	winActualize->setDimension(gcn::Rectangle(0, 0, 400, 60 + 20/*GV->fntMyriad13->GetHeightb(390, tmp)*/));
-	if (labActualize == NULL)
-		labActualize = new SHR::Lab(tmp);
-	else
-		labActualize->setCaption(tmp);
+    butYes->setCaption(GETL(Lang_OK));
+    butYes->setX(150);
+    butYes->setVisible(1);
+
+    labActualize->setCaption(GETL(Lang_PatchRestart));
 	labActualize->adjustSize();
-	labActualize->setHeight(winActualize->getHeight() - 60);
-	winActualize->add(labActualize, 5, 10);
-	dest->add(winActualize, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200, hge->System_GetState(HGE_SCREENHEIGHT) / 2 - winActualize->getHeight() / 2);
+	labActualize->setX((winActualize->getWidth() - labActualize->getWidth()) / 2);
 
-	butYes = new SHR::But(GV->hGfxInterface, GETL(Lang_Yes));
-	butYes->setDimension(gcn::Rectangle(0, 0, 100, 32));
-	butYes->addActionListener(hAL);
-	winActualize->add(butYes, 75, winActualize->getHeight() - 50);
-
-	butNo = new SHR::But(GV->hGfxInterface, GETL(Lang_No));
-	butNo->setDimension(gcn::Rectangle(0, 0, 100, 32));
-	butNo->addActionListener(hAL);
-	winActualize->add(butNo, 225, winActualize->getHeight() - 50);
-}
-
-void cAutoUpdater::TransformToExit()
-{
-	pbProgress->setVisible(0);
-	butNo->setVisible(0);
-
-	butYes->setCaption(GETL(Lang_OK));
-	butYes->setX(150);
-	butYes->setVisible(1);
-
-	labActualize->setCaption(GETL(Lang_PatchRestart));
-	labActualize->setWidth(380);
-	labActualize->setHeight(100);
+	iState = AU_ASKING_TO_UPDATE;
 }
 
 void cAutoUpdater::TransformToDownload()
@@ -276,6 +294,7 @@ void cAutoUpdater::TransformToDownload()
 	butYes->setVisible(0);
 	labActualize->setCaption(GETL(Lang_DownloadingUpdate));
 	labActualize->adjustSize();
+	labActualize->setX((winActualize->getWidth() - labActualize->getWidth()) / 2);
 	butNo->setX(150);
 	butNo->setCaption(GETL(Lang_Cancel));
 	pbProgress = new SHR::ProgressBar(&GV->gcnParts);
@@ -284,274 +303,53 @@ void cAutoUpdater::TransformToDownload()
 	pbProgress->setEnd(10);
 	winActualize->add(pbProgress, 10, 50);
 
-	hVP = new cAUVP(this);
+	/*hVP = new cAUVP(this);
 
 	vpActualize = new WIDG::Viewport(hVP, 0);
-	winActualize->add(vpActualize, 5, 5);
+	winActualize->add(vpActualize, 5, 5);*/
 
-	newver_curl = curl_easy_init();
-	curl_easy_setopt(newver_curl, CURLOPT_URL, RELEASES_API);
-	char client[25];
-	sprintf(client, "WapMap/%d", WA_VER);
-	curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, client);
-	curl_easy_setopt(newver_curl, CURLOPT_WRITEFUNCTION, _AU_ListCallback);
-	update_curlm = curl_multi_init();
-	curl_multi_add_handle(update_curlm, newver_curl);
+	curl_handle_single = curl_easy_init();
+	curl_easy_setopt(curl_handle_single, CURLOPT_URL, releaseAsset.browser_download_url.c_str());
+	curl_easy_setopt(curl_handle_single, CURLOPT_USERAGENT, "curl/7.42.0");
+	auto res = curl_easy_perform(curl_handle_single);
 
-	long tm;
-	curl_multi_timeout(update_curlm, &tm);
-	fDelay = tm / 1000.0f;
-	iState = AU_DOWNLOADINGLIST;
-}
+	std::string location;
+	if (res == CURLE_OK) {
+		int response_code;
+		res = curl_easy_getinfo(curl_handle_single, CURLINFO_RESPONSE_CODE, &response_code);
 
-void cAutoUpdater::ParseUpdateList()
-{
-	hashwrapper * myWrapper = new md5wrapper();
-	char line[512];
-	char * tmpptr = szUpdateList;
-	while (tmpptr = SHR::GetLine(tmpptr, line)) {
-		if (line[0] == '/' && line[1] == '/' || strlen(line) < 4) continue;
-		if (!strncmp(line, "delete", 6)) {
-			char path[256];
-			for (int i = 0; i < 256; i++) path[i] = '\0';
-			for (int i = 0; i < 256 && i < strlen(line) - 7; i++)
-				path[i] = line[i + 7];
-			char * pathptr = new char[strlen(path) + 1];
-			strcpy(pathptr, path);
-			vszFilesToDelete.push_back(pathptr);
-			GV->Console->Printf("Delete request: ~y~%s", path);
-		}
-		else if (!strncmp(line, "force", 5)) {
-			char path[256];
-			for (int i = 0; i < 256; i++) path[i] = '\0';
-			for (int i = 0; i < 256 && i < strlen(line) - 6; i++)
-				path[i] = line[i + 6];
-			char * pathptr = new char[strlen(path) + 1];
-			strcpy(pathptr, path);
-			vszFilesToUpdate.push_back(pathptr);
-			GV->Console->Printf("Forced request: ~y~%s", path);
-		}
-		else {
-			char path[256], hash[100];
-			for (int i = 0; i < 100; i++) hash[i] = '\0';
-			for (int i = 0; (i < strlen(line) && i < 256); i++) {
-				if (line[i] == ':') {
-					path[i] = '\0';
-					break;
-				}
-				else
-					path[i] = line[i];
-			}
-			for (int i = 0; i < 100 && i + strlen(path) + 2 < strlen(line); i++) {
-				hash[i] = line[i + strlen(path) + 2];
-			}
-			const char * myhash;
-			bool bError = 0;
-			try {
-				myhash = myWrapper->getHashFromFile(path).c_str();
-			}
-			catch (hlException exc) {
-				bError = 1;
-			}
-			if (!bError) {
-				if (strcmp(myhash, hash) != 0) {
-					GV->Console->Printf("~w~File ~y~%s ~w~differs!", path);
-					char * pathptr = new char[strlen(path) + 1];
-					strcpy(pathptr, path);
-					vszFilesToUpdate.push_back(pathptr);
-				}
-				else {
-					GV->Console->Printf("~g~File ~y~%s ~g~up to date.", path);
-				}
-			}
-			else {
-				GV->Console->Printf("~r~File ~y~%s ~r~unable to check.", path);
-				char * pathptr = new char[strlen(path) + 1];
-				strcpy(pathptr, path);
-				vszFilesToUpdate.push_back(pathptr);
+		if (res == CURLE_OK && (response_code / 100) == 3) {
+			const char* tmp;
+			res = curl_easy_getinfo(curl_handle_single, CURLINFO_REDIRECT_URL, &tmp);
+			if (res == CURLE_OK) {
+				location = tmp;
 			}
 		}
 	}
-	delete myWrapper;
-}
-
-void cAutoUpdater::Update()
-{
-	//delay for curl logic
-	if (fDelay > 0) {
-		fDelay -= hge->Timer_GetDelta();
+	if (res != CURLE_OK) {
+		GV->Console->Print("~r~ Couldn't download the patch file.");
+		iState = AU_NONE;
 		return;
 	}
+	curl_easy_cleanup(curl_handle_single);
 
-	if (update_curlm == NULL && iState == AU_DOWNLOADINGFILES) {
-		//if hPatchFile isnt null it means we already downloaded previous file
-		//so we pop that file from downloading queue and close handle
-		if (hPatchFile != NULL) {
-			fclose(hPatchFile);
-			hPatchFile = NULL;
-			delete vszFilesToUpdate[0];
-			vszFilesToUpdate.erase(vszFilesToUpdate.begin());
-		}
+	hUpdatePackage = new char[releaseAsset.size];
+	downloadedBytes = 0;
 
-		//done downloading files
-		if (vszFilesToUpdate.size() == 0) {
-			int iDeletedFiles = 0;
-			//delete files from deletion queue
-			for (int i = 0; i < vszFilesToDelete.size(); i++) {
-				FILE * f = fopen(vszFilesToDelete[i], "wb+");
-				if (f != NULL) {
-					fclose(f);
-					unlink(vszFilesToDelete[i]);
-					iDeletedFiles++;
-				}
-				else {
-					GV->Console->Printf("~r~Unable to delete file ~y~%s~r~.", vszFilesToDelete[i]);
-				}
-				delete vszFilesToDelete[i];
-			}
-			vszFilesToDelete.clear();
-			GV->Console->Printf("~y~%d ~g~files deleted in update process.", iDeletedFiles);
-			GV->Console->Printf("~g~All files downloaded, terminating process and executing updater...");
-			//run updater executable and quit
-			char tmp[MAX_PATH];
-			_getcwd(tmp, MAX_PATH);
-			printf("CWD: %s\n", tmp);
-			FILE * f = fopen("updatetmp/Updater.exe", "r");
-			if (f) {
-				printf("file ok\n");
-				fclose(f);
-			}
-			char* abspath = new char[strlen(tmp) + 32];
-			sprintf(abspath, "%s\\updatetmp\\Updater.exe", tmp);
-			HINSTANCE err = ShellExecute(NULL, "open", abspath, "-updateWM", NULL, SW_SHOWNORMAL);
-			if (err <= (HINSTANCE)32) {
-				printf("exec fail %d for %s\n", (int)err, abspath);
-				printf("%d\n", (int)ERROR_FILE_NOT_FOUND);
-				printf("%d\n", (int)ERROR_PATH_NOT_FOUND);
-				printf("%d\n", (int)ERROR_BAD_FORMAT);
-				printf("%d\n", (int)SE_ERR_ACCESSDENIED);
-				printf("%d\n", (int)SE_ERR_ASSOCINCOMPLETE);
-				printf("%d\n", (int)SE_ERR_DDEBUSY);
-			}
-			delete[] abspath;
-			_sleep(500);
-			exit(666);
-		}
+	curl_handle_single = curl_easy_init();
+	curl_handle_multi = curl_multi_init();
 
-		char * newf = vszFilesToUpdate[0];
-
-		//create directory tree for actual file
-		chdir("updatetmp");
-		int ilvl = 0, dirp = 0;
-		char* dir = new char[strlen(newf) + 1];
-		for (int i = 0; i < strlen(newf); i++) {
-			if (newf[i] == '/' || newf[i] == '\\') {
-				dir[dirp] = '\0';
-				dirp = 0;
-				mkdir(dir);
-				chdir(dir);
-				ilvl++;
-				continue;
-			}
-			dir[dirp] = newf[i];
-			dirp++;
-		}
-		for (int i = 0; i < ilvl; i++)
-			chdir("..");
-		delete[] dir;
-
-		char mynewf[256];
-		char * ext = SHR::GetExtension(newf);
-		if (!strcmp(ext, "rar")) {
-			char * file = SHR::GetFileWithoutExt(newf);
-			sprintf(mynewf, "%s.exe", file);
-			delete[] file;
-		}
-		else {
-			strcpy(mynewf, newf);
-		}
-		delete[] ext;
-
-		hPatchFile = fopen(mynewf, "wb");
-		chdir("..");
-
-		/*newver_curl = curl_easy_init();
-		char* path = new char[strlen(GV->szUpdateServer) + 21];
-		sprintf(path, "http://%s/update/repo/%s", GV->szUpdateServer, newf);
-		GV->Console->Printf("Downloading file ~y~%s~w~...", mynewf);
-		curl_easy_setopt(newver_curl, CURLOPT_URL, path);
-		delete[] path;
-		char client[25];
-		sprintf(client, "WapMap/%d", WA_VER);
-		curl_easy_setopt(newver_curl, CURLOPT_USERAGENT, client);
-		curl_easy_setopt(newver_curl, CURLOPT_WRITEFUNCTION, _AU_PatchCallback);
-		curl_easy_setopt(newver_curl, CURLOPT_PROGRESSFUNCTION, _AU_PatchProgressCallback);
-		curl_easy_setopt(newver_curl, CURLOPT_NOPROGRESS, 0);
-		update_curlm = curl_multi_init();
-		curl_multi_add_handle(update_curlm, newver_curl);*/
-
-		long tm;
-		curl_multi_timeout(update_curlm, &tm);
-		fDelay = tm / 1000.0f;
-		return;
+	if (curl_handle_single && curl_handle_multi) {
+		curl_easy_setopt(curl_handle_single, CURLOPT_URL, location.c_str());
+		curl_easy_setopt(curl_handle_single, CURLOPT_WRITEDATA, hUpdatePackage);
+		curl_easy_setopt(curl_handle_single, CURLOPT_WRITEFUNCTION, writeToMemory);
+		curl_easy_setopt(curl_handle_single, CURLOPT_USERAGENT, "curl/7.42.0");
+		curl_multi_add_handle(curl_handle_multi, curl_handle_single);
+		curl_multi_perform(curl_handle_multi, &iThreadsRunning);
+		iState = AU_DOWNLOADING_UPDATE;
 	}
-	else if (update_curlm != NULL) {
-		int alive;
-		curl_multi_perform(update_curlm, &alive);
-
-		if (!alive) {
-			curl_multi_remove_handle(update_curlm, newver_curl);
-			curl_easy_cleanup(newver_curl);
-			curl_multi_cleanup(update_curlm);
-			update_curlm = NULL;
-			if (iState == AU_DOWNLOADINGLIST) {
-				if (szUpdateList == NULL || strlen(szUpdateList) == 0) {
-					GV->Console->Print("~r~Failed downloading update list.");
-					iState = AU_NONE;
-				}
-				else {
-					GV->Console->Printf("~g~List downloaded [~y~%d ~g~bytes].", strlen(szUpdateList));
-					ParseUpdateList();
-					if (vszFilesToUpdate.size() == 0) {
-						GV->Console->Print("No files to update.");
-					}
-					else {
-						GV->Console->Printf("~y~%d ~w~files to update. Proceeding to download...", vszFilesToUpdate.size());
-						iDownloadFilesCount = vszFilesToUpdate.size() + 1;
-						iState = AU_DOWNLOADINGFILES;
-						mkdir("updatetmp");
-						char * t = new char[12];
-						strcpy(t, "Updater.rar");
-						vszFilesToUpdate.push_back(t);
-					}
-				}
-			}
-			/*if( bDownloading ){
-			 fclose(hPatchFile);
-			 bPatchReady = 1;
-			 if( rename("patch.cache", "Patch.exe") != 0 ){
-			  unlink("Patch.exe");
-			  rename("patch.cache", "Patch.exe");
-			 }
-			 char * str = SHR::FormatSize(iTotal);
-			 GV->Console->Printf("~g~Patch downloaded (%s).", str);
-			 delete [] str;
-			}else*/
-			if (!bReady)
-				bErrors = 1;
-		}
-	}
-
-	if (bReady) {
-		if (bUpdates) {
-			if (winActualize == NULL && !bOnlyCheck)
-				PopupQuestion(GV->editState->conMain);
-		}
-		else {
-			bKill = 1;
-		}
-		/*if( bDownloading && bPatchReady ){
-		 TransformToExit();
-		}*/
+	else {
+		GV->Console->Print("~r~ Couldn't download the patch file.");
+		iState = AU_NONE;
 	}
 }

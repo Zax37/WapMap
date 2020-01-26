@@ -3,7 +3,7 @@
 #include <curl/easy.h>
 #include "../shared/commonFunc.h"
 #include "globals.h"
-#include "conf.h"
+#include "version.h"
 #include <process.h>
 
 static size_t MsgCallback(void *ptr, size_t size, size_t nmemb, void *data)

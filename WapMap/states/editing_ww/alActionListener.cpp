@@ -1,15 +1,11 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../conf.h"
 #include "../../../shared/commonFunc.h"
 #include "../loadmap.h"
-#include "../mapshot.h"
 #include "../../langID.h"
 #include "../error.h"
 #include "../../cObjectUserData.h"
-#include "../stats.h"
 #include "../../returncodes.h"
-#include <fstream>
 #include "../../cAppMenu.h"
 #include "../../../shared/gcnWidgets/wComboButton.h"
 #include "../../cNativeController.h"
@@ -19,7 +15,7 @@
 #include "../../databanks/sounds.h"
 #include "../../databanks/anims.h"
 #include "../../databanks/imageSets.h"
-#include "../../../shared/cANI.h"
+
 extern HGE * hge;
 
 namespace State {

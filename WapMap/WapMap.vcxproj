@@ -96,7 +96,7 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\* $(TargetDir) /e /y /i /r
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
 copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -127,7 +127,7 @@ copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\* $(TargetDir) /e /y /i /r
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
 copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -158,7 +158,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\* $(TargetDir) /e /y /i /r
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
 copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -256,6 +256,12 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="..\shared\hashlib\hl_sha2ext.cpp" />
     <ClCompile Include="..\shared\hashlib\hl_sha384wrapper.cpp" />
     <ClCompile Include="..\shared\hashlib\hl_sha512wrapper.cpp" />
+    <ClCompile Include="..\shared\ZipLib\detail\EndOfCentralDirectoryBlock.cpp" />
+    <ClCompile Include="..\shared\ZipLib\detail\ZipCentralDirectoryFileHeader.cpp" />
+    <ClCompile Include="..\shared\ZipLib\detail\ZipGenericExtraField.cpp" />
+    <ClCompile Include="..\shared\ZipLib\detail\ZipLocalFileHeader.cpp" />
+    <ClCompile Include="..\shared\ZipLib\ZipArchive.cpp" />
+    <ClCompile Include="..\shared\ZipLib\ZipArchiveEntry.cpp" />
     <ClCompile Include="bodyQuadTree.cpp" />
     <ClCompile Include="cAppMenu.cpp" />
     <ClCompile Include="cAutoUpdater.cpp" />
@@ -420,7 +426,6 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="cMRUList.h" />
     <ClInclude Include="cNativeController.h" />
     <ClInclude Include="cObjectUserData.h" />
-    <ClInclude Include="conf.h" />
     <ClInclude Include="cParallelLoop.h" />
     <ClInclude Include="cPhysics.h" />
     <ClInclude Include="cRulers.h" />
@@ -468,6 +473,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objedit\winInventoryPickbox.h" />
     <ClInclude Include="objQuadTree.h" />
     <ClInclude Include="rendering\cRenderableItem.h" />
+    <ClInclude Include="resources.h" />
     <ClInclude Include="returncodes.h" />
     <ClInclude Include="states\editing_ww.h" />
     <ClInclude Include="states\error.h" />
@@ -478,6 +484,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="states\objedit.h" />
     <ClInclude Include="states\objprop.h" />
     <ClInclude Include="states\stats.h" />
+    <ClInclude Include="version.h" />
     <ClInclude Include="vpFocusWidg.h" />
     <ClInclude Include="windows\about.h" />
     <ClInclude Include="windows\imgsetBrowser.h" />
@@ -488,6 +495,12 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\res\100.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\res\WMUpdater.exe" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

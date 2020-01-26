@@ -3,8 +3,8 @@
 #include "cObjectUserData.h"
 #include "../shared/commonFunc.h"
 #include "bodyQuadTree.h"
+#include "version.h"
 
-#include "conf.h"
 extern HGE * hge;
 using namespace GameSim;
 

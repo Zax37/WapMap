@@ -3,7 +3,7 @@
 #include "../shared/cSFS.h"
 #include "../shared/commonFunc.h"
 #include "funcConsole.h"
-#include "conf.h"
+#include "version.h"
 #include "states/error.h"
 #include "langID.h"
 #include "cInterfaceSheet.h"

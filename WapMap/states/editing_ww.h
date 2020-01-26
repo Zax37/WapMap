@@ -408,6 +408,8 @@ namespace State {
    SHR::Contener * conWriteID;
    SHR::TextField * tfWriteID;
 
+   cAutoUpdater * hAU;
+
 #ifdef WM_ADD_LUA_EXECUTER
    SHR::But * butIconLua;
 #endif
@@ -655,15 +657,11 @@ namespace State {
 
    std::vector<WWD::Object*> GetObjectsInArea(WWD::Plane * plane, int x, int y, int w, int h);
 
-   bool bInitedAutoUpdate;
-
    void DrawObjSearch();
 
    char * szObjSearchBuffer;
 
    std::vector< std::pair<int,int> > vObjSearchResults;
-
-   cAutoUpdater * hAU;
 
    int RenderLayer(WWD::Plane * hPl, bool bDefaultZoom);
 

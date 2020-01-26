@@ -1,5 +1,5 @@
 #include "hge.h"
-#include "conf.h"
+#include "version.h"
 #include "globals.h"
 #include "states/editing_ww.h"
 #include "cDataController.h"
@@ -9,16 +9,22 @@
 
 HGE *hge = 0;
 
-extern bool _UpdaterThink();
-
 bool FrameFunc() {
-    if (!GV->StateMgr->Think()) {
-		if (GV->anyMapLoaded) {
-			GV->editState->hDataCtrl->Think();
+	if (GV->StateMgr->Think())
+		return true;
+
+	if (GV->editState->hAU) {
+		if (GV->editState->hAU->Think()) {
+			delete GV->editState->hAU;
+			GV->editState->hAU = 0;
 		}
-        return false;
-    }
-    return true;
+	}
+
+	if (GV->anyMapLoaded) {
+		GV->editState->hDataCtrl->Think();
+	}
+
+	return false;
 }
 
 bool RenderFunc() {
@@ -64,6 +70,8 @@ int main(int argc, char *argv[]) {
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     char tmp[768];
     ::GetModuleFileName(NULL, tmp, 768);
+
+	remove(".wm_update.exe");
 
 #ifndef BUILD_DEBUG
     char *fn = SHR::GetFile(tmp);
@@ -148,17 +156,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     //if( !strncmp(cmdline, "-updateBM", 9) )
     hge->System_SetState(HGE_WINDOWCAPTION, 0);
 
-    int left = GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXFIXEDFRAME) + 1;
-    int top = GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION) + 1;
-
     if (hge->System_Initiate()) {
-        //HWND hwnd = hge->System_GetState(HGE_HWND);
-        //HRGN rgn = CreateRectRgn(left, top, left + GV->iScreenW, top + GV->iScreenH);
-        //SetWindowRgn(hwnd, rgn, true);
-
         GV->Init();
         GV->StateMgr->Init();
-
         GV->StateMgr->Push(new State::EditingWW());
         hge->System_Start();
     } else {

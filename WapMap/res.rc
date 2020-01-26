@@ -1,1 +1,32 @@
-100 ICON "../res/100.ico"
+#include <winver.h>
+#include "version.h"
+#include "resources.h"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION
+PRODUCTVERSION  MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+			VALUE "FileVersion", APP_VERSION
+			VALUE "ProductVersion", APP_VERSION
+			VALUE "CompanyName", "kijanek6 & Zax37"
+            VALUE "FileDescription", "WAP32 World Document(WWD) Editor."
+			VALUE "ProductName", PRODUCT_NAME
+            VALUE "InternalName", INTERNAL_NAME
+            VALUE "LegalCopyright", "Copyright © 2010-2020 kijanek6 & Zax37"
+            VALUE "OriginalFilename", INTERNAL_NAME
+        END
+    END
+	BLOCK "VarFileInfo"
+	BEGIN
+	VALUE "Translation", 0x0000, 0x04B0
+	END
+END
+
+EXE_ICON	ICON	"../res/100.ico"
+WM_UPDATER	TEXT	"../res/WMUpdater.exe"
