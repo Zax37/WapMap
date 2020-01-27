@@ -129,6 +129,7 @@ cAppMenu::cAppMenu()
 	workcon->AddElement(APPMEN_TOOLS_STATS, GETL2S("AppMenu", "Tools_Stats"), GV->sprIcons16[Icon16_Stats]);
 	workcon->adjustSize();
 	workcon->GetElementByID(APPMEN_TOOLS_MAPSHOT)->SetEnabled(0);
+	workcon->GetElementByID(APPMEN_TOOLS_STATS)->SetEnabled(0);
 
 	workcon = hEntries[AppMenu_Assets]->GetContext();
 	workcon->AddElement(APPMEN_ASSETS_TILES, GETL2S("AppMenu", "Assets_Tiles"), GV->sprIcons16[Icon16_ModeTile]);
@@ -137,6 +138,8 @@ cAppMenu::cAppMenu()
 	workcon->AddElement(APPMEN_ASSETS_SOUNDS, GETL2S("AppMenu", "Assets_Sounds"), GV->sprIcons16[Icon16_Sound]);
 	workcon->AddElement(APPMEN_ASSETS_LOGICS, GETL2S("AppMenu", "Assets_Logics"), GV->sprIcons16[Icon16_Code]);
 	workcon->adjustSize();
+    workcon->GetElementByID(APPMEN_ASSETS_ANIMS)->SetEnabled(0);
+    workcon->GetElementByID(APPMEN_ASSETS_SOUNDS)->SetEnabled(0);
 
 	workcon = hEntries[AppMenu_WapMap]->GetContext();
 	workcon->AddElement(APPMEN_WM_SETTINGS, GETL2S("AppMenu", "About_Settings"), GV->sprIcons16[Icon16_Settings]);

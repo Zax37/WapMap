@@ -50,6 +50,7 @@ winImageSetBrowser::winImageSetBrowser()
 	butImportImageSet->setDimension(gcn::Rectangle(0, 0, CONST_IMGSETBROWSER_ISLISTW, 20));
 	butImportImageSet->addActionListener(this);
 	butImportImageSet->setIcon(GV->sprIcons16[Icon16_Add]);
+    butImportImageSet->setEnabled(false);
 	myWin->add(butImportImageSet, 3, 560);
 
 	int caplen = 0;
@@ -82,6 +83,7 @@ winImageSetBrowser::winImageSetBrowser()
 	butAddFrames->setDimension(gcn::Rectangle(0, 0, 150, 20));
 	butAddFrames->setIcon(GV->sprIcons16[Icon16_Add]);
 	butAddFrames->addActionListener(this);
+    butAddFrames->setEnabled(false);
 	myWin->add(butAddFrames, 645 + 150, 15);
 
 	butRenameImageSet = new SHR::But(GV->hGfxInterface, GETL2S("Win_ImageSetBrowser", "RenameImageSet"));
@@ -178,6 +180,7 @@ winImageSetBrowser::winImageSetBrowser()
 	butImageDetails->setDimension(gcn::Rectangle(0, 0, 150, 20));
 	butImageDetails->setIcon(GV->sprIcons16[Icon16_Flip]);
 	butImageDetails->addActionListener(this);
+	butImageDetails->setEnabled(false);
 	myWin->add(butImageDetails, CONST_IMGSETBROWSER_ISLISTW + 24 + 450 - 75, 237);
 
 	vp = new WIDG::Viewport(this, 0);

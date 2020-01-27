@@ -45,6 +45,7 @@ winTileBrowser::winTileBrowser()
 	butImportTileSet->setDimension(gcn::Rectangle(0, 0, 145 + 74, 20));
 	butImportTileSet->addActionListener(this);
 	butImportTileSet->setIcon(GV->sprIcons16[Icon16_Add]);
+    butImportTileSet->setEnabled(false);
 	myWin->add(butImportTileSet, 3, 560);
 
 	int caplen = 0;
@@ -77,6 +78,7 @@ winTileBrowser::winTileBrowser()
 	butAddTiles->setDimension(gcn::Rectangle(0, 0, 150, 20));
 	butAddTiles->setIcon(GV->sprIcons16[Icon16_Add]);
 	butAddTiles->addActionListener(this);
+    butAddTiles->setEnabled(false);
 	myWin->add(butAddTiles, 645, 15);
 
 	butRenameTileSet = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "RenameTileset"));
@@ -141,6 +143,7 @@ winTileBrowser::winTileBrowser()
 	butImageDetails->setDimension(gcn::Rectangle(0, 0, 150, 20));
 	butImageDetails->setIcon(GV->sprIcons16[Icon16_Flip]);
 	butImageDetails->addActionListener(this);
+    butImageDetails->setEnabled(false);
 	myWin->add(butImageDetails, 645, 130);
 
 	butDeleteTile = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "DeleteTile"));

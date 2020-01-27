@@ -54,7 +54,7 @@ void State::MapStats::Init()
 		statsPl[i].conPl = new SHR::Contener();
 		statsPl[i].conPl->setDimension(gcn::Rectangle(0, 0, 620, 460));
 		statsPl[i].tileTypes = new SHR::cPieChart();
-		int atrcount[5];
+		int atrcount[6];
 		for (int a = 0; a < 5; a++) atrcount[a] = 0;
 		for (int y = 0; y < hMap->GetPlane(i)->GetPlaneHeight(); y++)
 			for (int x = 0; x < hMap->GetPlane(i)->GetPlaneWidth(); x++) {
@@ -63,9 +63,16 @@ void State::MapStats::Init()
 				else {
 					WWD::TileAtrib * atr = hMap->GetTileAtribs(hMap->GetPlane(i)->GetTile(x, y)->GetID());
 					if (atr == NULL) { atrcount[0]++; continue; }
-					atrcount[int(atr->GetAtribInside())]++;
-					if (atr->GetType() == WWD::AtribType_Double)
-						atrcount[atr->GetAtribOutside()]++;
+					
+					unsigned int attr = int(atr->GetAtribInside());
+					if (attr > 5) attr = 5;
+					atrcount[attr]++;
+
+					if (atr->GetType() == WWD::AtribType_Double) {
+						attr = int(atr->GetAtribOutside());
+						if (attr > 5) attr = 5;
+						atrcount[attr]++;
+					}
 				}
 			}
 		if (atrcount[0] > 0)
@@ -78,6 +85,8 @@ void State::MapStats::Init()
 			statsPl[i].tileTypes->AddPart("climb", atrcount[3], COLOR_CLIMB);
 		if (atrcount[4] > 0)
 			statsPl[i].tileTypes->AddPart("death", atrcount[4], COLOR_DEATH);
+		if (atrcount[5] > 0)
+			statsPl[i].tileTypes->AddPart("invalid", atrcount[5], 0);
 		statsPl[i].tileTypes->SetBgCol(0xFF4d4d4d);
 		statsPl[i].tileTypes->Render(200);
 		/*GAME_TREASURE_GOLDBARS, //sztaba
