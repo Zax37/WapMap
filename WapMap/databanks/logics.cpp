@@ -162,13 +162,13 @@ cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEn
 
     auto customLogic = new cCustomLogic(mountEntry.vFiles[0], filename);
     m_vAssets.push_back(customLogic);
+    SortLogics();
 
     if (filename == "main") {
         hGlobalScript = customLogic;
     }
 
     customLogic->_hBank = this;
-
     return customLogic;
 }
 
@@ -184,6 +184,4 @@ void cBankLogic::DeleteAsset(cAsset *hLogic) {
         }
     }
     delete hLogic;
-
-    SortLogics();
 }

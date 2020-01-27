@@ -85,7 +85,6 @@ namespace State {
         bool bKill;
         bool bCanceled;
         bool bSwap;
-        bool bLogicEditQuit;
         RectPickType iPickType;
         cObjectPropAL *hAL;
         SHR::Win *window;

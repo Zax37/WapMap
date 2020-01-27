@@ -42,22 +42,19 @@ namespace State {
                     int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"),
                                        "WapMap", MB_YESNO | MB_ICONWARNING);
                     if (r == IDYES) {
-                        m_hOwn->bLogicEditQuit = 1;
                         GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->tddadvCustomLogic->getText(), true);
                     }
                 }
             }
-            if (!m_hOwn->bLogicEditQuit) {
-                m_hOwn->Save();
-                GetUserDataFromObj(m_hOwn->hObj)->SyncToObj();
-                m_hOwn->hState->vPort->MarkToRedraw(1);
-                m_hOwn->bKill = 1;
-            }
+            m_hOwn->Save();
+            GetUserDataFromObj(m_hOwn->hObj)->SyncToObj();
+            m_hOwn->hState->vPort->MarkToRedraw(1);
+            m_hOwn->bKill = 1;
         } else if (actionEvent.getSource() == m_hOwn->butCustomLogicEdit) {
             cCustomLogic *handle = GV->editState->hCustomLogics->GetLogicByName(
                     m_hOwn->tddadvCustomLogic->getText().c_str());
             if (handle != 0) {
-                GV->editState->hDataCtrl->OpenCodeEditor(handle->GetFile().strPath.c_str());
+                GV->editState->hDataCtrl->OpenCodeEditor(handle->GetName());
             } else {
                 int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"),
                                    "WapMap", MB_YESNO | MB_ICONWARNING);
@@ -704,7 +701,7 @@ namespace State {
     }
 
     cObjectProp::cObjectProp(WWD::Object *obj, bool vis, State::EditingWW *st, bool addtabs) {
-        bKill = bCanceled = bSwap = bLogicEditQuit = 0;
+        bKill = bCanceled = bSwap = 0;
         hAL = new cObjectPropAL(this);
         hObj = obj;
         hState = st;
