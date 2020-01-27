@@ -104,20 +104,6 @@ cAUAL::cAUAL(cAutoUpdater *owner) {
     m_hOwn = owner;
 }
 
-/*static int _AU_PatchProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
-{
-	_AU_GLOBAL_PTR->iDownloaded = dlnow;
-	_AU_GLOBAL_PTR->iTotal = dltotal;
-	return 0;
-}
-
-static size_t _AU_PatchCallback(void *ptr, size_t size, size_t nmemb, void *data)
-{
-	//Herculo.Log(LOG_INFO, "got %d bytes", size * nmemb);
-	fwrite(ptr, size, nmemb, _AU_GLOBAL_PTR->hPatchFile);
-	return (size_t)(size * nmemb);
-}*/
-
 cAutoUpdater::cAutoUpdater() {
     iState = AU_NONE;
     _AU_GLOBAL_PTR = this;

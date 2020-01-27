@@ -7,9 +7,10 @@
 #include "../returncodes.h"
 #include "../cObjectUserData.h"
 #include "error.h"
-#include <math.h>
+#include <cmath>
 #include "../cAppMenu.h"
 #include "../../shared/gcnWidgets/wComboButton.h"
+#include "../../shared/gcnWidgets/wScrollArea.h"
 #include "../cNativeController.h"
 #include "../windows/tileBrowser.h"
 #include "../windows/imgsetBrowser.h"
@@ -787,9 +788,9 @@ void State::EditingWW::Init()
 
 	lbbrlLogicList = new SHR::ListBox(0);
 	lbbrlLogicList->addActionListener(al);
-	lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 285, 215));
+	lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 300, 215));
 
-	sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
+	sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_AUTO);
 	sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 294, 206));
 	sabrlLogicList->setOpaque(0);
 	winLogicBrowser->add(sabrlLogicList, 0, 10);
@@ -3047,7 +3048,18 @@ void State::EditingWW::SyncLogicBrowser()
 		cCustomLogic * logic = hCustomLogics->GetLogicByIterator(lbbrlLogicList->getSelected());
 		cFile f = logic->GetFile();
 		labbrlLogicNameV->setCaption(logic->GetName());
-		labbrlFilePathV->setCaption(f.hFeed->GetAbsoluteLocation() + "/" + logic->GetFile().strPath);
+		std::string path = f.hFeed->GetAbsoluteLocation() + '\\' + logic->GetFile().strPath;
+		if (path.length() > 50) {
+		    path[47] = '.';
+            path[48] = '.';
+            path[49] = '.';
+            path[50] = '\0';
+            path.resize(50);
+		}
+		for (auto & it : path) {
+		    if (it == '/') it = '\\';
+		}
+		labbrlFilePathV->setCaption(path);
 		char * szFileSize = SHR::FormatSize(f.hFeed->GetFileSize(f.strPath.c_str()));
 		labbrlFileSizeV->setCaption(szFileSize);
 		delete[] szFileSize;
