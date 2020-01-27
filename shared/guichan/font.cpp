@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,31 +41,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/font.hpp"
 
 #include <string>
 
-namespace gcn
-{
-	int Font::getStringIndexAt(const std::string& text, int x) const
-	{
-		unsigned int i;
-		int size = 0;
+namespace gcn {
+    int Font::getStringIndexAt(const std::string &text, int x) const {
+        unsigned int i;
+        int size = 0;
 
-		for (i = 0; i < text.size(); ++i)
-		{
-			size = getWidth(text.substr(0, i));
+        for (i = 0; i < text.size(); ++i) {
+            size = getWidth(text.substr(0, i));
 
-			if (size > x)
-			{
-				return i;
-			}
-		}
+            if (size > x) {
+                return i;
+            }
+        }
 
-		return text.size();
-	}
+        return text.size();
+    }
 }

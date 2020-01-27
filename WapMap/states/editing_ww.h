@@ -170,25 +170,25 @@ typedef unsigned long DWORD;
 
 #define OBJMENU_FLAGS        30
 
- #define OBJMENU_FLAGS_DRAW                    31
-  #define OBJMENU_FLAGS_DRAW_NODRAW             32
-  #define OBJMENU_FLAGS_DRAW_FLIPX              33
-  #define OBJMENU_FLAGS_DRAW_FLIPY              34
-  #define OBJMENU_FLAGS_DRAW_FLASH              35
+#define OBJMENU_FLAGS_DRAW                    31
+#define OBJMENU_FLAGS_DRAW_NODRAW             32
+#define OBJMENU_FLAGS_DRAW_FLIPX              33
+#define OBJMENU_FLAGS_DRAW_FLIPY              34
+#define OBJMENU_FLAGS_DRAW_FLASH              35
 
- #define OBJMENU_FLAGS_DYNAMIC                 36
-  #define OBJMENU_FLAGS_DYNAMIC_NOHIT           37
-  #define OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE    38
-  #define OBJMENU_FLAGS_DYNAMIC_SAFE            39
-  #define OBJMENU_FLAGS_DYNAMIC_AUTOHITDAMAGE   40
+#define OBJMENU_FLAGS_DYNAMIC                 36
+#define OBJMENU_FLAGS_DYNAMIC_NOHIT           37
+#define OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE    38
+#define OBJMENU_FLAGS_DYNAMIC_SAFE            39
+#define OBJMENU_FLAGS_DYNAMIC_AUTOHITDAMAGE   40
 
- #define OBJMENU_FLAGS_ADDITIONAL              41
-  #define OBJMENU_FLAGS_ADDITIONAL_DIFFICULT    42
-  #define OBJMENU_FLAGS_ADDITIONAL_EYECANDY     43
-  #define OBJMENU_FLAGS_ADDITIONAL_HIGHDETAIL   44
-  #define OBJMENU_FLAGS_ADDITIONAL_MULTIPLAYER  45
-  #define OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY  46
-  #define OBJMENU_FLAGS_ADDITIONAL_FASTCPU      47
+#define OBJMENU_FLAGS_ADDITIONAL              41
+#define OBJMENU_FLAGS_ADDITIONAL_DIFFICULT    42
+#define OBJMENU_FLAGS_ADDITIONAL_EYECANDY     43
+#define OBJMENU_FLAGS_ADDITIONAL_HIGHDETAIL   44
+#define OBJMENU_FLAGS_ADDITIONAL_MULTIPLAYER  45
+#define OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY  46
+#define OBJMENU_FLAGS_ADDITIONAL_FASTCPU      47
 
 #define OBJMENU_ADV_WARP_GOTO      100
 #define OBJMENU_ADV_CONTAINER_RAND 101
@@ -218,694 +218,804 @@ typedef unsigned long DWORD;
 
 //forward declarations
 class cAppMenu;
+
 class cNativeController;
+
 class cWindow;
+
 class winTileBrowser;
+
 class winImageSetBrowser;
+
 class winOptions;
+
 class winAbout;
 
-namespace SHR
-{
- class ComboBut;
+namespace SHR {
+    class ComboBut;
 };
 
 namespace WIDG {
- class Viewport;
+    class Viewport;
 };
 
-void EditingWW_ObjDeletionCB(WWD::Object * obj);
+void EditingWW_ObjDeletionCB(WWD::Object *obj);
 
- class cDynamicListModel: public gcn::ListModel {
- private:
-  std::vector<std::string> vOptions;
- public:
-  cDynamicListModel(){};
-  ~cDynamicListModel(){};
-  std::string getElementAt(int i){ if( i >= 0 && i < vOptions.size() ) return vOptions[i]; return ""; };
-  int getNumberOfElements(){ return vOptions.size(); };
-  void Add(std::string n){ vOptions.push_back(n); };
+class cDynamicListModel : public gcn::ListModel {
+private:
+    std::vector<std::string> vOptions;
+public:
+    cDynamicListModel() {};
+
+    ~cDynamicListModel() {};
+
+    std::string getElementAt(int i) {
+        if (i >= 0 && i < vOptions.size()) return vOptions[i];
+        return "";
+    };
+
+    int getNumberOfElements() { return vOptions.size(); };
+
+    void Add(std::string n) { vOptions.push_back(n); };
 };
 
 namespace State {
 
- bool ObjSortCoordX(WWD::Object * a, WWD::Object * b);
- bool ObjSortCoordY(WWD::Object * a, WWD::Object * b);
- bool ObjSortCoordZ(WWD::Object * a, WWD::Object * b);
+    bool ObjSortCoordX(WWD::Object *a, WWD::Object *b);
 
- class Viewport;
+    bool ObjSortCoordY(WWD::Object *a, WWD::Object *b);
 
- class cLayerRenderBuffer {
-  private:
-   HTARGET hTarget;
-   hgeSprite * sprTarget;
-   bool bRedraw;
-   Viewport * vPort;
-   WWD::Plane * hPlane;
-   EditingWW * hOwner;
-   int iEntityCnt;
-  public:
-   cLayerRenderBuffer(EditingWW * hown, Viewport * nvPort, WWD::Plane * npl);
-   ~cLayerRenderBuffer();
-   void Update();
-   void Render(int x = 0, int y = 0, float fZoom = 1.0f);
-   void Redraw(){ bRedraw = 1; };
-   void GfxLost();
-   int GetEntityCount(int x1, int y1, int x2, int y2);
- };
+    bool ObjSortCoordZ(WWD::Object *a, WWD::Object *b);
 
- struct stObjectData {
-  bool bEmpty;
-  cObjectQuadTree * hQuadTree;
- };
+    class Viewport;
 
- struct PlaneData {
-  public:
-  bool bDraw;
-  bool bDrawGrid;
-  bool bDrawBoundary;
-  bool bDrawObjects;
-  byte iAlpha;
-  stObjectData ObjectData;
-  bool bUpdateBuffer;
-  cLayerRenderBuffer * hRB;
- };
- class EditingWW;
+    class cLayerRenderBuffer {
+    private:
+        HTARGET hTarget;
+        hgeSprite *sprTarget;
+        bool bRedraw;
+        Viewport *vPort;
+        WWD::Plane *hPlane;
+        EditingWW *hOwner;
+        int iEntityCnt;
+    public:
+        cLayerRenderBuffer(EditingWW *hown, Viewport *nvPort, WWD::Plane *npl);
 
- class EditingWWActionListener;
+        ~cLayerRenderBuffer();
 
- class EditingWWvpCallback: public WIDG::VpCallback {
-  private:
-   EditingWW * m_hOwn;
-  public:
-   virtual void Draw(int iCode);
-   EditingWWvpCallback(EditingWW * owner);
- };
+        void Update();
 
- class EditingWWlModel: public gcn::ListModel {
-  private:
-   EditingWW * m_hOwn;
-   int m_iType;
-  public:
-   EditingWWlModel(EditingWW * owner, int type);
+        void Render(int x = 0, int y = 0, float fZoom = 1.0f);
 
-   std::string getElementAt(int i);
-   int getNumberOfElements();
- };
+        void Redraw() { bRedraw = 1; };
 
- class EditingWWActionListener: public gcn::ActionListener {
-  private:
-   EditingWW * m_hOwn;
-  public:
-   void action(const gcn::ActionEvent &actionEvent);
-   EditingWWActionListener(EditingWW * owner);
- };
+        void GfxLost();
 
- class Viewport {
-  private:
-   int iX, iY, iW, iH;
-   HTARGET target;
-   hgeSprite * sprViewport;
-   bool bRedrawViewport;
-   EditingWW * hOwn;
-   vpFoc * hFocuser;
-  public:
-   void MarkToRedraw(bool mark);
-   bool IsMarkedToRedraw(){ return bRedrawViewport; };
-   void Update();
-   void Render();
+        int GetEntityCount(int x1, int y1, int x2, int y2);
+    };
 
-   Viewport(EditingWW * phOwn, int x, int y, int w, int h);
-   ~Viewport();
-   void Resize(int w, int h);
-   void SetPos(int x, int y);
+    struct stObjectData {
+        bool bEmpty;
+        cObjectQuadTree *hQuadTree;
+    };
 
-   int GetWidth(){ return iW; };
-   int GetHeight(){ return iH; };
-   int GetX(){ return iX; };
-   int GetY(){ return iY; };
-   vpFoc * GetWidget(){ return hFocuser; };
-   void GfxLost();
-   void ClipScreen();
+    struct PlaneData {
+    public:
+        bool bDraw;
+        bool bDrawGrid;
+        bool bDrawBoundary;
+        bool bDrawObjects;
+        byte iAlpha;
+        stObjectData ObjectData;
+        bool bUpdateBuffer;
+        cLayerRenderBuffer *hRB;
+    };
 
-   friend class State::MapShot;
- };
+    class EditingWW;
 
- struct win_NewMap
- {
-  SHR::Win * winNewMap;
-  SHR::Lab * labSelectBaseLevel;
-  WIDG::Viewport * vp;
-  SHR::Slider * sliBaseLvls;
-  SHR::CBox * cbAddBonusPlanes;
-  SHR::TextField * tfAuthor;
-  SHR::TextField * tfName;
-  SHR::TextField * tfPlaneWidth, * tfPlaneHeight;
-  SHR::Lab * labName, * labAuthor, * labPlaneSize, * labX;
-  int iSelectedBase;
-  SHR::But * butOK;
-  #ifdef WM_EXT_TILESETS
-  float fBaseTimer[16];
-  #else
-  float fBaseTimer[14];
-  #endif
-  bool bKill;
- };
+    class EditingWWActionListener;
 
- struct win_FirstRun
- {
-  SHR::Win * win;
-  WIDG::Viewport * vp;
-  SHR::But * setClawDir;
-  SHR::But * website;
-  bool bKill;
- };
+    class EditingWWvpCallback : public WIDG::VpCallback {
+    private:
+        EditingWW *m_hOwn;
+    public:
+        virtual void Draw(int iCode);
 
- class EditingWW : public SHR::cState {
-  public:
-   SHR::Context * objContext, * tilContext, * objZCoordContext, * objmAlignContext, * objmSpaceContext; //basic contexts
-   SHR::Context * objFlagContext, * objFlagDrawContext, * objFlagAddContext, * objFlagDynamicContext; //flags contexts
-   SHR::Context * advcon_Warp, * advcon_Container; //advanced contexts (object specific)
-   friend class cAppMenu;
-   SHR::ContextModel * conmodObject, * conmodObjectMultiple, * conmodTilesSelected, * conmodTilesPaste, * conmodEditableObject;
-   SHR::ContextModel * conmodPaste, * conmodSpawnPoint, * conmodAtEmpty;//, * conmodUseAsBrush;
-   std::vector<TileGhost> vTileGhosting;
+        EditingWWvpCallback(EditingWW *owner);
+    };
 
-   SHR::Contener * conResizeUp, * conResizeLeft, * conResizeRight, * conResizeDown;
-   SHR::But * butExtLayerLeft, * butExtLayerRight, * butExtLayerUp, * butExtLayerDown, * butExtLayerUR, * butExtLayerUL, * butExtLayerDL,
-            * butExtLayerDR;
+    class EditingWWlModel : public gcn::ListModel {
+    private:
+        EditingWW *m_hOwn;
+        int m_iType;
+    public:
+        EditingWWlModel(EditingWW *owner, int type);
 
-   gcn::Gui * gui;
-   SHR::Slider * sliVer, * sliHor;
+        std::string getElementAt(int i);
 
-   cmmbTile   * hmbTile;
-   cmmbObject * hmbObject;
+        int getNumberOfElements();
+    };
 
-   cModeMenuBar * hmbActive;
+    class EditingWWActionListener : public gcn::ActionListener {
+    private:
+        EditingWW *m_hOwn;
+    public:
+        void action(const gcn::ActionEvent &actionEvent);
 
-   SHR::But * butIconMove;
+        EditingWWActionListener(EditingWW *owner);
+    };
 
-   SHR::Contener * conWriteID;
-   SHR::TextField * tfWriteID;
+    class Viewport {
+    private:
+        int iX, iY, iW, iH;
+        HTARGET target;
+        hgeSprite *sprViewport;
+        bool bRedrawViewport;
+        EditingWW *hOwn;
+        vpFoc *hFocuser;
+    public:
+        void MarkToRedraw(bool mark);
 
-   cAutoUpdater * hAU;
+        bool IsMarkedToRedraw() { return bRedrawViewport; };
+
+        void Update();
+
+        void Render();
+
+        Viewport(EditingWW *phOwn, int x, int y, int w, int h);
+
+        ~Viewport();
+
+        void Resize(int w, int h);
+
+        void SetPos(int x, int y);
+
+        int GetWidth() { return iW; };
+
+        int GetHeight() { return iH; };
+
+        int GetX() { return iX; };
+
+        int GetY() { return iY; };
+
+        vpFoc *GetWidget() { return hFocuser; };
+
+        void GfxLost();
+
+        void ClipScreen();
+
+        friend class State::MapShot;
+    };
+
+    struct win_NewMap {
+        SHR::Win *winNewMap;
+        SHR::Lab *labSelectBaseLevel;
+        WIDG::Viewport *vp;
+        SHR::Slider *sliBaseLvls;
+        SHR::CBox *cbAddBonusPlanes;
+        SHR::TextField *tfAuthor;
+        SHR::TextField *tfName;
+        SHR::TextField *tfPlaneWidth, *tfPlaneHeight;
+        SHR::Lab *labName, *labAuthor, *labPlaneSize, *labX;
+        int iSelectedBase;
+        SHR::But *butOK;
+#ifdef WM_EXT_TILESETS
+        float fBaseTimer[16];
+#else
+        float fBaseTimer[14];
+#endif
+        bool bKill;
+    };
+
+    struct win_FirstRun {
+        SHR::Win *win;
+        WIDG::Viewport *vp;
+        SHR::But *setClawDir;
+        SHR::But *website;
+        bool bKill;
+    };
+
+    class EditingWW : public SHR::cState {
+    public:
+        SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmSpaceContext; //basic contexts
+        SHR::Context *objFlagContext, *objFlagDrawContext, *objFlagAddContext, *objFlagDynamicContext; //flags contexts
+        SHR::Context *advcon_Warp, *advcon_Container; //advanced contexts (object specific)
+        friend class cAppMenu;
+
+        SHR::ContextModel *conmodObject, *conmodObjectMultiple, *conmodTilesSelected, *conmodTilesPaste, *conmodEditableObject;
+        SHR::ContextModel *conmodPaste, *conmodSpawnPoint, *conmodAtEmpty;//, * conmodUseAsBrush;
+        std::vector<TileGhost> vTileGhosting;
+
+        SHR::Contener *conResizeUp, *conResizeLeft, *conResizeRight, *conResizeDown;
+        SHR::But *butExtLayerLeft, *butExtLayerRight, *butExtLayerUp, *butExtLayerDown, *butExtLayerUR, *butExtLayerUL, *butExtLayerDL,
+                *butExtLayerDR;
+
+        gcn::Gui *gui;
+        SHR::Slider *sliVer, *sliHor;
+
+        cmmbTile *hmbTile;
+        cmmbObject *hmbObject;
+
+        cModeMenuBar *hmbActive;
+
+        SHR::But *butIconMove;
+
+        SHR::Contener *conWriteID;
+        SHR::TextField *tfWriteID;
+
+        cAutoUpdater *hAU;
 
 #ifdef WM_ADD_LUA_EXECUTER
-   SHR::But * butIconLua;
+        SHR::But * butIconLua;
 #endif
 
-   SHR::TextField * tfwpName, * tfwpAuthor, * tfwpDate, * tfwpREZ, * tfwpTiles, * tfwpPalette, * tfwpExe,
-                  * tfwpMapVersion, * tfwpMapBuild, * tfwpWapVersion;
-   SHR::TextBox * tbwpMapDescription;
-   SHR::ScrollArea * sawpMapDescription;
-   SHR::Lab * labwpMapVersion, * labwpMapBuild, * labwpMapDescription, * labwpWapVersion;
-
-   SHR::But * butwpSave, * butwpCancel;
-
-   cNativeController * hNativeController;
-
-   SHR::DropDown * ddActivePlane, * ddmsPlane;
-   SHR::Slider * slimsScale, * sliTilePicker, * slimsCompression;
-   SHR::Lab * labmsSaveAs, * labmsScale, * labmsPlane, * labmsDimensions;
-   SHR::TextField * tfmsSaveAs, * winobjseaName;
-   SHR::But * butmsSaveAs, * butmsSave;
-   SHR::Win * winWorld, * winMapShot, * winDB, * winSearchObj;
-   SHR::CBox * cbmsOpenFileDirectory;
-   SHR::CBox * cbwpCompress, * cbwpZCoord, * cbdbFlip, * cbdbAniAnimate, * cbdbBorderAni, *cbdbAniLoop;
-   SHR::ScrollArea * sadbAssetsImg, * sadbFramesImg, * sadbAssetsAni, * sadbFramesAni, * sadbAssetsSnd;
-   SHR::Lab * labwpName, * labwpAuthor, * labwpDate, * labwpREZ, * labwpTiles, * labwpPalette, * labwpExe, * labmsCompression,
-            * labmsCompDisc;
-   SHR::ListBox * dbAssetsImg, * dbFramesImg, * dbAssetsAni, * dbFramesAni, * dbAssetsSnd;
-
-   SHR::Win * winSoundBrowser;
-   SHR::ListBox * lbdbsSounds;
-   SHR::Lab * labdbsDisplay;
-   SHR::CBox * cbdbsOriginal, * cbdbsCustom;
-   WIDG::Viewport * vpdbsDraw;
-   SHR::But * butdbsAddSounds, * butdbsReload, * butdbsDelete;
-
-   cSoundPlayer * spdbSounds;
-
-   SHR::Win * winLogicBrowser;
-   bool bLogicBrowserExpanded = false;
-
-   SHR::ScrollArea * sabrlLogicList;
-   SHR::ListBox * lbbrlLogicList;
-   SHR::But * butbrlNew, * butbrlEdit, * butbrlEditExternal, * butbrlDelete, * butbrlBrowseDir, * butbrlRenameOK, * butbrlRename;
-   SHR::Lab * labbrlLogicName, * labbrlFilePath, * labbrlFileSize, * labbrlFileChecksum, * labbrlFileModDate,
-            * labbrlLogicNameV, * labbrlFilePathV, * labbrlFileSizeV, * labbrlFileChecksumV, * labbrlFileModDateV;
-   SHR::TextField * tfbrlRename;
-   WIDG::Viewport * vpLogicBrowser;
-   void DrawLogicBrowser();
-   void SyncLogicBrowser();
-   void ExpandLogicBrowser();
-
-   float fdbAniTimer;
-
-   SHR::TabbedArea * tadbTabs;
-   SHR::Contener * condbTiles, * condbImages, * condbAnims, * condbSounds;
-   SHR::Lab * labdbAnimSpeed, * labdbAniImageSet;
-   SHR::DropDown * dddbAnimSpeed;
-   SHR::TextField * tfdbAniImageSet;
-
-   SHR::RadBut * rbdbisShow[3];
-   SHR::Lab * labdbisSetChecksum, * labdbisSetFileSize, * labdbisSetFileCount,
-            * labdbisFileChecksum, * labdbisFileSize, * labdbisFileDim, * labdbisFileOffset, * labdbisFileUserData,
-            * labdbisFileID, * labdbisFileIndex, * labdbisFrameID;
-   SHR::CBox * cbdbisFlipX, * cbdbisFlipY, * cbdbisOffsetBorder, * cbdbisBorder;
-   int idbisMoveX, idbisMoveY;
-   float fdbisZoom;
-
-   SHR::But * butObjSearchSelectAll;
-   SHR::DropDown * ddObjSearchTerm;
-   SHR::CBox * cbObjSearchCaseSensitive;
-   SHR::Slider * sliSearchObj;
-
-   SHR::Win * winCamera;
-   SHR::Lab * labcamCoordX, * labcamCoordY, * labObjSearchResults;
-   SHR::TextField * tfcamSetToX, * tfcamSetToY;
-   SHR::But * butcamSetTo, * butcamSetToSpawn;
-
-   SHR::Win * winObjectBrush;
-   SHR::Lab * labobrSource;
-   SHR::Lab * labobrDistance, * labobrDispX, * labobrDispY;
-   SHR::TextField * tfobrDispX, * tfobrDispY;
-   SHR::Slider * sliobrDistance;
-   SHR::CBox * cbobrApplyScatterSeparately;
-
-   SHR::CBox * cbmsDrawObjects;
-   SHR::Lab * labloadLastOpened, * labClawPath, * labLang;
-   SHR::Link * lnkLastOpened[10];
-
-   SHR::Win * winDuplicate;
-   SHR::Lab * labdTimes, * labdOffsetX, * labdOffsetY, * labdCopiedObjectID, * labobjseaInfo, * labdChangeZ;
-   SHR::TextField * tfdTimes, * tfdOffsetX, * tfdOffsetY, * tfdChangeZ;
-   SHR::But * butdOK;
-   WWD::Object * objdSource;
-
-   int iobjbrLastDrawnX, iobjbrLastDrawnY;
-
-   SHR::Win * winTileProp;
-   SHR::But * buttpPrev, * buttpNext, * buttpZoom, * buttpApply, * buttpShow, * buttpPipette;
-   SHR::TextField * tftpTileID, * tftpW, * tftpH, * tftpX1, * tftpX2, * tftpY1, * tftpY2;
-   SHR::RadBut * rbtpSingle, * rbtpDouble, * rbtpIn[5], * rbtpOut[5];
-   WWD::TileAtrib * htpWorkingAtrib;
-   bool btpDragDropMask;
-   int itpDDx1, itpDDy1;
-   int itpSelectedTile;
-   bool btpZoomTile;
-
-   WIDG::Viewport * vpobjseaRender, * vptpfcPalette;
+        SHR::TextField *tfwpName, *tfwpAuthor, *tfwpDate, *tfwpREZ, *tfwpTiles, *tfwpPalette, *tfwpExe,
+                *tfwpMapVersion, *tfwpMapBuild, *tfwpWapVersion;
+        SHR::TextBox *tbwpMapDescription;
+        SHR::ScrollArea *sawpMapDescription;
+        SHR::Lab *labwpMapVersion, *labwpMapBuild, *labwpMapDescription, *labwpWapVersion;
+
+        SHR::But *butwpSave, *butwpCancel;
+
+        cNativeController *hNativeController;
+
+        SHR::DropDown *ddActivePlane, *ddmsPlane;
+        SHR::Slider *slimsScale, *sliTilePicker, *slimsCompression;
+        SHR::Lab *labmsSaveAs, *labmsScale, *labmsPlane, *labmsDimensions;
+        SHR::TextField *tfmsSaveAs, *winobjseaName;
+        SHR::But *butmsSaveAs, *butmsSave;
+        SHR::Win *winWorld, *winMapShot, *winDB, *winSearchObj;
+        SHR::CBox *cbmsOpenFileDirectory;
+        SHR::CBox *cbwpCompress, *cbwpZCoord, *cbdbFlip, *cbdbAniAnimate, *cbdbBorderAni, *cbdbAniLoop;
+        SHR::ScrollArea *sadbAssetsImg, *sadbFramesImg, *sadbAssetsAni, *sadbFramesAni, *sadbAssetsSnd;
+        SHR::Lab *labwpName, *labwpAuthor, *labwpDate, *labwpREZ, *labwpTiles, *labwpPalette, *labwpExe, *labmsCompression,
+                *labmsCompDisc;
+        SHR::ListBox *dbAssetsImg, *dbFramesImg, *dbAssetsAni, *dbFramesAni, *dbAssetsSnd;
+
+        SHR::Win *winSoundBrowser;
+        SHR::ListBox *lbdbsSounds;
+        SHR::Lab *labdbsDisplay;
+        SHR::CBox *cbdbsOriginal, *cbdbsCustom;
+        WIDG::Viewport *vpdbsDraw;
+        SHR::But *butdbsAddSounds, *butdbsReload, *butdbsDelete;
+
+        cSoundPlayer *spdbSounds;
+
+        SHR::Win *winLogicBrowser;
+        bool bLogicBrowserExpanded = false;
+
+        SHR::ScrollArea *sabrlLogicList;
+        SHR::ListBox *lbbrlLogicList;
+        SHR::But *butbrlNew, *butbrlEdit, *butbrlEditExternal, *butbrlDelete, *butbrlBrowseDir, *butbrlRenameOK, *butbrlRename;
+        SHR::Lab *labbrlLogicName, *labbrlFilePath, *labbrlFileSize, *labbrlFileChecksum, *labbrlFileModDate,
+                *labbrlLogicNameV, *labbrlFilePathV, *labbrlFileSizeV, *labbrlFileChecksumV, *labbrlFileModDateV;
+        SHR::TextField *tfbrlRename;
+        WIDG::Viewport *vpLogicBrowser;
+
+        void DrawLogicBrowser();
+
+        void SyncLogicBrowser();
+
+        void ExpandLogicBrowser();
 
-   SHR::Win * winMeasureOpt;
-   SHR::But * butmeasClear;
-   SHR::CBox * cbmeasAbsoluteDistance;
+        float fdbAniTimer;
 
-   SHR::But * butMicroTileCB, * butMicroObjectCB;
+        SHR::TabbedArea *tadbTabs;
+        SHR::Contener *condbTiles, *condbImages, *condbAnims, *condbSounds;
+        SHR::Lab *labdbAnimSpeed, *labdbAniImageSet;
+        SHR::DropDown *dddbAnimSpeed;
+        SHR::TextField *tfdbAniImageSet;
 
-   bool bObjBrushDrawing;
+        SHR::RadBut *rbdbisShow[3];
+        SHR::Lab *labdbisSetChecksum, *labdbisSetFileSize, *labdbisSetFileCount,
+                *labdbisFileChecksum, *labdbisFileSize, *labdbisFileDim, *labdbisFileOffset, *labdbisFileUserData,
+                *labdbisFileID, *labdbisFileIndex, *labdbisFrameID;
+        SHR::CBox *cbdbisFlipX, *cbdbisFlipY, *cbdbisOffsetBorder, *cbdbisBorder;
+        int idbisMoveX, idbisMoveY;
+        float fdbisZoom;
 
-   //std::vector<cObjectProp*> vObjectWins;
-   WIDG::Viewport * vpMain, * vpAbout, * vpWorld, * vpLoad, * vpDB, * vpTileProp;
-   char cScrollOrientation;
-   bool bDragDropScroll;
-   float fDragLastMx, fDragLastMy;
+        SHR::But *butObjSearchSelectAll;
+        SHR::DropDown *ddObjSearchTerm;
+        SHR::CBox *cbObjSearchCaseSensitive;
+        SHR::Slider *sliSearchObj;
 
-   float fObjPickLastMx, fObjPickLastMy;
+        SHR::Win *winCamera;
+        SHR::Lab *labcamCoordX, *labcamCoordY, *labObjSearchResults;
+        SHR::TextField *tfcamSetToX, *tfcamSetToY;
+        SHR::But *butcamSetTo, *butcamSetToSpawn;
 
-   int iMode;
-   int iActiveTool;
+        SHR::Win *winObjectBrush;
+        SHR::Lab *labobrSource;
+        SHR::Lab *labobrDistance, *labobrDispX, *labobrDispY;
+        SHR::TextField *tfobrDispX, *tfobrDispY;
+        SHR::Slider *sliobrDistance;
+        SHR::CBox *cbobrApplyScatterSeparately;
 
-   bool ** bFloodFillBuf;
+        SHR::CBox *cbmsDrawObjects;
+        SHR::Lab *labloadLastOpened, *labClawPath, *labLang;
+        SHR::Link *lnkLastOpened[10];
 
-   int iTilePicked;
+        SHR::Win *winDuplicate;
+        SHR::Lab *labdTimes, *labdOffsetX, *labdOffsetY, *labdCopiedObjectID, *labobjseaInfo, *labdChangeZ;
+        SHR::TextField *tfdTimes, *tfdOffsetX, *tfdOffsetY, *tfdChangeZ;
+        SHR::But *butdOK;
+        WWD::Object *objdSource;
 
-   bool bClipboardCopy;
+        int iobjbrLastDrawnX, iobjbrLastDrawnY;
 
-   char szHint[256];
-   //int iHintID;
-   float fHintTime;
+        SHR::Win *winTileProp;
+        SHR::But *buttpPrev, *buttpNext, *buttpZoom, *buttpApply, *buttpShow, *buttpPipette;
+        SHR::TextField *tftpTileID, *tftpW, *tftpH, *tftpX1, *tftpX2, *tftpY1, *tftpY2;
+        SHR::RadBut *rbtpSingle, *rbtpDouble, *rbtpIn[5], *rbtpOut[5];
+        WWD::TileAtrib *htpWorkingAtrib;
+        bool btpDragDropMask;
+        int itpDDx1, itpDDy1;
+        int itpSelectedTile;
+        bool btpZoomTile;
 
-   bool bOpenObjContext;
+        WIDG::Viewport *vpobjseaRender, *vptpfcPalette;
 
-   bool bExit;
+        SHR::Win *winMeasureOpt;
+        SHR::But *butmeasClear;
+        SHR::CBox *cbmeasAbsoluteDistance;
 
-   float fade_fAlpha;
-   float fade_fTimer;
-   byte fade_iAction;
+        SHR::But *butMicroTileCB, *butMicroObjectCB;
 
-   int lastbrushx, lastbrushy, iLastBrushPlacedX, iLastBrushPlacedY;
+        bool bObjBrushDrawing;
 
-  friend class EditingWWActionListener;
-  friend class EditingWWvpCallback;
-  friend class EditingWWlModel;
-  friend class Viewport;
-  public:
+        //std::vector<cObjectProp*> vObjectWins;
+        WIDG::Viewport *vpMain, *vpAbout, *vpWorld, *vpLoad, *vpDB, *vpTileProp;
+        char cScrollOrientation;
+        bool bDragDropScroll;
+        float fDragLastMx, fDragLastMy;
 
-   EditingWW();
-   EditingWW(WWD::Parser * phParser);
-   virtual bool Opaque();
-   virtual void Init();
-   virtual void Destroy();
-   virtual bool Think();
-   virtual void PreRender();
-   virtual bool Render();
-   virtual void GainFocus(int iReturnCode, bool bFlipped);
-   virtual bool PromptExit();
-   virtual void GfxRestore();
-   virtual void FileDropped();
-   virtual void AppFocus(bool bGain);
+        float fObjPickLastMx, fObjPickLastMy;
 
-   bool bWindowFocused;
+        int iMode;
+        int iActiveTool;
 
-   void DrawViewport();
-   void DrawAbout();
-   void DrawWorldP();
-   void DrawLoad();
-   void DrawDB();
-   void DrawTileProperties();
+        bool **bFloodFillBuf;
 
-   int GetActivePlaneID();
-   WWD::Plane * GetActivePlane();
-   void SetHint(const char * pszFormat, ...);
+        int iTilePicked;
 
-   void SetTool(int iNTool);
-   void OpenTool(int iTool);
-   void CloseTool(int iTool);
+        bool bClipboardCopy;
 
-   void FreeResources();
-   void MarkUnsaved();
-   void SwitchPlane();
+        char szHint[256];
+        //int iHintID;
+        float fHintTime;
 
-   void SetMode(int piMode);
-   void EnterMode(int piMode);
-   void ExitMode(int piMode);
+        bool bOpenObjContext;
 
-   bool TileThink(bool pbConsumed);
-   bool ObjectThink(bool pbConsumed);
+        bool bExit;
 
-   void FloodFill(int base, int x, int y, int tile);
-   void DrawTileAtrib(int tileid, float posx, float posy, float width, float height);
+        float fade_fAlpha;
+        float fade_fTimer;
+        byte fade_iAction;
 
-   char * ExportObject(WWD::Object * obj);
+        int lastbrushx, lastbrushy, iLastBrushPlacedX, iLastBrushPlacedY;
 
-   void OpenObjectWindow(WWD::Object * obj, bool bMove = 0);
+        friend class EditingWWActionListener;
 
-   void SynchronizeWithParser();
-   void InitEmpty();
+        friend class EditingWWvpCallback;
 
-   WWD::Object * GetObjUnderWorldPos(int mx, int my);
+        friend class EditingWWlModel;
 
-   SHR::But * MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener * dest, bool enable = 1, bool visible = 1, gcn::ActionListener* actionListener = NULL);
+        friend class Viewport;
 
-   void RenderToViewportBuffer();
+    public:
 
-   bool bConstRedraw;
+        EditingWW();
 
-   float fCamLastX, fCamLastY, fLastZoom;
+        EditingWW(WWD::Parser *phParser);
 
-   int iTilePreviewX, iTilePreviewY;
+        virtual bool Opaque();
 
-   cBankTile * hTileset;
-   cBankImageSet * SprBank;
-   cDataController * hDataCtrl;
+        virtual void Init();
 
-   void ShowAndUpdateDuplicateMenu();
+        virtual void Destroy();
 
-   int GetObjectType(WWD::Object * obj);
+        virtual bool Think();
 
-   float fObjContextX, fObjContextY;
-   bool bDrawTileProperties;
-   bool bLockScroll;
+        virtual void PreRender();
 
-   //camera coords calculation
-   int Scr2WrdX(WWD::Plane * pl, int px); //screen to world X
-   int Scr2WrdY(WWD::Plane * pl, int py); //screen to world Y
-   int Wrd2ScrX(WWD::Plane * pl, int px); //world to screen X
-   int Wrd2ScrY(WWD::Plane * pl, int py); //world to screen Y
-   int Wrd2ScrXrb(WWD::Plane * pl, int px); //world to screen X within renderbuffer
-   int Wrd2ScrYrb(WWD::Plane * pl, int py); //world to screen Y within renderbuffer
+        virtual bool Render();
 
-   void UpdateScrollBars();
-   WWD::Parser * hParser;
+        virtual void GainFocus(int iReturnCode, bool bFlipped);
 
-   void SyncAtribMenuWithTile();
+        virtual bool PromptExit();
 
-   std::vector< std::pair<int,int> > m_vMeasurePoints;
+        virtual void GfxRestore();
 
-   void DrawTileAtrib(WWD::TileAtrib * atrib, float posx, float posy, float width, float height);
+        virtual void FileDropped();
 
-   std::vector<WWD::Object*> GetObjectsInArea(WWD::Plane * plane, int x, int y, int w, int h);
+        virtual void AppFocus(bool bGain);
 
-   void DrawObjSearch();
+        bool bWindowFocused;
 
-   char * szObjSearchBuffer;
+        void DrawViewport();
 
-   std::vector< std::pair<int,int> > vObjSearchResults;
+        void DrawAbout();
 
-   int RenderLayer(WWD::Plane * hPl, bool bDefaultZoom);
+        void DrawWorldP();
 
-   bool bObjDragSelection;
-   int iObjDragOrigX, iObjDragOrigY;
-   void ObjectOverlay();
-   int iMoveRelX, iMoveRelY;
-   void NotifyObjectDeletion(WWD::Object * obj);
+        void DrawLoad();
 
-   Viewport * vPort;
-   cBankSound * hSndBank;
-   cBankAni * hAniBank;
-   cBankLogic * hCustomLogics;
-   WWD::Object * hStartingPosObj;
-   SHR::Contener * conMain;
+        void DrawDB();
 
-   float fCamX, fCamY;
-   float fZoom;
-   float fDestZoom;
+        void DrawTileProperties();
 
-   std::vector<PlaneData*> hPlaneData;
-   DWORD dwBG;
-   cColorPicker * cpmsPicker;
+        int GetActivePlaneID();
 
-   float fDoubleClickTimer;
-   int iDoubleClickX, iDoubleClickY;
-   SHR::Win * wintpFillColor;
-   SHR::But * buttpfcShow;
-   void DrawSelectFillColor();
+        WWD::Plane *GetActivePlane();
 
-   int iTileSelectX1, iTileSelectY1, iTileSelectX2, iTileSelectY2;
-   int iTileWriteIDx, iTileWriteIDy;
-   void DrawPlaneOverlay(WWD::Plane * hPl);
+        void SetHint(const char *pszFormat, ...);
 
-   void ViewportOverlay();
+        void SetTool(int iNTool);
 
-   bool bSimFold;
-   float fSimFoldY;
+        void OpenTool(int iTool);
 
-   float fCameraMoveTimer;
+        void CloseTool(int iTool);
 
-   #ifdef BUILD_DEBUG
-    bool bShowConsole;
-   #endif
+        void FreeResources();
 
-   cMDI * MDI;
+        void MarkUnsaved();
 
-   bool bDragWindow;
-   int iWindowDragX, iWindowDragY;
-   RECT windowDragStartRect;
+        void SwitchPlane();
 
-   EditingWWvpCallback * vp;
+        void SetMode(int piMode);
 
-   void SetZoom(float fZ);
-   void RenderCloudTip(int x, int y, int w, int h, int ax, int ay);
+        void EnterMode(int piMode);
 
-   bool bForceTileClipbPreview, bForceObjectClipbPreview;
+        void ExitMode(int piMode);
 
-   void RenderTileClipboardPreview();
-   void RenderObjectClipboardPreview();
+        bool TileThink(bool pbConsumed);
 
-   void UpdateSearchResults();
+        bool ObjectThink(bool pbConsumed);
 
-   //EWW_TOOL_OBJSELAREA tool vars
-   SHR::Win * wintoolSelArea; //tool window
-   SHR::But * buttoolSelAreaOK, * buttoolSelAreaPickMinX, * buttoolSelAreaPickMinY,//accept, select min x, select min y buttons
-        * buttoolSelAreaPickMaxX, * buttoolSelAreaPickMaxY, * buttoolSelAreaAll; //select max x, select max y, select by area buttons
-   SHR::Lab * labtoolSelAreaValues; //label with values
-   int toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY; //cached values
-   int toolsaAction; //selected action
+        void FloodFill(int base, int x, int y, int tile);
 
-   //PLANE MANAGER vars
-   SHR::Win * winpmMain;
-   SHR::ListBox * lbpmPlanes;
-   SHR::ScrollArea * sapmPlanes;
-   SHR::Lab * labpmPlanes, * labpmAnchor, * labpmWidth, * labpmHeight;
-   WIDG::Viewport * vppm;
-   SHR::Lab * labpmName, * labpmTileSize, * labpmTileSize_x, * labpmMovX, * labpmMovY, * labpmPlaneSize, * labpmMovement, * labpmZCoord, * labpmFlags, * labpmTileSet;
-   SHR::TextField * tfpmName, * tfpmTileSizeX, * tfpmTileSizeY, * tfpmPlaneSizeX, * tfpmPlaneSizeY, * tfpmMovX, * tfpmMovY, * tfpmZCoord;
-   SHR::DropDown * ddpmTileSet;
-   SHR::TextBox * tbpmImagesets;
-   SHR::But * butpmResUL, * butpmResU, * butpmResUR, * butpmResL, * butpmResC, * butpmResR, * butpmResDL, * butpmResD, * butpmResDR;
-   SHR::CBox * cbpmFlagMainPlane, * cbpmFlagNoDraw, * cbpmFlagWrapX, * cbpmFlagWrapY, * cbpmAutoTileSize;
-   SHR::But * butpmSave, * butpmDelete;
-   int ipmAnchor, ipmSizeX, ipmSizeY;
-   void SyncPlaneProperties();
-   void DrawPlaneProperties();
-   void SavePlaneProperties();
-   void DeletePlaneProperties();
-   void SetAnchorPlaneProperties(int anchor);
+        void DrawTileAtrib(int tileid, float posx, float posy, float width, float height);
 
-   void HandleHotkeys();
+        char *ExportObject(WWD::Object *obj);
 
-   //events
-   void ApplicationStartup(); //executed when intro is done
-   void PrepareForDocumentSwitch();
-   void DocumentSwitched();
+        void OpenObjectWindow(WWD::Object *obj, bool bMove = 0);
 
-   //new map
-   win_NewMap * NewMap_data;
-   void NewMap_Open();
-   void NewMap_Close();
-   void NewMap_Think();
-   void NewMap_OK(); //called when OK button is pressed
-   void NewMap_Validate();
+        void SynchronizeWithParser();
 
-   //first run
-   win_FirstRun * FirstRun_data;
-   void FirstRun_Open();
-   void FirstRun_Close();
-   void FirstRun_Think();
-   void FirstRun_Action(bool but);
+        void InitEmpty();
 
-   //world options
-   void SyncWorldOptionsWithParser();
-   void SaveWorldOptions();
+        WWD::Object *GetObjUnderWorldPos(int mx, int my);
 
-   void LockToolSpecificFunctions(bool bLock); //to specific tools
-   void SetIconBarVisible(bool b);
+        SHR::But *MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener *dest, bool enable = 1, bool visible = 1,
+                             gcn::ActionListener *actionListener = NULL);
 
-   float fObjPropMouseX, fObjPropMouseY; //to lock ppm object menu
+        void RenderToViewportBuffer();
 
-   //object edit
-   bool bEditObjDelete;
-   ObjEdit::cObjEdit * hEditObj;
-   bool IsEditableObject(WWD::Object * obj, ObjEdit::cObjEdit ** hEdit = 0); //whether 'easy edit' is available
-   void OpenObjectEdit(WWD::Object * obj);
+        bool bConstRedraw;
 
-   std::vector<WWD::Object*> vObjectsPicked, vObjectsHL, vObjectsForbidHL, vObjectClipboard, vObjectsBrushCB;
+        float fCamLastX, fCamLastY, fLastZoom;
 
-   void SwitchActiveModeMenuBar(cModeMenuBar * n);
-   void CreateObjectWithEasyEdit(gcn::Widget * widg);
+        int iTilePreviewX, iTilePreviewY;
 
-   cInventoryController * hInvCtrl;
+        cBankTile *hTileset;
+        cBankImageSet *SprBank;
+        cDataController *hDataCtrl;
 
-   bool bShowHand;
-   DWORD dwCursorColor;
+        void ShowAndUpdateDuplicateMenu();
 
-   bool IsObjectEnemy(WWD::Object * obj);
+        int GetObjectType(WWD::Object *obj);
 
-   std::vector<gcn::Widget*> vWidgetsToMinimalise;
-   std::vector<gcn::Widget*> vMinimalisedWidgets;
-   void MinimaliseWindows();
-   void MaximaliseWindows();
+        float fObjContextX, fObjContextY;
+        bool bDrawTileProperties;
+        bool bLockScroll;
 
-   bool bObjectAlignAxis;
+        //camera coords calculation
+        int Scr2WrdX(WWD::Plane *pl, int px); //screen to world X
+        int Scr2WrdY(WWD::Plane *pl, int py); //screen to world Y
+        int Wrd2ScrX(WWD::Plane *pl, int px); //world to screen X
+        int Wrd2ScrY(WWD::Plane *pl, int py); //world to screen Y
+        int Wrd2ScrXrb(WWD::Plane *pl, int px); //world to screen X within renderbuffer
+        int Wrd2ScrYrb(WWD::Plane *pl, int py); //world to screen Y within renderbuffer
 
-   bool AreObjectSpecificOptionsAvailable(WWD::Object * obj, SHR::Context ** conMod = 0);
+        void UpdateScrollBars();
 
-   int GetActiveMode(){ return iMode; };
+        WWD::Parser *hParser;
 
-   //app bar
-   float fAppBarTimers[2];
+        void SyncAtribMenuWithTile();
 
-   //window spacing
-   SHR::TextField * tfspacingDistance;
-   SHR::Win * winSpacing;
-   SHR::Lab * labspacingDistance;
-   SHR::But * butspacingOK;
+        std::vector<std::pair<int, int> > m_vMeasurePoints;
 
-   //welcome screen
-   SHR::Contener * winWelcome;
-   SHR::But * butwsNew, * butwsOpen, * butwsRecently, * butwsWhatsnew;
-   WIDG::Viewport * vpws;
-   SHR::Lab * labwsRecently;
-   void DrawWelcomeScreen();
+        void DrawTileAtrib(WWD::TileAtrib *atrib, float posx, float posy, float width, float height);
 
-   void UpdateSettings();
+        std::vector<WWD::Object *> GetObjectsInArea(WWD::Plane *plane, int x, int y, int w, int h);
 
-   //wincrashretrieve
-   SHR::Contener * conCrashRetrieve, * conRecentFiles;
-   SHR::But * butCrashRetrieve;
-   WIDG::Viewport * vpCrashRetrieve;
-   char * szCrashRetrieve[10];
-   byte iCrashRetrieveIcon[10];
-   char * szCrashRetrieveMore;
-   void DrawCrashRetrieve();
-   std::vector<std::string> vstrMapsToLoad;
+        void DrawObjSearch();
 
-   //MRU
-   cMruList * hMruList;
-   void MruListUpdated(); //called from cMruList when list has been updates
+        char *szObjSearchBuffer;
 
-   void RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill, DWORD hwFillCol); //renders area in viewport, given absolute screen-coords, if any coord = 0 then no draw
-   void RenderArrow(int x, int y, int x2, int y2, bool finished, bool setcolors = 1);
+        std::vector<std::pair<int, int> > vObjSearchResults;
 
-   bool ValidateLevelName(const char * name, bool bAllowNoNum);
-   char * FixLevelName(int iBaseLvl, const char * name);
+        int RenderLayer(WWD::Plane *hPl, bool bDefaultZoom);
 
-   std::vector<cInventoryItem> GetContenerItems(WWD::Object * obj);
+        bool bObjDragSelection;
+        int iObjDragOrigX, iObjDragOrigY;
 
-   cServerIPC * hServerIPC;
+        void ObjectOverlay();
 
-   EditingWWActionListener * al;
+        int iMoveRelX, iMoveRelY;
 
-   WWD::Plane * plMain;
+        void NotifyObjectDeletion(WWD::Object *obj);
 
-   cAppMenu * hAppMenu;
-   byte gamesLastOpened[10];
-   int PromptForDocument(char * dest);
+        Viewport *vPort;
+        cBankSound *hSndBank;
+        cBankAni *hAniBank;
+        cBankLogic *hCustomLogics;
+        WWD::Object *hStartingPosObj;
+        SHR::Contener *conMain;
 
-   int iTileDrawStartX, iTileDrawStartY;
+        float fCamX, fCamY;
+        float fZoom;
+        float fDestZoom;
 
-   SHR::Slider * sliZoom;
+        std::vector<PlaneData *> hPlaneData;
+        DWORD dwBG;
+        cColorPicker *cpmsPicker;
 
-   //tilepicker
-   SHR::Win * winTilePicker;
-   SHR::But * buttpiModePencil, * buttpiModeBrush, * buttpiSpray, * buttpiReloadBrush,
-            * buttpiPoint, * buttpiLine, * buttpiRect, * buttpiEllipse, * buttpiFlood;
-   SHR::Lab * labtpiReloadBrush, * labtpiModePencil, * labtpiModeBrush, * labtpiToolOptions, * labtpiPointSize, * labtpiSpraySize,
-            * labtpiSprayDensity, * labtpiLineThickness;
-   SHR::CBox * cbtpiRectFilled, * cbtpiEllipseFilled;
-   SHR::Slider * slitpiPointSize, * slitpiSpraySize, * slitpiSprayDensity, * slitpiLineThickness;
-   SHR::CBox * cbtpiShowTileID, * cbtpiShowProperties, * cbtpiDrawFilled;
-   SHR::TextField * tftpiPointSize;
-   SHR::Slider * slitpiPicker;
-   int iTilePickerOffUp, iTilePickerOffDown;
-   int iTileDrawMode;
-   int iPipetteTileHL;
-   bool btpiFixedPos;
-   WIDG::Viewport * vptpi;
+        float fDoubleClickTimer;
+        int iDoubleClickX, iDoubleClickY;
+        SHR::Win *wintpFillColor;
+        SHR::But *buttpfcShow;
 
-   void RebuildTilePicker();
-   void RefreshTilePickerSlider();
-   void DrawTilePicker();
-   void HandleBrushSwitch(int itOld, int itNew);
+        void DrawSelectFillColor();
 
-   void SyncDB_ImageSets();
+        int iTileSelectX1, iTileSelectY1, iTileSelectX2, iTileSelectY2;
+        int iTileWriteIDx, iTileWriteIDy;
 
-   int iManipulatedGuide;
-   bool bShowGuideLines;
+        void DrawPlaneOverlay(WWD::Plane *hPl);
 
-   int RenderPlane(WWD::Plane * plane, int pl);
-   int RenderObject(WWD::Object * hObj, int x, int y, DWORD col);
-   int iTilesOnScreen, iObjectsOnScreen;
+        void ViewportOverlay();
 
-   SHR::ComboBut * cbutActiveMode;
+        bool bSimFold;
+        float fSimFoldY;
 
-   std::vector<cWindow*> hWindows;
-   winTileBrowser * hwinTileBrowser;
-   winImageSetBrowser * hwinImageSetBrowser;
-   winOptions * hwinOptions;
-   winAbout * hwinAbout;
- };
+        float fCameraMoveTimer;
+
+#ifdef BUILD_DEBUG
+        bool bShowConsole;
+#endif
+
+        cMDI *MDI;
+
+        bool bDragWindow;
+        int iWindowDragX, iWindowDragY;
+        RECT windowDragStartRect;
+
+        EditingWWvpCallback *vp;
+
+        void SetZoom(float fZ);
+
+        void RenderCloudTip(int x, int y, int w, int h, int ax, int ay);
+
+        bool bForceTileClipbPreview, bForceObjectClipbPreview;
+
+        void RenderTileClipboardPreview();
+
+        void RenderObjectClipboardPreview();
+
+        void UpdateSearchResults();
+
+        //EWW_TOOL_OBJSELAREA tool vars
+        SHR::Win *wintoolSelArea; //tool window
+        SHR::But *buttoolSelAreaOK, *buttoolSelAreaPickMinX, *buttoolSelAreaPickMinY,//accept, select min x, select min y buttons
+                *buttoolSelAreaPickMaxX, *buttoolSelAreaPickMaxY, *buttoolSelAreaAll; //select max x, select max y, select by area buttons
+        SHR::Lab *labtoolSelAreaValues; //label with values
+        int toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY; //cached values
+        int toolsaAction; //selected action
+
+        //PLANE MANAGER vars
+        SHR::Win *winpmMain;
+        SHR::ListBox *lbpmPlanes;
+        SHR::ScrollArea *sapmPlanes;
+        SHR::Lab *labpmPlanes, *labpmAnchor, *labpmWidth, *labpmHeight;
+        WIDG::Viewport *vppm;
+        SHR::Lab *labpmName, *labpmTileSize, *labpmTileSize_x, *labpmMovX, *labpmMovY, *labpmPlaneSize, *labpmMovement, *labpmZCoord, *labpmFlags, *labpmTileSet;
+        SHR::TextField *tfpmName, *tfpmTileSizeX, *tfpmTileSizeY, *tfpmPlaneSizeX, *tfpmPlaneSizeY, *tfpmMovX, *tfpmMovY, *tfpmZCoord;
+        SHR::DropDown *ddpmTileSet;
+        SHR::TextBox *tbpmImagesets;
+        SHR::But *butpmResUL, *butpmResU, *butpmResUR, *butpmResL, *butpmResC, *butpmResR, *butpmResDL, *butpmResD, *butpmResDR;
+        SHR::CBox *cbpmFlagMainPlane, *cbpmFlagNoDraw, *cbpmFlagWrapX, *cbpmFlagWrapY, *cbpmAutoTileSize;
+        SHR::But *butpmSave, *butpmDelete;
+        int ipmAnchor, ipmSizeX, ipmSizeY;
+
+        void SyncPlaneProperties();
+
+        void DrawPlaneProperties();
+
+        void SavePlaneProperties();
+
+        void DeletePlaneProperties();
+
+        void SetAnchorPlaneProperties(int anchor);
+
+        void HandleHotkeys();
+
+        //events
+        void ApplicationStartup(); //executed when intro is done
+        void PrepareForDocumentSwitch();
+
+        void DocumentSwitched();
+
+        //new map
+        win_NewMap *NewMap_data;
+
+        void NewMap_Open();
+
+        void NewMap_Close();
+
+        void NewMap_Think();
+
+        void NewMap_OK(); //called when OK button is pressed
+        void NewMap_Validate();
+
+        //first run
+        win_FirstRun *FirstRun_data;
+
+        void FirstRun_Open();
+
+        void FirstRun_Close();
+
+        void FirstRun_Think();
+
+        void FirstRun_Action(bool but);
+
+        //world options
+        void SyncWorldOptionsWithParser();
+
+        void SaveWorldOptions();
+
+        void LockToolSpecificFunctions(bool bLock); //to specific tools
+        void SetIconBarVisible(bool b);
+
+        float fObjPropMouseX, fObjPropMouseY; //to lock ppm object menu
+
+        //object edit
+        bool bEditObjDelete;
+        ObjEdit::cObjEdit *hEditObj;
+
+        bool IsEditableObject(WWD::Object *obj, ObjEdit::cObjEdit **hEdit = 0); //whether 'easy edit' is available
+        void OpenObjectEdit(WWD::Object *obj);
+
+        std::vector<WWD::Object *> vObjectsPicked, vObjectsHL, vObjectsForbidHL, vObjectClipboard, vObjectsBrushCB;
+
+        void SwitchActiveModeMenuBar(cModeMenuBar *n);
+
+        void CreateObjectWithEasyEdit(gcn::Widget *widg);
+
+        cInventoryController *hInvCtrl;
+
+        bool bShowHand;
+        DWORD dwCursorColor;
+
+        bool IsObjectEnemy(WWD::Object *obj);
+
+        std::vector<gcn::Widget *> vWidgetsToMinimalise;
+        std::vector<gcn::Widget *> vMinimalisedWidgets;
+
+        void MinimaliseWindows();
+
+        void MaximaliseWindows();
+
+        bool bObjectAlignAxis;
+
+        bool AreObjectSpecificOptionsAvailable(WWD::Object *obj, SHR::Context **conMod = 0);
+
+        int GetActiveMode() { return iMode; };
+
+        //app bar
+        float fAppBarTimers[2];
+
+        //window spacing
+        SHR::TextField *tfspacingDistance;
+        SHR::Win *winSpacing;
+        SHR::Lab *labspacingDistance;
+        SHR::But *butspacingOK;
+
+        //welcome screen
+        SHR::Contener *winWelcome;
+        SHR::But *butwsNew, *butwsOpen, *butwsRecently, *butwsWhatsnew;
+        WIDG::Viewport *vpws;
+        SHR::Lab *labwsRecently;
+
+        void DrawWelcomeScreen();
+
+        void UpdateSettings();
+
+        //wincrashretrieve
+        SHR::Contener *conCrashRetrieve, *conRecentFiles;
+        SHR::But *butCrashRetrieve;
+        WIDG::Viewport *vpCrashRetrieve;
+        char *szCrashRetrieve[10];
+        byte iCrashRetrieveIcon[10];
+        char *szCrashRetrieveMore;
+
+        void DrawCrashRetrieve();
+
+        std::vector<std::string> vstrMapsToLoad;
+
+        //MRU
+        cMruList *hMruList;
+
+        void MruListUpdated(); //called from cMruList when list has been updates
+
+        void RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill,
+                            DWORD hwFillCol); //renders area in viewport, given absolute screen-coords, if any coord = 0 then no draw
+        void RenderArrow(int x, int y, int x2, int y2, bool finished, bool setcolors = 1);
+
+        bool ValidateLevelName(const char *name, bool bAllowNoNum);
+
+        char *FixLevelName(int iBaseLvl, const char *name);
+
+        std::vector<cInventoryItem> GetContenerItems(WWD::Object *obj);
+
+        cServerIPC *hServerIPC;
+
+        EditingWWActionListener *al;
+
+        WWD::Plane *plMain;
+
+        cAppMenu *hAppMenu;
+        byte gamesLastOpened[10];
+
+        int PromptForDocument(char *dest);
+
+        int iTileDrawStartX, iTileDrawStartY;
+
+        SHR::Slider *sliZoom;
+
+        //tilepicker
+        SHR::Win *winTilePicker;
+        SHR::But *buttpiModePencil, *buttpiModeBrush, *buttpiSpray, *buttpiReloadBrush,
+                *buttpiPoint, *buttpiLine, *buttpiRect, *buttpiEllipse, *buttpiFlood;
+        SHR::Lab *labtpiReloadBrush, *labtpiModePencil, *labtpiModeBrush, *labtpiToolOptions, *labtpiPointSize, *labtpiSpraySize,
+                *labtpiSprayDensity, *labtpiLineThickness;
+        SHR::CBox *cbtpiRectFilled, *cbtpiEllipseFilled;
+        SHR::Slider *slitpiPointSize, *slitpiSpraySize, *slitpiSprayDensity, *slitpiLineThickness;
+        SHR::CBox *cbtpiShowTileID, *cbtpiShowProperties, *cbtpiDrawFilled;
+        SHR::TextField *tftpiPointSize;
+        SHR::Slider *slitpiPicker;
+        int iTilePickerOffUp, iTilePickerOffDown;
+        int iTileDrawMode;
+        int iPipetteTileHL;
+        bool btpiFixedPos;
+        WIDG::Viewport *vptpi;
+
+        void RebuildTilePicker();
+
+        void RefreshTilePickerSlider();
+
+        void DrawTilePicker();
+
+        void HandleBrushSwitch(int itOld, int itNew);
+
+        void SyncDB_ImageSets();
+
+        int iManipulatedGuide;
+        bool bShowGuideLines;
+
+        int RenderPlane(WWD::Plane *plane, int pl);
+
+        int RenderObject(WWD::Object *hObj, int x, int y, DWORD col);
+
+        int iTilesOnScreen, iObjectsOnScreen;
+
+        SHR::ComboBut *cbutActiveMode;
+
+        std::vector<cWindow *> hWindows;
+        winTileBrowser *hwinTileBrowser;
+        winImageSetBrowser *hwinImageSetBrowser;
+        winOptions *hwinOptions;
+        winAbout *hwinAbout;
+    };
 };
 
 #endif

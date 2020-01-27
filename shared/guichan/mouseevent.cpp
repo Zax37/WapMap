@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,60 +41,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/mouseevent.hpp"
 
-namespace gcn
-{
-	MouseEvent::MouseEvent(Widget* source,
-		bool isShiftPressed,
-		bool isControlPressed,
-		bool isAltPressed,
-		bool isMetaPressed,
-		unsigned int type,
-		unsigned int button,
-		int x,
-		int y,
-		int clickCount)
-		:InputEvent(source,
-			isShiftPressed,
-			isControlPressed,
-			isAltPressed,
-			isMetaPressed),
-		mType(type),
-		mButton(button),
-		mX(x),
-		mY(y),
-		mClickCount(clickCount)
-	{
+namespace gcn {
+    MouseEvent::MouseEvent(Widget *source,
+                           bool isShiftPressed,
+                           bool isControlPressed,
+                           bool isAltPressed,
+                           bool isMetaPressed,
+                           unsigned int type,
+                           unsigned int button,
+                           int x,
+                           int y,
+                           int clickCount)
+            : InputEvent(source,
+                         isShiftPressed,
+                         isControlPressed,
+                         isAltPressed,
+                         isMetaPressed),
+              mType(type),
+              mButton(button),
+              mX(x),
+              mY(y),
+              mClickCount(clickCount) {
 
-	}
+    }
 
-	unsigned int MouseEvent::getButton() const
-	{
-		return mButton;
-	}
+    unsigned int MouseEvent::getButton() const {
+        return mButton;
+    }
 
-	int MouseEvent::getX() const
-	{
-		return mX;
-	}
+    int MouseEvent::getX() const {
+        return mX;
+    }
 
-	int MouseEvent::getY() const
-	{
-		return mY;
-	}
+    int MouseEvent::getY() const {
+        return mY;
+    }
 
-	int MouseEvent::getClickCount() const
-	{
-		return mClickCount;
-	}
+    int MouseEvent::getClickCount() const {
+        return mClickCount;
+    }
 
-	unsigned int MouseEvent::getType() const
-	{
-		return mType;
-	}
+    unsigned int MouseEvent::getType() const {
+        return mType;
+    }
 }

@@ -9,49 +9,55 @@
 #include "../../shared/cPieChart.h"
 
 namespace State {
- class MapStats;
+    class MapStats;
 
- class cMapStatsAL: public gcn::ActionListener {
-  private:
-   MapStats * m_hOwn;
-  public:
-   void action(const gcn::ActionEvent &actionEvent);
-   cMapStatsAL(MapStats * owner){ m_hOwn = owner; };
- };
+    class cMapStatsAL : public gcn::ActionListener {
+    private:
+        MapStats *m_hOwn;
+    public:
+        void action(const gcn::ActionEvent &actionEvent);
 
- struct PlaneStat {
-  SHR::Contener * conPl;
-  SHR::cPieChart * tileTypes;
- };
+        cMapStatsAL(MapStats *owner) { m_hOwn = owner; };
+    };
 
- class MapStats : public SHR::cState {
-  public:
-   MapStats(WWD::Parser * hp);
-   virtual bool Opaque(){ return 0; };
-   virtual void Init();
-   virtual void Destroy();
-   virtual bool Think();
-   virtual bool Render();
-   //virtual void GainFocus(int iReturnCode);
+    struct PlaneStat {
+        SHR::Contener *conPl;
+        SHR::cPieChart *tileTypes;
+    };
 
-   WWD::Parser * hMap;
-   gcn::Gui * gui;
-   SHR::Contener * conMain;
-   SHR::Win * winStat;
-   SHR::TabbedArea * tabbedArea;
-   SHR::Contener * conGen, * conObjects;
+    class MapStats : public SHR::cState {
+    public:
+        MapStats(WWD::Parser *hp);
 
-   SHR::Lab * labTreasures, * labMapName, * labMapAuthor, * labMapDate, * labMapObjectCount, * labMapPerfectScore, * labMapLayersCount;
+        virtual bool Opaque() { return 0; };
 
-   PlaneStat * statsPl;
-   int iObjCount, iTreasureCount, iPerfectNeed;
+        virtual void Init();
 
-   SHR::cPieChart * pieTreasures;
+        virtual void Destroy();
 
-   bool bKill;
-   cMapStatsAL * hAL;
-  //friend class LoadMapActionListener;
- };
+        virtual bool Think();
+
+        virtual bool Render();
+        //virtual void GainFocus(int iReturnCode);
+
+        WWD::Parser *hMap;
+        gcn::Gui *gui;
+        SHR::Contener *conMain;
+        SHR::Win *winStat;
+        SHR::TabbedArea *tabbedArea;
+        SHR::Contener *conGen, *conObjects;
+
+        SHR::Lab *labTreasures, *labMapName, *labMapAuthor, *labMapDate, *labMapObjectCount, *labMapPerfectScore, *labMapLayersCount;
+
+        PlaneStat *statsPl;
+        int iObjCount, iTreasureCount, iPerfectNeed;
+
+        SHR::cPieChart *pieTreasures;
+
+        bool bKill;
+        cMapStatsAL *hAL;
+        //friend class LoadMapActionListener;
+    };
 
 };
 

@@ -10,50 +10,64 @@
 #include "../cDataController.h"
 
 class cSndBankAsset : public cAsset {
- protected:
-  HEFFECT m_snd;
-  cSndBankAsset(cFile hFile, std::string id);
-  ~cSndBankAsset();
- friend class cBankSound;
- public:
+protected:
+    HEFFECT m_snd;
 
-  virtual void Load();
-  virtual void Unload();
+    cSndBankAsset(cFile hFile, std::string id);
 
-  HEFFECT GetSound(){ return m_snd; };
+    ~cSndBankAsset();
 
-  virtual std::string GetMountPoint();
+    friend class cBankSound;
+
+public:
+
+    virtual void Load();
+
+    virtual void Unload();
+
+    HEFFECT GetSound() { return m_snd; };
+
+    virtual std::string GetMountPoint();
 };
 
 class cBankSound : public gcn::ListModel, public cAssetBank {
- private:
+private:
 
-  std::vector<cSndBankAsset*> m_vAssets;
+    std::vector<cSndBankAsset *> m_vAssets;
 
-  bool bBatchProcessing;
-  char * szPath;
-  REZ::Parser * hREZ;
-  bool bUseREZ;
-  int iBatchPackageCount;
- public:
-  cBankSound();
-  ~cBankSound();
+    bool bBatchProcessing;
+    char *szPath;
+    REZ::Parser *hREZ;
+    bool bUseREZ;
+    int iBatchPackageCount;
+public:
+    cBankSound();
 
-  cSndBankAsset * GetAssetByID(const char * pszID);
-  cSndBankAsset * GetAssetByIterator(int iIT){ if( iIT < 0 || iIT >= m_vAssets.size() ) return NULL; return m_vAssets[iIT]; }
+    ~cBankSound();
 
-  int GetAssetsCount(){ return m_vAssets.size(); };
-  //inherited
-  std::string getElementAt(int i);
-  int getNumberOfElements();
+    cSndBankAsset *GetAssetByID(const char *pszID);
 
-  void SortAssets();
+    cSndBankAsset *GetAssetByIterator(int iIT) {
+        if (iIT < 0 || iIT >= m_vAssets.size()) return NULL;
+        return m_vAssets[iIT];
+    }
 
-  virtual void BatchProcessStart(cDataController * hDC);
-  virtual void BatchProcessEnd(cDataController * hDC);
+    int GetAssetsCount() { return m_vAssets.size(); };
 
-  virtual void ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFiles);
-  virtual std::string GetFolderName(){ return std::string("SOUNDS"); };
+    //inherited
+    std::string getElementAt(int i);
+
+    int getNumberOfElements();
+
+    void SortAssets();
+
+    virtual void BatchProcessStart(cDataController *hDC);
+
+    virtual void BatchProcessEnd(cDataController *hDC);
+
+    virtual void ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles);
+
+    virtual std::string GetFolderName() { return std::string("SOUNDS"); };
 };
 
 #endif

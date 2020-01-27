@@ -8,54 +8,63 @@
  Class used to connect WM with installed game. It's responsible for version query, recognition and features access.
 **/
 
-class cNativeController
-{
- private:
-  std::string strNativePath;
-  std::string strExeHash;
-  std::string strVersion;
-  bool bValid;
-  int iVersion[3];
-  float fExeCheckTimer;
-  FILETIME ftExeModification;
-  bool bGod, bArmor, bDebug;
-  int iDisplayW, iDisplayH;
+class cNativeController {
+private:
+    std::string strNativePath;
+    std::string strExeHash;
+    std::string strVersion;
+    bool bValid;
+    int iVersion[3];
+    float fExeCheckTimer;
+    FILETIME ftExeModification;
+    bool bGod, bArmor, bDebug;
+    int iDisplayW, iDisplayH;
 
- public:
-  cNativeController();
-  cNativeController(std::string strPath);
+public:
+    cNativeController();
 
-  ~cNativeController();
+    cNativeController(std::string strPath);
 
-  bool IsValid();
-  bool SetPath(std::string strPath);
+    ~cNativeController();
 
-  std::string GetPath(){ return strNativePath; };
+    bool IsValid();
 
-  /* Returns -1 if not valid. Param `i` is one of MAJOR, MINOR, BUILD enums. */
-  int GetVersion(int iPart);
-  std::string GetVersionStr(){ return strVersion; };
+    bool SetPath(std::string strPath);
 
-  bool ExecutableChanged();
-  bool IsCrazyHookAvailable();
+    std::string GetPath() { return strNativePath; };
 
-  void SetDisplayResolution(int w, int h);
-  void SetGodMode(bool b);
-  void SetArmorMode(bool b);
-  void SetDebugInfo(bool b);
+    /* Returns -1 if not valid. Param `i` is one of MAJOR, MINOR, BUILD enums. */
+    int GetVersion(int iPart);
 
-  void RunGame(std::string strMap, int iPosX = -1, int iPosY = -1);
+    std::string GetVersionStr() { return strVersion; };
 
-  void GetDisplayResolution(int * w, int * h);
-  bool IsGodModeOn(){ return bGod; };
-  bool IsArmorModeOn(){ return bArmor; };
-  bool IsDebugInfoOn(){ return bDebug; };
+    bool ExecutableChanged();
 
- enum {
-  MAJOR = 0,
-  MINOR,
-  BUILD
- };
+    bool IsCrazyHookAvailable();
+
+    void SetDisplayResolution(int w, int h);
+
+    void SetGodMode(bool b);
+
+    void SetArmorMode(bool b);
+
+    void SetDebugInfo(bool b);
+
+    void RunGame(std::string strMap, int iPosX = -1, int iPosY = -1);
+
+    void GetDisplayResolution(int *w, int *h);
+
+    bool IsGodModeOn() { return bGod; };
+
+    bool IsArmorModeOn() { return bArmor; };
+
+    bool IsDebugInfoOn() { return bDebug; };
+
+    enum {
+        MAJOR = 0,
+        MINOR,
+        BUILD
+    };
 };
 
 #endif // H_C_NATIVECTRL

@@ -20,13 +20,12 @@ using namespace gcn;
 
 namespace SHR {
     class GCN_CORE_DECLSPEC DropDown :
-        public ActionListener,
-        public BasicContainer,
-        public KeyListener,
-        public MouseListener,
-        public FocusListener,
-        public gcn::SelectionListener
-    {
+            public ActionListener,
+            public BasicContainer,
+            public KeyListener,
+            public MouseListener,
+            public FocusListener,
+            public gcn::SelectionListener {
     public:
         DropDown(ListModel *listModel = NULL,
                  ScrollArea *scrollArea = NULL,
@@ -44,63 +43,79 @@ namespace SHR {
 
         void adjustHeight();
 
-        void addSelectionListener(SelectionListener* selectionListener);
+        void addSelectionListener(SelectionListener *selectionListener);
 
-        void removeSelectionListener(SelectionListener* selectionListener);
+        void removeSelectionListener(SelectionListener *selectionListener);
 
 
-        virtual void draw(Graphics* graphics);
-        void setBaseColor(const Color& color);
-        void setBackgroundColor(const Color& color);
-        void setForegroundColor(const Color& color);
+        virtual void draw(Graphics *graphics);
+
+        void setBaseColor(const Color &color);
+
+        void setBackgroundColor(const Color &color);
+
+        void setForegroundColor(const Color &color);
+
         void setFont(Font *font);
-        void setSelectionColor(const Color& color);
+
+        void setSelectionColor(const Color &color);
 
         virtual gcn::Rectangle getChildrenArea();
-        virtual void focusLost(const Event& event);
-        virtual void action(const ActionEvent& actionEvent);
-        virtual void death(const Event& event);
 
-        virtual void keyPressed(KeyEvent& keyEvent);
+        virtual void focusLost(const Event &event);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseWheelMovedUp(MouseEvent& mouseEvent);
-        virtual void mouseWheelMovedDown(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void action(const ActionEvent &actionEvent);
 
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void death(const Event &event);
+
+        virtual void keyPressed(KeyEvent &keyEvent);
+
+        virtual void mousePressed(MouseEvent &mouseEvent);
+
+        virtual void mouseReleased(MouseEvent &mouseEvent);
+
+        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
+
+        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
         virtual bool showHand();
 
-        virtual void valueChanged(const SelectionEvent& event);
+        virtual void valueChanged(const SelectionEvent &event);
 
-        void SetGfx(guiParts * n){ hGfx = n; };
+        void SetGfx(guiParts *n) { hGfx = n; };
 
-        void disableScroll(bool bDisable){ mScrollDisabled = bDisable; };
+        void disableScroll(bool bDisable) { mScrollDisabled = bDisable; };
 
     protected:
         virtual void dropDown();
+
         virtual void foldUp();
+
         void distributeValueChangedEvent();
+
         bool mDroppedDown;
         bool mPushed;
         bool mHasMouse;
         int mFoldedUpHeight;
-        ScrollArea* mScrollArea;
-        ListBox* mListBox;
+        ScrollArea *mScrollArea;
+        ListBox *mListBox;
         FocusHandler mInternalFocusHandler;
         bool mInternalScrollArea;
         bool mInternalListBox;
         bool mIsDragged;
         bool mScrollDisabled;
-        typedef std::list<SelectionListener*> SelectionListenerList;
+        typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;
         typedef SelectionListenerList::iterator SelectionListenerIterator;
         float fButtonTimer;
 
-        guiParts * hGfx;
+        guiParts *hGfx;
     };
 }
 

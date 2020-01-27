@@ -18,111 +18,133 @@
 #include "../cSoundPlayer.h"
 #include "guichan.hpp"
 
-namespace State
-{
- class EditingWW;
+namespace State {
+    class EditingWW;
 }
 
 class cBankImageSet;
 
 namespace ObjEdit {
- enum enType
- {
-  enCurse = 0,
-  enPathElevator,
-  enCheckpoint,
-  enWarp,
-  enWallCannon,
-  enCrumblingPeg,
-  enStatue,
-  enBreakPlank,
-  enCrate,
-  enTreasure,
-  enRope,
-  enHealth,
-  enSpecialPowerup,
-  enTogglePeg,
-  enCandy,
-  enSpringboard,
-  enDialog,
-  enProjectile,
-  enElevator,
-  enCrabNest,
-  enShake,
-  enStalactite,
-  enLaser,
-  enAmbient,
-  enEnemy,
-  enText
- };
+    enum enType {
+        enCurse = 0,
+        enPathElevator,
+        enCheckpoint,
+        enWarp,
+        enWallCannon,
+        enCrumblingPeg,
+        enStatue,
+        enBreakPlank,
+        enCrate,
+        enTreasure,
+        enRope,
+        enHealth,
+        enSpecialPowerup,
+        enTogglePeg,
+        enCandy,
+        enSpringboard,
+        enDialog,
+        enProjectile,
+        enElevator,
+        enCrabNest,
+        enShake,
+        enStalactite,
+        enLaser,
+        enAmbient,
+        enEnemy,
+        enText
+    };
 
- class EditingWW;
- class cObjEdit;
+    class EditingWW;
 
- class cObjEditVP: public WIDG::VpCallback {
-  private:
-   cObjEdit * m_hOwn;
-  public:
-   virtual void Draw(int iCode);
-   cObjEditVP(cObjEdit * owner){ m_hOwn = owner; };
- };
+    class cObjEdit;
 
- class cObjEditAL: public gcn::ActionListener {
-  private:
-   cObjEdit * m_hOwn;
-  public:
-   void action(const gcn::ActionEvent &actionEvent);
-   cObjEditAL(cObjEdit * owner){ m_hOwn = owner; };
- };
+    class cObjEditVP : public WIDG::VpCallback {
+    private:
+        cObjEdit *m_hOwn;
+    public:
+        virtual void Draw(int iCode);
 
- class cObjEdit {
-  private:
-   bool bObjectSaved, bChangesMade;
-   bool _bAddNext;
-   void SaveChanges();
-  protected:
-   int _iDragOffX, _iDragOffY;
-   DWORD dwHighlightColor;
-   bool bAllowDragging;
-   bool _bDragging;
-   cObjEditVP * vpCB;
+        cObjEditVP(cObjEdit *owner) { m_hOwn = owner; };
+    };
 
-   WWD::Object * hOrigObj;
-   WWD::Object * hTempObj;
+    class cObjEditAL : public gcn::ActionListener {
+    private:
+        cObjEdit *m_hOwn;
+    public:
+        void action(const gcn::ActionEvent &actionEvent);
 
-   WIDG::Viewport * vpAdv;
-   State::EditingWW * hState;
-   bool bKill;
-   cObjEditAL * hAL;
+        cObjEditAL(cObjEdit *owner) { m_hOwn = owner; };
+    };
 
-   SHR::But * _butAddNext, * _butSave;
+    class cObjEdit {
+    private:
+        bool bObjectSaved, bChangesMade;
+        bool _bAddNext;
 
-   friend class cObjEditVP;
-   friend class cObjEditAL;
+        void SaveChanges();
 
-   bool ChangesMade();
-   virtual void _Think(bool bMouseConsumed){};
-  public:
-   enType iType;
-   virtual ~cObjEdit();
-   cObjEdit(WWD::Object * obj, State::EditingWW * st);
-   virtual void Draw(){};
-   virtual void RenderObjectOverlay(){};
-   void Think(bool bMouseConsumed);
-   virtual void Action(const gcn::ActionEvent &actionEvent){};
-   virtual void Save(){};
-   void SetKill(bool b){ bKill = b; };
-   bool Kill(){ return bKill; };
-   bool ObjectSaved(){ return bObjectSaved; };
-   WWD::Object * GetOrigObj(){ return hOrigObj; };
-   WWD::Object * GetTempObj(){ return hTempObj; };
-   bool IsAddingNext(){ return _bAddNext; };
-   DWORD GetHighlightColor(){ return dwHighlightColor; };
-   int _iMoveInitX, _iMoveInitY;
-   bool IsMovingObject(){ return _bDragging; };
-   virtual void * GenerateNextObjectData(){ return NULL; };
-   virtual void ApplyDataFromPrevObject(void * ptr){};
- };
+    protected:
+        int _iDragOffX, _iDragOffY;
+        DWORD dwHighlightColor;
+        bool bAllowDragging;
+        bool _bDragging;
+        cObjEditVP *vpCB;
+
+        WWD::Object *hOrigObj;
+        WWD::Object *hTempObj;
+
+        WIDG::Viewport *vpAdv;
+        State::EditingWW *hState;
+        bool bKill;
+        cObjEditAL *hAL;
+
+        SHR::But *_butAddNext, *_butSave;
+
+        friend class cObjEditVP;
+
+        friend class cObjEditAL;
+
+        bool ChangesMade();
+
+        virtual void _Think(bool bMouseConsumed) {};
+    public:
+        enType iType;
+
+        virtual ~cObjEdit();
+
+        cObjEdit(WWD::Object *obj, State::EditingWW *st);
+
+        virtual void Draw() {};
+
+        virtual void RenderObjectOverlay() {};
+
+        void Think(bool bMouseConsumed);
+
+        virtual void Action(const gcn::ActionEvent &actionEvent) {};
+
+        virtual void Save() {};
+
+        void SetKill(bool b) { bKill = b; };
+
+        bool Kill() { return bKill; };
+
+        bool ObjectSaved() { return bObjectSaved; };
+
+        WWD::Object *GetOrigObj() { return hOrigObj; };
+
+        WWD::Object *GetTempObj() { return hTempObj; };
+
+        bool IsAddingNext() { return _bAddNext; };
+
+        DWORD GetHighlightColor() { return dwHighlightColor; };
+        int _iMoveInitX, _iMoveInitY;
+
+        bool IsMovingObject() { return _bDragging; };
+
+        virtual void *GenerateNextObjectData() { return NULL; };
+
+        virtual void ApplyDataFromPrevObject(void *ptr) {};
+    };
 };
 
 #endif

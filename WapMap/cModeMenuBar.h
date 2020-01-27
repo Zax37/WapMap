@@ -38,67 +38,91 @@
 #define NOBJCON_LASER       31
 #define NOBJCON_STALACTITE  32
 
-class cModeMenuBar
-{
- protected:
-  bool bVisible, bEnabled;
-  virtual void _setVisible(bool bVis){};
-  virtual void _setEnabled(bool bEn){};
- public:
-  cModeMenuBar();
-  virtual ~cModeMenuBar();
-  void SetVisible(bool bVis);
-  void SetEnabled(bool bEn);
-  bool IsVisible(){ return bVisible; };
-  bool IsEnabled(){ return bEnabled; };
-  virtual void DocumentSwitched(){};
-  std::vector<int> vSeparators;
+class cModeMenuBar {
+protected:
+    bool bVisible, bEnabled;
+
+    virtual void _setVisible(bool bVis) {};
+
+    virtual void _setEnabled(bool bEn) {};
+public:
+    cModeMenuBar();
+
+    virtual ~cModeMenuBar();
+
+    void SetVisible(bool bVis);
+
+    void SetEnabled(bool bEn);
+
+    bool IsVisible() { return bVisible; };
+
+    bool IsEnabled() { return bEnabled; };
+
+    virtual void DocumentSwitched() {};
+    std::vector<int> vSeparators;
 };
 
-class cmmbTile : public cModeMenuBar
-{
- private:
- protected:
-  virtual void _setVisible(bool bVis);
-  virtual void _setEnabled(bool bEn);
- public:
-  SHR::But * butIconPencil, * butIconBrush, * butIconFill, * butIconWriteID;
-  cmmbTile();
-  ~cmmbTile();
+class cmmbTile : public cModeMenuBar {
+private:
+protected:
+    virtual void _setVisible(bool bVis);
+
+    virtual void _setEnabled(bool bEn);
+
+public:
+    SHR::But *butIconPencil, *butIconBrush, *butIconFill, *butIconWriteID;
+
+    cmmbTile();
+
+    ~cmmbTile();
 };
 
-class cNewObjContextEl
-{
- public:
-  std::string strCaption;
-  hgeSprite * sprIcon;
-  int iID;
-  SHR::But * hButton;
-  cNewObjContextEl(int id, std::string cap, hgeSprite * spr, SHR::But * but){ iID = id; strCaption = cap; sprIcon = spr; hButton = but; };
+class cNewObjContextEl {
+public:
+    std::string strCaption;
+    hgeSprite *sprIcon;
+    int iID;
+    SHR::But *hButton;
+
+    cNewObjContextEl(int id, std::string cap, hgeSprite *spr, SHR::But *but) {
+        iID = id;
+        strCaption = cap;
+        sprIcon = spr;
+        hButton = but;
+    };
 };
 
-class cmmbObject : public cModeMenuBar, public gcn::ActionListener
-{
- private:
-  int iContextOffset;
-  SHR::Context * conNewObject;
-  std::vector<cNewObjContextEl> vContextElements;
-  void RebuildContext();
- protected:
-  virtual void _setVisible(bool bVis);
-  virtual void _setEnabled(bool bEn);
- public:
-  SHR::But * butIconSearchObject, * butIconNewObjEmpty, * butIconCrumblinPeg, * butIconBreakPlank, * butIconTogglePeg, * butIconElevator,
-           * butIconPathElevator, * butIconSpringBoard, * butIconTreasure, * butIconCurse, * butIconCrate, * butIconStatue,
-           * butIconPowderKeg, * butIconCannon, * butIconWallCannon, * butIconSpikes, * butIconEyeCandy,
-           * butIconCheckpoint, * butIconText, * butIconWarp, * butIconDialog, * butIconSound, * butIconRope, * butIconMapPiece,
-           * butIconHealth, * butIconCatnip, * butIconProjectile, * butIconCrabNest, * butIconShake, * butIconStalactite, * butIconLaser,
-           * butIconEnemy[5];
-  std::vector<SHR::But*> vButtons;
-  cmmbObject();
-  ~cmmbObject();
-  SHR::Context * GetContext(){ return conNewObject; };
-  virtual void DocumentSwitched();
-  void action(const gcn::ActionEvent &actionEvent); //inherited from ActionListener
+class cmmbObject : public cModeMenuBar, public gcn::ActionListener {
+private:
+    int iContextOffset;
+    SHR::Context *conNewObject;
+    std::vector<cNewObjContextEl> vContextElements;
+
+    void RebuildContext();
+
+protected:
+    virtual void _setVisible(bool bVis);
+
+    virtual void _setEnabled(bool bEn);
+
+public:
+    SHR::But *butIconSearchObject, *butIconNewObjEmpty, *butIconCrumblinPeg, *butIconBreakPlank, *butIconTogglePeg, *butIconElevator,
+            *butIconPathElevator, *butIconSpringBoard, *butIconTreasure, *butIconCurse, *butIconCrate, *butIconStatue,
+            *butIconPowderKeg, *butIconCannon, *butIconWallCannon, *butIconSpikes, *butIconEyeCandy,
+            *butIconCheckpoint, *butIconText, *butIconWarp, *butIconDialog, *butIconSound, *butIconRope, *butIconMapPiece,
+            *butIconHealth, *butIconCatnip, *butIconProjectile, *butIconCrabNest, *butIconShake, *butIconStalactite, *butIconLaser,
+            *butIconEnemy[5];
+    std::vector<SHR::But *> vButtons;
+
+    cmmbObject();
+
+    ~cmmbObject();
+
+    SHR::Context *GetContext() { return conNewObject; };
+
+    virtual void DocumentSwitched();
+
+    void action(const gcn::ActionEvent &actionEvent); //inherited from ActionListener
 };
+
 #endif

@@ -13,55 +13,62 @@ using namespace gcn;
 
 struct cInterfaceSheet;
 
-namespace SHR
-{
+namespace SHR {
     class GCN_CORE_DECLSPEC RadBut :
-        public gcn::Widget,
-        public MouseListener,
-        public KeyListener
-    {
+            public gcn::Widget,
+            public MouseListener,
+            public KeyListener {
     public:
         RadBut();
-        RadBut(cInterfaceSheet * Parts,
+
+        RadBut(cInterfaceSheet *Parts,
                const std::string &caption,
                const std::string &group,
                bool selected = false);
+
         virtual ~RadBut();
 
         bool isSelected() const;
+
         void setSelected(bool selected);
 
         const std::string &getCaption() const;
+
         void setCaption(const std::string caption);
 
         void setGroup(const std::string &group);
+
         const std::string &getGroup() const;
 
         void adjustSize();
-        void allowDisselection(bool b){ bAllowDisselect = b; };
+
+        void allowDisselection(bool b) { bAllowDisselect = b; };
 
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
 
         // Inherited from KeyListener
 
-        virtual void keyPressed(KeyEvent& keyEvent);
+        virtual void keyPressed(KeyEvent &keyEvent);
 
 
         // Inherited from MouseListener
 
-        virtual void mouseClicked(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void mouseClicked(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
         virtual bool showHand();
 
     protected:
-        cInterfaceSheet * hGfx;
+        cInterfaceSheet *hGfx;
         bool mSelected;
         std::string mCaption;
         std::string mGroup;

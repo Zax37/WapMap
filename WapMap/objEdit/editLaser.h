@@ -3,20 +3,24 @@
 
 #include "../states/objedit.h"
 
-namespace ObjEdit
-{
- class cEditObjLaser : public cObjEdit {
-  private:
-   SHR::Lab * labTimeOff, * labDmg;
-   SHR::TextField * tfTimeOff, * tfDmg;
-   SHR::Win * win;
-  friend class cObjPropVP;
-  public:
-   cEditObjLaser(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjLaser();
-   virtual void Save();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
- };
+namespace ObjEdit {
+    class cEditObjLaser : public cObjEdit {
+    private:
+        SHR::Lab *labTimeOff, *labDmg;
+        SHR::TextField *tfTimeOff, *tfDmg;
+        SHR::Win *win;
+
+        friend class cObjPropVP;
+
+    public:
+        cEditObjLaser(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjLaser();
+
+        virtual void Save();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+    };
 
 }
 

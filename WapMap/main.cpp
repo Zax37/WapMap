@@ -10,21 +10,21 @@
 HGE *hge = 0;
 
 bool FrameFunc() {
-	if (GV->StateMgr->Think())
-		return true;
+    if (GV->StateMgr->Think())
+        return true;
 
-	if (GV->editState->hAU) {
-		if (GV->editState->hAU->Think()) {
-			delete GV->editState->hAU;
-			GV->editState->hAU = 0;
-		}
-	}
+    if (GV->editState->hAU) {
+        if (GV->editState->hAU->Think()) {
+            delete GV->editState->hAU;
+            GV->editState->hAU = 0;
+        }
+    }
 
-	if (GV->anyMapLoaded) {
-		GV->editState->hDataCtrl->Think();
-	}
+    if (GV->anyMapLoaded) {
+        GV->editState->hDataCtrl->Think();
+    }
 
-	return false;
+    return false;
 }
 
 bool RenderFunc() {
@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     char tmp[768];
     ::GetModuleFileName(NULL, tmp, 768);
 
-	remove(".wm_update.exe");
+    remove(".wm_update.exe");
 
 #ifndef BUILD_DEBUG
     char *fn = SHR::GetFile(tmp);
@@ -91,25 +91,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
         while (Process32Next(snapshot, &entry) == TRUE) {
             if (strcmpi(entry.szExeFile, EXENAME) == 0) {
                 if (procid != entry.th32ProcessID) {
-					for (int retries = 0; retries <= 2; retries++) {
-						if (cmdline[0] && cmdline[0] != '-') {
-							cClientIPC *hIPC = new cClientIPC();
-							if (hIPC->IsConnected()) {
-								if (hIPC->RemoteOpenMap(cmdline)) {
-									delete hIPC;
-									return 0;
-								}
-							}
-							delete hIPC;
-						}
+                    for (int retries = 0; retries <= 2; retries++) {
+                        if (cmdline[0] && cmdline[0] != '-') {
+                            cClientIPC *hIPC = new cClientIPC();
+                            if (hIPC->IsConnected()) {
+                                if (hIPC->RemoteOpenMap(cmdline)) {
+                                    delete hIPC;
+                                    return 0;
+                                }
+                            }
+                            delete hIPC;
+                        }
 
-						_sleep(2000);
-					}
-					
-					MessageBox(NULL, "WapMap is already running.", "WapMap", MB_OK | MB_ICONERROR);
-					return 1;
-				}
-				else break;
+                        _sleep(2000);
+                    }
+
+                    MessageBox(NULL, "WapMap is already running.", "WapMap", MB_OK | MB_ICONERROR);
+                    return 1;
+                } else break;
             }
         }
     }

@@ -5,20 +5,17 @@
 #include "guichan/graphics.hpp"
 #include "hge.h"
 
-extern HGE * hge;
+extern HGE *hge;
 
-namespace WIDG
-{
-	Viewport::Viewport(VpCallback * phCallback, int piCode)
-	{
-		hCallback = phCallback;
-		iCode = piCode;
-	}
+namespace WIDG {
+    Viewport::Viewport(VpCallback *phCallback, int piCode) {
+        hCallback = phCallback;
+        iCode = piCode;
+    }
 
-	void Viewport::draw(Graphics* graphics)
-	{
-		ClipRectangle rect = graphics->getCurrentClipArea();
-		hCallback->Draw(iCode);
-		hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
-	}
+    void Viewport::draw(Graphics *graphics) {
+        ClipRectangle rect = graphics->getCurrentClipArea();
+        hCallback->Draw(iCode);
+        hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
+    }
 }

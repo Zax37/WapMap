@@ -3,24 +3,29 @@
 
 #include "../states/objedit.h"
 
-namespace ObjEdit
-{
- class cEditObjBreakPlank : public cObjEdit {
-  private:
-   SHR::TextField * tfCounter, * tfWidth;
-   SHR::Lab * labCounter, * labWidth;
-   SHR::Win * win;
-   bool bDragging, bPicked;
-   int iClickX, iClickY;
-  friend class cObjPropVP;
-  protected:
-   virtual void _Think(bool bMouseConsumed);
-  public:
-   cEditObjBreakPlank(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjBreakPlank();
-   virtual void Save();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
- };
+namespace ObjEdit {
+    class cEditObjBreakPlank : public cObjEdit {
+    private:
+        SHR::TextField *tfCounter, *tfWidth;
+        SHR::Lab *labCounter, *labWidth;
+        SHR::Win *win;
+        bool bDragging, bPicked;
+        int iClickX, iClickY;
+
+        friend class cObjPropVP;
+
+    protected:
+        virtual void _Think(bool bMouseConsumed);
+
+    public:
+        cEditObjBreakPlank(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjBreakPlank();
+
+        virtual void Save();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+    };
 
 }
 

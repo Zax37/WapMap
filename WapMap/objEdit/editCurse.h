@@ -3,21 +3,25 @@
 
 #include "../states/objedit.h"
 
-namespace ObjEdit
-{
- class cEditObjCurse : public cObjEdit {
-  private:
-   SHR::RadBut * rbCurses[6];
-   SHR::Win * win;
-   float fCurseAnim;
-   byte iFrame;
-  friend class cObjPropVP;
-  public:
-   cEditObjCurse(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjCurse();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
-   virtual void Draw();
- };
+namespace ObjEdit {
+    class cEditObjCurse : public cObjEdit {
+    private:
+        SHR::RadBut *rbCurses[6];
+        SHR::Win *win;
+        float fCurseAnim;
+        byte iFrame;
+
+        friend class cObjPropVP;
+
+    public:
+        cEditObjCurse(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjCurse();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+
+        virtual void Draw();
+    };
 
 }
 

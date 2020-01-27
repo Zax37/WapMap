@@ -2,8 +2,8 @@
 #define H_C_TILEGHOST
 
 struct TileGhost {
- int x, y, id;
- WWD::Plane * pl;
+    int x, y, id;
+    WWD::Plane *pl;
 };
 
 #endif

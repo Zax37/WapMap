@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,9 +41,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/widgets/label.hpp"
 
@@ -51,70 +51,60 @@
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 
-namespace gcn
-{
-	Label::Label()
-	{
-		mAlignment = Graphics::LEFT;
-	}
+namespace gcn {
+    Label::Label() {
+        mAlignment = Graphics::LEFT;
+    }
 
-	Label::Label(const std::string& caption)
-	{
-		mCaption = caption;
-		mAlignment = Graphics::LEFT;
+    Label::Label(const std::string &caption) {
+        mCaption = caption;
+        mAlignment = Graphics::LEFT;
 
-		setWidth(getFont()->getWidth(caption));
-		setHeight(getFont()->getHeight());
-	}
+        setWidth(getFont()->getWidth(caption));
+        setHeight(getFont()->getHeight());
+    }
 
-	const std::string &Label::getCaption() const
-	{
-		return mCaption;
-	}
+    const std::string &Label::getCaption() const {
+        return mCaption;
+    }
 
-	void Label::setCaption(const std::string& caption)
-	{
-		mCaption = caption;
-	}
+    void Label::setCaption(const std::string &caption) {
+        mCaption = caption;
+    }
 
-	void Label::setAlignment(Graphics::Alignment alignment)
-	{
-		mAlignment = alignment;
-	}
+    void Label::setAlignment(Graphics::Alignment alignment) {
+        mAlignment = alignment;
+    }
 
-	Graphics::Alignment Label::getAlignment() const
-	{
-		return mAlignment;
-	}
+    Graphics::Alignment Label::getAlignment() const {
+        return mAlignment;
+    }
 
-	void Label::draw(Graphics* graphics)
-	{
-		int textX;
-		int textY = getHeight() / 2 - getFont()->getHeight() / 2;
+    void Label::draw(Graphics *graphics) {
+        int textX;
+        int textY = getHeight() / 2 - getFont()->getHeight() / 2;
 
-		switch (getAlignment())
-		{
-		case Graphics::LEFT:
-			textX = 0;
-			break;
-		case Graphics::CENTER:
-			textX = getWidth() / 2;
-			break;
-		case Graphics::RIGHT:
-			textX = getWidth();
-			break;
-		default:
-			throw GCN_EXCEPTION("Unknown alignment.");
-		}
+        switch (getAlignment()) {
+            case Graphics::LEFT:
+                textX = 0;
+                break;
+            case Graphics::CENTER:
+                textX = getWidth() / 2;
+                break;
+            case Graphics::RIGHT:
+                textX = getWidth();
+                break;
+            default:
+                throw GCN_EXCEPTION("Unknown alignment.");
+        }
 
-		graphics->setFont(getFont());
-		graphics->setColor(getForegroundColor());
-		graphics->drawText(getCaption(), textX, textY, getAlignment());
-	}
+        graphics->setFont(getFont());
+        graphics->setColor(getForegroundColor());
+        graphics->drawText(getCaption(), textX, textY, getAlignment());
+    }
 
-	void Label::adjustSize()
-	{
-		setWidth(getFont()->getWidth(getCaption()));
-		setHeight(getFont()->getHeight());
-	}
+    void Label::adjustSize() {
+        setWidth(getFont()->getWidth(getCaption()));
+        setHeight(getFont()->getHeight());
+    }
 }

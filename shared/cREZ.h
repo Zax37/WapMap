@@ -29,118 +29,178 @@ typedef unsigned char byte;
 
 namespace REZ {
 
-	class Parser;
+    class Parser;
 
-	enum REZ_SORTMETHOD {
-		Sort_ByInts = 0,
-		Sort_Default = 1
-	};
+    enum REZ_SORTMETHOD {
+        Sort_ByInts = 0,
+        Sort_Default = 1
+    };
 
-	class Exception {
-	public:
-		char ErrorStr[128];
-		int ErrorCode;
-		char * File;
-		int Line;
-		void Printf() { printf("REZ err #%d: %s on line %d in file %s.", ErrorCode, ErrorStr, Line, File); };
-		Exception(char * pszErrorStr, int errorc, char * pszFile, int piLine) { strcpy(ErrorStr, pszErrorStr); Line = piLine; ErrorCode = errorc; File = new char[strlen(pszFile) + 1]; strcpy(File, pszFile); };
-		~Exception() { if (File != NULL) delete[] File; }
-	};
+    class Exception {
+    public:
+        char ErrorStr[128];
+        int ErrorCode;
+        char *File;
+        int Line;
 
-	class Element {
-	private:
-		Parser * m_hOwner;
-		unsigned int m_uiOffset;
-		unsigned int m_uiLen;
-		unsigned int m_uiTime;
-		char * m_szName;
-		friend class File;
-		friend class Dir;
-		friend class Parser;
-	public:
+        void Printf() { printf("REZ err #%d: %s on line %d in file %s.", ErrorCode, ErrorStr, Line, File); };
 
-		virtual ~Element() {};
-		unsigned int GetModificationDate() { return m_uiTime; };
-		unsigned int GetSize() { return m_uiLen; };
-		unsigned int GetOffset() { return m_uiOffset; };
-		const char * GetName() { return (const char*)m_szName; };
-		virtual bool IsDir() { return 0; };
-		virtual bool IsFile() { return 0; };
-	};
+        Exception(char *pszErrorStr, int errorc, char *pszFile, int piLine) {
+            strcpy(ErrorStr, pszErrorStr);
+            Line = piLine;
+            ErrorCode = errorc;
+            File = new char[strlen(pszFile) + 1];
+            strcpy(File, pszFile);
+        };
 
-	bool ElementComparison(REZ::Element * one, REZ::Element * two);
-	bool ElementComparisonInt(REZ::Element * one, REZ::Element * two);
+        ~Exception() { if (File != NULL) delete[] File; }
+    };
 
-	class File : public Element {
-	private:
-		unsigned int m_uiID;
-		friend class Parser;
-	public:
-		File();
-		~File();
-		unsigned int GetID() { return m_uiID; };
-		virtual bool IsDir() { return 0; };
-		virtual bool IsFile() { return 1; };
-		void * GetData(int * oiDataSize);
-		void * GetDataChunk(int iSize);
-	};
+    class Element {
+    private:
+        Parser *m_hOwner;
+        unsigned int m_uiOffset;
+        unsigned int m_uiLen;
+        unsigned int m_uiTime;
+        char *m_szName;
 
-	class Dir : public Element {
-	private:
-		std::vector<Element*> m_vElements;
-		friend class Parser;
-		void Reset();
-	public:
-		Dir();
-		~Dir();
-		int GetFilesCount();
-		int GetDirsCount();
-		int GetElementsCountR();
-		int GetFilesCountR();
-		int GetDirsCountR();
-		int GetElementsCount() { return m_vElements.size(); };
-		Element * GetElement(int piPos) { return m_vElements[piPos]; };
-		Element * GetElement(const char * pszName);
-		virtual bool IsDir() { return 1; };
-		virtual bool IsFile() { return 0; };
+        friend class File;
 
-		void Sort(REZ_SORTMETHOD pMethod = Sort_Default);
+        friend class Dir;
 
-		bool FileExists(const char * pszPath);
-	};
+        friend class Parser;
 
-	class Parser {
-	private:
-		Dir m_hRoot;
-		std::istream * m_isSource;
-		bool m_bFromFile, m_bInited;
-		char m_szEditor[60], m_szComment[60];
-		int m_iVersion;
-		void Parse();
-		void ReadDir(Dir * phDir, int piRLevel = 0);
-		std::istream * GetSourceStream();
-		std::string strFilePath;
-		unsigned int iLastRead;
-		friend class File;
-	public:
-		Parser();
-		Parser(const char * pszFile);
-		void LoadFile(const char * pszFile);
-		~Parser();
-		bool IsFromFile() { return m_bFromFile; };
-		int GetVersion() { return m_iVersion; };
-		Dir * GetRoot() { return &m_hRoot; };
-		const char * GetEditorName() { return (const char*)m_szEditor; };
-		const char * GetComment() { return (const char*)m_szComment; };
+    public:
 
-		void Reload();
-		bool AttachFile(bool bForceReload = 0);
-		void DetachFile();
-		bool IsFileAttached() { return m_isSource != 0; };
+        virtual ~Element() {};
 
-		unsigned int GetActualModTime();
-		unsigned int GetReadModTime() { return iLastRead; };
-	};
+        unsigned int GetModificationDate() { return m_uiTime; };
+
+        unsigned int GetSize() { return m_uiLen; };
+
+        unsigned int GetOffset() { return m_uiOffset; };
+
+        const char *GetName() { return (const char *) m_szName; };
+
+        virtual bool IsDir() { return 0; };
+
+        virtual bool IsFile() { return 0; };
+    };
+
+    bool ElementComparison(REZ::Element *one, REZ::Element *two);
+
+    bool ElementComparisonInt(REZ::Element *one, REZ::Element *two);
+
+    class File : public Element {
+    private:
+        unsigned int m_uiID;
+
+        friend class Parser;
+
+    public:
+        File();
+
+        ~File();
+
+        unsigned int GetID() { return m_uiID; };
+
+        virtual bool IsDir() { return 0; };
+
+        virtual bool IsFile() { return 1; };
+
+        void *GetData(int *oiDataSize);
+
+        void *GetDataChunk(int iSize);
+    };
+
+    class Dir : public Element {
+    private:
+        std::vector<Element *> m_vElements;
+
+        friend class Parser;
+
+        void Reset();
+
+    public:
+        Dir();
+
+        ~Dir();
+
+        int GetFilesCount();
+
+        int GetDirsCount();
+
+        int GetElementsCountR();
+
+        int GetFilesCountR();
+
+        int GetDirsCountR();
+
+        int GetElementsCount() { return m_vElements.size(); };
+
+        Element *GetElement(int piPos) { return m_vElements[piPos]; };
+
+        Element *GetElement(const char *pszName);
+
+        virtual bool IsDir() { return 1; };
+
+        virtual bool IsFile() { return 0; };
+
+        void Sort(REZ_SORTMETHOD pMethod = Sort_Default);
+
+        bool FileExists(const char *pszPath);
+    };
+
+    class Parser {
+    private:
+        Dir m_hRoot;
+        std::istream *m_isSource;
+        bool m_bFromFile, m_bInited;
+        char m_szEditor[60], m_szComment[60];
+        int m_iVersion;
+
+        void Parse();
+
+        void ReadDir(Dir *phDir, int piRLevel = 0);
+
+        std::istream *GetSourceStream();
+
+        std::string strFilePath;
+        unsigned int iLastRead;
+
+        friend class File;
+
+    public:
+        Parser();
+
+        Parser(const char *pszFile);
+
+        void LoadFile(const char *pszFile);
+
+        ~Parser();
+
+        bool IsFromFile() { return m_bFromFile; };
+
+        int GetVersion() { return m_iVersion; };
+
+        Dir *GetRoot() { return &m_hRoot; };
+
+        const char *GetEditorName() { return (const char *) m_szEditor; };
+
+        const char *GetComment() { return (const char *) m_szComment; };
+
+        void Reload();
+
+        bool AttachFile(bool bForceReload = 0);
+
+        void DetachFile();
+
+        bool IsFileAttached() { return m_isSource != 0; };
+
+        unsigned int GetActualModTime();
+
+        unsigned int GetReadModTime() { return iLastRead; };
+    };
 };
 
 #endif

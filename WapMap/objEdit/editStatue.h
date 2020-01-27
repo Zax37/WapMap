@@ -4,44 +4,52 @@
 #include "../states/objedit.h"
 #include "../../shared/gcnWidgets/wInventory.h"
 
-namespace ObjEdit
-{
- class cInvPickbox;
+namespace ObjEdit {
+    class cInvPickbox;
 
- class lmEditObjStatueDurability: public gcn::ListModel {
-  public:
-   std::string getElementAt(int i);
-   int getNumberOfElements();
- };
+    class lmEditObjStatueDurability : public gcn::ListModel {
+    public:
+        std::string getElementAt(int i);
 
- class cEditObjStatue : public cObjEdit {
-  private:
-   SHR::RadBut * rbType[2];
-   SHR::Win * win;
-   cInvPickbox * hInventory;
-   lmEditObjStatueDurability * lmDurability;
-   SHR::DropDown * ddDurability;
-   SHR::Lab * labDurability, * labAlign, * labTreasures;
-   SHR::InvTab * invTabs[9];
+        int getNumberOfElements();
+    };
 
-   SHR::TextField * tfWarpX, * tfWarpY;
-   SHR::Lab * labWarpDest;
-   SHR::But * butWarpPick;
+    class cEditObjStatue : public cObjEdit {
+    private:
+        SHR::RadBut *rbType[2];
+        SHR::Win *win;
+        cInvPickbox *hInventory;
+        lmEditObjStatueDurability *lmDurability;
+        SHR::DropDown *ddDurability;
+        SHR::Lab *labDurability, *labAlign, *labTreasures;
+        SHR::InvTab *invTabs[9];
 
-   bool bPick;
-   bool bShowWarpOptions;
+        SHR::TextField *tfWarpX, *tfWarpY;
+        SHR::Lab *labWarpDest;
+        SHR::But *butWarpPick;
 
-   void RebuildWindow();
-  friend class cObjPropVP;
-  public:
-   cEditObjStatue(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjStatue();
-   virtual void Save();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
-   virtual void Draw();
-   bool PreviewWarp(){ return bShowWarpOptions; };
-   bool Picking(){ return bPick; };
- };
+        bool bPick;
+        bool bShowWarpOptions;
+
+        void RebuildWindow();
+
+        friend class cObjPropVP;
+
+    public:
+        cEditObjStatue(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjStatue();
+
+        virtual void Save();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+
+        virtual void Draw();
+
+        bool PreviewWarp() { return bShowWarpOptions; };
+
+        bool Picking() { return bPick; };
+    };
 
 }
 

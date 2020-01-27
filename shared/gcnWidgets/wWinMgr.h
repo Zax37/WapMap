@@ -9,8 +9,7 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     /**
      * An implementation of a WinMgr able to contain other widgets. A widget's
      * position in the WinMgr is relative to the WinMgr itself and not the screen.
@@ -19,8 +18,7 @@ namespace SHR
      *
      * @see Gui::setTop
      */
-    class GCN_CORE_DECLSPEC WinMgr: public BasicContainer
-    {
+    class GCN_CORE_DECLSPEC WinMgr : public BasicContainer {
     public:
 
         /**
@@ -64,7 +62,7 @@ namespace SHR
          * @param widget The widget to add.
          * @see remove, clear
          */
-        virtual void add(Widget* widget);
+        virtual void add(Widget *widget);
 
         /**
          * Adds a widget to the WinMgr and also specifies the widget's
@@ -76,7 +74,7 @@ namespace SHR
          * @param y The y coordinate for the widget.
          * @see remove, clear
          */
-        virtual void add(Widget* widget, int x, int y);
+        virtual void add(Widget *widget, int x, int y);
 
         /**
          * Removes a widget from the WinMgr.
@@ -86,7 +84,7 @@ namespace SHR
          *                   WinMgr.
          * @see add, clear
          */
-        virtual void remove(Widget* widget);
+        virtual void remove(Widget *widget);
 
         /**
          * Clears the WinMgr of all widgets.
@@ -103,12 +101,12 @@ namespace SHR
          *         is found.
          * @see Widget::setId
          */
-        virtual Widget* findWidgetById(const std::string &id);
+        virtual Widget *findWidgetById(const std::string &id);
 
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
     protected:
         /**

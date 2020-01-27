@@ -29,9 +29,9 @@ extern "C" {
 //during conversion. It takes a little more time, but it is the correct
 //way of doing this. If you are sure your floats are always valid,
 //you can undefine this value...
-#define CLAMP_HALF		1
-#define CLAMP_FLOATS	1
-#define CLAMP_DOUBLES	1
+#define CLAMP_HALF        1
+#define CLAMP_FLOATS    1
+#define CLAMP_DOUBLES    1
 
 /*#ifdef _WIN32_WCE
 	#define IL_NO_EXR
@@ -56,11 +56,11 @@ extern "C" {
 #endif //DJGPP*/
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
-		#if defined(_MSC_VER) || defined(__BORLANDC__)
-			#pragma comment(lib, "DevIL.lib")
-		#endif
-	#endif
+#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+#pragma comment(lib, "DevIL.lib")
+#endif
+#endif
 #endif
 
 #ifdef RESTRICT_KEYWORD
@@ -73,23 +73,23 @@ extern "C" {
 
 #include <stdio.h>
 
-typedef unsigned int   ILenum;
-typedef unsigned char  ILboolean;
-typedef unsigned int   ILbitfield;
-typedef signed char    ILbyte;
-typedef signed short   ILshort;
-typedef int     	   ILint;
-typedef size_t         ILsizei;
-typedef unsigned char  ILubyte;
+typedef unsigned int ILenum;
+typedef unsigned char ILboolean;
+typedef unsigned int ILbitfield;
+typedef signed char ILbyte;
+typedef signed short ILshort;
+typedef int ILint;
+typedef size_t ILsizei;
+typedef unsigned char ILubyte;
 typedef unsigned short ILushort;
-typedef unsigned int   ILuint;
-typedef float          ILfloat;
-typedef float          ILclampf;
-typedef double         ILdouble;
-typedef double         ILclampd;
+typedef unsigned int ILuint;
+typedef float ILfloat;
+typedef float ILclampf;
+typedef double ILdouble;
+typedef double ILclampd;
 
 #ifdef _MSC_VER
-typedef __int64          ILint64;
+typedef __int64 ILint64;
 typedef unsigned __int64 ILuint64;
 #else
 typedef long long int          ILint64;
@@ -99,30 +99,30 @@ typedef long long unsigned int ILuint64;
 
 #include <limits.h>
 #ifdef _UNICODE
-	#ifndef _WIN32_WCE
-		#include <wchar.h>
-	#endif
-	//if we use a define instead of a typedef,
-	//ILconst_string works as intended
-	#define ILchar wchar_t
-	#define ILstring wchar_t*
-	#define ILconst_string  wchar_t const *
+#ifndef _WIN32_WCE
+#include <wchar.h>
+#endif
+//if we use a define instead of a typedef,
+//ILconst_string works as intended
+#define ILchar wchar_t
+#define ILstring wchar_t*
+#define ILconst_string  wchar_t const *
 #else
-	//if we use a define instead of a typedef,
-	//ILconst_string works as intended
-	#define ILchar char
-	#define ILstring char*
-	#define ILconst_string char const *
+//if we use a define instead of a typedef,
+//ILconst_string works as intended
+#define ILchar char
+#define ILstring char*
+#define ILconst_string char const *
 #endif //_UNICODE
 
-#define IL_FALSE			0
-#define IL_TRUE				1
+#define IL_FALSE            0
+#define IL_TRUE                1
 
 //  Matches OpenGL's right now.
 //! Data formats \link Formats Formats\endlink
 #define IL_COLOUR_INDEX     0x1900
 #define IL_COLOR_INDEX      0x1900
-#define IL_ALPHA			0x1906
+#define IL_ALPHA            0x1906
 #define IL_RGB              0x1907
 #define IL_RGBA             0x1908
 #define IL_BGR              0x80E0
@@ -142,15 +142,15 @@ typedef long long unsigned int ILuint64;
 #define IL_HALF           0x140B
 
 
-#define IL_MAX_BYTE		  		SCHAR_MAX
-#define IL_MAX_UNSIGNED_BYTE  	UCHAR_MAX
-#define IL_MAX_SHORT	  		SHRT_MAX
-#define IL_MAX_UNSIGNED_SHORT 	USHRT_MAX
-#define IL_MAX_INT		  		INT_MAX
-#define IL_MAX_UNSIGNED_INT   	UINT_MAX
+#define IL_MAX_BYTE                SCHAR_MAX
+#define IL_MAX_UNSIGNED_BYTE    UCHAR_MAX
+#define IL_MAX_SHORT            SHRT_MAX
+#define IL_MAX_UNSIGNED_SHORT    USHRT_MAX
+#define IL_MAX_INT                INT_MAX
+#define IL_MAX_UNSIGNED_INT    UINT_MAX
 
-#define IL_LIMIT(x,m,M)		(x<m?m:(x>M?M:x))
-#define IL_CLAMP(x) 		IL_LIMIT(x,0,1)
+#define IL_LIMIT(x, m, M)        (x<m?m:(x>M?M:x))
+#define IL_CLAMP(x)        IL_LIMIT(x,0,1)
 
 #define IL_VENDOR   0x1F00
 #define IL_LOAD_EXT 0x1F01
@@ -222,25 +222,25 @@ typedef long long unsigned int ILuint64;
 #define IL_PXR          0x043D  //!< Pixar - .pxr extension
 #define IL_XPM          0x043E  //!< X Pixel Map - .xpm extension
 #define IL_HDR          0x043F  //!< Radiance High Dynamic Range - .hdr extension
-#define IL_ICNS			0x0440  //!< Macintosh Icon - .icns extension
-#define IL_JP2			0x0441  //!< Jpeg 2000 - .jp2 extension
-#define IL_EXR			0x0442  //!< OpenEXR - .exr extension
-#define IL_WDP			0x0443  //!< Microsoft HD Photo - .wdp and .hdp extension
-#define IL_VTF			0x0444  //!< Valve Texture Format - .vtf extension
-#define IL_WBMP			0x0445  //!< Wireless Bitmap - .wbmp extension
-#define IL_SUN			0x0446  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
-#define IL_IFF			0x0447  //!< Interchange File Format - .iff extension
-#define IL_TPL			0x0448  //!< Gamecube Texture - .tpl extension
-#define IL_FITS			0x0449  //!< Flexible Image Transport System - .fit and .fits extensions
-#define IL_DICOM		0x044A  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
-#define IL_IWI			0x044B  //!< Call of Duty Infinity Ward Image - .iwi extension
-#define IL_BLP			0x044C  //!< Blizzard Texture Format - .blp extension
-#define IL_FTX			0x044D  //!< Heavy Metal: FAKK2 Texture - .ftx extension
-#define IL_ROT			0x044E  //!< Homeworld 2 - Relic Texture - .rot extension
-#define IL_TEXTURE		0x044F  //!< Medieval II: Total War Texture - .texture extension
-#define IL_DPX			0x0450  //!< Digital Picture Exchange - .dpx extension
-#define IL_UTX			0x0451  //!< Unreal (and Unreal Tournament) Texture - .utx extension
-#define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
+#define IL_ICNS            0x0440  //!< Macintosh Icon - .icns extension
+#define IL_JP2            0x0441  //!< Jpeg 2000 - .jp2 extension
+#define IL_EXR            0x0442  //!< OpenEXR - .exr extension
+#define IL_WDP            0x0443  //!< Microsoft HD Photo - .wdp and .hdp extension
+#define IL_VTF            0x0444  //!< Valve Texture Format - .vtf extension
+#define IL_WBMP            0x0445  //!< Wireless Bitmap - .wbmp extension
+#define IL_SUN            0x0446  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
+#define IL_IFF            0x0447  //!< Interchange File Format - .iff extension
+#define IL_TPL            0x0448  //!< Gamecube Texture - .tpl extension
+#define IL_FITS            0x0449  //!< Flexible Image Transport System - .fit and .fits extensions
+#define IL_DICOM        0x044A  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
+#define IL_IWI            0x044B  //!< Call of Duty Infinity Ward Image - .iwi extension
+#define IL_BLP            0x044C  //!< Blizzard Texture Format - .blp extension
+#define IL_FTX            0x044D  //!< Heavy Metal: FAKK2 Texture - .ftx extension
+#define IL_ROT            0x044E  //!< Homeworld 2 - Relic Texture - .rot extension
+#define IL_TEXTURE        0x044F  //!< Medieval II: Total War Texture - .texture extension
+#define IL_DPX            0x0450  //!< Digital Picture Exchange - .dpx extension
+#define IL_UTX            0x0451  //!< Unreal (and Unreal Tournament) Texture - .utx extension
+#define IL_MP3            0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
 
 
 #define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
@@ -293,27 +293,27 @@ typedef long long unsigned int ILuint64;
 
 
 // File definitions
-#define IL_FILE_OVERWRITE	0x0620
-#define IL_FILE_MODE		0x0621
+#define IL_FILE_OVERWRITE    0x0620
+#define IL_FILE_MODE        0x0621
 
 
 // Palette definitions
-#define IL_CONV_PAL			0x0630
+#define IL_CONV_PAL            0x0630
 
 
 // Load fail definitions
-#define IL_DEFAULT_ON_FAIL	0x0632
+#define IL_DEFAULT_ON_FAIL    0x0632
 
 
 // Key colour and alpha definitions
-#define IL_USE_KEY_COLOUR	0x0635
-#define IL_USE_KEY_COLOR	0x0635
-#define IL_BLIT_BLEND		0x0636
+#define IL_USE_KEY_COLOUR    0x0635
+#define IL_USE_KEY_COLOR    0x0635
+#define IL_BLIT_BLEND        0x0636
 
 
 // Interlace definitions
-#define IL_SAVE_INTERLACED	0x0639
-#define IL_INTERLACE_MODE	0x063A
+#define IL_SAVE_INTERLACED    0x0639
+#define IL_INTERLACE_MODE    0x063A
 
 
 // Quantization definitions
@@ -336,8 +336,8 @@ typedef long long unsigned int ILuint64;
 
 
 // Compression
-#define IL_NVIDIA_COMPRESS	0x0670
-#define IL_SQUISH_COMPRESS	0x0671
+#define IL_NVIDIA_COMPRESS    0x0670
+#define IL_SQUISH_COMPRESS    0x0671
 
 
 // Subimage types
@@ -455,70 +455,70 @@ typedef long long unsigned int ILuint64;
 
 // This is from Win32's <windef.h>
 #if (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED) || defined(__BORLANDC__) || defined(__LCC__)
-	#define ILAPIENTRY __stdcall 
-	#define IL_PACKSTRUCT
+#define ILAPIENTRY __stdcall
+#define IL_PACKSTRUCT
 //#elif defined(linux) || defined(MACOSX) || defined(__CYGWIN__) //fix bug 840364
 #elif defined( __GNUC__ )
-  // this should work for any of the above commented platforms 
-  // plus any platform using GCC
-	#ifdef __MINGW32__
-		#define ILAPIENTRY __stdcall
-	#else
-		#define ILAPIENTRY
-	#endif
-	#define IL_PACKSTRUCT __attribute__ ((packed))
+// this should work for any of the above commented platforms
+// plus any platform using GCC
+#ifdef __MINGW32__
+#define ILAPIENTRY __stdcall
 #else
-	#define ILAPIENTRY
-	#define IL_PACKSTRUCT
+#define ILAPIENTRY
+#endif
+#define IL_PACKSTRUCT __attribute__ ((packed))
+#else
+#define ILAPIENTRY
+#define IL_PACKSTRUCT
 #endif
 
 // This is from Win32's <wingdi.h> and <winnt.h>
 #if defined(__LCC__)
-	#define ILAPI __stdcall
+#define ILAPI __stdcall
 #elif defined(_WIN32) //changed 20031221 to fix bug 840421
-	#ifdef IL_STATIC_LIB
-		#define ILAPI
-	#else
-		#ifdef _IL_BUILD_LIBRARY
-			#define ILAPI __declspec(dllexport)
-		#else
-			#define ILAPI __declspec(dllimport)
-		#endif
-	#endif
-#elif __APPLE__
-	#define ILAPI extern
+#ifdef IL_STATIC_LIB
+#define ILAPI
 #else
-	#define ILAPI
+#ifdef _IL_BUILD_LIBRARY
+#define ILAPI __declspec(dllexport)
+#else
+#define ILAPI __declspec(dllimport)
+#endif
+#endif
+#elif __APPLE__
+#define ILAPI extern
+#else
+#define ILAPI
 #endif
 
 
-#define IL_SEEK_SET	0
-#define IL_SEEK_CUR	1
-#define IL_SEEK_END	2
-#define IL_EOF		-1
+#define IL_SEEK_SET    0
+#define IL_SEEK_CUR    1
+#define IL_SEEK_END    2
+#define IL_EOF        -1
 
 
 // Callback functions for file reading
-typedef void* ILHANDLE;
+typedef void *ILHANDLE;
 typedef void      (ILAPIENTRY *fCloseRProc)(ILHANDLE);
-typedef ILboolean (ILAPIENTRY *fEofProc)   (ILHANDLE);
-typedef ILint     (ILAPIENTRY *fGetcProc)  (ILHANDLE);
-typedef ILHANDLE  (ILAPIENTRY *fOpenRProc) (ILconst_string);
-typedef ILint     (ILAPIENTRY *fReadProc)  (void*, ILuint, ILuint, ILHANDLE);
-typedef ILint     (ILAPIENTRY *fSeekRProc) (ILHANDLE, ILint, ILint);
-typedef ILint     (ILAPIENTRY *fTellRProc) (ILHANDLE);
+typedef ILboolean (ILAPIENTRY *fEofProc)(ILHANDLE);
+typedef ILint     (ILAPIENTRY *fGetcProc)(ILHANDLE);
+typedef ILHANDLE  (ILAPIENTRY *fOpenRProc)(ILconst_string);
+typedef ILint     (ILAPIENTRY *fReadProc)(void *, ILuint, ILuint, ILHANDLE);
+typedef ILint     (ILAPIENTRY *fSeekRProc)(ILHANDLE, ILint, ILint);
+typedef ILint     (ILAPIENTRY *fTellRProc)(ILHANDLE);
 
 // Callback functions for file writing
 typedef void     (ILAPIENTRY *fCloseWProc)(ILHANDLE);
-typedef ILHANDLE (ILAPIENTRY *fOpenWProc) (ILconst_string);
-typedef ILint    (ILAPIENTRY *fPutcProc)  (ILubyte, ILHANDLE);
-typedef ILint    (ILAPIENTRY *fSeekWProc) (ILHANDLE, ILint, ILint);
-typedef ILint    (ILAPIENTRY *fTellWProc) (ILHANDLE);
-typedef ILint    (ILAPIENTRY *fWriteProc) (const void*, ILuint, ILuint, ILHANDLE);
+typedef ILHANDLE (ILAPIENTRY *fOpenWProc)(ILconst_string);
+typedef ILint    (ILAPIENTRY *fPutcProc)(ILubyte, ILHANDLE);
+typedef ILint    (ILAPIENTRY *fSeekWProc)(ILHANDLE, ILint, ILint);
+typedef ILint    (ILAPIENTRY *fTellWProc)(ILHANDLE);
+typedef ILint    (ILAPIENTRY *fWriteProc)(const void *, ILuint, ILuint, ILHANDLE);
 
 // Callback functions for allocation and deallocation
-typedef void* (ILAPIENTRY *mAlloc)(const ILsizei);
-typedef void  (ILAPIENTRY *mFree) (const void* CONST_RESTRICT);
+typedef void *(ILAPIENTRY *mAlloc)(const ILsizei);
+typedef void  (ILAPIENTRY *mFree)(const void *CONST_RESTRICT);
 
 // Registered format procedures
 typedef ILenum (ILAPIENTRY *IL_LOADPROC)(ILconst_string);
@@ -532,47 +532,52 @@ ILAPI ILboolean ILAPIENTRY ilActiveLayer(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilApplyPal(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile);
-ILAPI void		ILAPIENTRY ilBindImage(ILuint Image);
-ILAPI ILboolean ILAPIENTRY ilBlit(ILuint Source, ILint DestX, ILint DestY, ILint DestZ, ILuint SrcX, ILuint SrcY, ILuint SrcZ, ILuint Width, ILuint Height, ILuint Depth);
+ILAPI void ILAPIENTRY ilBindImage(ILuint Image);
+ILAPI ILboolean
+ILAPIENTRY ilBlit(ILuint Source, ILint DestX, ILint DestY, ILint DestZ, ILuint SrcX, ILuint SrcY, ILuint SrcZ,
+                  ILuint Width, ILuint Height, ILuint Depth);
 ILAPI ILboolean ILAPIENTRY ilClampNTSC(void);
-ILAPI void		ILAPIENTRY ilClearColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
+ILAPI void ILAPIENTRY ilClearColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
 ILAPI ILboolean ILAPIENTRY ilClearImage(void);
-ILAPI ILuint    ILAPIENTRY ilCloneCurImage(void);
-ILAPI ILubyte*	ILAPIENTRY ilCompressDXT(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize);
+ILAPI ILuint ILAPIENTRY ilCloneCurImage(void);
+ILAPI ILubyte *
+ILAPIENTRY ilCompressDXT(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize);
 ILAPI ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilConvertImage(ILenum DestFormat, ILenum DestType);
 ILAPI ILboolean ILAPIENTRY ilConvertPal(ILenum DestFormat);
 ILAPI ILboolean ILAPIENTRY ilCopyImage(ILuint Src);
-ILAPI ILuint    ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
-ILAPI ILuint    ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num);
+ILAPI ILuint
+ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format,
+                        ILenum Type, void *Data);
+ILAPI ILuint ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilDefaultImage(void);
-ILAPI void		ILAPIENTRY ilDeleteImage(const ILuint Num);
-ILAPI void      ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images);
-ILAPI ILenum	ILAPIENTRY ilDetermineType(ILconst_string FileName);
-ILAPI ILenum	ILAPIENTRY ilDetermineTypeF(ILHANDLE File);
-ILAPI ILenum	ILAPIENTRY ilDetermineTypeL(const void *Lump, ILuint Size);
+ILAPI void ILAPIENTRY ilDeleteImage(const ILuint Num);
+ILAPI void ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images);
+ILAPI ILenum ILAPIENTRY ilDetermineType(ILconst_string FileName);
+ILAPI ILenum ILAPIENTRY ilDetermineTypeF(ILHANDLE File);
+ILAPI ILenum ILAPIENTRY ilDetermineTypeL(const void *Lump, ILuint Size);
 ILAPI ILboolean ILAPIENTRY ilDisable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilDxtcDataToImage(void);
 ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface(void);
 ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
-ILAPI void		ILAPIENTRY ilFlipSurfaceDxtcData(void);
+ILAPI void ILAPIENTRY ilFlipSurfaceDxtcData(void);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
-ILAPI void	    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
-ILAPI ILuint	ILAPIENTRY ilGenImage(void);
-ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILenum Type);
+ILAPI void ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
+ILAPI ILuint ILAPIENTRY ilGenImage(void);
+ILAPI ILubyte *ILAPIENTRY ilGetAlpha(ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode);
-ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
-ILAPI ILubyte*  ILAPIENTRY ilGetData(void);
-ILAPI ILuint    ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
-ILAPI ILenum    ILAPIENTRY ilGetError(void);
-ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
-ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
-ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);
-ILAPI ILubyte*  ILAPIENTRY ilGetPalette(void);
-ILAPI ILconst_string  ILAPIENTRY ilGetString(ILenum StringName);
-ILAPI void      ILAPIENTRY ilHint(ILenum Target, ILenum Mode);
-ILAPI ILboolean	ILAPIENTRY ilInvertSurfaceDxtcDataAlpha(void);
-ILAPI void      ILAPIENTRY ilInit(void);
+ILAPI void ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
+ILAPI ILubyte *ILAPIENTRY ilGetData(void);
+ILAPI ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
+ILAPI ILenum ILAPIENTRY ilGetError(void);
+ILAPI ILint ILAPIENTRY ilGetInteger(ILenum Mode);
+ILAPI void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
+ILAPI ILuint ILAPIENTRY ilGetLumpPos(void);
+ILAPI ILubyte *ILAPIENTRY ilGetPalette(void);
+ILAPI ILconst_string ILAPIENTRY ilGetString(ILenum StringName);
+ILAPI void ILAPIENTRY ilHint(ILenum Target, ILenum Mode);
+ILAPI ILboolean ILAPIENTRY ilInvertSurfaceDxtcDataAlpha(void);
+ILAPI void ILAPIENTRY ilInit(void);
 ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILenum Format);
 ILAPI ILboolean ILAPIENTRY ilIsDisabled(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode);
@@ -580,50 +585,54 @@ ILAPI ILboolean ILAPIENTRY ilIsImage(ILuint Image);
 ILAPI ILboolean ILAPIENTRY ilIsValid(ILenum Type, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilIsValidF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size);
-ILAPI void      ILAPIENTRY ilKeyColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
+ILAPI void ILAPIENTRY ilKeyColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
 ILAPI ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size);
 ILAPI ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName);
-ILAPI void      ILAPIENTRY ilModAlpha(ILdouble AlphaValue);
+ILAPI void ILAPIENTRY ilModAlpha(ILdouble AlphaValue);
 ILAPI ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilOverlayImage(ILuint Source, ILint XCoord, ILint YCoord, ILint ZCoord);
-ILAPI void      ILAPIENTRY ilPopAttrib(void);
-ILAPI void      ILAPIENTRY ilPushAttrib(ILuint Bits);
-ILAPI void      ILAPIENTRY ilRegisterFormat(ILenum Format);
+ILAPI void ILAPIENTRY ilPopAttrib(void);
+ILAPI void ILAPIENTRY ilPushAttrib(ILuint Bits);
+ILAPI void ILAPIENTRY ilRegisterFormat(ILenum Format);
 ILAPI ILboolean ILAPIENTRY ilRegisterLoad(ILconst_string Ext, IL_LOADPROC Load);
 ILAPI ILboolean ILAPIENTRY ilRegisterMipNum(ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilRegisterNumFaces(ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilRegisterNumImages(ILuint Num);
-ILAPI void      ILAPIENTRY ilRegisterOrigin(ILenum Origin);
-ILAPI void      ILAPIENTRY ilRegisterPal(void *Pal, ILuint Size, ILenum Type);
+ILAPI void ILAPIENTRY ilRegisterOrigin(ILenum Origin);
+ILAPI void ILAPIENTRY ilRegisterPal(void *Pal, ILuint Size, ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilRegisterSave(ILconst_string Ext, IL_SAVEPROC Save);
-ILAPI void      ILAPIENTRY ilRegisterType(ILenum Type);
+ILAPI void ILAPIENTRY ilRegisterType(ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilRemoveLoad(ILconst_string Ext);
 ILAPI ILboolean ILAPIENTRY ilRemoveSave(ILconst_string Ext);
-ILAPI void      ILAPIENTRY ilResetMemory(void); // Deprecated
-ILAPI void      ILAPIENTRY ilResetRead(void);
-ILAPI void      ILAPIENTRY ilResetWrite(void);
+ILAPI void ILAPIENTRY ilResetMemory(void); // Deprecated
+ILAPI void ILAPIENTRY ilResetRead(void);
+ILAPI void ILAPIENTRY ilResetWrite(void);
 ILAPI ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName);
-ILAPI ILuint    ILAPIENTRY ilSaveF(ILenum Type, ILHANDLE File);
+ILAPI ILuint ILAPIENTRY ilSaveF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName);
-ILAPI ILuint    ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size);
+ILAPI ILuint ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size);
 ILAPI ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilSetAlpha(ILdouble AlphaValue);
 ILAPI ILboolean ILAPIENTRY ilSetData(void *Data);
 ILAPI ILboolean ILAPIENTRY ilSetDuration(ILuint Duration);
-ILAPI void      ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param);
-ILAPI void      ILAPIENTRY ilSetMemory(mAlloc, mFree);
-ILAPI void      ILAPIENTRY ilSetPixels(ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
-ILAPI void      ILAPIENTRY ilSetRead(fOpenRProc, fCloseRProc, fEofProc, fGetcProc, fReadProc, fSeekRProc, fTellRProc);
-ILAPI void      ILAPIENTRY ilSetString(ILenum Mode, const char *String);
-ILAPI void      ILAPIENTRY ilSetWrite(fOpenWProc, fCloseWProc, fPutcProc, fSeekWProc, fTellWProc, fWriteProc);
-ILAPI void      ILAPIENTRY ilShutDown(void);
+ILAPI void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param);
+ILAPI void ILAPIENTRY ilSetMemory(mAlloc, mFree);
+ILAPI void
+ILAPIENTRY ilSetPixels(ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format,
+                       ILenum Type, void *Data);
+ILAPI void ILAPIENTRY ilSetRead(fOpenRProc, fCloseRProc, fEofProc, fGetcProc, fReadProc, fSeekRProc, fTellRProc);
+ILAPI void ILAPIENTRY ilSetString(ILenum Mode, const char *String);
+ILAPI void ILAPIENTRY ilSetWrite(fOpenWProc, fCloseWProc, fPutcProc, fSeekWProc, fTellWProc, fWriteProc);
+ILAPI void ILAPIENTRY ilShutDown(void);
 ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILenum Format);
-ILAPI ILboolean ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth, ILubyte NumChannels, ILenum Format, ILenum Type, void *Data);
-ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data);
-ILAPI ILenum    ILAPIENTRY ilTypeFromExt(ILconst_string FileName);
+ILAPI ILboolean
+ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth, ILubyte NumChannels, ILenum Format, ILenum Type,
+                      void *Data);
+ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte *data);
+ILAPI ILenum ILAPIENTRY ilTypeFromExt(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
@@ -631,10 +640,10 @@ ILAPI ILboolean ILAPIENTRY ilLoadDataL(void *Lump, ILuint Size, ILuint Width, IL
 ILAPI ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName);
 
 // For all those weirdos that spell "colour" without the 'u'.
-#define ilClearColor	ilClearColour
+#define ilClearColor    ilClearColour
 #define ilKeyColor      ilKeyColour
 
-#define imemclear(x,y) memset(x,0,y);
+#define imemclear(x, y) memset(x,0,y);
 
 #ifdef __cplusplus
 }

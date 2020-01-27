@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,61 +41,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/exception.hpp"
 
-namespace gcn
-{
-	Exception::Exception()
-		: mFunction("?"),
-		mMessage(""),
-		mFilename("?"),
-		mLine(0)
-	{
+namespace gcn {
+    Exception::Exception()
+            : mFunction("?"),
+              mMessage(""),
+              mFilename("?"),
+              mLine(0) {
 
-	}
+    }
 
-	Exception::Exception(const std::string& message)
-		: mFunction("?"),
-		mMessage(message),
-		mFilename("?"),
-		mLine(0)
-	{
+    Exception::Exception(const std::string &message)
+            : mFunction("?"),
+              mMessage(message),
+              mFilename("?"),
+              mLine(0) {
 
-	}
+    }
 
-	Exception::Exception(const std::string& message,
-		const std::string& function,
-		const std::string& filename,
-		unsigned int line)
-		: mFunction(function),
-		mMessage(message),
-		mFilename(filename),
-		mLine(line)
-	{
+    Exception::Exception(const std::string &message,
+                         const std::string &function,
+                         const std::string &filename,
+                         unsigned int line)
+            : mFunction(function),
+              mMessage(message),
+              mFilename(filename),
+              mLine(line) {
 
-	}
+    }
 
-	const std::string& Exception::getFunction() const
-	{
-		return mFunction;
-	}
+    const std::string &Exception::getFunction() const {
+        return mFunction;
+    }
 
-	const std::string& Exception::getMessage() const
-	{
-		return mMessage;
-	}
+    const std::string &Exception::getMessage() const {
+        return mMessage;
+    }
 
-	const std::string& Exception::getFilename() const
-	{
-		return mFilename;
-	}
+    const std::string &Exception::getFilename() const {
+        return mFilename;
+    }
 
-	unsigned int Exception::getLine() const
-	{
-		return mLine;
-	}
+    unsigned int Exception::getLine() const {
+        return mLine;
+    }
 }

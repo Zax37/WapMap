@@ -6,94 +6,83 @@
 #include "guichan/hge/hgeimagefont.hpp"
 #include "../shared/commonFunc.h"
 
-namespace SHR
-{
-	Lab::Lab()
-	{
-		mAlignment = Graphics::LEFT;
-		mColor = 0xFFa1a1a1;
-	}
+namespace SHR {
+    Lab::Lab() {
+        mAlignment = Graphics::LEFT;
+        mColor = 0xFFa1a1a1;
+    }
 
-	Lab::Lab(const std::string& caption)
-	{
-		if (strchr(caption.c_str(), '~') == NULL) {
-			mCaption = caption;
-		}
-		else {
-			char * val = SHR::Replace(caption.c_str(), "~n~", "\n");
-			mCaption = std::string(val);
-			delete[] val;
-		}
+    Lab::Lab(const std::string &caption) {
+        if (strchr(caption.c_str(), '~') == NULL) {
+            mCaption = caption;
+        } else {
+            char *val = SHR::Replace(caption.c_str(), "~n~", "\n");
+            mCaption = std::string(val);
+            delete[] val;
+        }
 
-		mAlignment = Graphics::LEFT;
+        mAlignment = Graphics::LEFT;
 
-		setWidth(getFont()->getWidth(caption));
-		setHeight(getFont()->getHeight() + 2);
-		mColor = 0xFFa1a1a1;
-	}
+        setWidth(getFont()->getWidth(caption));
+        setHeight(getFont()->getHeight() + 2);
+        mColor = 0xFFa1a1a1;
+    }
 
-	const std::string &Lab::getCaption() const
-	{
-		return mCaption;
-	}
+    const std::string &Lab::getCaption() const {
+        return mCaption;
+    }
 
-	void Lab::setCaption(const std::string& caption)
-	{
-		mCaption = caption;
-	}
+    void Lab::setCaption(const std::string &caption) {
+        mCaption = caption;
+    }
 
-	void Lab::setAlignment(Graphics::Alignment alignment)
-	{
-		mAlignment = alignment;
-	}
+    void Lab::setAlignment(Graphics::Alignment alignment) {
+        mAlignment = alignment;
+    }
 
-	Graphics::Alignment Lab::getAlignment() const
-	{
-		return mAlignment;
-	}
+    Graphics::Alignment Lab::getAlignment() const {
+        return mAlignment;
+    }
 
-	void Lab::draw(Graphics* graphics)
-	{
-		int textX;
-		//int textY = getHeight() / 2 - getFont()->getHeight() / 2;
-		int textY = 0;
+    void Lab::draw(Graphics *graphics) {
+        int textX;
+        //int textY = getHeight() / 2 - getFont()->getHeight() / 2;
+        int textY = 0;
 
-		int align;
+        int align;
 
-		switch (getAlignment())
-		{
-		case Graphics::LEFT:
-			textX = 0;
-			align = HGETEXT_LEFT;
-			break;
-		case Graphics::CENTER:
-			textX = getWidth() / 2;
-			align = HGETEXT_CENTER;
-			break;
-		case Graphics::RIGHT:
-			textX = getWidth();
-			align = HGETEXT_RIGHT;
-			break;
-		default:
-			throw GCN_EXCEPTION("Unknown alignment.");
-		}
-		int totalx, totaly;
-		getAbsolutePosition(totalx, totaly);
+        switch (getAlignment()) {
+            case Graphics::LEFT:
+                textX = 0;
+                align = HGETEXT_LEFT;
+                break;
+            case Graphics::CENTER:
+                textX = getWidth() / 2;
+                align = HGETEXT_CENTER;
+                break;
+            case Graphics::RIGHT:
+                textX = getWidth();
+                align = HGETEXT_RIGHT;
+                break;
+            default:
+                throw GCN_EXCEPTION("Unknown alignment.");
+        }
+        int totalx, totaly;
+        getAbsolutePosition(totalx, totaly);
 
-		hgeFont * fnt = ((HGEImageFont*)getFont())->getHandleHGE();
+        hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
 
-		fnt->SetColor(SETA(mColor, getAlpha()));
+        fnt->SetColor(SETA(mColor, getAlpha()));
 
-		fnt->printfb(totalx, totaly, getWidth(), getHeight(), align | HGETEXT_TOP, 0, "%s", getCaption().c_str());
+        fnt->printfb(totalx, totaly, getWidth(), getHeight(), align | HGETEXT_TOP, 0, "%s", getCaption().c_str());
 
-		//graphics->setFont(getFont());
-		//graphics->setColor(getForegroundColor());
-		//graphics->drawText(getCaption(), textX, textY, getAlignment());
-	}
+        //graphics->setFont(getFont());
+        //graphics->setColor(getForegroundColor());
+        //graphics->drawText(getCaption(), textX, textY, getAlignment());
+    }
 
-	void Lab::adjustSize()
-	{
-		setWidth(getFont()->getWidth(getCaption()));
-		setHeight(getFont()->getHeight() + 2);
-	}
+    void Lab::adjustSize() {
+        setWidth(getFont()->getWidth(getCaption()));
+        setHeight(getFont()->getHeight() + 2);
+    }
 }

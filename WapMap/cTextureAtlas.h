@@ -4,33 +4,37 @@
 #include <hgeSprite.h>
 #include <vector>
 
-class cTextureAtlas
-{
- private:
-  std::vector<hgeSprite*> vSprites;
-  HTEXTURE hTex;
-  int dimX, dimY, carX, carY, rowH;
- public:
-  cTextureAtlas();
-  ~cTextureAtlas();
+class cTextureAtlas {
+private:
+    std::vector<hgeSprite *> vSprites;
+    HTEXTURE hTex;
+    int dimX, dimY, carX, carY, rowH;
+public:
+    cTextureAtlas();
 
-  bool AddSprite(hgeSprite * spr);
-  bool DeleteSprite(hgeSprite * spr);
-  int GetSpritesCount(){ return vSprites.size(); };
+    ~cTextureAtlas();
+
+    bool AddSprite(hgeSprite *spr);
+
+    bool DeleteSprite(hgeSprite *spr);
+
+    int GetSpritesCount() { return vSprites.size(); };
 };
 
-class cTextureAtlaser
-{
- private:
-  std::vector<cTextureAtlas*> vAtlases;
-  std::vector<hgeSprite*> vPendingSprites;
- public:
-  cTextureAtlaser();
-  ~cTextureAtlaser();
+class cTextureAtlaser {
+private:
+    std::vector<cTextureAtlas *> vAtlases;
+    std::vector<hgeSprite *> vPendingSprites;
+public:
+    cTextureAtlaser();
 
-  void AddSprite(hgeSprite * spr);
-  void DeleteSprite(hgeSprite * spr);
-  void Pack();
+    ~cTextureAtlaser();
+
+    void AddSprite(hgeSprite *spr);
+
+    void DeleteSprite(hgeSprite *spr);
+
+    void Pack();
 };
 
 #endif // H_C_TEXTUREATLAS

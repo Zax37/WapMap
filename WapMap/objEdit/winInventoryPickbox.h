@@ -6,27 +6,32 @@
 #include "../../shared/gcnWidgets/wWin.h"
 #include "../../shared/gcnWidgets/wSlider.h"
 
-namespace ObjEdit
-{
- class cInvPickbox : public WIDG::VpCallback, public gcn::ActionListener
- {
-  private:
-   SHR::Win * win;
-   SHR::Slider * sli;
-   WIDG::Viewport * vp;
-  public:
-   cInvPickbox();
-   ~cInvPickbox();
-   void Think();
-   void SetVisible(bool b);
-   void SetPosition(int x, int y);
-   int GetWidth();
-   int GetHeight();
+namespace ObjEdit {
+    class cInvPickbox : public WIDG::VpCallback, public gcn::ActionListener {
+    private:
+        SHR::Win *win;
+        SHR::Slider *sli;
+        WIDG::Viewport *vp;
+    public:
+        cInvPickbox();
 
-   //inherited
-   virtual void Draw(int iCode);
-   void action(const gcn::ActionEvent &actionEvent);
- };
+        ~cInvPickbox();
+
+        void Think();
+
+        void SetVisible(bool b);
+
+        void SetPosition(int x, int y);
+
+        int GetWidth();
+
+        int GetHeight();
+
+        //inherited
+        virtual void Draw(int iCode);
+
+        void action(const gcn::ActionEvent &actionEvent);
+    };
 }
 
 #endif

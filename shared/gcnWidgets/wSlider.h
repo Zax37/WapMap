@@ -10,8 +10,7 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     /**
      * An implementation of a slider where a user can select different values by
      * sliding between a start value and an end value of a scale.
@@ -20,24 +19,21 @@ namespace SHR
      * action listeners of the slider.
      */
     class GCN_CORE_DECLSPEC Slider :
-        public gcn::Widget,
-        public MouseListener,
-        public KeyListener
-    {
+            public gcn::Widget,
+            public MouseListener,
+            public KeyListener {
     public:
 
         /**
          * Draw orientations for the slider. A slider can be drawn vertically or
          * horizontally.
          */
-        enum Orientation
-        {
+        enum Orientation {
             HORIZONTAL = 0,
             VERTICAL
         };
 
-        enum Style
-        {
+        enum Style {
             DEFAULT = 0,
             BALL,
             POINTER
@@ -61,7 +57,7 @@ namespace SHR
         /**
          * Destructor.
          */
-        virtual ~Slider() { }
+        virtual ~Slider() {}
 
         /**
          * Sets the scale of the slider.
@@ -157,6 +153,7 @@ namespace SHR
         Orientation getOrientation() const;
 
         void setStyle(Style st);
+
         Style getStyle() const;
 
         /**
@@ -180,33 +177,36 @@ namespace SHR
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
 
         // Inherited from MouseListener.
 
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void mouseEntered(MouseEvent &mouseEvent);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseWheelMovedUp(MouseEvent& mouseEvent);
+        virtual void mouseDragged(MouseEvent &mouseEvent);
 
-        virtual void mouseWheelMovedDown(MouseEvent& mouseEvent);
+        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
+
+        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
 
 
         // Inherited from KeyListener
 
-        virtual void keyPressed(KeyEvent& keyEvent);
+        virtual void keyPressed(KeyEvent &keyEvent);
 
         virtual bool showHand();
 
         void addKeyValue(double f);
+
         void clearKeyValues();
 
         void setForceKeyValue(bool b);
+
         bool isForceKeyValue();
 
     protected:
@@ -215,7 +215,7 @@ namespace SHR
          *
          * @param graphics A graphics object to draw with.
          */
-        virtual void drawMarker(gcn::Graphics* graphics);
+        virtual void drawMarker(gcn::Graphics *graphics);
 
         /**
          * Converts a marker position to a value in the scale.

@@ -9,21 +9,26 @@
 
 using namespace gcn;
 
-    class GCN_CORE_DECLSPEC vpFoc : public Container,
-                                     public MouseListener
-    {
-    public:
-        vpFoc();
-        virtual ~vpFoc();
+class GCN_CORE_DECLSPEC vpFoc : public Container,
+                                public MouseListener {
+public:
+    vpFoc();
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
-        bool isMouseOver(){ return bMouseOver; };
-    protected:
-        bool bMouseOver;
-    };
+    virtual ~vpFoc();
+
+    virtual void mousePressed(MouseEvent &mouseEvent);
+
+    virtual void mouseDragged(MouseEvent &mouseEvent);
+
+    virtual void mouseReleased(MouseEvent &mouseEvent);
+
+    virtual void mouseEntered(MouseEvent &mouseEvent);
+
+    virtual void mouseExited(MouseEvent &mouseEvent);
+
+    bool isMouseOver() { return bMouseOver; };
+protected:
+    bool bMouseOver;
+};
 
 #endif // end GCN_Win_HPP

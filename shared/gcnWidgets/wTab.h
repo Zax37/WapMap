@@ -13,9 +13,9 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     class Label;
+
     class TabbedArea;
 
     /**
@@ -24,10 +24,9 @@ namespace SHR
      * @see TabbedArea
      * @since 0.8.0
      */
-    class GCN_CORE_DECLSPEC Tab:
-        public BasicContainer,
-        public MouseListener
-    {
+    class GCN_CORE_DECLSPEC Tab :
+            public BasicContainer,
+            public MouseListener {
     public:
 
         /**
@@ -52,7 +51,7 @@ namespace SHR
          * @param tabbedArea The tabbed area the tab should be a part of.
          * @see getTabbedArea
          */
-        void setTabbedArea(TabbedArea* tabbedArea);
+        void setTabbedArea(TabbedArea *tabbedArea);
 
         /**
          * Gets the tabbed are the tab is a part of.
@@ -60,7 +59,7 @@ namespace SHR
          * @return The tabbed are the tab is a part of.
          * @see setTabbedArea
          */
-        TabbedArea* getTabbedArea();
+        TabbedArea *getTabbedArea();
 
         /**
          * Sets the caption of the tab. It's advisable to call
@@ -70,7 +69,7 @@ namespace SHR
          * @param caption The caption of the tab.
          * @see getCaption, adjustSize
          */
-        void setCaption(const std::string& caption);
+        void setCaption(const std::string &caption);
 
         /**
          * Gets the caption of the tab.
@@ -78,7 +77,7 @@ namespace SHR
          * @return The caption of the tab.
          * @see setCaption
          */
-        const std::string& getCaption() const;
+        const std::string &getCaption() const;
 
 
         // Inherited from Widget
@@ -88,15 +87,15 @@ namespace SHR
 
         // Inherited from MouseListener
 
-        virtual void mouseEntered(MouseEvent& mouseEvent);
+        virtual void mouseEntered(MouseEvent &mouseEvent);
 
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
     protected:
         /**
          * Holds the label of the tab.
          */
-        Lab* mLabel;
+        Lab *mLabel;
 
         /**
          * True if the tab has the mouse, false otherwise.
@@ -106,7 +105,7 @@ namespace SHR
         /**
          * Holds the tabbed area the tab is a part of.
          */
-        TabbedArea* mTabbedArea;
+        TabbedArea *mTabbedArea;
     };
 }
 

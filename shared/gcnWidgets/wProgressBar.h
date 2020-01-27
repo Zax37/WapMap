@@ -10,23 +10,26 @@
 
 using namespace gcn;
 
-namespace SHR
-{
-    class GCN_CORE_DECLSPEC ProgressBar: public gcn::Widget
-    {
+namespace SHR {
+    class GCN_CORE_DECLSPEC ProgressBar : public gcn::Widget {
     public:
 
-        ProgressBar(guiParts * phGfx);
-        virtual void draw(Graphics* graphics);
+        ProgressBar(guiParts *phGfx);
 
-        void setEnd(int i){ iEnd = i; };
-        void setProgress(int i){ iProgress = i; };
-        int GetProgress(){ return iProgress; };
+        virtual void draw(Graphics *graphics);
+
+        void setEnd(int i) { iEnd = i; };
+
+        void setProgress(int i) { iProgress = i; };
+
+        int GetProgress() { return iProgress; };
+
         float getPercentageProgress();
-        void setOpacity(char op){ cOpacity = op; };
+
+        void setOpacity(char op) { cOpacity = op; };
     protected:
         int iProgress, iEnd;
-        guiParts * hGfx;
+        guiParts *hGfx;
         char cOpacity;
     };
 }

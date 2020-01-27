@@ -9,125 +9,151 @@
 #define MDI_CONTEXT_PREVIOUSLYCLOSED  3
 #define MDI_CONTEXT_RELOAD            4
 
-namespace State
-{
- struct PlaneData;
+namespace State {
+    struct PlaneData;
 };
 
 struct DocumentData;
 
 class cBankLogic;
+
 class cBankTile;
+
 class cBankImageSet;
+
 class cBankSound;
+
 class cBankAni;
+
 class cDataController;
 
-class cTabMDI
-{
- public:
-  DocumentData * dd;
-  bool bFocused, bSelected;
-  float fTimer, fCloseTimer;
-  cTabMDI();
-  ~cTabMDI();
+class cTabMDI {
+public:
+    DocumentData *dd;
+    bool bFocused, bSelected;
+    float fTimer, fCloseTimer;
 
-  void Update();
-  int GetWidth();
-  int Render(int x, int y, bool bdisabled, bool bselected, bool blast);
+    cTabMDI();
 
-  static void RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed);
+    ~cTabMDI();
+
+    void Update();
+
+    int GetWidth();
+
+    int Render(int x, int y, bool bdisabled, bool bselected, bool blast);
+
+    static void RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed);
 };
 
 #define GUIDE_HORIZONTAL 1
 #define GUIDE_VERTICAL   0
 struct stGuideLine {
- int iPos;
- bool bOrient;
+    int iPos;
+    bool bOrient;
 };
 
 struct DocumentData {
- cBankImageSet * hSprBank;
- cBankSound * hSndBank;
- cBankAni * hAniBank;
- cBankTile * hTileset;
- cBankLogic * hCustomLogics;
- char * hTileClipboardImageSet;
- int iTileCBw, iTileCBh;
- WWD::Tile ** hTileClipboard;
- cDataController * hDataCtrl;
+    cBankImageSet *hSprBank;
+    cBankSound *hSndBank;
+    cBankAni *hAniBank;
+    cBankTile *hTileset;
+    cBankLogic *hCustomLogics;
+    char *hTileClipboardImageSet;
+    int iTileCBw, iTileCBh;
+    WWD::Tile **hTileClipboard;
+    cDataController *hDataCtrl;
 
- cTabMDI * hTab;
+    cTabMDI *hTab;
 
- WWD::Parser * hParser;
- char * szFileName;
- std::vector<State::PlaneData*> hPlaneData;
- WWD::Object * hStartingPosObj;
- float fCamX, fCamY;
- int iSelectedPlane;
- bool bSaved;
- std::vector<WWD::Object*> vObjectsPicked;
- float fZoom, fDestZoom;
+    WWD::Parser *hParser;
+    char *szFileName;
+    std::vector<State::PlaneData *> hPlaneData;
+    WWD::Object *hStartingPosObj;
+    float fCamX, fCamY;
+    int iSelectedPlane;
+    bool bSaved;
+    std::vector<WWD::Object *> vObjectsPicked;
+    float fZoom, fDestZoom;
 
- //meta
- std::vector<stGuideLine> vGuides;
- int iWapMapBuild, iMapBuild;
- std::string strWapMapVersion, strMapVersion, strMapDescription;
+    //meta
+    std::vector<stGuideLine> vGuides;
+    int iWapMapBuild, iMapBuild;
+    std::string strWapMapVersion, strMapVersion, strMapDescription;
 };
 
-class cMDI: public gcn::ActionListener {
- private:
-  std::vector<DocumentData*> m_vhDoc;
-  std::vector<std::string> vstrRecentlyClosed;
-  int m_iActiveDoc, m_iContextMenuFocusedDoc;
-  bool bBlock;
-  bool bMouseHand;
-  bool bUpdateCrashList;
-  SHR::Context * hContext;
-  SHR::Context * hContextClosed;
-  int m_iPosY;
-  bool bReloadingMap;
-  cTabMDI * hDefTab;
+class cMDI : public gcn::ActionListener {
+private:
+    std::vector<DocumentData *> m_vhDoc;
+    std::vector<std::string> vstrRecentlyClosed;
+    int m_iActiveDoc, m_iContextMenuFocusedDoc;
+    bool bBlock;
+    bool bMouseHand;
+    bool bUpdateCrashList;
+    SHR::Context *hContext;
+    SHR::Context *hContextClosed;
+    int m_iPosY;
+    bool bReloadingMap;
+    cTabMDI *hDefTab;
 
-  void RebuildContext(bool bForceRebuildBase);
- public:
-  cMDI();
-  ~cMDI();
+    void RebuildContext(bool bForceRebuildBase);
 
-  DocumentData * AddDocument(DocumentData * dd);
+public:
+    cMDI();
 
-  void SetActiveDoc(DocumentData * doc);
-  void SetActiveDocIt(int it);
+    ~cMDI();
 
-  DocumentData * GetDocByIt(int i){ if( i >= 0 && i < m_vhDoc.size() ) return m_vhDoc[i]; return NULL; };
-  DocumentData * GetActiveDoc(){ if( m_iActiveDoc == -1 ) return NULL; return m_vhDoc[m_iActiveDoc]; };
-  int GetActiveDocIt(){ return m_iActiveDoc; };
+    DocumentData *AddDocument(DocumentData *dd);
 
-  void PrepareDocToSave(int i);
+    void SetActiveDoc(DocumentData *doc);
 
-  bool IsAnyDocUnsaved();
-  bool CloseDocByIt(int i);
-  void DeleteDocByIt(int i);
-  void DeleteDocByPtr(DocumentData * hdd);
+    void SetActiveDocIt(int it);
 
-  int GetDocsCount(){ return m_vhDoc.size(); };
+    DocumentData *GetDocByIt(int i) {
+        if (i >= 0 && i < m_vhDoc.size()) return m_vhDoc[i];
+        return NULL;
+    };
 
-  void Think(bool bConsumed);
-  void Render();
+    DocumentData *GetActiveDoc() {
+        if (m_iActiveDoc == -1) return NULL;
+        return m_vhDoc[m_iActiveDoc];
+    };
 
-  bool IsDocumentSelectionBlocked(){ return bBlock; };
-  void BlockDocumentSelection(bool b){ bBlock = b; };
+    int GetActiveDocIt() { return m_iActiveDoc; };
 
-  void UpdateCrashList();
-  void action(const gcn::ActionEvent &actionEvent);
+    void PrepareDocToSave(int i);
 
-  void SetY(int y){ m_iPosY = y; };
-  SHR::Context * GetClosedContext(){ return hContextClosed; };
-  int GetCachedClosedDocsCount(){ return vstrRecentlyClosed.size(); };
+    bool IsAnyDocUnsaved();
 
-  void CloseAllDocs(){ hContext->EmulateClickID(MDI_CONTEXT_CLOSEALL); };
+    bool CloseDocByIt(int i);
 
-  void UnlockMapReload(){ bReloadingMap = 0; };
+    void DeleteDocByIt(int i);
+
+    void DeleteDocByPtr(DocumentData *hdd);
+
+    int GetDocsCount() { return m_vhDoc.size(); };
+
+    void Think(bool bConsumed);
+
+    void Render();
+
+    bool IsDocumentSelectionBlocked() { return bBlock; };
+
+    void BlockDocumentSelection(bool b) { bBlock = b; };
+
+    void UpdateCrashList();
+
+    void action(const gcn::ActionEvent &actionEvent);
+
+    void SetY(int y) { m_iPosY = y; };
+
+    SHR::Context *GetClosedContext() { return hContextClosed; };
+
+    int GetCachedClosedDocsCount() { return vstrRecentlyClosed.size(); };
+
+    void CloseAllDocs() { hContext->EmulateClickID(MDI_CONTEXT_CLOSEALL); };
+
+    void UnlockMapReload() { bReloadingMap = 0; };
 };
 
 #endif

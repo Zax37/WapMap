@@ -3,20 +3,24 @@
 
 #include "../states/objedit.h"
 
-namespace ObjEdit
-{
- class cEditObjTreasure : public cObjEdit {
-  private:
-   SHR::RadBut * rbType[31];
-   SHR::CBox * cbAddGlitter;
-   SHR::Win * win;
-  friend class cObjPropVP;
-  public:
-   cEditObjTreasure(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjTreasure();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
-   virtual void Draw();
- };
+namespace ObjEdit {
+    class cEditObjTreasure : public cObjEdit {
+    private:
+        SHR::RadBut *rbType[31];
+        SHR::CBox *cbAddGlitter;
+        SHR::Win *win;
+
+        friend class cObjPropVP;
+
+    public:
+        cEditObjTreasure(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjTreasure();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+
+        virtual void Draw();
+    };
 
 }
 

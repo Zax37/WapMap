@@ -8,46 +8,56 @@
 #include "guichan/listmodel.hpp"
 
 class cAniBankAsset {
- protected:
-  char * m_szID;
-  ANI::Animation * m_hAni;
- friend class cBankAni;
- public:
-  cAniBankAsset();
-  ~cAniBankAsset();
+protected:
+    char *m_szID;
+    ANI::Animation *m_hAni;
 
-  ANI::Animation * GetAni(){ return m_hAni; };
-  const char * GetID(){ return (const char*)m_szID; };
+    friend class cBankAni;
+
+public:
+    cAniBankAsset();
+
+    ~cAniBankAsset();
+
+    ANI::Animation *GetAni() { return m_hAni; };
+
+    const char *GetID() { return (const char *) m_szID; };
 };
 
-class cBankAni: public gcn::ListModel {
- private:
+class cBankAni : public gcn::ListModel {
+private:
 
-  std::vector<cAniBankAsset*> m_vAssets;
+    std::vector<cAniBankAsset *> m_vAssets;
 
-  char * szPath;
-  REZ::Parser * hREZ;
-  bool bUseREZ;
- public:
-  cBankAni();
-  ~cBankAni();
+    char *szPath;
+    REZ::Parser *hREZ;
+    bool bUseREZ;
+public:
+    cBankAni();
 
-  void LoadDirRecursive(REZ::Dir * dir, const char * pszPrefix);
+    ~cBankAni();
 
-  void Load(REZ::File * file, const char * pszID);
+    void LoadDirRecursive(REZ::Dir *dir, const char *pszPrefix);
 
-  cAniBankAsset * GetAssetByID(const char * pszID);
-  cAniBankAsset * GetAssetByIterator(int iIT){ if( iIT < 0 || iIT >= m_vAssets.size() ) return NULL; return m_vAssets[iIT]; }
+    void Load(REZ::File *file, const char *pszID);
 
-  int GetAssetsCount(){ return m_vAssets.size(); };
+    cAniBankAsset *GetAssetByID(const char *pszID);
 
-  void AttachREZ(REZ::Parser * n){ hREZ = n; };
+    cAniBankAsset *GetAssetByIterator(int iIT) {
+        if (iIT < 0 || iIT >= m_vAssets.size()) return NULL;
+        return m_vAssets[iIT];
+    }
 
-  //inherited from listmodel
-  std::string getElementAt(int i);
-  int getNumberOfElements();
+    int GetAssetsCount() { return m_vAssets.size(); };
 
-  void SortAssets();
+    void AttachREZ(REZ::Parser *n) { hREZ = n; };
+
+    //inherited from listmodel
+    std::string getElementAt(int i);
+
+    int getNumberOfElements();
+
+    void SortAssets();
 };
 
 #endif

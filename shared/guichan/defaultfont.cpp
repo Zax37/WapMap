@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,9 +41,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/defaultfont.hpp"
 
@@ -52,43 +52,35 @@
 #include "guichan/graphics.hpp"
 #include "guichan/rectangle.hpp"
 
-namespace gcn
-{
-	int DefaultFont::getHeight() const
-	{
-		return 8;
-	}
+namespace gcn {
+    int DefaultFont::getHeight() const {
+        return 8;
+    }
 
-	int DefaultFont::getWidth(const std::string& text) const
-	{
-		return 8 * text.size();
-	}
+    int DefaultFont::getWidth(const std::string &text) const {
+        return 8 * text.size();
+    }
 
-	int DefaultFont::drawGlyph(Graphics* graphics, unsigned char glyph, int x, int y)
-	{
-		graphics->drawRectangle(Rectangle(x, y, 8, 8));
+    int DefaultFont::drawGlyph(Graphics *graphics, unsigned char glyph, int x, int y) {
+        graphics->drawRectangle(Rectangle(x, y, 8, 8));
 
-		return 8;
-	}
+        return 8;
+    }
 
-	void DefaultFont::drawString(Graphics* graphics, const std::string& text, int x, int y)
-	{
-		unsigned int i;
+    void DefaultFont::drawString(Graphics *graphics, const std::string &text, int x, int y) {
+        unsigned int i;
 
-		for (i = 0; i < text.size(); ++i)
-		{
-			drawGlyph(graphics, text.at(i), x, y);
-			x += getWidth(text);
-		}
-	}
+        for (i = 0; i < text.size(); ++i) {
+            drawGlyph(graphics, text.at(i), x, y);
+            x += getWidth(text);
+        }
+    }
 
-	int DefaultFont::getStringIndexAt(const std::string& text, int x) const
-	{
-		if (x > (int)text.size() * 8)
-		{
-			return text.size();
-		}
+    int DefaultFont::getStringIndexAt(const std::string &text, int x) const {
+        if (x > (int) text.size() * 8) {
+            return text.size();
+        }
 
-		return x / 8;
-	}
+        return x / 8;
+    }
 }

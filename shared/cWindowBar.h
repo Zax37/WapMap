@@ -3,16 +3,18 @@
 
 #include <hgesprite.h>
 
-namespace SHR
-{
- class cWinBar {
-  private:
-   hgeSprite * sprTitle;
-  public:
-   cWinBar();
-   ~cWinBar();
-   void Think();
-   void Render();
- };
+namespace SHR {
+    class cWinBar {
+    private:
+        hgeSprite *sprTitle;
+    public:
+        cWinBar();
+
+        ~cWinBar();
+
+        void Think();
+
+        void Render();
+    };
 }
 #endif

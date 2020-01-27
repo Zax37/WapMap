@@ -14,13 +14,11 @@ typedef unsigned long DWORD;
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     /**
      * Implementation of a Lab capable of displaying a caption.
      */
-    class GCN_CORE_DECLSPEC Lab: public gcn::Widget
-    {
+    class GCN_CORE_DECLSPEC Lab : public gcn::Widget {
     public:
         /**
          * Constructor.
@@ -33,7 +31,7 @@ namespace SHR
          *
          * @param caption The caption of the Lab.
          */
-        Lab(const std::string& caption);
+        Lab(const std::string &caption);
 
         /**
          * Gets the caption of the Lab.
@@ -51,7 +49,7 @@ namespace SHR
          * @param caption The caption of the Lab.
          * @see getCaption, adjustSize
          */
-        void setCaption(const std::string& caption);
+        void setCaption(const std::string &caption);
 
         /**
          * Sets the alignment of the caption. The alignment is relative
@@ -73,13 +71,15 @@ namespace SHR
 
 
         void adjustSize();
-        void setColor(DWORD col){ mColor = col; };
-        DWORD getColor(){ return mColor; };
+
+        void setColor(DWORD col) { mColor = col; };
+
+        DWORD getColor() { return mColor; };
 
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
     protected:
 

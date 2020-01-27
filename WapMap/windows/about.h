@@ -3,18 +3,21 @@
 
 #include "window.h"
 
-class winAbout : public cWindow
-{
- private:
-  WIDG::Viewport * vp;
- public:
-  winAbout();
-  ~winAbout();
+class winAbout : public cWindow {
+private:
+    WIDG::Viewport *vp;
+public:
+    winAbout();
 
-  virtual void Draw(int piCode);
-  virtual void Think();
-  virtual void Open();
-  virtual void Close();
+    ~winAbout();
+
+    virtual void Draw(int piCode);
+
+    virtual void Think();
+
+    virtual void Open();
+
+    virtual void Close();
 };
 
 #endif // H_WIN_TILEBROWSER

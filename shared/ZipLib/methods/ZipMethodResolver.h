@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <memory>
 #include "ICompressionMethod.h"
@@ -14,13 +15,11 @@
   if (compressionMethod == method_class::GetZipMethodDescriptorStatic().GetCompressionMethod()) \
     return method_class::Create()
 
-struct ZipMethodResolver
-{
-  static ICompressionMethod::Ptr GetZipMethodInstance(uint16_t compressionMethod)
-  {
-    ZIP_METHOD_TABLE;
-    return ICompressionMethod::Ptr();
-  }
+struct ZipMethodResolver {
+    static ICompressionMethod::Ptr GetZipMethodInstance(uint16_t compressionMethod) {
+        ZIP_METHOD_TABLE;
+        return ICompressionMethod::Ptr();
+    }
 };
 
 #undef ZIP_METHOD

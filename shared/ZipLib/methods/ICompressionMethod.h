@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../compression/compression_interface.h"
 
 #include "../compression/store/store_encoder.h"
@@ -6,10 +7,10 @@
 
 #include <memory>
 
-#define ZIP_METHOD_CLASS_PROLOGUE(                                              \
-    method_class,                                                               \
-    encoder_class, decoder_class,                                               \
-    encoder_props_member, decoder_props_member,                                 \
+#define ZIP_METHOD_CLASS_PROLOGUE(\
+    method_class, \
+    encoder_class, decoder_class, \
+    encoder_props_member, decoder_props_member, \
     compression_method, version_needed_to_extract)                              \
                                                                                 \
   typedef std::shared_ptr<method_class> Ptr;                                    \
@@ -51,26 +52,23 @@
     return zmd;                                                                 \
   }
 
-struct ZipMethodDescriptor
-{
-  ZipMethodDescriptor(uint16_t compressionMethod, uint16_t versionNeededToExtract)
-    : CompressionMethod(compressionMethod)
-    , VersionNeededToExtract(versionNeededToExtract)
-  {
+struct ZipMethodDescriptor {
+    ZipMethodDescriptor(uint16_t compressionMethod, uint16_t versionNeededToExtract)
+            : CompressionMethod(compressionMethod), VersionNeededToExtract(versionNeededToExtract) {
 
-  }
+    }
 
-  uint16_t GetCompressionMethod() const { return CompressionMethod; }
-  uint16_t GetVersionNeededToExtract() const { return VersionNeededToExtract; }
+    uint16_t GetCompressionMethod() const { return CompressionMethod; }
 
-  private:
+    uint16_t GetVersionNeededToExtract() const { return VersionNeededToExtract; }
+
+private:
     const uint16_t CompressionMethod;
     const uint16_t VersionNeededToExtract;
 };
 
-class ICompressionMethod
-{
-  public:
+class ICompressionMethod {
+public:
     static const uint16_t StoredCompressionMethod = 0;
     static const uint16_t StoredVersionNeededToExtract = 10;
 
@@ -80,24 +78,27 @@ class ICompressionMethod
     typedef std::shared_ptr<compression_decoder_interface> decoder_t;
 
     encoder_t GetEncoder() const { return _encoder; }
+
     decoder_t GetDecoder() const { return _decoder; }
 
-    virtual compression_encoder_properties_interface& GetEncoderProperties() = 0;
-    virtual compression_decoder_properties_interface& GetDecoderProperties() = 0;
+    virtual compression_encoder_properties_interface &GetEncoderProperties() = 0;
 
-    virtual const ZipMethodDescriptor& GetZipMethodDescriptor() const = 0;
-    static const ZipMethodDescriptor& GetZipMethodDescriptorStatic()
-    {
-      // Default "Stored method" descriptor.
-      static ZipMethodDescriptor zmd(StoredCompressionMethod, StoredVersionNeededToExtract);
-      return zmd;
+    virtual compression_decoder_properties_interface &GetDecoderProperties() = 0;
+
+    virtual const ZipMethodDescriptor &GetZipMethodDescriptor() const = 0;
+
+    static const ZipMethodDescriptor &GetZipMethodDescriptorStatic() {
+        // Default "Stored method" descriptor.
+        static ZipMethodDescriptor zmd(StoredCompressionMethod, StoredVersionNeededToExtract);
+        return zmd;
     }
 
-  protected:
+protected:
     void SetEncoder(encoder_t encoder) { _encoder = encoder; }
+
     void SetDecoder(decoder_t decoder) { _decoder = decoder; }
 
-  private:
+private:
     encoder_t _encoder;
     decoder_t _decoder;
 };

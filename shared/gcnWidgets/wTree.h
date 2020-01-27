@@ -15,90 +15,109 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     class TreeFolder;
 
     class TreeElement {
-     protected:
-      hgeSprite * sprIcon;
-      char * szName;
-      int m_iW, m_iH;
-      TreeFolder * m_hParent;
-     public:
-      TreeElement(const char * pszName, hgeSprite * psprIcon, TreeFolder * phParent);
-      const char * GetName(){ return (const char*)szName; };
-      hgeSprite * GetIcon(){ return sprIcon; };
-      virtual int Render(int x, int y);
-      virtual int GetWidth();
-      virtual int GetHeight();
+    protected:
+        hgeSprite *sprIcon;
+        char *szName;
+        int m_iW, m_iH;
+        TreeFolder *m_hParent;
+    public:
+        TreeElement(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent);
 
-      virtual void GainFocus();
-      virtual void LoseFocus();
+        const char *GetName() { return (const char *) szName; };
 
-      virtual bool IsDir(){ return 0; };
+        hgeSprite *GetIcon() { return sprIcon; };
 
-      virtual void Logic();
+        virtual int Render(int x, int y);
+
+        virtual int GetWidth();
+
+        virtual int GetHeight();
+
+        virtual void GainFocus();
+
+        virtual void LoseFocus();
+
+        virtual bool IsDir() { return 0; };
+
+        virtual void Logic();
     };
 
     class TreeFolder : public TreeElement {
-     protected:
-      int m_iFocus;
-      std::vector<TreeElement*> m_vElements;
-      bool m_bOpened;
-      int m_iWex, m_iHex;
-      float lmx, lmy;
-     public:
-      virtual int Render(int x, int y);
+    protected:
+        int m_iFocus;
+        std::vector<TreeElement *> m_vElements;
+        bool m_bOpened;
+        int m_iWex, m_iHex;
+        float lmx, lmy;
+    public:
+        virtual int Render(int x, int y);
 
-      TreeFolder(const char * pszName, hgeSprite * psprIcon, TreeFolder * phParent);
-      void AddElement(TreeElement * phEl);
-      virtual int GetWidth();
-      virtual int GetHeight();
+        TreeFolder(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent);
 
-      virtual void GainFocus();
-      virtual void LoseFocus();
+        void AddElement(TreeElement *phEl);
 
-      virtual bool IsDir(){ return 1; };
+        virtual int GetWidth();
 
-      virtual void Logic();
+        virtual int GetHeight();
 
-      void RecalculateSize();
+        virtual void GainFocus();
 
-      void SetOpened(bool bn);
-      bool IsOpened(){ return m_bOpened; };
+        virtual void LoseFocus();
+
+        virtual bool IsDir() { return 1; };
+
+        virtual void Logic();
+
+        void RecalculateSize();
+
+        void SetOpened(bool bn);
+
+        bool IsOpened() { return m_bOpened; };
     };
 
 
-    class GCN_CORE_DECLSPEC Tree :   public TreeFolder,
-                                     public gcn::Widget,
-                                     public MouseListener,
-                                     public KeyListener,
-                                     public FocusListener
-    {
+    class GCN_CORE_DECLSPEC Tree : public TreeFolder,
+                                   public gcn::Widget,
+                                   public MouseListener,
+                                   public KeyListener,
+                                   public FocusListener {
     public:
-        Tree(guiParts * Parts, const char * pszName, hgeSprite * psprIcon);
+        Tree(guiParts *Parts, const char *pszName, hgeSprite *psprIcon);
 
         virtual void logic();
-        virtual void draw(Graphics* graphics);
-        virtual void focusLost(const Event& event);
 
-        virtual void mouseMoved(MouseEvent& mouseEvent);
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void draw(Graphics *graphics);
 
-        virtual void keyPressed(KeyEvent& keyEvent);
-        virtual void keyReleased(KeyEvent& keyEvent);
+        virtual void focusLost(const Event &event);
+
+        virtual void mouseMoved(MouseEvent &mouseEvent);
+
+        virtual void mousePressed(MouseEvent &mouseEvent);
+
+        virtual void mouseReleased(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        virtual void keyPressed(KeyEvent &keyEvent);
+
+        virtual void keyReleased(KeyEvent &keyEvent);
 
         virtual int GetWidth();
+
         virtual int GetHeight();
 
         void adjustSize();
+
     protected:
-        guiParts * hGfx;
+        guiParts *hGfx;
 
         bool mHasMouse;
         bool mKeyPressed;

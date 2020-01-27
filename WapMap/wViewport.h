@@ -9,21 +9,20 @@
 
 using namespace gcn;
 
-namespace WIDG
-{
+namespace WIDG {
     class VpCallback {
-     public:
-      virtual void Draw(int piCode){};
-    };
-    class GCN_CORE_DECLSPEC Viewport: public gcn::Widget
-    {
     public:
-        Viewport(VpCallback * phCallback, int piCode);
+        virtual void Draw(int piCode) {};
+    };
 
-        virtual void draw(Graphics* graphics);
+    class GCN_CORE_DECLSPEC Viewport : public gcn::Widget {
+    public:
+        Viewport(VpCallback *phCallback, int piCode);
+
+        virtual void draw(Graphics *graphics);
 
     protected:
-        VpCallback * hCallback;
+        VpCallback *hCallback;
         int iCode;
     };
 }

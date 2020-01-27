@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,51 +41,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/keyevent.hpp"
 
-namespace gcn
-{
-	KeyEvent::KeyEvent(Widget* source,
-		bool isShiftPressed,
-		bool isControlPressed,
-		bool isAltPressed,
-		bool isMetaPressed,
-		unsigned int type,
-		bool isNumericPad,
-		const Key& key)
-		:InputEvent(source,
-			isShiftPressed,
-			isControlPressed,
-			isAltPressed,
-			isMetaPressed),
-		mType(type),
-		mIsNumericPad(isNumericPad),
-		mKey(key)
-	{
+namespace gcn {
+    KeyEvent::KeyEvent(Widget *source,
+                       bool isShiftPressed,
+                       bool isControlPressed,
+                       bool isAltPressed,
+                       bool isMetaPressed,
+                       unsigned int type,
+                       bool isNumericPad,
+                       const Key &key)
+            : InputEvent(source,
+                         isShiftPressed,
+                         isControlPressed,
+                         isAltPressed,
+                         isMetaPressed),
+              mType(type),
+              mIsNumericPad(isNumericPad),
+              mKey(key) {
 
-	}
+    }
 
-	KeyEvent::~KeyEvent()
-	{
+    KeyEvent::~KeyEvent() {
 
-	}
+    }
 
-	unsigned int KeyEvent::getType() const
-	{
-		return mType;
-	}
+    unsigned int KeyEvent::getType() const {
+        return mType;
+    }
 
-	bool KeyEvent::isNumericPad() const
-	{
-		return mIsNumericPad;
-	}
+    bool KeyEvent::isNumericPad() const {
+        return mIsNumericPad;
+    }
 
-	const Key& KeyEvent::getKey() const
-	{
-		return mKey;
-	}
+    const Key &KeyEvent::getKey() const {
+        return mKey;
+    }
 }

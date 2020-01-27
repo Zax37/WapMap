@@ -30,7 +30,9 @@ int Scintilla_LinkLexers();
  * hold a pointer and sptr_t, a signed integer large enough to hold a pointer.
  * May need to be changed for 64 bit platforms. */
 #if defined(_WIN32)
+
 #include <basetsd.h>
+
 #endif
 #ifdef MAXULONG_PTR
 typedef ULONG_PTR uptr_t;
@@ -1017,19 +1019,19 @@ namespace Scintilla {
 #endif
 
 struct Sci_CharacterRange {
-	long cpMin;
-	long cpMax;
+    long cpMin;
+    long cpMax;
 };
 
 struct Sci_TextRange {
-	struct Sci_CharacterRange chrg;
-	char *lpstrText;
+    struct Sci_CharacterRange chrg;
+    char *lpstrText;
 };
 
 struct Sci_TextToFind {
-	struct Sci_CharacterRange chrg;
-	char *lpstrText;
-	struct Sci_CharacterRange chrgText;
+    struct Sci_CharacterRange chrg;
+    char *lpstrText;
+    struct Sci_CharacterRange chrgText;
 };
 
 #define CharacterRange Sci_CharacterRange
@@ -1039,69 +1041,69 @@ struct Sci_TextToFind {
 typedef void *Sci_SurfaceID;
 
 struct Sci_Rectangle {
-	int left;
-	int top;
-	int right;
-	int bottom;
+    int left;
+    int top;
+    int right;
+    int bottom;
 };
 
 /* This structure is used in printing and requires some of the graphics types
  * from Platform.h.  Not needed by most client code. */
 
 struct Sci_RangeToFormat {
-	Sci_SurfaceID hdc;
-	Sci_SurfaceID hdcTarget;
-	struct Sci_Rectangle rc;
-	struct Sci_Rectangle rcPage;
-	struct Sci_CharacterRange chrg;
+    Sci_SurfaceID hdc;
+    Sci_SurfaceID hdcTarget;
+    struct Sci_Rectangle rc;
+    struct Sci_Rectangle rcPage;
+    struct Sci_CharacterRange chrg;
 };
 
 #define RangeToFormat Sci_RangeToFormat
 
 struct Sci_NotifyHeader {
-	/* Compatible with Windows NMHDR.
-	 * hwndFrom is really an environment specific window handle or pointer
-	 * but most clients of Scintilla.h do not have this type visible. */
-	void *hwndFrom;
-	uptr_t idFrom;
-	unsigned int code;
+    /* Compatible with Windows NMHDR.
+     * hwndFrom is really an environment specific window handle or pointer
+     * but most clients of Scintilla.h do not have this type visible. */
+    void *hwndFrom;
+    uptr_t idFrom;
+    unsigned int code;
 };
 
 #define NotifyHeader Sci_NotifyHeader
 
 struct SCNotification {
-	struct Sci_NotifyHeader nmhdr;
-	int position;
-	/* SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK, */
-	/* SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK, */
-	/* SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK, */
-	/* SCN_INDICATORCLICK, SCN_INDICATORRELEASE, */
-	/* SCN_USERLISTSELECTION, SCN_AUTOCSELECTION */
+    struct Sci_NotifyHeader nmhdr;
+    int position;
+    /* SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK, */
+    /* SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK, */
+    /* SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK, */
+    /* SCN_INDICATORCLICK, SCN_INDICATORRELEASE, */
+    /* SCN_USERLISTSELECTION, SCN_AUTOCSELECTION */
 
-	int ch;		/* SCN_CHARADDED, SCN_KEY */
-	int modifiers;
-	/* SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, */
-	/* SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE, */
+    int ch;        /* SCN_CHARADDED, SCN_KEY */
+    int modifiers;
+    /* SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, */
+    /* SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE, */
 
-	int modificationType;	/* SCN_MODIFIED */
-	const char *text;
-	/* SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED */
+    int modificationType;    /* SCN_MODIFIED */
+    const char *text;
+    /* SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED */
 
-	int length;		/* SCN_MODIFIED */
-	int linesAdded;	/* SCN_MODIFIED */
-	int message;	/* SCN_MACRORECORD */
-	uptr_t wParam;	/* SCN_MACRORECORD */
-	sptr_t lParam;	/* SCN_MACRORECORD */
-	int line;		/* SCN_MODIFIED */
-	int foldLevelNow;	/* SCN_MODIFIED */
-	int foldLevelPrev;	/* SCN_MODIFIED */
-	int margin;		/* SCN_MARGINCLICK */
-	int listType;	/* SCN_USERLISTSELECTION */
-	int x;			/* SCN_DWELLSTART, SCN_DWELLEND */
-	int y;		/* SCN_DWELLSTART, SCN_DWELLEND */
-	int token;		/* SCN_MODIFIED with SC_MOD_CONTAINER */
-	int annotationLinesAdded;	/* SCN_MODIFIED with SC_MOD_CHANGEANNOTATION */
-	int updated;	/* SCN_UPDATEUI */
+    int length;        /* SCN_MODIFIED */
+    int linesAdded;    /* SCN_MODIFIED */
+    int message;    /* SCN_MACRORECORD */
+    uptr_t wParam;    /* SCN_MACRORECORD */
+    sptr_t lParam;    /* SCN_MACRORECORD */
+    int line;        /* SCN_MODIFIED */
+    int foldLevelNow;    /* SCN_MODIFIED */
+    int foldLevelPrev;    /* SCN_MODIFIED */
+    int margin;        /* SCN_MARGINCLICK */
+    int listType;    /* SCN_USERLISTSELECTION */
+    int x;            /* SCN_DWELLSTART, SCN_DWELLEND */
+    int y;        /* SCN_DWELLSTART, SCN_DWELLEND */
+    int token;        /* SCN_MODIFIED with SC_MOD_CONTAINER */
+    int annotationLinesAdded;    /* SCN_MODIFIED with SC_MOD_CHANGEANNOTATION */
+    int updated;    /* SCN_UPDATEUI */
 };
 
 #ifdef SCI_NAMESPACE

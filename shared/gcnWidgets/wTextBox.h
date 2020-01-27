@@ -12,16 +12,14 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     /**
      * An implementation of a text box where a user can enter text that contains of many lines.
      */
-    class GCN_CORE_DECLSPEC TextBox:
-        public gcn::Widget,
-        public MouseListener,
-        public KeyListener
-    {
+    class GCN_CORE_DECLSPEC TextBox :
+            public gcn::Widget,
+            public MouseListener,
+            public KeyListener {
     public:
         /**
          * Constructor.
@@ -33,7 +31,7 @@ namespace SHR
          *
          * @param text The default text of the text box.
          */
-        TextBox(const std::string& text);
+        TextBox(const std::string &text);
 
         /**
          * Sets the text of the text box.
@@ -41,7 +39,7 @@ namespace SHR
          * @param text The text of the text box.
          * @see getText
          */
-        void setText(const std::string& text);
+        void setText(const std::string &text);
 
         /**
          * Gets the text of the text box.
@@ -58,7 +56,7 @@ namespace SHR
          * @return A row from the text of the text box.
          * @see setTextRow
          */
-        const std::string& getTextRow(int row) const;
+        const std::string &getTextRow(int row) const;
 
         /**
          * Sets the text of a certain row of the text.
@@ -67,7 +65,7 @@ namespace SHR
          * @param text The text to set in the given row number.
          * @see getTextRow
          */
-        void setTextRow(int row, const std::string& text);
+        void setTextRow(int row, const std::string &text);
 
         /**
          * Gets the number of rows in the text.
@@ -183,26 +181,29 @@ namespace SHR
          */
         void setOpaque(bool opaque);
 
-        void setMinimalSize(int x, int y){ mMinX = x; mMinY = y; };
+        void setMinimalSize(int x, int y) {
+            mMinX = x;
+            mMinY = y;
+        };
 
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
         virtual void fontChanged();
 
 
         // Inherited from KeyListener
 
-        virtual void keyPressed(KeyEvent& keyEvent);
+        virtual void keyPressed(KeyEvent &keyEvent);
 
 
         // Inherited from MouseListener
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void mouseDragged(MouseEvent &mouseEvent);
 
     protected:
         /**
@@ -213,7 +214,7 @@ namespace SHR
          * @param x the x position.
          * @param y the y position.
          */
-        virtual void drawCaret(Graphics* graphics, int x, int y);
+        virtual void drawCaret(Graphics *graphics, int x, int y);
 
         /**
          * Adjusts the text box's size to fit the text.

@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,29 +41,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/actionevent.hpp"
 
-namespace gcn
-{
-	ActionEvent::ActionEvent(Widget* source, const std::string& id)
-		:Event(source),
-		mId(id)
-	{
+namespace gcn {
+    ActionEvent::ActionEvent(Widget *source, const std::string &id)
+            : Event(source),
+              mId(id) {
 
-	}
+    }
 
-	ActionEvent::~ActionEvent()
-	{
+    ActionEvent::~ActionEvent() {
 
-	}
+    }
 
-	const std::string& ActionEvent::getId() const
-	{
-		return mId;
-	}
+    const std::string &ActionEvent::getId() const {
+        return mId;
+    }
 }
 

@@ -1,21 +1,24 @@
 #ifndef IO_WWDX
 #define IO_WWDX
+
 #include "../../shared/cWWD.h"
 
 struct DocumentData;
 
-class cIO_WWDx : public WWD::CustomMetaSerializer
-{
- private:
-  DocumentData * hDocumentData;
+class cIO_WWDx : public WWD::CustomMetaSerializer {
+private:
+    DocumentData *hDocumentData;
 
-  std::string ReadZeroTerminatedString(std::istream * hStream);
- public:
-  cIO_WWDx(DocumentData * dd);
-  ~cIO_WWDx();
+    std::string ReadZeroTerminatedString(std::istream *hStream);
 
-  virtual void SerializeTo(std::iostream * hStream);
-  virtual void DeserializeFrom(std::istream * hStream);
+public:
+    cIO_WWDx(DocumentData *dd);
+
+    ~cIO_WWDx();
+
+    virtual void SerializeTo(std::iostream *hStream);
+
+    virtual void DeserializeFrom(std::istream *hStream);
 };
 
 /**

@@ -13,11 +13,10 @@
 #ifndef ILU_REGION_H
 #define ILU_REGION_H
 
-typedef struct Edge
-{
-	ILint	yUpper;
-	ILfloat	xIntersect, dxPerScan;
-	struct	Edge *next;
+typedef struct Edge {
+    ILint yUpper;
+    ILfloat xIntersect, dxPerScan;
+    struct Edge *next;
 } Edge;
 
 

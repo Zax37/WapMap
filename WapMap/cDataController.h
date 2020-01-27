@@ -5,9 +5,8 @@
 #include "cFileSystem.h"
 #include <hge.h>
 
-namespace PID
-{
- class Palette;
+namespace PID {
+    class Palette;
 }
 
 #define DB_FEED_REZ    0
@@ -15,217 +14,255 @@ namespace PID
 #define DB_FEED_CUSTOM 2
 
 class cAssetPackage;
+
 class cParallelLoop;
+
 class cAssetBank;
 
-struct cFile
-{
- cFileFeed * hFeed;
- std::string strPath;
+struct cFile {
+    cFileFeed *hFeed;
+    std::string strPath;
 };
 
-class cAsset
-{
- private:
-  cFile _hFile;
- protected:
-  std::string _strHash, _strName;
-  cAssetPackage * hParent;
-  bool _bLoaded;
-  time_t _iLoadedDate;
-  time_t _iLastDate;
-  unsigned int _iFileSize;
-  cAssetBank * _hBank;
-  bool _bForceReload;
- public:
-  cAsset();
-  virtual ~cAsset();
+class cAsset {
+private:
+    cFile _hFile;
+protected:
+    std::string _strHash, _strName;
+    cAssetPackage *hParent;
+    bool _bLoaded;
+    time_t _iLoadedDate;
+    time_t _iLastDate;
+    unsigned int _iFileSize;
+    cAssetBank *_hBank;
+    bool _bForceReload;
+public:
+    cAsset();
 
-  const char * GetName(){ return _strName.c_str(); };
+    virtual ~cAsset();
 
-  cFile GetFile(){ return _hFile; };
-  void SetFile(cFile nFile);
+    const char *GetName() { return _strName.c_str(); };
 
-  unsigned int GetFileSize(){ return _iFileSize; };
+    cFile GetFile() { return _hFile; };
 
-  bool IsLoaded(){ return _bLoaded; };
-  void SetFileModTime(time_t tTime){ _iLastDate = tTime; };
+    void SetFile(cFile nFile);
 
-  std::string GetHash(){ return _strHash; };
-  bool IsActual(){ return _bLoaded && (_iLoadedDate != 0 && _iLoadedDate == _iLastDate || _iLoadedDate == 0); };
+    unsigned int GetFileSize() { return _iFileSize; };
 
-  virtual void Load(){};
-  virtual void Unload(){};
-  virtual void Reload();
+    bool IsLoaded() { return _bLoaded; };
 
-  void SetPackage(cAssetPackage * ptr){ hParent = ptr; };
-  cAssetPackage * GetPackage(){ return hParent; };
+    void SetFileModTime(time_t tTime) { _iLastDate = tTime; };
 
-  virtual std::string GetMountPoint(){ return ""; };
+    std::string GetHash() { return _strHash; };
 
-  cAssetBank * GetAssignedBank(){ return _hBank; };
+    bool IsActual() { return _bLoaded && (_iLoadedDate != 0 && _iLoadedDate == _iLastDate || _iLoadedDate == 0); };
 
-  void SetForceReload(bool b){ _bForceReload = b; };
-  bool NeedReload(){ return _bForceReload; };
+    virtual void Load() {};
+
+    virtual void Unload() {};
+
+    virtual void Reload();
+
+    void SetPackage(cAssetPackage *ptr) { hParent = ptr; };
+
+    cAssetPackage *GetPackage() { return hParent; };
+
+    virtual std::string GetMountPoint() { return ""; };
+
+    cAssetBank *GetAssignedBank() { return _hBank; };
+
+    void SetForceReload(bool b) { _bForceReload = b; };
+
+    bool NeedReload() { return _bForceReload; };
 };
 
 class cDataController;
 
-struct cDC_MountEntry
-{
- std::vector<cFile> vFiles;
- std::string strMountPoint;
- cAsset * hAsset;
+struct cDC_MountEntry {
+    std::vector<cFile> vFiles;
+    std::string strMountPoint;
+    cAsset *hAsset;
 };
 
-class cAssetBank
-{
- private:
-  bool _bModFlag;
-  int _iModNew, _iModChange, _iModDel;
- friend class cDataController;
- public:
-  virtual void DeleteAsset(cAsset * hAsset){};
-  virtual std::string GetFolderName(){ return ""; };
-  virtual void BatchProcessStart(cDataController * hDC){};
-  virtual void BatchProcessEnd(cDataController * hDC){};
+class cAssetBank {
+private:
+    bool _bModFlag;
+    int _iModNew, _iModChange, _iModDel;
 
-  virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix){ return ""; };
-  virtual cAsset * AllocateAssetForMountPoint(cDataController * hDC, cDC_MountEntry mountEntry) { return NULL; };
+    friend class cDataController;
 
-  bool GetModFlag(){ return _bModFlag; };
-  int GetModCounterNew(){ return _iModNew; };
-  int GetModCounterChanged(){ return _iModChange; };
-  int GetModCounterDeleted(){ return _iModDel; };
+public:
+    virtual void DeleteAsset(cAsset *hAsset) {};
+
+    virtual std::string GetFolderName() { return ""; };
+
+    virtual void BatchProcessStart(cDataController *hDC) {};
+
+    virtual void BatchProcessEnd(cDataController *hDC) {};
+
+    virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix) { return ""; };
+
+    virtual cAsset *AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) { return NULL; };
+
+    bool GetModFlag() { return _bModFlag; };
+
+    int GetModCounterNew() { return _iModNew; };
+
+    int GetModCounterChanged() { return _iModChange; };
+
+    int GetModCounterDeleted() { return _iModDel; };
 };
 
-class cAssetPackage
-{
- private:
-  int iLoadPolicy;
-  std::string strPrefix, strPath;
-  //std::vector<cAsset*> * hvAssetHeap;
-  cDataController * hParent;
+class cAssetPackage {
+private:
+    int iLoadPolicy;
+    std::string strPrefix, strPath;
+    //std::vector<cAsset*> * hvAssetHeap;
+    cDataController *hParent;
 
-  void Update(cAssetBank * hBank);
-  cAssetPackage(cDataController * parent);
-  ~cAssetPackage();
+    void Update(cAssetBank *hBank);
 
- friend class cDataController;
- public:
-  void RegisterAsset(cAsset * hPtr);
-  void UnregisterAsset(cAsset * hPtr);
+    cAssetPackage(cDataController *parent);
 
-  std::string AddPrefixPathToPath(std::string strRelativePath);
-  std::string GetPrefix(){ return strPrefix; };
-  std::string GetPath(){ return strPath; };
-  cDataController * GetParent(){ return hParent; };
-  int GetLoadPolicy(){ return iLoadPolicy; };
+    ~cAssetPackage();
 
-  PID::Palette * GetWorkingPalette();
+    friend class cDataController;
+
+public:
+    void RegisterAsset(cAsset *hPtr);
+
+    void UnregisterAsset(cAsset *hPtr);
+
+    std::string AddPrefixPathToPath(std::string strRelativePath);
+
+    std::string GetPrefix() { return strPrefix; };
+
+    std::string GetPath() { return strPath; };
+
+    cDataController *GetParent() { return hParent; };
+
+    int GetLoadPolicy() { return iLoadPolicy; };
+
+    PID::Palette *GetWorkingPalette();
 };
 
-struct cImageInfo
-{
- enum Format
- {
-  PID = 0,
-  BMP,
-  PCX
- };
- enum Level
- {
-  Dimensions,
-  Full
- };
+struct cImageInfo {
+    enum Format {
+        PID = 0,
+        BMP,
+        PCX
+    };
+    enum Level {
+        Dimensions,
+        Full
+    };
 
- Format iType;
+    Format iType;
 
- int iWidth;
- int iHeight;
+    int iWidth;
+    int iHeight;
 
- int iOffsetX, iOffsetY;
- int iUser1, iUser2;
- PID::FLAGS iFlags;
+    int iOffsetX, iOffsetY;
+    int iUser1, iUser2;
+    PID::FLAGS iFlags;
 };
 
-class cImage
-{
- protected:
-  hgeSprite * imgSprite;
-  cImageInfo imgInfo;
- public:
-  hgeSprite * GetImage(){ return imgSprite; };
-  cImageInfo GetImageInfo(){ return imgInfo; };
+class cImage {
+protected:
+    hgeSprite *imgSprite;
+    cImageInfo imgInfo;
+public:
+    hgeSprite *GetImage() { return imgSprite; };
+
+    cImageInfo GetImageInfo() { return imgInfo; };
 };
 
 #define cDC_STANDARD 0
 #define cDC_CUSTOM   1
-class cDataController
-{
- private:
-  std::vector<cAssetPackage*> vhPackages;
-  std::vector<cAsset*> vhAllAssets;
-  std::string strClawDir, strFileDir, strFilename;
-  cRezFeed * hREZ;
-  cDiscFeed * hDisc, * hCustom;
-  std::vector<cAssetBank*> vhBanks;
-  PID::Palette * hPalette;
-  cParallelLoop * hLooper;
-  float fFeedRefreshTime;
 
-  std::vector<cDC_MountEntry> vMountEntries;
-  void _SortMountEntries();
-  void _SortMountEntry(size_t id);
- public:
-  cDataController(std::string strCD, std::string strFD, std::string strFN);
-  ~cDataController();
+class cDataController {
+private:
+    std::vector<cAssetPackage *> vhPackages;
+    std::vector<cAsset *> vhAllAssets;
+    std::string strClawDir, strFileDir, strFilename;
+    cRezFeed *hREZ;
+    cDiscFeed *hDisc, *hCustom;
+    std::vector<cAssetBank *> vhBanks;
+    PID::Palette *hPalette;
+    cParallelLoop *hLooper;
+    float fFeedRefreshTime;
 
-  void RelocateDocument(std::string strDocPath);
+    std::vector<cDC_MountEntry> vMountEntries;
 
-  cFileFeed * GetFeed(int i);
-  int GetFeedPriority(cFileFeed * hFeed);
+    void _SortMountEntries();
 
-  cAssetPackage * CreatePackage(std::string strPath, std::string strPref, int iLoadPolicy = cDC_STANDARD);
-  void DeletePackage(cAssetPackage * ptr);
-  std::vector<cAssetPackage*> GetPackages(){ return vhPackages; };
+    void _SortMountEntry(size_t id);
 
-  void UpdateAllPackages();
+public:
+    cDataController(std::string strCD, std::string strFD, std::string strFN);
 
-  std::vector<cFile> GetFilesList(std::string strPath, int iLoadPolicy);
+    ~cDataController();
 
-  void RegisterAssetBank(cAssetBank * hPtr);
-  std::vector<cAssetBank*> GetBanks(){ return vhBanks; };
-  bool SetPalette(std::string strPath);
-  PID::Palette * GetPalette(){ return hPalette; };
+    void RelocateDocument(std::string strDocPath);
 
-  bool IsLoadableImage(cFile hFile, cImageInfo * inf = 0, cImageInfo::Level iInfoLevel = cImageInfo::Full);
+    cFileFeed *GetFeed(int i);
 
-  byte * GetImageRaw(cFile hFile, int * w, int * h);
-  bool RenderImageRaw(byte * hData, HTEXTURE texDest, int iRx, int iRy, int iRowSpan, int w, int h, PID::Palette * pal = 0);
+    int GetFeedPriority(cFileFeed *hFeed);
 
-  bool RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iRy, int iRowSpan);
+    cAssetPackage *CreatePackage(std::string strPath, std::string strPref, int iLoadPolicy = cDC_STANDARD);
 
-  std::string FilePathToIdentifier(std::string strPath);
+    void DeletePackage(cAssetPackage *ptr);
 
-  void SetLooper(cParallelLoop * h){ hLooper = h; };
-  cParallelLoop * GetLooper(){ return hLooper; };
+    std::vector<cAssetPackage *> GetPackages() { return vhPackages; };
 
-  void FixCustomDir();
-  std::string CreateGlobalScriptFile();
-  void OpenCodeEditor(std::string logicName, bool nonExisting = false);
-  cFile AssignFileForLogic(std::string strLogicName);
+    void UpdateAllPackages();
 
-  void Think();
-  void ForceRefreshFeeds();
+    std::vector<cFile> GetFilesList(std::string strPath, int iLoadPolicy);
 
-  bool MountFile(std::string strMountPoint, cFile f);
-  void UnmountFile(std::string strMountPoint, cFile hFile);
+    void RegisterAssetBank(cAssetBank *hPtr);
 
-  cAssetPackage * GetAssetPackageByFile(cFile hFile);
+    std::vector<cAssetBank *> GetBanks() { return vhBanks; };
 
-  int GetMountPointID(std::string strMountPoint);
-  cDC_MountEntry GetMountEntry(std::string strMountPoint);
+    bool SetPalette(std::string strPath);
+
+    PID::Palette *GetPalette() { return hPalette; };
+
+    bool IsLoadableImage(cFile hFile, cImageInfo *inf = 0, cImageInfo::Level iInfoLevel = cImageInfo::Full);
+
+    byte *GetImageRaw(cFile hFile, int *w, int *h);
+
+    bool
+    RenderImageRaw(byte *hData, HTEXTURE texDest, int iRx, int iRy, int iRowSpan, int w, int h, PID::Palette *pal = 0);
+
+    bool RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iRy, int iRowSpan);
+
+    std::string FilePathToIdentifier(std::string strPath);
+
+    void SetLooper(cParallelLoop *h) { hLooper = h; };
+
+    cParallelLoop *GetLooper() { return hLooper; };
+
+    void FixCustomDir();
+
+    std::string CreateGlobalScriptFile();
+
+    void OpenCodeEditor(std::string logicName, bool nonExisting = false);
+
+    cFile AssignFileForLogic(std::string strLogicName);
+
+    void Think();
+
+    void ForceRefreshFeeds();
+
+    bool MountFile(std::string strMountPoint, cFile f);
+
+    void UnmountFile(std::string strMountPoint, cFile hFile);
+
+    cAssetPackage *GetAssetPackageByFile(cFile hFile);
+
+    int GetMountPointID(std::string strMountPoint);
+
+    cDC_MountEntry GetMountEntry(std::string strMountPoint);
 
 };
 

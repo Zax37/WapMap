@@ -7,17 +7,15 @@
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
 
-namespace SHR
-{
+namespace SHR {
     /**
      * Implementation if a scrollable area used to view widgets larger than the scroll area.
      * A scroll area can be customized to always show scroll bars or to show them only when
      * necessary.
      */
-    class GCN_CORE_DECLSPEC ScrollArea:
-        public gcn::BasicContainer,
-        public gcn::MouseListener
-    {
+    class GCN_CORE_DECLSPEC ScrollArea :
+            public gcn::BasicContainer,
+            public gcn::MouseListener {
     public:
 
         /**
@@ -29,8 +27,7 @@ namespace SHR
          * SHOW_AUTO   - Show the scrollbars only when needed. That is if the
          *               content grows larger then the ScrollArea.
          */
-        enum ScrollPolicy
-        {
+        enum ScrollPolicy {
             SHOW_ALWAYS = 0,
             SHOW_NEVER,
             SHOW_AUTO
@@ -71,14 +68,14 @@ namespace SHR
          *
          * @param widget The content of the scroll area.
          */
-        void setContent(Widget* widget);
+        void setContent(Widget *widget);
 
         /**
          * Gets the content.
          *
          * @return The content of the scroll area.
          */
-        Widget* getContent();
+        Widget *getContent();
 
         /**
          * Sets the horizontal scrollbar policy. See enum with policies.
@@ -283,7 +280,7 @@ namespace SHR
 
         // Inherited from BasicContainer
 
-        virtual void showWidgetPart(Widget* widget, gcn::Rectangle area);
+        virtual void showWidgetPart(Widget *widget, gcn::Rectangle area);
 
         virtual gcn::Rectangle getChildrenArea();
 
@@ -300,20 +297,20 @@ namespace SHR
 
         void setHeight(int height);
 
-        void setDimension(const gcn::Rectangle& dimension);
+        void setDimension(const gcn::Rectangle &dimension);
 
 
         // Inherited from MouseListener
 
-        virtual void mousePressed(gcn::MouseEvent& mouseEvent);
+        virtual void mousePressed(gcn::MouseEvent &mouseEvent);
 
-        virtual void mouseReleased(gcn::MouseEvent& mouseEvent);
+        virtual void mouseReleased(gcn::MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(gcn::MouseEvent& mouseEvent);
+        virtual void mouseDragged(gcn::MouseEvent &mouseEvent);
 
-        virtual void mouseWheelMovedUp(gcn::MouseEvent& mouseEvent);
+        virtual void mouseWheelMovedUp(gcn::MouseEvent &mouseEvent);
 
-        virtual void mouseWheelMovedDown(gcn::MouseEvent& mouseEvent);
+        virtual void mouseWheelMovedDown(gcn::MouseEvent &mouseEvent);
 
     protected:
         /**
@@ -357,28 +354,28 @@ namespace SHR
          *
          * @param graphics a Graphics object to draw with.
          */
-        virtual void drawVBar(gcn::Graphics* graphics);
+        virtual void drawVBar(gcn::Graphics *graphics);
 
         /**
          * Draws the horizontal scroll bar.
          *
          * @param graphics a Graphics object to draw with.
          */
-        virtual void drawHBar(gcn::Graphics* graphics);
+        virtual void drawHBar(gcn::Graphics *graphics);
 
         /**
          * Draws the vertical marker.
          *
          * @param graphics a Graphics object to draw with.
          */
-        virtual void drawVMarker(gcn::Graphics* graphics);
+        virtual void drawVMarker(gcn::Graphics *graphics);
 
         /**
          * Draws the horizontal marker.
          *
          * @param graphics a Graphics object to draw with.
          */
-        virtual void drawHMarker(gcn::Graphics* graphics);
+        virtual void drawHMarker(gcn::Graphics *graphics);
 
         /**
          * Checks the policies for the scroll bars.

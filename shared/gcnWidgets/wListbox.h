@@ -12,54 +12,66 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     class gcn::SelectionListener;
+
     class GCN_CORE_DECLSPEC ListBox :
-        public gcn::Widget,
-        public MouseListener,
-        public KeyListener
-    {
+            public gcn::Widget,
+            public MouseListener,
+            public KeyListener {
     public:
         ListBox();
+
         ListBox(ListModel *listModel);
-        virtual ~ListBox() { }
+
+        virtual ~ListBox() {}
 
         int getSelected() const;
+
         void setSelected(int selected);
 
         void setListModel(ListModel *listModel);
+
         ListModel *getListModel();
 
         void adjustSize();
 
         bool isWrappingEnabled() const;
+
         void setWrappingEnabled(bool wrappingEnabled);
 
-        void addSelectionListener(gcn::SelectionListener* selectionListener);
-        void removeSelectionListener(gcn::SelectionListener* selectionListener);
+        void addSelectionListener(gcn::SelectionListener *selectionListener);
+
+        void removeSelectionListener(gcn::SelectionListener *selectionListener);
 
         virtual unsigned int getRowHeight() const;
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
+
         virtual void logic();
 
-        virtual void keyPressed(KeyEvent& keyEvent);
+        virtual void keyPressed(KeyEvent &keyEvent);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseWheelMovedUp(MouseEvent& mouseEvent);
-        virtual void mouseWheelMovedDown(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
-        virtual void mouseMoved(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
+
+        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
+
+        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        virtual void mouseMoved(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
 
     protected:
         void distributeValueChangedEvent();
+
         int mSelected, mHighlighted;
         ListModel *mListModel;
         bool mWrappingEnabled;
-        typedef std::list<SelectionListener*> SelectionListenerList;
+        typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;
         typedef SelectionListenerList::iterator SelectionListenerIterator;
     };

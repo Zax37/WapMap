@@ -4,38 +4,42 @@
 #include <string>
 #include <utility>
 
-typedef std::pair<std::string,int> cInventoryItem;
+typedef std::pair<std::string, int> cInventoryItem;
 
 #define GetInventoryItemName(x) (x.first.c_str())
 #define GetInventoryItemID(x)   (x.second)
 
 #define InventoryItemsCount 58
 
-class cInventoryController
-{
- private:
-  cInventoryItem hElements[InventoryItemsCount];
-  cInventoryItem hClipboard;
-  int iDragOffX, iDragOffY;
-  float fAnimTimer;
-  int iAnimFrame;
- public:
-  cInventoryController();
-  ~cInventoryController();
+class cInventoryController {
+private:
+    cInventoryItem hElements[InventoryItemsCount];
+    cInventoryItem hClipboard;
+    int iDragOffX, iDragOffY;
+    float fAnimTimer;
+    int iAnimFrame;
+public:
+    cInventoryController();
 
-  cInventoryItem GetItemByID(int id);
-  cInventoryItem GetItemByIt(int i);
+    ~cInventoryController();
 
-  void           SetItemInClipboard(cInventoryItem it, int offx, int offy);
-  cInventoryItem GetItemInClipboard();
-  void           SetClipboardEmpty();
-  bool           IsClipboardEmpty();
+    cInventoryItem GetItemByID(int id);
 
-  int GetAnimFrame(){ return iAnimFrame; };
+    cInventoryItem GetItemByIt(int i);
 
-  void MapSwitch();
+    void SetItemInClipboard(cInventoryItem it, int offx, int offy);
 
-  void DrawDraggedObject();
+    cInventoryItem GetItemInClipboard();
+
+    void SetClipboardEmpty();
+
+    bool IsClipboardEmpty();
+
+    int GetAnimFrame() { return iAnimFrame; };
+
+    void MapSwitch();
+
+    void DrawDraggedObject();
 };
 
 #endif

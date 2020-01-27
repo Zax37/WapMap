@@ -30,10 +30,10 @@ class cAutoUpdater;
 
 struct GitAPIReleaseAsset {
     std::string browser_download_url;
-	uint32_t size;
+    uint32_t size;
 };
 
-void from_json(const nlohmann::json& j, GitAPIReleaseAsset& releaseAsset);
+void from_json(const nlohmann::json &j, GitAPIReleaseAsset &releaseAsset);
 
 //internal action listener for gui
 class cAUAL : public gcn::ActionListener {
@@ -57,19 +57,20 @@ class cAutoUpdater {
     friend class cAUVP;
 
 public:
-	float fDelay = 0;
+    float fDelay = 0;
     int iState, iThreadsRunning;
     std::string response;
-	bool bKill = false;
+    bool bKill = false;
 
-	GitAPIReleaseAsset releaseAsset;
-	const char* hUpdatePackage = 0;
-	size_t downloadedBytes = 0;
+    GitAPIReleaseAsset releaseAsset;
+    const char *hUpdatePackage = 0;
+    size_t downloadedBytes = 0;
 
     CURL *curl_handle_single;
     CURLM *curl_handle_multi;
 
     cAutoUpdater();
+
     ~cAutoUpdater();
 
     bool Think();
@@ -85,6 +86,7 @@ public:
     void PopupQuestion(SHR::Contener *dest);
 
     void TransformToDownload();
+
     void TransformToExit();
 };
 

@@ -6,18 +6,18 @@
 
 /*** ENDIAN REVERSAL MACROS *******************************************/
 #if BYTE_ORDER == LITTLE_ENDIAN
-#define REVERSE32(w,x)  { \
-	sha2_word32 tmp = (w); \
-	tmp = (tmp >> 16) | (tmp << 16); \
-	(x) = ((tmp & 0xff00ff00UL) >> 8) | ((tmp & 0x00ff00ffUL) << 8); \
+#define REVERSE32(w, x)  { \
+    sha2_word32 tmp = (w); \
+    tmp = (tmp >> 16) | (tmp << 16); \
+    (x) = ((tmp & 0xff00ff00UL) >> 8) | ((tmp & 0x00ff00ffUL) << 8); \
 }
-#define REVERSE64(w,x)  { \
-	sha2_word64 tmp = (w); \
-	tmp = (tmp >> 32) | (tmp << 32); \
-	tmp = ((tmp & 0xff00ff00ff00ff00ULL) >> 8) | \
-	((tmp & 0x00ff00ff00ff00ffULL) << 8); \
-	(x) = ((tmp & 0xffff0000ffff0000ULL) >> 16) | \
-	((tmp & 0x0000ffff0000ffffULL) << 16); \
+#define REVERSE64(w, x)  { \
+    sha2_word64 tmp = (w); \
+    tmp = (tmp >> 32) | (tmp << 32); \
+    tmp = ((tmp & 0xff00ff00ff00ff00ULL) >> 8) | \
+    ((tmp & 0x00ff00ff00ff00ffULL) << 8); \
+    (x) = ((tmp & 0xffff0000ffff0000ULL) >> 16) | \
+    ((tmp & 0x0000ffff0000ffffULL) << 16); \
 }
 #endif /* BYTE_ORDER == LITTLE_ENDIAN */
 
@@ -26,11 +26,11 @@
  * unsigned 128-bit integer (represented using a two-element array of
  * 64-bit words):
  */
-#define ADDINC128(w,n)  { \
-	(w)[0] += (sha2_word64)(n); \
-	if ((w)[0] < (n)) { \
-		(w)[1]++; \
-	} \
+#define ADDINC128(w, n)  { \
+    (w)[0] += (sha2_word64)(n); \
+    if ((w)[0] < (n)) { \
+        (w)[1]++; \
+    } \
 }
 
 /*
@@ -52,8 +52,8 @@
 #endif
 
 #ifdef SHA2_USE_MEMSET_MEMCPY
-#define MEMSET_BZERO(p,l)       memset((p), 0, (l))
-#define MEMCPY_BCOPY(d,s,l)     memcpy((d), (s), (l))
+#define MEMSET_BZERO(p, l)       memset((p), 0, (l))
+#define MEMCPY_BCOPY(d, s, l)     memcpy((d), (s), (l))
 #endif
 #ifdef SHA2_USE_BZERO_BCOPY
 #define MEMSET_BZERO(p,l)       bzero((p), (l))
@@ -70,15 +70,15 @@
  *   same "backwards" definition.
  */
 /* Shift-right (used in SHA-256, SHA-384, and SHA-512): */
-#define R(b,x)          ((x) >> (b))
+#define R(b, x)          ((x) >> (b))
 /* 32-bit Rotate-right (used in SHA-256): */
-#define S32(b,x)        (((x) >> (b)) | ((x) << (32 - (b))))
+#define S32(b, x)        (((x) >> (b)) | ((x) << (32 - (b))))
 /* 64-bit Rotate-right (used in SHA-384 and SHA-512): */
-#define S64(b,x)        (((x) >> (b)) | ((x) << (64 - (b))))
+#define S64(b, x)        (((x) >> (b)) | ((x) << (64 - (b))))
 
 /* Two of six logical functions used in SHA-256, SHA-384, and SHA-512: */
-#define Ch(x,y,z)       (((x) & (y)) ^ ((~(x)) & (z)))
-#define Maj(x,y,z)      (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+#define Ch(x, y, z)       (((x) & (y)) ^ ((~(x)) & (z)))
+#define Maj(x, y, z)      (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
 /* Four of six logical functions used in SHA-256: */
 #define Sigma0_256(x)   (S32(2,  (x)) ^ S32(13, (x)) ^ S32(22, (x)))

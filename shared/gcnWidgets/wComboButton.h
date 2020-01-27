@@ -22,56 +22,69 @@ using namespace gcn;
 
 struct cInterfaceSheet;
 
-namespace SHR
-{
+namespace SHR {
     class ComboBut;
 
-    class ComboButEntry
-    {
-     private:
-      float fTimer;
-      int iID;
-      int iWidth;
-      hgeSprite * sprIcon;
-      std::string strCaption;
-      void UpdateWidth();
-      friend class ComboBut;
-     public:
-      ComboButEntry(hgeSprite * ico, std::string cap);
+    class ComboButEntry {
+    private:
+        float fTimer;
+        int iID;
+        int iWidth;
+        hgeSprite *sprIcon;
+        std::string strCaption;
 
-      void SetIcon(hgeSprite * spr);
-      void SetCaption(std::string str);
-      hgeSprite * GetIcon(){ return sprIcon; };
-      std::string GetCaption(){ return strCaption; };
-      int GetID(){ return iID; };
-      int GetWidth(){ return iWidth; };
+        void UpdateWidth();
+
+        friend class ComboBut;
+
+    public:
+        ComboButEntry(hgeSprite *ico, std::string cap);
+
+        void SetIcon(hgeSprite *spr);
+
+        void SetCaption(std::string str);
+
+        hgeSprite *GetIcon() { return sprIcon; };
+
+        std::string GetCaption() { return strCaption; };
+
+        int GetID() { return iID; };
+
+        int GetWidth() { return iWidth; };
     };
 
     class GCN_CORE_DECLSPEC ComboBut : public gcn::Widget,
                                        public MouseListener,
                                        public FocusListener
-                                     //public cTooltip
+        //public cTooltip
     {
     public:
-        ComboBut(cInterfaceSheet * Parts);
+        ComboBut(cInterfaceSheet *Parts);
 
         void adjustSize();
 
-        virtual void draw(Graphics* graphics);
-        virtual void focusLost(const Event& event);
+        virtual void draw(Graphics *graphics);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void focusLost(const Event &event);
+
+        virtual void mousePressed(MouseEvent &mouseEvent);
+
+        virtual void mouseReleased(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
         virtual bool showHand();
 
         void addEntry(ComboButEntry n);
-        int getSelectedEntryID(){ return iSelectedID; };
+
+        int getSelectedEntryID() { return iSelectedID; };
+
         void setSelectedEntryID(int i, bool bEvent = 0);
+
     protected:
-        cInterfaceSheet * hGfx;
+        cInterfaceSheet *hGfx;
 
         bool mHasMouse;
         bool mKeyPressed;

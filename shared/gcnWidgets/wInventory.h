@@ -19,32 +19,36 @@
 
 using namespace gcn;
 
-namespace SHR
-{
+namespace SHR {
     class GCN_CORE_DECLSPEC InvTab : public gcn::Widget,
                                      public MouseListener
-                                     //public cTooltip
+        //public cTooltip
     {
     public:
-        InvTab(guiParts * Parts);
+        InvTab(guiParts *Parts);
 
         void adjustSize();
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
 
-        cInventoryItem GetItem(){ return mItem; };
+        virtual void mouseReleased(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        cInventoryItem GetItem() { return mItem; };
+
         void ObjectDropped();
 
-        void SetItem(cInventoryItem it){ mItem = it; };
+        void SetItem(cInventoryItem it) { mItem = it; };
 
     protected:
-        guiParts * hGfx;
+        guiParts *hGfx;
 
         bool mHasMouse;
         bool mKeyPressed;

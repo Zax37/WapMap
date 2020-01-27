@@ -3,9 +3,9 @@
 #define WWD_V 6
 
 #ifdef BUILD_DEBUG
- #define WWD_EXCEPTION(errorc) WWD::Exception(errorc, __FILE__, __LINE__)
+#define WWD_EXCEPTION(errorc) WWD::Exception(errorc, __FILE__, __LINE__)
 #else
- #define WWD_EXCEPTION(errorc) WWD::Exception(errorc)
+#define WWD_EXCEPTION(errorc) WWD::Exception(errorc)
 #endif
 
 #define WBYTE(b) write((char*)(&b), 1)
@@ -28,454 +28,669 @@ typedef unsigned char byte;
 #endif
 
 class cParallelLoop;
+
 struct structProgressInfo;
 namespace WWD {
- extern structProgressInfo * _ghProgressInfo;
- extern cParallelLoop * _ghProgressCallback;
+    extern structProgressInfo *_ghProgressInfo;
+    extern cParallelLoop *_ghProgressCallback;
 
- enum ERROR_CODE {
-  Error_Unknown = 0,
-  Error_OpenAccess,
-  Error_BadMagicNumber,
-  Error_DecompressNotEnoughMem,
-  Error_NoMainPlane,
-  Error_InvalidTileProperty,
-  Error_NotCompleteCRC,
-  Error_SaveAccess,
-  Error_Inflate,
-  Error_Deflate,
-  Error_LoadingMemory
- };
+    enum ERROR_CODE {
+        Error_Unknown = 0,
+        Error_OpenAccess,
+        Error_BadMagicNumber,
+        Error_DecompressNotEnoughMem,
+        Error_NoMainPlane,
+        Error_InvalidTileProperty,
+        Error_NotCompleteCRC,
+        Error_SaveAccess,
+        Error_Inflate,
+        Error_Deflate,
+        Error_LoadingMemory
+    };
 
- #define OBJ_PARAMS_CNT 29
- enum OBJ_PARAMS {
-  Param_ID = 0,
-  Param_LocationX,
-  Param_LocationY,
-  Param_LocationZ,
-  Param_LocationI,
-  Param_Score,
-  Param_Points,
-  Param_Powerup,
-  Param_Damage,
-  Param_Smarts,
-  Param_Health,
-  Param_MinX,
-  Param_MinY,
-  Param_MaxX,
-  Param_MaxY,
-  Param_SpeedX,
-  Param_SpeedY,
-  Param_TweakX,
-  Param_TweakY,
-  Param_Counter,
-  Param_Speed,
-  Param_Width,
-  Param_Height,
-  Param_Direction,
-  Param_FaceDir,
-  Param_TimeDelay,
-  Param_FrameDelay,
-  Param_MoveResX,
-  Param_MoveResY
- };
+#define OBJ_PARAMS_CNT 29
+    enum OBJ_PARAMS {
+        Param_ID = 0,
+        Param_LocationX,
+        Param_LocationY,
+        Param_LocationZ,
+        Param_LocationI,
+        Param_Score,
+        Param_Points,
+        Param_Powerup,
+        Param_Damage,
+        Param_Smarts,
+        Param_Health,
+        Param_MinX,
+        Param_MinY,
+        Param_MaxX,
+        Param_MaxY,
+        Param_SpeedX,
+        Param_SpeedY,
+        Param_TweakX,
+        Param_TweakY,
+        Param_Counter,
+        Param_Speed,
+        Param_Width,
+        Param_Height,
+        Param_Direction,
+        Param_FaceDir,
+        Param_TimeDelay,
+        Param_FrameDelay,
+        Param_MoveResX,
+        Param_MoveResY
+    };
 
- enum OBJ_TYPE_FLAGS {
-  Flag_t_Nothing = 0,
-  Flag_t_Generic = 1,
-  Flag_t_Player = 2,
-  Flag_t_Enemy = 4,
-  Flag_t_Powerup = 8,
-  Flag_t_Shot = 16,
-  Flag_t_PShot = 32,
-  Flag_t_EShot = 64,
-  Flag_t_Special = 128,
-  Flag_t_User1 = 256,
-  Flag_t_User2 = 512,
-  Flag_t_User3 = 1024,
-  Flag_t_User4 = 2048
- };
+    enum OBJ_TYPE_FLAGS {
+        Flag_t_Nothing = 0,
+        Flag_t_Generic = 1,
+        Flag_t_Player = 2,
+        Flag_t_Enemy = 4,
+        Flag_t_Powerup = 8,
+        Flag_t_Shot = 16,
+        Flag_t_PShot = 32,
+        Flag_t_EShot = 64,
+        Flag_t_Special = 128,
+        Flag_t_User1 = 256,
+        Flag_t_User2 = 512,
+        Flag_t_User3 = 1024,
+        Flag_t_User4 = 2048
+    };
 
- enum OBJ_USER_FLAGS {
-  Flag_u_Nothing = 0,
-  Flag_u_1 = 1,
-  Flag_u_2 = 2,
-  Flag_u_3 = 4,
-  Flag_u_4 = 8,
-  Flag_u_5 = 16,
-  Flag_u_6 = 32,
-  Flag_u_7 = 64,
-  Flag_u_8 = 128,
-  Flag_u_9 = 256,
-  Flag_u_10 = 512,
-  Flag_u_11 = 1024,
-  Flag_u_12 = 2048
- };
+    enum OBJ_USER_FLAGS {
+        Flag_u_Nothing = 0,
+        Flag_u_1 = 1,
+        Flag_u_2 = 2,
+        Flag_u_3 = 4,
+        Flag_u_4 = 8,
+        Flag_u_5 = 16,
+        Flag_u_6 = 32,
+        Flag_u_7 = 64,
+        Flag_u_8 = 128,
+        Flag_u_9 = 256,
+        Flag_u_10 = 512,
+        Flag_u_11 = 1024,
+        Flag_u_12 = 2048
+    };
 
- enum OBJ_DRAW_FLAGS {
-  Flag_dr_Nothing = 0,
-  Flag_dr_NoDraw = 1,
-  Flag_dr_Mirror = 2,
-  Flag_dr_Invert = 4,
-  Flag_dr_Flash = 8
- };
+    enum OBJ_DRAW_FLAGS {
+        Flag_dr_Nothing = 0,
+        Flag_dr_NoDraw = 1,
+        Flag_dr_Mirror = 2,
+        Flag_dr_Invert = 4,
+        Flag_dr_Flash = 8
+    };
 
- enum OBJ_DYNAMIC_FLAGS {
-  Flag_dy_Nothing = 0,
-  Flag_dy_NoHit = 1,
-  Flag_dy_AlwaysActive = 2,
-  Flag_dy_Safe = 4,
-  Flag_dy_AutoHitDamage = 8
- };
+    enum OBJ_DYNAMIC_FLAGS {
+        Flag_dy_Nothing = 0,
+        Flag_dy_NoHit = 1,
+        Flag_dy_AlwaysActive = 2,
+        Flag_dy_Safe = 4,
+        Flag_dy_AutoHitDamage = 8
+    };
 
- enum OBJ_ADD_FLAGS {
-  Flag_a_Nothing = 0,
-  Flag_a_Difficult = 1,
-  Flag_a_EyeCandy = 2,
-  Flag_a_HighDetail = 4,
-  Flag_a_Multiplayer = 8,
-  Flag_a_ExtraMemory = 16,
-  Flag_a_FastCPU = 32
- };
+    enum OBJ_ADD_FLAGS {
+        Flag_a_Nothing = 0,
+        Flag_a_Difficult = 1,
+        Flag_a_EyeCandy = 2,
+        Flag_a_HighDetail = 4,
+        Flag_a_Multiplayer = 8,
+        Flag_a_ExtraMemory = 16,
+        Flag_a_FastCPU = 32
+    };
 
- enum WWD_FLAGS {
-  Flag_w_Nothing = 0,
-  Flag_w_UseZCoords = 1,
-  Flag_w_Compress = 2
- };
+    enum WWD_FLAGS {
+        Flag_w_Nothing = 0,
+        Flag_w_UseZCoords = 1,
+        Flag_w_Compress = 2
+    };
 
- enum PLANE_FLAGS {
-  Flag_p_Nothing = 0,
-  Flag_p_MainPlane = 1,
-  Flag_p_NoDraw = 2,
-  Flag_p_XWrapping = 4,
-  Flag_p_YWrapping = 8,
-  Flag_p_AutoTileSize = 16
- };
+    enum PLANE_FLAGS {
+        Flag_p_Nothing = 0,
+        Flag_p_MainPlane = 1,
+        Flag_p_NoDraw = 2,
+        Flag_p_XWrapping = 4,
+        Flag_p_YWrapping = 8,
+        Flag_p_AutoTileSize = 16
+    };
 
- enum TILE_ATRIB {
-  Atrib_Clear = 0,
-  Atrib_Solid = 1,
-  Atrib_Ground = 2,
-  Atrib_Climb = 3,
-  Atrib_Death = 4
- };
+    enum TILE_ATRIB {
+        Atrib_Clear = 0,
+        Atrib_Solid = 1,
+        Atrib_Ground = 2,
+        Atrib_Climb = 3,
+        Atrib_Death = 4
+    };
 
- enum TILE_ATRIBTYPE {
-  AtribType_Single = 1,
-  AtribType_Double = 2
- };
+    enum TILE_ATRIBTYPE {
+        AtribType_Single = 1,
+        AtribType_Double = 2
+    };
 
- class Rect;
+    class Rect;
 
- typedef std::pair<TILE_ATRIB,Rect> CollisionRect;
- #define WWD_CR_TYPE first
- #define WWD_CR_RECT second
+    typedef std::pair<TILE_ATRIB, Rect> CollisionRect;
+#define WWD_CR_TYPE first
+#define WWD_CR_RECT second
 
- enum GAME {
-  Game_Unknown = 0,
-  Game_Claw = 1,
-  Game_GetMedieval = 2,
-  Game_Gruntz = 3
- };
+    enum GAME {
+        Game_Unknown = 0,
+        Game_Claw = 1,
+        Game_GetMedieval = 2,
+        Game_Gruntz = 3
+    };
 
- class CustomMetaSerializer
- {
-  protected:
+    class CustomMetaSerializer {
+    protected:
 
-  public:
-   virtual ~CustomMetaSerializer(){};
-   virtual void SerializeTo(std::iostream * hStream){};
-   virtual void DeserializeFrom(std::istream * hStream){};
- };
+    public:
+        virtual ~CustomMetaSerializer() {};
 
- class Exception {
-  public:
-   ERROR_CODE iErrorCode;
-   #ifdef BUILD_DEBUG
-   char * szFile;
-   int iLine;
-   Exception(ERROR_CODE errorc, char * pszFile, int piLine){ iLine = piLine; iErrorCode = errorc; szFile = new char[strlen(pszFile)+1]; strcpy(szFile, pszFile); };
-   ~Exception(){ if( szFile != NULL ) delete [] szFile; }
-   #else
-   Exception(ERROR_CODE errorc){ iErrorCode = errorc; };
-   ~Exception(){};
-   #endif
- };
+        virtual void SerializeTo(std::iostream *hStream) {};
 
- class Tile {
-  private:
-   short m_iID;
-   bool m_bInvisible, m_bFilled;
+        virtual void DeserializeFrom(std::istream *hStream) {};
+    };
 
-  friend class Plane;
-  friend class Parser;
-  public:
-   Tile(){ m_iID = -1; m_bFilled = 0; m_bInvisible = 1; };
+    class Exception {
+    public:
+        ERROR_CODE iErrorCode;
+#ifdef BUILD_DEBUG
+        char * szFile;
+        int iLine;
+        Exception(ERROR_CODE errorc, char * pszFile, int piLine){ iLine = piLine; iErrorCode = errorc; szFile = new char[strlen(pszFile)+1]; strcpy(szFile, pszFile); };
+        ~Exception(){ if( szFile != NULL ) delete [] szFile; }
+#else
 
-   bool IsInvisible(){ return m_bInvisible; };
-   bool IsFilled(){ return m_bFilled; };
-   int GetID(){ return m_iID; };
+        Exception(ERROR_CODE errorc) { iErrorCode = errorc; };
 
-   void SetID(short piID){ m_iID = piID; m_bInvisible = m_bFilled = 0; };
-   void SetInvisible(bool bP){ m_bInvisible = bP; if( bP ){ m_bFilled = 0; m_iID = -1; } };
-   void SetFilled(bool bP){ m_bFilled = bP; if( bP ){ m_bInvisible = 0; m_iID = -1; } };
+        ~Exception() {};
+#endif
+    };
 
-   Tile & operator=(const Tile &src);
-   bool operator==(const Tile &src);
-   bool operator!=(const Tile &src);
- };
+    class Tile {
+    private:
+        short m_iID;
+        bool m_bInvisible, m_bFilled;
 
- class Rect {
-  public:
-   int x1, y1, x2, y2;
-   Rect(){ x1 = y1 = x2 = y2 = 0; };
-   Rect(int nx1, int ny1, int nx2, int ny2){ x1 = nx1; y1 = ny1; x2 = nx2; y2 = ny2; };
-   void Set(Rect src){ x1 = src.x1; y1 = src.y1; x2 = src.x2; y2 = src.y2; };
-   bool Collide(Rect b);
+        friend class Plane;
 
-   bool operator==(const Rect &oth) const { return (x1==oth.x1&&y1==oth.y1&&x2==oth.x2&&y2==oth.y2); };
-   bool operator!=(const Rect &oth) const { return !(*this==oth); };
- };
+        friend class Parser;
 
- class TileAtrib {
-  private:
-   TILE_ATRIBTYPE m_iType;
-   int m_iW, m_iH;
-   TILE_ATRIB m_iAtribOutside, m_iAtribInside;
-   Rect m_rMask;
-  friend class Parser;
-  public:
-   ~TileAtrib();
-   TileAtrib(TileAtrib * src);
-   TileAtrib();
-   TileAtrib(int pW, int pH, TILE_ATRIBTYPE pType, TILE_ATRIB pIns, TILE_ATRIB pOut = Atrib_Clear, Rect pMask = Rect(0,0,0,0));
-   void SetTo(TileAtrib * src);
+    public:
+        Tile() {
+            m_iID = -1;
+            m_bFilled = 0;
+            m_bInvisible = 1;
+        };
 
-   TILE_ATRIBTYPE GetType(){ return m_iType; };
-   void SetType(TILE_ATRIBTYPE atr){ m_iType = atr; };
-   TILE_ATRIB GetAtribInside(){ return m_iAtribInside; };
-   void SetAtribInside(TILE_ATRIB atr){ m_iAtribInside = atr; };
-   int GetW(){ return m_iW; };
-   int GetH(){ return m_iH; };
-   void SetW(int w){ m_iW = w; };
-   void SetH(int h){ m_iH = h; };
+        bool IsInvisible() { return m_bInvisible; };
 
-   //double only
-   TILE_ATRIB GetAtribOutside(){ return m_iAtribOutside; };
-   void SetAtribOutside(TILE_ATRIB atr){ m_iAtribOutside = atr; };
-   Rect GetMask(){ return m_rMask; };
-   void SetMask(int x1, int y1, int x2, int y2){ m_rMask.x1 = x1; m_rMask.y1 = y1; m_rMask.x2 = x2; m_rMask.y2 = y2; };
-   std::vector<CollisionRect> GetColRects();
- };
+        bool IsFilled() { return m_bFilled; };
 
- class Object {
-  private:
-   OBJ_ADD_FLAGS m_iFlagsAdd;
-   OBJ_DYNAMIC_FLAGS m_iFlagsDynamic;
-   OBJ_DRAW_FLAGS m_iFlagsDraw;
-   OBJ_USER_FLAGS m_iFlagsUser;
-   OBJ_TYPE_FLAGS m_iFlagsType;
-   OBJ_TYPE_FLAGS m_iFlagsHitType;
-   int m_iParams[OBJ_PARAMS_CNT], m_iUserValues[8];
-   Rect m_rMove, m_rHit, m_rAttack, m_rClip, m_rUser[2];
-   char * m_szName, * m_szLogic, * m_szImageSet, * m_szAnim;
-   void * m_hUserData;
-  friend class Parser;
-  friend class Plane;
-  public:
-   Object();
-   Object(Object * src);
-   ~Object();
-   OBJ_ADD_FLAGS GetAddFlags(){ return m_iFlagsAdd; };
-   OBJ_DYNAMIC_FLAGS GetDynamicFlags(){ return m_iFlagsDynamic; };
-   OBJ_DRAW_FLAGS GetDrawFlags(){ return m_iFlagsDraw; };
-   OBJ_USER_FLAGS GetUserFlags(){ return m_iFlagsUser; };
-   OBJ_TYPE_FLAGS GetTypeFlags(){ return m_iFlagsType; };
-   OBJ_TYPE_FLAGS GetHitTypeFlags(){ return m_iFlagsHitType; };
-   const char * GetName(){ return (const char*)m_szName; };
-   const char * GetLogic(){ return (const char*)m_szLogic; };
-   const char * GetImageSet(){ return (const char*)m_szImageSet; };
-   const char * GetAnim(){ return (const char*)m_szAnim; };
-   int GetParam(OBJ_PARAMS Param){ return m_iParams[Param]; };
-   int GetUserValue(int i){ return m_iUserValues[i]; };
-   Rect GetMoveRect(){ return m_rMove; };
-   Rect GetHitRect(){ return m_rHit; };
-   Rect GetAttackRect(){ return m_rAttack; };
-   Rect GetClipRect(){ return m_rClip; };
-   Rect GetUserRect(int i){ return m_rUser[i]; };
-   void SetUserData(void * hPtr){ m_hUserData = hPtr; };
+        int GetID() { return m_iID; };
 
-   void SetName(const char * nname);
-   void SetLogic(const char * nlogic);
-   void SetImageSet(const char * niset);
-   void SetAnim(const char * nanim);
-   void SetParam(OBJ_PARAMS Param, int iVal){ m_iParams[Param] = iVal; };
-   void SetUserValue(int i, int v){ m_iUserValues[i] = v; };
-   void SetMoveRect(Rect n){ m_rMove = n; };
-   void SetHitRect(Rect n){ m_rHit = n; };
-   void SetAttackRect(Rect n){ m_rAttack = n; };
-   void SetClipRect(Rect n){ m_rClip = n; };
-   void SetUserRect(int i, Rect n){ m_rUser[i] = n; };
-   void SetAddFlags(OBJ_ADD_FLAGS n){ m_iFlagsAdd = n; };
-   void SetDynamicFlags(OBJ_DYNAMIC_FLAGS n){ m_iFlagsDynamic = n; };
-   void SetDrawFlags(OBJ_DRAW_FLAGS n){ m_iFlagsDraw = n; };
-   void SetUserFlags(OBJ_USER_FLAGS n){ m_iFlagsUser = n; };
-   void SetTypeFlags(OBJ_TYPE_FLAGS n){ m_iFlagsType = n; };
-   void SetHitTypeFlags(OBJ_TYPE_FLAGS n){ m_iFlagsHitType = n; };
-   void * GetUserData(){ return m_hUserData; };
- };
+        void SetID(short piID) {
+            m_iID = piID;
+            m_bInvisible = m_bFilled = 0;
+        };
 
- class Plane {
-  private:
-   PLANE_FLAGS m_iFlags;
-   char m_szName[64];
-   std::vector<char*> m_vImageSets;
-   Tile ** m_hTiles;
-   std::vector<Object*> m_vObjects;
-   int m_iZCoord, m_iFillColor, m_iMoveX, m_iMoveY, m_iW, m_iH, m_iTileW, m_iTileH, m_iSetsCount, m_iWpx, m_iHpx;
+        void SetInvisible(bool bP) {
+            m_bInvisible = bP;
+            if (bP) {
+                m_bFilled = 0;
+                m_iID = -1;
+            }
+        };
 
-   ~Plane();
+        void SetFilled(bool bP) {
+            m_bFilled = bP;
+            if (bP) {
+                m_bInvisible = 0;
+                m_iID = -1;
+            }
+        };
 
-   void (*m_hObjDeletionCB)(Object * obj);
-   friend class Parser;
-  public:
-   Plane(){ m_hTiles = NULL; };
+        Tile &operator=(const Tile &src);
 
-   PLANE_FLAGS GetFlags(){ return m_iFlags; };
-   void SetFlag(PLANE_FLAGS piFlag, bool pbValue);
-   bool GetFlag(PLANE_FLAGS piFlag);
-   void SetName(const char * n){ strncpy(m_szName, n, 64); };
-   const char * GetName(){ return m_szName; };
-   void SetZCoord(int n){ m_iZCoord = n; };
-   int GetZCoord(){ return m_iZCoord; };
-   int GetFillColor(){ return m_iFillColor; };
-   void SetTileWidth(int n){ m_iTileW = n; m_iWpx = m_iW*n; };
-   int GetTileWidth(){ return m_iTileW; };
-   void SetTileHeight(int n){ m_iTileH = n; m_iHpx = m_iH*n; };
-   int GetTileHeight(){ return m_iTileH; };
-   int GetPlaneWidth(){ return m_iW; };
-   int GetPlaneHeight(){ return m_iH; };
-   int GetPlaneWidthPx(){ return m_iWpx; };
-   int GetPlaneHeightPx(){ return m_iHpx; };
-   void SetMoveModX(int n){ m_iMoveX = n; };
-   int GetMoveModX(){ return m_iMoveX; };
-   void SetMoveModY(int n){ m_iMoveY = n; };
-   int GetMoveModY(){ return m_iMoveY; };
-   int GetObjectsCount(){ return m_vObjects.size(); };
-   int ClampX(int x){ return x % (m_iW); };
-   int ClampY(int y){ return y % (m_iH); };
+        bool operator==(const Tile &src);
 
-   const char * GetImageSet(int piID){ return m_vImageSets[piID]; };
-   int          GetImageSetsCount(){ return m_vImageSets.size(); };
-   void         AddImageSet(const char * n);
-   void         ClearImageSets();
+        bool operator!=(const Tile &src);
+    };
 
-   void AddObjectAndCalcID(Object * n);
-   Object * GetObjectByObjectID(int piID){ for(int i=0;i<GetObjectsCount();i++) if( m_vObjects[i]->GetParam(Param_ID) == piID ) return m_vObjects[i]; return NULL; };
-   Object * GetObjectByIterator(int piID){ return m_vObjects[piID]; };
-   void DeleteObject(Object * ptr);
-   void DeleteObjectByIterator(int piID);
-   void DeleteObjectByID(int piID);
-   void SetObjectDeletionCallback(void (*nCB)(Object * obj)){ m_hObjDeletionCB = nCB; };
+    class Rect {
+    public:
+        int x1, y1, x2, y2;
 
-   void DeleteObjectFromList(Object * ptr);
-   void DeleteObjectFromListByIterator(int piID);
-   void DeleteObjectFromListByID(int piID);
+        Rect() { x1 = y1 = x2 = y2 = 0; };
 
-   void SetFillColor(int iColor){ if( iColor >= 0 && iColor < 256 ) m_iFillColor = iColor; };
+        Rect(int nx1, int ny1, int nx2, int ny2) {
+            x1 = nx1;
+            y1 = ny1;
+            x2 = nx2;
+            y2 = ny2;
+        };
 
-   Tile * GetTile(int piX, int piY);
-   void Resize(int nw, int nh);
-   void ResizeRelative(int rx, int ry, bool ax, bool ay);
-   void ResizeAnchor(int rx, int ry, int anchor);
- };
+        void Set(Rect src) {
+            x1 = src.x1;
+            y1 = src.y1;
+            x2 = src.x2;
+            y2 = src.y2;
+        };
 
- class Parser {
-  private:
-   CustomMetaSerializer * hMetaSerializer;
-   std::vector<TileAtrib*> m_hTileAtribs;
-   std::vector<Plane*> m_hPlanes;
-   char m_szFile[MAX_PATH];
-   char m_szMapName[64], m_szAuthor[64], m_szDate[64], m_szRezPath[256], m_szTilesPath[128], m_szPalPath[128], m_szExePath[128];
-   char m_szImageSets[4][128], m_szSetsPrefixes[4][32];
-   int m_iStartX, m_iStartY;
-   WWD_FLAGS m_iFlags;
-   int m_iBaseLevel;
-   GAME m_iGame;
+        bool Collide(Rect b);
 
-   //cProgressInfo * piInfo;
-   //bool m_bLoadInChunks, m_bInited, m_bFile;
-   //int m_iStepIteration, m_iStepSecondCounter;
-   //std::istream * m_isSource;
-   //std::istream * m_isBuffer;
+        bool operator==(const Rect &oth) const {
+            return (x1 == oth.x1 && y1 == oth.y1 && x2 == oth.x2 && y2 == oth.y2);
+        };
 
-   void LoadFromStream(std::istream * psSource);
-   void WriteFlag(int piFlag, std::ostream * psDestination);
-   void WriteRect(Rect * phRect, std::ostream * psDestination);
-   void WriteObject(Object * hObj, std::ostream * psDestination);
+        bool operator!=(const Rect &oth) const { return !(*this == oth); };
+    };
 
-   void MoveBytes(std::ostream * psStream, int c);
-   void ReadObject(Object * hObj, std::istream * psSource);
-   void ReadRect(Rect * phRect, std::istream * psSource);
-   int FormFlag(byte b1, byte b2);
-   void CleanStr(char * pszStr, int piSize);
-   unsigned int CalculateChecksum(std::istream * psStream, int piOffset);
-   std::istringstream * Inflate(std::istream * psSource);
-   void Deflate(std::istream * psSource, std::ostream * psDest, int iLevel = 0);
-   //void PerformStep();
-  public:
-   Parser(const char * pszFilename, CustomMetaSerializer * hSerializer = 0);
-   Parser(void * ptr, uint32_t iLen, CustomMetaSerializer * hSerializer = 0);
-   //void Step(int piIterations = 1);
-   ~Parser();
-   const char * GetName(){ return (const char*)m_szMapName; };
-   void         SetName(const char * nname){ strncpy(m_szMapName, nname, 64); };
-   const char * GetAuthor(){ return (const char*) m_szAuthor; };
-   void         SetAuthor(const char * nauthor){ strncpy(m_szAuthor, nauthor, 64); };
-   const char * GetDate(){ return (const char*)m_szDate; };
-   void         UpdateDate();
-   const char * GetRezPath(){ return (const char*)m_szRezPath; };
-   void         SetRezPath(const char * n){ strncpy(m_szRezPath, n, 256); };
-   const char * GetTilesPath(){ return (const char*)m_szTilesPath; };
-   void         SetTilesPath(const char * n){ strncpy(m_szTilesPath, n, 128); };
-   const char * GetPalettePath(){ return (const char*)m_szPalPath; };
-   void         SetPalettePath(const char * n){ strncpy(m_szPalPath, n, 128); };
-   const char * GetExePath(){ return (const char*)m_szExePath; };
-   void         SetExePath(const char * n){ strncpy(m_szExePath, n, 128); };
-   const char * GetImageSet(int piID){ return (const char*)m_szImageSets[piID]; };
-   void         SetImageSet(int id, const char * npath);
-   const char * GetImageSetPrefix(int piID){ return (const char*)m_szSetsPrefixes[piID]; };
-   void         SetImageSetPrefix(int id, const char * npref);
-   const char * GetFilePath(){ return (const char*)m_szFile; };
-   void         SetFilePath(const char * nPath);
-   int          GetStartX(){ return m_iStartX; };
-   int          GetStartY(){ return m_iStartY; };
-   void         SetStartX(int x){ m_iStartX = x; };
-   void         SetStartY(int y){ m_iStartY = y; };
-   int          GetBaseLevel(){ return m_iBaseLevel; };
-   WWD_FLAGS    GetFlags(){ return m_iFlags; };
-   int          GetPlanesCount(){ return m_hPlanes.size(); };
-   Plane *      GetPlane(int piID){ if( piID < 0 || piID >= int(m_hPlanes.size()) ) return NULL; return m_hPlanes[piID]; };
-   void         AddPlane(WWD::Plane * np);
-   void         DeletePlane(int piID);
-   void         SortPlanes();
-   void CompileToStream(std::iostream * psDestination);
-   void CompileToFile(const char * pszFilename, bool pbWithActualDate = 1);
+    class TileAtrib {
+    private:
+        TILE_ATRIBTYPE m_iType;
+        int m_iW, m_iH;
+        TILE_ATRIB m_iAtribOutside, m_iAtribInside;
+        Rect m_rMask;
 
-   TileAtrib * GetTileAtribs(int piTile){ if( piTile < 0 || piTile >= int(m_hTileAtribs.size()) ) return NULL; return m_hTileAtribs[piTile]; };
-   void SetTileAtribs(int piTile, TileAtrib * htaAtribs){ m_hTileAtribs[piTile]->SetTo(htaAtribs); };
-   int GetTileAtribsCount(){ return m_hTileAtribs.size(); };
-   void SetTileAtribsCount(int i);
+        friend class Parser;
 
-   void SetFlag(WWD_FLAGS piFlag, bool pbValue);
-   bool GetFlag(WWD_FLAGS piFlag);
-   GAME GetGame(){ return m_iGame; };
+    public:
+        ~TileAtrib();
 
-   CustomMetaSerializer * GetCustomMetaSerializer(){ return hMetaSerializer; };
- };
+        TileAtrib(TileAtrib *src);
 
- GAME GetGameTypeFromFile(const char * pszFilepath, int * piBaseLevel = NULL) throw(Exception);
+        TileAtrib();
+
+        TileAtrib(int pW, int pH, TILE_ATRIBTYPE pType, TILE_ATRIB pIns, TILE_ATRIB pOut = Atrib_Clear,
+                  Rect pMask = Rect(0, 0, 0, 0));
+
+        void SetTo(TileAtrib *src);
+
+        TILE_ATRIBTYPE GetType() { return m_iType; };
+
+        void SetType(TILE_ATRIBTYPE atr) { m_iType = atr; };
+
+        TILE_ATRIB GetAtribInside() { return m_iAtribInside; };
+
+        void SetAtribInside(TILE_ATRIB atr) { m_iAtribInside = atr; };
+
+        int GetW() { return m_iW; };
+
+        int GetH() { return m_iH; };
+
+        void SetW(int w) { m_iW = w; };
+
+        void SetH(int h) { m_iH = h; };
+
+        //double only
+        TILE_ATRIB GetAtribOutside() { return m_iAtribOutside; };
+
+        void SetAtribOutside(TILE_ATRIB atr) { m_iAtribOutside = atr; };
+
+        Rect GetMask() { return m_rMask; };
+
+        void SetMask(int x1, int y1, int x2, int y2) {
+            m_rMask.x1 = x1;
+            m_rMask.y1 = y1;
+            m_rMask.x2 = x2;
+            m_rMask.y2 = y2;
+        };
+
+        std::vector<CollisionRect> GetColRects();
+    };
+
+    class Object {
+    private:
+        OBJ_ADD_FLAGS m_iFlagsAdd;
+        OBJ_DYNAMIC_FLAGS m_iFlagsDynamic;
+        OBJ_DRAW_FLAGS m_iFlagsDraw;
+        OBJ_USER_FLAGS m_iFlagsUser;
+        OBJ_TYPE_FLAGS m_iFlagsType;
+        OBJ_TYPE_FLAGS m_iFlagsHitType;
+        int m_iParams[OBJ_PARAMS_CNT], m_iUserValues[8];
+        Rect m_rMove, m_rHit, m_rAttack, m_rClip, m_rUser[2];
+        char *m_szName, *m_szLogic, *m_szImageSet, *m_szAnim;
+        void *m_hUserData;
+
+        friend class Parser;
+
+        friend class Plane;
+
+    public:
+        Object();
+
+        Object(Object *src);
+
+        ~Object();
+
+        OBJ_ADD_FLAGS GetAddFlags() { return m_iFlagsAdd; };
+
+        OBJ_DYNAMIC_FLAGS GetDynamicFlags() { return m_iFlagsDynamic; };
+
+        OBJ_DRAW_FLAGS GetDrawFlags() { return m_iFlagsDraw; };
+
+        OBJ_USER_FLAGS GetUserFlags() { return m_iFlagsUser; };
+
+        OBJ_TYPE_FLAGS GetTypeFlags() { return m_iFlagsType; };
+
+        OBJ_TYPE_FLAGS GetHitTypeFlags() { return m_iFlagsHitType; };
+
+        const char *GetName() { return (const char *) m_szName; };
+
+        const char *GetLogic() { return (const char *) m_szLogic; };
+
+        const char *GetImageSet() { return (const char *) m_szImageSet; };
+
+        const char *GetAnim() { return (const char *) m_szAnim; };
+
+        int GetParam(OBJ_PARAMS Param) { return m_iParams[Param]; };
+
+        int GetUserValue(int i) { return m_iUserValues[i]; };
+
+        Rect GetMoveRect() { return m_rMove; };
+
+        Rect GetHitRect() { return m_rHit; };
+
+        Rect GetAttackRect() { return m_rAttack; };
+
+        Rect GetClipRect() { return m_rClip; };
+
+        Rect GetUserRect(int i) { return m_rUser[i]; };
+
+        void SetUserData(void *hPtr) { m_hUserData = hPtr; };
+
+        void SetName(const char *nname);
+
+        void SetLogic(const char *nlogic);
+
+        void SetImageSet(const char *niset);
+
+        void SetAnim(const char *nanim);
+
+        void SetParam(OBJ_PARAMS Param, int iVal) { m_iParams[Param] = iVal; };
+
+        void SetUserValue(int i, int v) { m_iUserValues[i] = v; };
+
+        void SetMoveRect(Rect n) { m_rMove = n; };
+
+        void SetHitRect(Rect n) { m_rHit = n; };
+
+        void SetAttackRect(Rect n) { m_rAttack = n; };
+
+        void SetClipRect(Rect n) { m_rClip = n; };
+
+        void SetUserRect(int i, Rect n) { m_rUser[i] = n; };
+
+        void SetAddFlags(OBJ_ADD_FLAGS n) { m_iFlagsAdd = n; };
+
+        void SetDynamicFlags(OBJ_DYNAMIC_FLAGS n) { m_iFlagsDynamic = n; };
+
+        void SetDrawFlags(OBJ_DRAW_FLAGS n) { m_iFlagsDraw = n; };
+
+        void SetUserFlags(OBJ_USER_FLAGS n) { m_iFlagsUser = n; };
+
+        void SetTypeFlags(OBJ_TYPE_FLAGS n) { m_iFlagsType = n; };
+
+        void SetHitTypeFlags(OBJ_TYPE_FLAGS n) { m_iFlagsHitType = n; };
+
+        void *GetUserData() { return m_hUserData; };
+    };
+
+    class Plane {
+    private:
+        PLANE_FLAGS m_iFlags;
+        char m_szName[64];
+        std::vector<char *> m_vImageSets;
+        Tile **m_hTiles;
+        std::vector<Object *> m_vObjects;
+        int m_iZCoord, m_iFillColor, m_iMoveX, m_iMoveY, m_iW, m_iH, m_iTileW, m_iTileH, m_iSetsCount, m_iWpx, m_iHpx;
+
+        ~Plane();
+
+        void (*m_hObjDeletionCB)(Object *obj);
+
+        friend class Parser;
+
+    public:
+        Plane() { m_hTiles = NULL; };
+
+        PLANE_FLAGS GetFlags() { return m_iFlags; };
+
+        void SetFlag(PLANE_FLAGS piFlag, bool pbValue);
+
+        bool GetFlag(PLANE_FLAGS piFlag);
+
+        void SetName(const char *n) { strncpy(m_szName, n, 64); };
+
+        const char *GetName() { return m_szName; };
+
+        void SetZCoord(int n) { m_iZCoord = n; };
+
+        int GetZCoord() { return m_iZCoord; };
+
+        int GetFillColor() { return m_iFillColor; };
+
+        void SetTileWidth(int n) {
+            m_iTileW = n;
+            m_iWpx = m_iW * n;
+        };
+
+        int GetTileWidth() { return m_iTileW; };
+
+        void SetTileHeight(int n) {
+            m_iTileH = n;
+            m_iHpx = m_iH * n;
+        };
+
+        int GetTileHeight() { return m_iTileH; };
+
+        int GetPlaneWidth() { return m_iW; };
+
+        int GetPlaneHeight() { return m_iH; };
+
+        int GetPlaneWidthPx() { return m_iWpx; };
+
+        int GetPlaneHeightPx() { return m_iHpx; };
+
+        void SetMoveModX(int n) { m_iMoveX = n; };
+
+        int GetMoveModX() { return m_iMoveX; };
+
+        void SetMoveModY(int n) { m_iMoveY = n; };
+
+        int GetMoveModY() { return m_iMoveY; };
+
+        int GetObjectsCount() { return m_vObjects.size(); };
+
+        int ClampX(int x) { return x % (m_iW); };
+
+        int ClampY(int y) { return y % (m_iH); };
+
+        const char *GetImageSet(int piID) { return m_vImageSets[piID]; };
+
+        int GetImageSetsCount() { return m_vImageSets.size(); };
+
+        void AddImageSet(const char *n);
+
+        void ClearImageSets();
+
+        void AddObjectAndCalcID(Object *n);
+
+        Object *GetObjectByObjectID(int piID) {
+            for (int i = 0; i < GetObjectsCount(); i++)
+                if (m_vObjects[i]->GetParam(Param_ID) == piID)return m_vObjects[i];
+            return NULL;
+        };
+
+        Object *GetObjectByIterator(int piID) { return m_vObjects[piID]; };
+
+        void DeleteObject(Object *ptr);
+
+        void DeleteObjectByIterator(int piID);
+
+        void DeleteObjectByID(int piID);
+
+        void SetObjectDeletionCallback(void (*nCB)(Object *obj)) { m_hObjDeletionCB = nCB; };
+
+        void DeleteObjectFromList(Object *ptr);
+
+        void DeleteObjectFromListByIterator(int piID);
+
+        void DeleteObjectFromListByID(int piID);
+
+        void SetFillColor(int iColor) { if (iColor >= 0 && iColor < 256) m_iFillColor = iColor; };
+
+        Tile *GetTile(int piX, int piY);
+
+        void Resize(int nw, int nh);
+
+        void ResizeRelative(int rx, int ry, bool ax, bool ay);
+
+        void ResizeAnchor(int rx, int ry, int anchor);
+    };
+
+    class Parser {
+    private:
+        CustomMetaSerializer *hMetaSerializer;
+        std::vector<TileAtrib *> m_hTileAtribs;
+        std::vector<Plane *> m_hPlanes;
+        char m_szFile[MAX_PATH];
+        char m_szMapName[64], m_szAuthor[64], m_szDate[64], m_szRezPath[256], m_szTilesPath[128], m_szPalPath[128], m_szExePath[128];
+        char m_szImageSets[4][128], m_szSetsPrefixes[4][32];
+        int m_iStartX, m_iStartY;
+        WWD_FLAGS m_iFlags;
+        int m_iBaseLevel;
+        GAME m_iGame;
+
+        //cProgressInfo * piInfo;
+        //bool m_bLoadInChunks, m_bInited, m_bFile;
+        //int m_iStepIteration, m_iStepSecondCounter;
+        //std::istream * m_isSource;
+        //std::istream * m_isBuffer;
+
+        void LoadFromStream(std::istream *psSource);
+
+        void WriteFlag(int piFlag, std::ostream *psDestination);
+
+        void WriteRect(Rect *phRect, std::ostream *psDestination);
+
+        void WriteObject(Object *hObj, std::ostream *psDestination);
+
+        void MoveBytes(std::ostream *psStream, int c);
+
+        void ReadObject(Object *hObj, std::istream *psSource);
+
+        void ReadRect(Rect *phRect, std::istream *psSource);
+
+        int FormFlag(byte b1, byte b2);
+
+        void CleanStr(char *pszStr, int piSize);
+
+        unsigned int CalculateChecksum(std::istream *psStream, int piOffset);
+
+        std::istringstream *Inflate(std::istream *psSource);
+
+        void Deflate(std::istream *psSource, std::ostream *psDest, int iLevel = 0);
+        //void PerformStep();
+    public:
+        Parser(const char *pszFilename, CustomMetaSerializer *hSerializer = 0);
+
+        Parser(void *ptr, uint32_t iLen, CustomMetaSerializer *hSerializer = 0);
+
+        //void Step(int piIterations = 1);
+        ~Parser();
+
+        const char *GetName() { return (const char *) m_szMapName; };
+
+        void SetName(const char *nname) { strncpy(m_szMapName, nname, 64); };
+
+        const char *GetAuthor() { return (const char *) m_szAuthor; };
+
+        void SetAuthor(const char *nauthor) { strncpy(m_szAuthor, nauthor, 64); };
+
+        const char *GetDate() { return (const char *) m_szDate; };
+
+        void UpdateDate();
+
+        const char *GetRezPath() { return (const char *) m_szRezPath; };
+
+        void SetRezPath(const char *n) { strncpy(m_szRezPath, n, 256); };
+
+        const char *GetTilesPath() { return (const char *) m_szTilesPath; };
+
+        void SetTilesPath(const char *n) { strncpy(m_szTilesPath, n, 128); };
+
+        const char *GetPalettePath() { return (const char *) m_szPalPath; };
+
+        void SetPalettePath(const char *n) { strncpy(m_szPalPath, n, 128); };
+
+        const char *GetExePath() { return (const char *) m_szExePath; };
+
+        void SetExePath(const char *n) { strncpy(m_szExePath, n, 128); };
+
+        const char *GetImageSet(int piID) { return (const char *) m_szImageSets[piID]; };
+
+        void SetImageSet(int id, const char *npath);
+
+        const char *GetImageSetPrefix(int piID) { return (const char *) m_szSetsPrefixes[piID]; };
+
+        void SetImageSetPrefix(int id, const char *npref);
+
+        const char *GetFilePath() { return (const char *) m_szFile; };
+
+        void SetFilePath(const char *nPath);
+
+        int GetStartX() { return m_iStartX; };
+
+        int GetStartY() { return m_iStartY; };
+
+        void SetStartX(int x) { m_iStartX = x; };
+
+        void SetStartY(int y) { m_iStartY = y; };
+
+        int GetBaseLevel() { return m_iBaseLevel; };
+
+        WWD_FLAGS GetFlags() { return m_iFlags; };
+
+        int GetPlanesCount() { return m_hPlanes.size(); };
+
+        Plane *GetPlane(int piID) {
+            if (piID < 0 || piID >= int(m_hPlanes.size())) return NULL;
+            return m_hPlanes[piID];
+        };
+
+        void AddPlane(WWD::Plane *np);
+
+        void DeletePlane(int piID);
+
+        void SortPlanes();
+
+        void CompileToStream(std::iostream *psDestination);
+
+        void CompileToFile(const char *pszFilename, bool pbWithActualDate = 1);
+
+        TileAtrib *GetTileAtribs(int piTile) {
+            if (piTile < 0 || piTile >= int(m_hTileAtribs.size())) return NULL;
+            return m_hTileAtribs[piTile];
+        };
+
+        void SetTileAtribs(int piTile, TileAtrib *htaAtribs) { m_hTileAtribs[piTile]->SetTo(htaAtribs); };
+
+        int GetTileAtribsCount() { return m_hTileAtribs.size(); };
+
+        void SetTileAtribsCount(int i);
+
+        void SetFlag(WWD_FLAGS piFlag, bool pbValue);
+
+        bool GetFlag(WWD_FLAGS piFlag);
+
+        GAME GetGame() { return m_iGame; };
+
+        CustomMetaSerializer *GetCustomMetaSerializer() { return hMetaSerializer; };
+    };
+
+    GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL) throw(Exception);
 }
 
 #endif

@@ -21,31 +21,41 @@
 #define RETURN_NO 3
 
 namespace State {
- int ErrorStandalone(const char * pszTitle, const char * pszErrorString, int piIcon, int piButtons, bool pbOpaque);
+    int ErrorStandalone(const char *pszTitle, const char *pszErrorString, int piIcon, int piButtons, bool pbOpaque);
 
- class Error : public SHR::cState {
-  public:
-   Error(const char * pszTitle, const char * pszErrorString, int piIcon, int piButtons, bool pbOpaque, bool pbStandalone = 0);
-   ~Error();
-   virtual bool Opaque();
-   virtual void Init();
-   virtual void Destroy();
-   virtual bool Think();
-   virtual bool Render();
-   virtual void GainFocus(int iReturnCode, bool bFlipped);
-   int GetReturn(){ return ret; };
-  private:
-   bool standalone;
-   bool stop;
-   int ret;
-   gcn::Gui * gui;
-   SHR::Win * winError;
-   int iIcon, iButtons;
-   SHR::But * butOK, * butYes, * butNo, * butCancel;
-   bool bOpaque;
-   char * szErrorString, * szTitle;
-  friend class ErrorActionListener;
- };
+    class Error : public SHR::cState {
+    public:
+        Error(const char *pszTitle, const char *pszErrorString, int piIcon, int piButtons, bool pbOpaque,
+              bool pbStandalone = 0);
+
+        ~Error();
+
+        virtual bool Opaque();
+
+        virtual void Init();
+
+        virtual void Destroy();
+
+        virtual bool Think();
+
+        virtual bool Render();
+
+        virtual void GainFocus(int iReturnCode, bool bFlipped);
+
+        int GetReturn() { return ret; };
+    private:
+        bool standalone;
+        bool stop;
+        int ret;
+        gcn::Gui *gui;
+        SHR::Win *winError;
+        int iIcon, iButtons;
+        SHR::But *butOK, *butYes, *butNo, *butCancel;
+        bool bOpaque;
+        char *szErrorString, *szTitle;
+
+        friend class ErrorActionListener;
+    };
 };
 
 #endif

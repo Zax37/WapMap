@@ -12,14 +12,12 @@ using namespace gcn;
 
 class hgeSprite;
 
-namespace SHR
-{
+namespace SHR {
     /**
      * Implementation of a Link capable of displaying a caption.
      */
-    class GCN_CORE_DECLSPEC Link: public gcn::Widget,
-                                  public MouseListener
-    {
+    class GCN_CORE_DECLSPEC Link : public gcn::Widget,
+                                   public MouseListener {
     public:
         /**
          * Constructor.
@@ -32,7 +30,7 @@ namespace SHR
          *
          * @param caption The caption of the Link.
          */
-        Link(const std::string& caption, hgeSprite * spr = 0);
+        Link(const std::string &caption, hgeSprite *spr = 0);
 
         /**
          * Gets the caption of the Link.
@@ -42,8 +40,9 @@ namespace SHR
          */
         const std::string &getCaption() const;
 
-        void setIcon(hgeSprite * spr);
-        hgeSprite * getIcon(){ return sprIcon; };
+        void setIcon(hgeSprite *spr);
+
+        hgeSprite *getIcon() { return sprIcon; };
 
         /**
          * Sets the caption of the Link. It's advisable to call
@@ -53,7 +52,7 @@ namespace SHR
          * @param caption The caption of the Link.
          * @see getCaption, adjustSize
          */
-        void setCaption(const std::string& caption);
+        void setCaption(const std::string &caption);
 
         /**
          * Sets the alignment of the caption. The alignment is relative
@@ -81,19 +80,20 @@ namespace SHR
 
         // Inherited from Widget
 
-        virtual void draw(Graphics* graphics);
+        virtual void draw(Graphics *graphics);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseEntered(MouseEvent& mouseEvent);
+        virtual void mouseEntered(MouseEvent &mouseEvent);
 
-        virtual void mouseExited(MouseEvent& mouseEvent);
+        virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual void mouseReleased(MouseEvent& mouseEvent);
+        virtual void mouseReleased(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void mouseDragged(MouseEvent &mouseEvent);
 
         virtual bool showHand();
+
     protected:
         /**
          * Holds the caption of the Link.
@@ -106,7 +106,7 @@ namespace SHR
         Graphics::Alignment mAlignment;
 
         float fFocusTimer;
-        hgeSprite * sprIcon;
+        hgeSprite *sprIcon;
 
         bool bMouseOver, mMousePressed;
     };

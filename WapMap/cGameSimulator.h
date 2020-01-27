@@ -24,15 +24,12 @@
 //          smarts = don't toggle
 //togglepeg2 750 delay
 
-namespace State
-{
+namespace State {
     class EditingWW;
 }
 
-namespace GameSim
-{
-    enum eSimEntity
-    {
+namespace GameSim {
+    enum eSimEntity {
         SE_Unknown = 0,
         SE_Elevator,
         SE_Treasure,
@@ -43,94 +40,83 @@ namespace GameSim
         SE_Warp
     };
 
-    struct stObjUserDataSimEntity
-    {
+    struct stObjUserDataSimEntity {
         eSimEntity enType;
-        int * hPtr;
+        int *hPtr;
     };
 
-    enum eElevatorType
-    {
+    enum eElevatorType {
         ELEVATOR_NORMAL,
         ELEVATOR_START,
         ELEVATOR_TRIGGER,
         ELEVATOR_PATH
     };
-    struct cRope
-    {
+    struct cRope {
         float fFrameDuration, fCounter;
         unsigned short iFrame;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
     };
-    struct cCrumblingPeg
-    {
+    struct cCrumblingPeg {
         float fAnimTimer;
         bool bRun;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
     };
-    struct cPowderKeg
-    {
+    struct cPowderKeg {
         float fAnimTimer;
         bool bExplode;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
     };
-    struct cWarp
-    {
-        WWD::Object * hObj;
+    struct cWarp {
+        WWD::Object *hObj;
     };
-    struct cTogglePeg
-    {
+    struct cTogglePeg {
         float fDelay;
         float fTimeOn, fTimeOff;
         float fCounter, fFrameCounter;
         float fFrameDuration;
         unsigned short iFramesCount;
         unsigned short iFrame;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
         bool bOn;
-        #ifdef REAL_SIM
-         cPhysicBody * bodyMe;
-        #endif
+#ifdef REAL_SIM
+        cPhysicBody * bodyMe;
+#endif
     };
-    struct cEyeCandy
-    {
+    struct cEyeCandy {
         float fCounter;
         unsigned short iFrame;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
     };
-    struct cElevator
-    {
+    struct cElevator {
         float fPosX, fPosY;
         float fSpeedVer, fSpeedHor;
         int iMinX, iMinY, iMaxX, iMaxY;
         bool bDirVer, bDirHor;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
         eElevatorType enType;
         bool bSleep;
         bool bOneWay;
-        #ifdef REAL_SIM
-         cPhysicBody * bodyMe;
-        #endif
+#ifdef REAL_SIM
+        cPhysicBody * bodyMe;
+#endif
     };
-    struct cPathElevator
-    {
-        WWD::Object * hObj;
+    struct cPathElevator {
+        WWD::Object *hObj;
         float fPosX, fPosY;
         float fSpeed;
-        std::vector< std::pair< int,int > > vPaths;
+        std::vector<std::pair<int, int> > vPaths;
         float fOrigX, fOrigY;
         int iDirHor, iDirVer;
         int iStep;
         float fSleep;
     };
-    struct cCheckpoint
-    {
+    struct cCheckpoint {
         bool bWave;
         int iFrame;
         float fTimer;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
     };
-    #ifdef REAL_SIM
+#ifdef REAL_SIM
     struct cCheckpoint
     {
         bool bWave;
@@ -144,7 +130,7 @@ namespace GameSim
         cPhysicBody * bodyMe;
         WWD::Object * hObj;
     };
-    #endif
+#endif
     /*struct cEnemy
     {
         std::vector<ANI::Frame*> vFrames;
@@ -155,17 +141,16 @@ namespace GameSim
         bool bInEndTimer;
         WWD::Object * hObj;
     };*/
-    struct cEnemy
-    {
+    struct cEnemy {
         bool bDirection;
         float fMoveSpeed;
         int iMinX, iMaxX;
         float fAniTimer;
         float fWaitTimer;
         int iAniFrame;
-        WWD::Object * hObj;
+        WWD::Object *hObj;
         bool bMoving;
-        ANI::Animation * hAni;
+        ANI::Animation *hAni;
         std::vector<std::string> vIdleAnims;
         std::string strWalkAnim;
         bool bStopping;
@@ -173,17 +158,15 @@ namespace GameSim
         bool bHit;
         int iHitFrame;
         float fHitTimer;
-        ANI::Animation * hAniHit;
+        ANI::Animation *hAniHit;
     };
-    struct cSoundTrigger
-    {
-        cPhysicBody * bodyListener[2];
-        WWD::Object * hObj;
+    struct cSoundTrigger {
+        cPhysicBody *bodyListener[2];
+        WWD::Object *hObj;
         bool bDialogTrigger;
     };
-    struct cAmbientSound
-    {
-        WWD::Object * hObj;
+    struct cAmbientSound {
+        WWD::Object *hObj;
         float fTimer, fTime;
         bool bOn;
         bool bPlaying;
@@ -192,113 +175,121 @@ namespace GameSim
 
     struct cProjectileSpawner;
 
-    struct cProjectile
-    {
-        WWD::Object * hObj;
+    struct cProjectile {
+        WWD::Object *hObj;
         bool bPhase;
         float fAnimTimer;
     };
 
-    struct cProjectileSpawner
-    {
-        WWD::Object * hObj;
-        std::vector<cProjectile*> vhChildren;
+    struct cProjectileSpawner {
+        WWD::Object *hObj;
+        std::vector<cProjectile *> vhChildren;
         float fDelayTimer;
         float fDelayTime;
         float fSpeedX, fSpeedY;
         int iDistance;
     };
 
-    enum enAnimMode
-    {
+    enum enAnimMode {
         AniLOOP = 0,
         AniHOLD,
         AniONCE
     };
 
-    #define GAMESIM_WEAP_NUM 3
-    enum enWeapons
-    {
+#define GAMESIM_WEAP_NUM 3
+    enum enWeapons {
         WeapPISTOL = 0,
         WeapMAGIC,
         WeapDYNAMITE
     };
 }
 
-class cGameSimulator
-{
- private:
-  State::EditingWW * mO;
-  WWD::Parser * hPar;
-  WWD::Plane * hMainPlane;
-  std::vector<GameSim::cRope> vRopes;
-  std::vector<GameSim::cTogglePeg> vTogglePegs;
-  std::vector<GameSim::cEyeCandy> vEyeCandies;
-  std::vector<GameSim::cElevator*> vElevators;
-  std::vector<GameSim::cPathElevator> vPElevators;
-  std::vector<GameSim::cEnemy*> vEnemies;
-  std::vector<GameSim::cAmbientSound> vAmbients;
-  std::vector<GameSim::cProjectileSpawner> vProjSpawner;
-  std::vector<GameSim::cCrumblingPeg*> vCrumbPeg;
-  std::vector<GameSim::cPowderKeg*> vPowderKeg;
-  std::vector<GameSim::cCheckpoint*> vCheckpoint;
-  std::vector<GameSim::cWarp*> vWarp;
-  int iRopeFramesCount;
-  float fRopeCounter;
+class cGameSimulator {
+private:
+    State::EditingWW *mO;
+    WWD::Parser *hPar;
+    WWD::Plane *hMainPlane;
+    std::vector<GameSim::cRope> vRopes;
+    std::vector<GameSim::cTogglePeg> vTogglePegs;
+    std::vector<GameSim::cEyeCandy> vEyeCandies;
+    std::vector<GameSim::cElevator *> vElevators;
+    std::vector<GameSim::cPathElevator> vPElevators;
+    std::vector<GameSim::cEnemy *> vEnemies;
+    std::vector<GameSim::cAmbientSound> vAmbients;
+    std::vector<GameSim::cProjectileSpawner> vProjSpawner;
+    std::vector<GameSim::cCrumblingPeg *> vCrumbPeg;
+    std::vector<GameSim::cPowderKeg *> vPowderKeg;
+    std::vector<GameSim::cCheckpoint *> vCheckpoint;
+    std::vector<GameSim::cWarp *> vWarp;
+    int iRopeFramesCount;
+    float fRopeCounter;
 
-  bool bInited;
-  void Init();
+    bool bInited;
 
-  cAniBankAsset * hClawAnim, * hClawAnimPlay;
-  float fPlayerAniTimer;
-  int iPlayerAniFrame, iPlayerAniPlayFrame;
-  GameSim::enAnimMode iPlayerAniMode, iPlayerAniPlayMode;
-  bool bPlayerAniHold;
-  int iLives;
-  int iScore;
-  int iHealth;
-  int iAmmo[GAMESIM_WEAP_NUM];
+    void Init();
 
-  float fWeaponTimerHUD;
-  int iWeaponFrameHUD;
-  float fChestTimer, fHeartTimer;
-  int iChestFrame, iHeartFrame;
-  GameSim::enWeapons iSelectedWeapon;
+    cAniBankAsset *hClawAnim, *hClawAnimPlay;
+    float fPlayerAniTimer;
+    int iPlayerAniFrame, iPlayerAniPlayFrame;
+    GameSim::enAnimMode iPlayerAniMode, iPlayerAniPlayMode;
+    bool bPlayerAniHold;
+    int iLives;
+    int iScore;
+    int iHealth;
+    int iAmmo[GAMESIM_WEAP_NUM];
 
-  void ChangeWeapon();
-  void PlayerPlayAnim(cAniBankAsset * hAni);
-  cPhysicWorld * hPW;
-  bool bClimbing;
-  bool bStopAnim;
-  cPhysicBody * hLadder;
- public:
-  bool bPlay;
-  cGameSimulator(State::EditingWW * owner){ mO = owner; bInited = 0; };
-  ~cGameSimulator();
-  void Think();
-  void Render();
+    float fWeaponTimerHUD;
+    int iWeaponFrameHUD;
+    float fChestTimer, fHeartTimer;
+    int iChestFrame, iHeartFrame;
+    GameSim::enWeapons iSelectedWeapon;
 
-  void AlterScore(int mod){ iScore+=mod; };
+    void ChangeWeapon();
 
-  int GetTileColX(WWD::TileAtrib * atr, bool bRight);
-  int GetTileColY(WWD::TileAtrib * atr);
+    void PlayerPlayAnim(cAniBankAsset *hAni);
 
-  cPhysicBody * bodyClaw;
-  std::vector<GameSim::cSoundTrigger> vSndTrig;
-  #ifdef REAL_SIM
-  std::vector<GameSim::cCheckpoint> vCheckpoints;
-  std::vector<GameSim::cTreasure> vTreasures;
-  #endif
-  HCHANNEL clawDialog;
-  void PlayAnimSound(ANI::Frame * fr);
-  ANI::Animation * aniFlagRise, * aniFlagWave, * aniPowderExpl;
-  int iGlitterFrame;
-  float fGlitterTimer;
+    cPhysicWorld *hPW;
+    bool bClimbing;
+    bool bStopAnim;
+    cPhysicBody *hLadder;
+public:
+    bool bPlay;
 
-  //springboards
-  int iSpringBoardFrame;
-  float fSpringBoardTimer;
-  ANI::Animation * hSpringBoardAnim;
+    cGameSimulator(State::EditingWW *owner) {
+        mO = owner;
+        bInited = 0;
+    };
+
+    ~cGameSimulator();
+
+    void Think();
+
+    void Render();
+
+    void AlterScore(int mod) { iScore += mod; };
+
+    int GetTileColX(WWD::TileAtrib *atr, bool bRight);
+
+    int GetTileColY(WWD::TileAtrib *atr);
+
+    cPhysicBody *bodyClaw;
+    std::vector<GameSim::cSoundTrigger> vSndTrig;
+#ifdef REAL_SIM
+    std::vector<GameSim::cCheckpoint> vCheckpoints;
+    std::vector<GameSim::cTreasure> vTreasures;
+#endif
+    HCHANNEL clawDialog;
+
+    void PlayAnimSound(ANI::Frame *fr);
+
+    ANI::Animation *aniFlagRise, *aniFlagWave, *aniPowderExpl;
+    int iGlitterFrame;
+    float fGlitterTimer;
+
+    //springboards
+    int iSpringBoardFrame;
+    float fSpringBoardTimer;
+    ANI::Animation *hSpringBoardAnim;
 };
 
 #endif

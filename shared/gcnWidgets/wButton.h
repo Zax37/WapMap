@@ -21,62 +21,83 @@ using namespace gcn;
 
 struct cInterfaceSheet;
 
-namespace SHR
-{
+namespace SHR {
     class GCN_CORE_DECLSPEC But : public gcn::Widget,
-                                     public MouseListener,
-                                     public KeyListener,
-                                     public FocusListener
-                                     //public cTooltip
+                                  public MouseListener,
+                                  public KeyListener,
+                                  public FocusListener
+        //public cTooltip
     {
     public:
-        But(cInterfaceSheet * Parts);
-        But(cInterfaceSheet * Parts, const std::string& caption);
-        But(cInterfaceSheet * Parts, hgeSprite * psprIcon);
+        But(cInterfaceSheet *Parts);
 
-        void setCaption(const std::string& caption);
-        const std::string& getCaption() const;
+        But(cInterfaceSheet *Parts, const std::string &caption);
+
+        But(cInterfaceSheet *Parts, hgeSprite *psprIcon);
+
+        void setCaption(const std::string &caption);
+
+        const std::string &getCaption() const;
 
         void setAlignment(Graphics::Alignment alignment);
+
         Graphics::Alignment getAlignment() const;
 
         void setSpacing(unsigned int spacing);
+
         unsigned int getSpacing() const;
 
         void adjustSize();
 
-        virtual void draw(Graphics* graphics);
-        virtual void focusLost(const Event& event);
+        virtual void draw(Graphics *graphics);
 
-        virtual void mousePressed(MouseEvent& mouseEvent);
-        virtual void mouseReleased(MouseEvent& mouseEvent);
-        virtual void mouseEntered(MouseEvent& mouseEvent);
-        virtual void mouseExited(MouseEvent& mouseEvent);
-        virtual void mouseDragged(MouseEvent& mouseEvent);
+        virtual void focusLost(const Event &event);
 
-        virtual void keyPressed(KeyEvent& keyEvent);
-        virtual void keyReleased(KeyEvent& keyEvent);
+        virtual void mousePressed(MouseEvent &mouseEvent);
 
-        hgeSprite * getIcon(){ return sprIcon; };
-        void setIcon(hgeSprite * spr){ sprIcon = spr; };
+        virtual void mouseReleased(MouseEvent &mouseEvent);
+
+        virtual void mouseEntered(MouseEvent &mouseEvent);
+
+        virtual void mouseExited(MouseEvent &mouseEvent);
+
+        virtual void mouseDragged(MouseEvent &mouseEvent);
+
+        virtual void keyPressed(KeyEvent &keyEvent);
+
+        virtual void keyReleased(KeyEvent &keyEvent);
+
+        hgeSprite *getIcon() { return sprIcon; };
+
+        void setIcon(hgeSprite *spr) { sprIcon = spr; };
+
         bool isPressed() const;
+
         void simulatePress();
-        void setHighlight(bool b){ bBlinkState = b; };
-        bool isHighlighted(){ return bBlinkState; };
-        virtual bool showHand(){ return isEnabled(); };
-        bool mouseOver(){ return mHasMouse; };
-        void setIconColor(DWORD col){ colIcon = col; };
-        DWORD getIconColor(){ return colIcon; };
 
-        void setRenderBG(bool b){ bRenderBG = b; };
-        bool isRenderingBG(){ return bRenderBG; };
+        void setHighlight(bool b) { bBlinkState = b; };
 
-        static void drawButton(cInterfaceSheet * hSheet, int iState, int iX, int iY, int iW, int iH, DWORD dwCol);
+        bool isHighlighted() { return bBlinkState; };
+
+        virtual bool showHand() { return isEnabled(); };
+
+        bool mouseOver() { return mHasMouse; };
+
+        void setIconColor(DWORD col) { colIcon = col; };
+
+        DWORD getIconColor() { return colIcon; };
+
+        void setRenderBG(bool b) { bRenderBG = b; };
+
+        bool isRenderingBG() { return bRenderBG; };
+
+        static void drawButton(cInterfaceSheet *hSheet, int iState, int iX, int iY, int iW, int iH, DWORD dwCol);
+
     protected:
-        cInterfaceSheet * hGfx;
+        cInterfaceSheet *hGfx;
         std::string mCaption;
 
-        hgeSprite * sprIcon;
+        hgeSprite *sprIcon;
         DWORD colIcon;
         bool bBlinkState;
         bool mHasMouse;

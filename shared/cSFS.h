@@ -1,5 +1,6 @@
 #ifndef H_C_SFS
 #define H_C_SFS
+
 #include <vector>
 #include <sys\types.h>
 #include <sys\stat.h>
@@ -19,117 +20,161 @@ class cSFS_File;
 
 class cSFS_Member {
 private:
-	int iSize;
-	char * szName;
-	int iOffset;
+    int iSize;
+    char *szName;
+    int iOffset;
 
-	friend class cSFS_Directory;
-	friend class cSFS_File;
+    friend class cSFS_Directory;
+
+    friend class cSFS_File;
+
 #ifdef SFS_COMPILER
-	friend class cSFS_Compiler;
+    friend class cSFS_Compiler;
 #endif
-	friend class cSFS_Repository;
+
+    friend class cSFS_Repository;
+
 public:
-	virtual bool IsContainer() { return 0; };
-	int GetSize() { return iSize; };
-	const char * GetName() { return szName; };
+    virtual bool IsContainer() { return 0; };
+
+    int GetSize() { return iSize; };
+
+    const char *GetName() { return szName; };
 };
 
 class cSFS_Directory : public cSFS_Member {
 private:
-	std::vector<cSFS_Member*> vMembers;
+    std::vector<cSFS_Member *> vMembers;
 
-	cSFS_Directory();
-	cSFS_Directory(const char * pszName);
-	void AddFile(cSFS_File * pFile);
-	cSFS_Directory * CreateSubdir(const char * pszName);
-	void Assign(cSFS_Member * pMember);
-	void UpdateSizeRecursive();
-	cSFS_Member * GetMember(const char * pszName);
-	cSFS_Member * GetMember(int piID) { return vMembers[piID]; };
+    cSFS_Directory();
+
+    cSFS_Directory(const char *pszName);
+
+    void AddFile(cSFS_File *pFile);
+
+    cSFS_Directory *CreateSubdir(const char *pszName);
+
+    void Assign(cSFS_Member *pMember);
+
+    void UpdateSizeRecursive();
+
+    cSFS_Member *GetMember(const char *pszName);
+
+    cSFS_Member *GetMember(int piID) { return vMembers[piID]; };
 
 #ifdef SFS_COMPILER
-	friend class cSFS_Compiler;
+    friend class cSFS_Compiler;
 #endif
-	friend class cSFS_Repository;
+
+    friend class cSFS_Repository;
 
 public:
 #ifdef DEBUG
-	void PrintStructure(bool pbRecursive = 0, int piRecursionLvl = 0);
+    void PrintStructure(bool pbRecursive = 0, int piRecursionLvl = 0);
 #endif
 
-	bool Exists(const char * pszName);
-	virtual bool IsContainer() { return 1; };
-	int GetMembersNum() { return vMembers.size(); };
-	int GetMembersNumTotal();
-	int GetDirsNumTotal();
-	int GetDirsNum();
-	int GetFilesNum();
-	int GetFilesNumTotal();
+    bool Exists(const char *pszName);
+
+    virtual bool IsContainer() { return 1; };
+
+    int GetMembersNum() { return vMembers.size(); };
+
+    int GetMembersNumTotal();
+
+    int GetDirsNumTotal();
+
+    int GetDirsNum();
+
+    int GetFilesNum();
+
+    int GetFilesNumTotal();
 };
 
 class cSFS_File : public cSFS_Member {
 private:
-	void * hData;
+    void *hData;
 #ifdef SFS_COMPILER
-	friend class cSFS_Compiler;
+    friend class cSFS_Compiler;
 #endif
-	friend class cSFS_Repository;
+
+    friend class cSFS_Repository;
+
 public:
-	cSFS_File();
-	~cSFS_File();
-	virtual bool IsContainer() { return 0; };
+    cSFS_File();
+
+    ~cSFS_File();
+
+    virtual bool IsContainer() { return 0; };
 };
 
 class cSFS_Repository {
 private:
-	int iOffsetCursor;
-	int iFilesInRoot;
-	std::istream * isSource;
-	bool bFile;
-	void * hData;
-	//char * szFile;
-	int iLength;
-	int iFiles;
-	int iDirs;
-	cSFS_Directory Root;
-	void ReadDir(cSFS_Directory * pDir, std::istream * is);
-	cSFS_Member * GetMember(const char * pszFilename);
+    int iOffsetCursor;
+    int iFilesInRoot;
+    std::istream *isSource;
+    bool bFile;
+    void *hData;
+    //char * szFile;
+    int iLength;
+    int iFiles;
+    int iDirs;
+    cSFS_Directory Root;
+
+    void ReadDir(cSFS_Directory *pDir, std::istream *is);
+
+    cSFS_Member *GetMember(const char *pszFilename);
+
 public:
-	cSFS_Repository(void * phData, int piLength);
-	cSFS_Repository(const char * pszFilename);
-	~cSFS_Repository();
-	int GetFilesNum();
-	int GetFilesNumTotal();
-	int GetDirsNum();
-	int GetDirsNumTotal();
-	int GetRepositorySize();
-	bool IsFile(const char * pszFilename);
-	bool IsDir(const char * pszFilename);
-	bool Exists(const char * pszFilename);
-	void * GetFileAsRawData(const char * pszFilename, int * oDataSize = NULL); //header identical to one in Manager
-	void Unpack(cSFS_Directory* dir = NULL);
-	cSFS_Directory * GetDir(const char * szName);
-	cSFS_File * GetFile(const char * szName);
+    cSFS_Repository(void *phData, int piLength);
+
+    cSFS_Repository(const char *pszFilename);
+
+    ~cSFS_Repository();
+
+    int GetFilesNum();
+
+    int GetFilesNumTotal();
+
+    int GetDirsNum();
+
+    int GetDirsNumTotal();
+
+    int GetRepositorySize();
+
+    bool IsFile(const char *pszFilename);
+
+    bool IsDir(const char *pszFilename);
+
+    bool Exists(const char *pszFilename);
+
+    void *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL); //header identical to one in Manager
+    void Unpack(cSFS_Directory *dir = NULL);
+
+    cSFS_Directory *GetDir(const char *szName);
+
+    cSFS_File *GetFile(const char *szName);
+
 #ifdef DEBUG
-	void PrintStructure();
+    void PrintStructure();
 #endif
 };
 
 class cSFS_Manager {
 private:
-	std::vector<cSFS_Repository*> vRepositories;
+    std::vector<cSFS_Repository *> vRepositories;
 public:
-	cSFS_Manager();
-	~cSFS_Manager();
+    cSFS_Manager();
 
-	void AttachRepository(cSFS_Repository * phRepo);
-	void DetachRepository(cSFS_Repository * phRepo);
+    ~cSFS_Manager();
 
-	void * GetFileAsRawData(const char * pszFilename, int * oDataSize = NULL);
+    void AttachRepository(cSFS_Repository *phRepo);
+
+    void DetachRepository(cSFS_Repository *phRepo);
+
+    void *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL);
 
 #ifdef DEBUG
-	void PrintStructure();
+    void PrintStructure();
 #endif
 };
 
@@ -137,18 +182,18 @@ public:
 
 class cSFS_Compiler {
 private:
-	cSFS_Directory Root;
-	void CompileDir(cSFS_Directory * pDir, FILE * pF);
-	void CompileFile(cSFS_File * pDir, FILE * pF);
+    cSFS_Directory Root;
+    void CompileDir(cSFS_Directory * pDir, FILE * pF);
+    void CompileFile(cSFS_File * pDir, FILE * pF);
 public:
-	cSFS_Compiler();
-	~cSFS_Compiler();
-	void CreateDir(const char * pszDirectory);
-	void DeleteDir(const char * pszDirectory);
-	void AddFile(const char * pszFilename, const char * pszAs);
-	void CompileTo(const char * pszFilename);
+    cSFS_Compiler();
+    ~cSFS_Compiler();
+    void CreateDir(const char * pszDirectory);
+    void DeleteDir(const char * pszDirectory);
+    void AddFile(const char * pszFilename, const char * pszAs);
+    void CompileTo(const char * pszFilename);
 #ifdef DEBUG
-	void PrintStructure();
+    void PrintStructure();
 #endif
 };
 

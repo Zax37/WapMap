@@ -64,86 +64,108 @@
 #define LAY_MDI_Y      85
 #define LAY_VIEWPORT_Y 109
 
-class cAppMenu_Entry
-{
- private:
-  std::string strLabel;
-  Gfx16Icons iIcon;
-  bool bEnabled;
-  SHR::Context * hContext;
-  bool bFocused;
-  float fTimer;
- public:
-  cAppMenu_Entry(std::string lab, Gfx16Icons ico);
-  ~cAppMenu_Entry();
+class cAppMenu_Entry {
+private:
+    std::string strLabel;
+    Gfx16Icons iIcon;
+    bool bEnabled;
+    SHR::Context *hContext;
+    bool bFocused;
+    float fTimer;
+public:
+    cAppMenu_Entry(std::string lab, Gfx16Icons ico);
 
-  SHR::Context * GetContext(){ return hContext; };
-  void SetIcon(Gfx16Icons n){ iIcon = n; };
-  Gfx16Icons GetIcon(){ return iIcon; };
-  void SetEnabled(bool b){ bEnabled = b; };
-  bool IsEnabled(){ return bEnabled; };
-  void SetLabel(std::string n){ strLabel = n; };
-  std::string GetLabel(){ return strLabel; };
+    ~cAppMenu_Entry();
 
-  int Render(int x, int y, bool bFocused);
-  int GetWidth();
+    SHR::Context *GetContext() { return hContext; };
+
+    void SetIcon(Gfx16Icons n) { iIcon = n; };
+
+    Gfx16Icons GetIcon() { return iIcon; };
+
+    void SetEnabled(bool b) { bEnabled = b; };
+
+    bool IsEnabled() { return bEnabled; };
+
+    void SetLabel(std::string n) { strLabel = n; };
+
+    std::string GetLabel() { return strLabel; };
+
+    int Render(int x, int y, bool bFocused);
+
+    int GetWidth();
 };
 
-enum enAppMenu_Entries
-{
- AppMenu_File = 0,
- AppMenu_Edit,
- AppMenu_Plane,
- AppMenu_View,
- AppMenu_Tools,
- AppMenu_Assets,
- AppMenu_WapMap,
- AppMenu_EntryCount
+enum enAppMenu_Entries {
+    AppMenu_File = 0,
+    AppMenu_Edit,
+    AppMenu_Plane,
+    AppMenu_View,
+    AppMenu_Tools,
+    AppMenu_Assets,
+    AppMenu_WapMap,
+    AppMenu_EntryCount
 };
 
-class cAppMenu : public gcn::ActionListener, gcn::SelectionListener
-{
- private:
-  cAppMenu_Entry * hEntries[AppMenu_EntryCount];
-  int iHeight;
-  SHR::Context * conOpen, * conOpenMRU, * conActivePlane, * conPlanesVisibilityList, * conPlaneVisibility;
-  int iOpened;
-  int iOverallWidth;
-  cRulers * hRulers;
-  bool bEnabled;
+class cAppMenu : public gcn::ActionListener, gcn::SelectionListener {
+private:
+    cAppMenu_Entry *hEntries[AppMenu_EntryCount];
+    int iHeight;
+    SHR::Context *conOpen, *conOpenMRU, *conActivePlane, *conPlanesVisibilityList, *conPlaneVisibility;
+    int iOpened;
+    int iOverallWidth;
+    cRulers *hRulers;
+    bool bEnabled;
 
- public:
-  cAppMenu();
-  ~cAppMenu();
-  void Think(bool bConsumed);
-  void Render();
-  //bool IsFolded(){ return bFolded; };
-  //void SetFolded(bool b);
-  bool IsEnabled(){ return bEnabled; };
-  void SetEnabled(bool b){ bEnabled = b; };
-  int GetHeight(){ return iHeight; };
-  void action(const gcn::ActionEvent &actionEvent);
-  void valueChanged(const SelectionEvent& event);
+public:
+    cAppMenu();
 
-  SHR::Context * GetContext(enAppMenu_Entries x){ return hEntries[x]->GetContext(); };
+    ~cAppMenu();
 
-  void NotifyRulersSwitch();
+    void Think(bool bConsumed);
 
-  void SyncDocumentSwitched();
-  void SyncDocumentClosed();
-  void SyncDocumentOpened();
-  void SyncPlaneSwitched();
-  void SyncModeSwitched();
-  void SyncPlanes();
-  void SyncMRU();
+    void Render();
 
-  //implemented
-  void SyncPlaneVisibility();
-  void SyncPlaneSelectedVisibility();
+    //bool IsFolded(){ return bFolded; };
+    //void SetFolded(bool b);
+    bool IsEnabled() { return bEnabled; };
 
-  void FixInterfacePositions();
-  void SetToolSpecificEnabled(bool b);
-  cRulers * GetRulers(){ return hRulers; };
+    void SetEnabled(bool b) { bEnabled = b; };
+
+    int GetHeight() { return iHeight; };
+
+    void action(const gcn::ActionEvent &actionEvent);
+
+    void valueChanged(const SelectionEvent &event);
+
+    SHR::Context *GetContext(enAppMenu_Entries x) { return hEntries[x]->GetContext(); };
+
+    void NotifyRulersSwitch();
+
+    void SyncDocumentSwitched();
+
+    void SyncDocumentClosed();
+
+    void SyncDocumentOpened();
+
+    void SyncPlaneSwitched();
+
+    void SyncModeSwitched();
+
+    void SyncPlanes();
+
+    void SyncMRU();
+
+    //implemented
+    void SyncPlaneVisibility();
+
+    void SyncPlaneSelectedVisibility();
+
+    void FixInterfacePositions();
+
+    void SetToolSpecificEnabled(bool b);
+
+    cRulers *GetRulers() { return hRulers; };
 };
 
 #endif

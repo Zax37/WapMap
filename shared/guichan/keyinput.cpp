@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,94 +41,78 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/keyinput.hpp"
 
-namespace gcn
-{
-	KeyInput::KeyInput(const Key& key, unsigned int type)
-		:mKey(key),
-		mType(type),
-		mShiftPressed(false),
-		mControlPressed(false),
-		mAltPressed(false),
-		mMetaPressed(false),
-		mNumericPad(false)
-	{
+namespace gcn {
+    KeyInput::KeyInput(const Key &key, unsigned int type)
+            : mKey(key),
+              mType(type),
+              mShiftPressed(false),
+              mControlPressed(false),
+              mAltPressed(false),
+              mMetaPressed(false),
+              mNumericPad(false) {
 
-	}
+    }
 
-	void KeyInput::setType(unsigned int type)
-	{
-		mType = type;
-	}
+    void KeyInput::setType(unsigned int type) {
+        mType = type;
+    }
 
-	int KeyInput::getType() const
-	{
-		return mType;
-	}
+    int KeyInput::getType() const {
+        return mType;
+    }
 
-	void KeyInput::setKey(const Key& key)
-	{
-		mKey = key;
-	}
+    void KeyInput::setKey(const Key &key) {
+        mKey = key;
+    }
 
-	const Key& KeyInput::getKey() const
-	{
-		return mKey;
-	}
+    const Key &KeyInput::getKey() const {
+        return mKey;
+    }
 
-	bool KeyInput::isShiftPressed() const
-	{
-		return mShiftPressed;
-	}
+    bool KeyInput::isShiftPressed() const {
+        return mShiftPressed;
+    }
 
-	void KeyInput::setShiftPressed(bool pressed)
-	{
-		mShiftPressed = pressed;
-	}
+    void KeyInput::setShiftPressed(bool pressed) {
+        mShiftPressed = pressed;
+    }
 
-	bool KeyInput::isControlPressed() const
-	{
-		return mControlPressed;
-	}
+    bool KeyInput::isControlPressed() const {
+        return mControlPressed;
+    }
 
-	void KeyInput::setControlPressed(bool pressed)
-	{
-		mControlPressed = pressed;
-	}
+    void KeyInput::setControlPressed(bool pressed) {
+        mControlPressed = pressed;
+    }
 
-	bool KeyInput::isAltPressed() const
-	{
-		return mAltPressed;
-	}
+    bool KeyInput::isAltPressed() const {
+        return mAltPressed;
+    }
 
-	void KeyInput::setAltPressed(bool pressed)
-	{
-		mAltPressed = pressed;
-	}
+    void KeyInput::setAltPressed(bool pressed) {
+        mAltPressed = pressed;
+    }
 
-	bool KeyInput::isMetaPressed() const
-	{
-		return mMetaPressed;
-	}
+    bool KeyInput::isMetaPressed() const {
+        return mMetaPressed;
+    }
 
-	void KeyInput::setMetaPressed(bool pressed)
-	{
-		mMetaPressed = pressed;
-	}
+    void KeyInput::setMetaPressed(bool pressed) {
+        mMetaPressed = pressed;
+    }
 
-	bool KeyInput::isNumericPad() const
-	{
-		return mNumericPad;
-	}
+    bool KeyInput::isNumericPad() const {
+        return mNumericPad;
+    }
 
-	void KeyInput::setNumericPad(bool numpad)
-	{
-		mNumericPad = numpad;
-	}
+    void KeyInput::setNumericPad(bool numpad) {
+        mNumericPad = numpad;
+    }
 }
 

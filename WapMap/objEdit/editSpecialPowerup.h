@@ -3,23 +3,28 @@
 
 #include "../states/objedit.h"
 
-namespace ObjEdit
-{
- class cEditObjSpecialPowerup : public cObjEdit {
-  private:
-   SHR::RadBut * rbType[8];
-   SHR::Win * win;
-   SHR::Lab * labTime;
-   SHR::CBox * cbDontDisappear;
-   SHR::TextField * tfTime;
-  friend class cObjPropVP;
-  public:
-   cEditObjSpecialPowerup(WWD::Object * obj, State::EditingWW * st);
-   ~cEditObjSpecialPowerup();
-   virtual void Save();
-   virtual void Action(const gcn::ActionEvent &actionEvent);
-   virtual void Draw();
- };
+namespace ObjEdit {
+    class cEditObjSpecialPowerup : public cObjEdit {
+    private:
+        SHR::RadBut *rbType[8];
+        SHR::Win *win;
+        SHR::Lab *labTime;
+        SHR::CBox *cbDontDisappear;
+        SHR::TextField *tfTime;
+
+        friend class cObjPropVP;
+
+    public:
+        cEditObjSpecialPowerup(WWD::Object *obj, State::EditingWW *st);
+
+        ~cEditObjSpecialPowerup();
+
+        virtual void Save();
+
+        virtual void Action(const gcn::ActionEvent &actionEvent);
+
+        virtual void Draw();
+    };
 
 }
 

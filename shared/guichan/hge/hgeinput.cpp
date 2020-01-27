@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -41,397 +41,363 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
-  * For comments regarding functions please see the header file.
-  */
+/*
+ * For comments regarding functions please see the header file.
+ */
 
 #include "guichan/hge/hgeinput.hpp"
 #include "guichan/exception.hpp"
 
 #include <cstdio>
 
-namespace gcn
-{
-	HGE *HGEInput::mHGE = NULL;
+namespace gcn {
+    HGE *HGEInput::mHGE = NULL;
 
-	HGEInput::HGEInput()
-	{
-		printf("\n----\n");
-		mHGE = hgeCreate(HGE_VERSION);
+    HGEInput::HGEInput() {
+        printf("\n----\n");
+        mHGE = hgeCreate(HGE_VERSION);
 
-		mMouseX = 0;
-		mMouseY = 0;
+        mMouseX = 0;
+        mMouseY = 0;
 
-		mLeftMouseButtonDown = false;
-		mRightMouseButtonDown = false;
-		mMiddleMouseButtonDown = false;
-		printf("\n---\n");
-	}
+        mLeftMouseButtonDown = false;
+        mRightMouseButtonDown = false;
+        mMiddleMouseButtonDown = false;
+        printf("\n---\n");
+    }
 
-	HGEInput::~HGEInput()
-	{
-		mHGE->Release();
-	}
+    HGEInput::~HGEInput() {
+        mHGE->Release();
+    }
 
-	bool  HGEInput::isKeyQueueEmpty()
-	{
-		return mKeyInputQueue.empty();
-	}
+    bool HGEInput::isKeyQueueEmpty() {
+        return mKeyInputQueue.empty();
+    }
 
-	bool  HGEInput::isMouseQueueEmpty()
-	{
-		return mMouseInputQueue.empty();
-	}
+    bool HGEInput::isMouseQueueEmpty() {
+        return mMouseInputQueue.empty();
+    }
 
-	KeyInput  HGEInput::dequeueKeyInput()
-	{
-		if (isKeyQueueEmpty())
-		{
-			throw GCN_EXCEPTION("Key queue is empty.");
-		}
+    KeyInput HGEInput::dequeueKeyInput() {
+        if (isKeyQueueEmpty()) {
+            throw GCN_EXCEPTION("Key queue is empty.");
+        }
 
-		KeyInput keyInput;
+        KeyInput keyInput;
 
-		keyInput = mKeyInputQueue.front();
-		mKeyInputQueue.pop();
+        keyInput = mKeyInputQueue.front();
+        mKeyInputQueue.pop();
 
-		return keyInput;
+        return keyInput;
 
-	}
+    }
 
-	MouseInput HGEInput::dequeueMouseInput()
-	{
-		if (isMouseQueueEmpty())
-		{
-			throw GCN_EXCEPTION("Mouse queue is empty.");
-		}
+    MouseInput HGEInput::dequeueMouseInput() {
+        if (isMouseQueueEmpty()) {
+            throw GCN_EXCEPTION("Mouse queue is empty.");
+        }
 
-		MouseInput mouseInput;
+        MouseInput mouseInput;
 
-		mouseInput = mMouseInputQueue.front();
-		mMouseInputQueue.pop();
+        mouseInput = mMouseInputQueue.front();
+        mMouseInputQueue.pop();
 
-		return mouseInput;
-	}
+        return mouseInput;
+    }
 
-	void  HGEInput::_pollInput()
-	{
-		hgeInputEvent ie;
+    void HGEInput::_pollInput() {
+        hgeInputEvent ie;
 
-		while (mHGE->Input_GetEvent(&ie)) {
-			pollMouseInput();
-			pollKeyInput(ie);
-		}
-	}
+        while (mHGE->Input_GetEvent(&ie)) {
+            pollMouseInput();
+            pollKeyInput(ie);
+        }
+    }
 
-	void  HGEInput::pollMouseInput()
-	{
-		float curMouseX, curMouseY;
-		int mouseWheel;
+    void HGEInput::pollMouseInput() {
+        float curMouseX, curMouseY;
+        int mouseWheel;
 
-		bool leftBtn, rightBtn, centerBtn;
+        bool leftBtn, rightBtn, centerBtn;
 
-		mHGE->Input_GetMousePos(&curMouseX, &curMouseY);
-		mouseWheel = mHGE->Input_GetMouseWheel();
+        mHGE->Input_GetMousePos(&curMouseX, &curMouseY);
+        mouseWheel = mHGE->Input_GetMouseWheel();
 
-		leftBtn = mHGE->Input_GetKeyState(HGEK_LBUTTON);
-		rightBtn = mHGE->Input_GetKeyState(HGEK_RBUTTON);
-		centerBtn = mHGE->Input_GetKeyState(HGEK_MBUTTON);
+        leftBtn = mHGE->Input_GetKeyState(HGEK_LBUTTON);
+        rightBtn = mHGE->Input_GetKeyState(HGEK_RBUTTON);
+        centerBtn = mHGE->Input_GetKeyState(HGEK_MBUTTON);
 
-		// Check mouse movement
-		if (mMouseX != curMouseX
-			|| mMouseY != curMouseY)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-				MouseInput::MOVED,
-				curMouseX,
-				curMouseY,
-				0));
+        // Check mouse movement
+        if (mMouseX != curMouseX
+            || mMouseY != curMouseY) {
+            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
+                                             MouseInput::MOVED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
 
-			mMouseX = curMouseX;
-			mMouseY = curMouseY;
-		}
+            mMouseX = curMouseX;
+            mMouseY = curMouseY;
+        }
 
-		// Check mouse wheel
-		if (mouseWheel > 0)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-				MouseInput::WHEEL_MOVED_UP,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (mouseWheel < 0)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-				MouseInput::WHEEL_MOVED_DOWN,
-				curMouseX,
-				curMouseY,
-				0));
-		}
+        // Check mouse wheel
+        if (mouseWheel > 0) {
+            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
+                                             MouseInput::WHEEL_MOVED_UP,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (mouseWheel < 0) {
+            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
+                                             MouseInput::WHEEL_MOVED_DOWN,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        }
 
-		//check mouse buttons
-		if (!mLeftMouseButtonDown && leftBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
-				MouseInput::PRESSED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (mLeftMouseButtonDown && !leftBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
-				MouseInput::RELEASED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (!mRightMouseButtonDown && rightBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
-				MouseInput::PRESSED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (mRightMouseButtonDown && !rightBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
-				MouseInput::RELEASED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (!mMiddleMouseButtonDown && centerBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
-				MouseInput::PRESSED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
-		else if (mMiddleMouseButtonDown && !centerBtn)
-		{
-			mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
-				MouseInput::RELEASED,
-				curMouseX,
-				curMouseY,
-				0));
-		}
+        //check mouse buttons
+        if (!mLeftMouseButtonDown && leftBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
+                                             MouseInput::PRESSED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (mLeftMouseButtonDown && !leftBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
+                                             MouseInput::RELEASED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (!mRightMouseButtonDown && rightBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
+                                             MouseInput::PRESSED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (mRightMouseButtonDown && !rightBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
+                                             MouseInput::RELEASED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (!mMiddleMouseButtonDown && centerBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
+                                             MouseInput::PRESSED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        } else if (mMiddleMouseButtonDown && !centerBtn) {
+            mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
+                                             MouseInput::RELEASED,
+                                             curMouseX,
+                                             curMouseY,
+                                             0));
+        }
 
-		mLeftMouseButtonDown = leftBtn;
-		mRightMouseButtonDown = rightBtn;
-		mMiddleMouseButtonDown = centerBtn;
-	}
+        mLeftMouseButtonDown = leftBtn;
+        mRightMouseButtonDown = rightBtn;
+        mMiddleMouseButtonDown = centerBtn;
+    }
 
-	void  HGEInput::pollKeyInput(hgeInputEvent &ki)
-	{
-		if (ki.type != INPUT_KEYDOWN
-			&& ki.type != INPUT_KEYUP)
-		{
-			return;
-		}
+    void HGEInput::pollKeyInput(hgeInputEvent &ki) {
+        if (ki.type != INPUT_KEYDOWN
+            && ki.type != INPUT_KEYUP) {
+            return;
+        }
 
-		if (ki.type == INPUT_KEYDOWN)
-		{
-			Key keyObj = convertToKey(ki.key, ki.chr);
+        if (ki.type == INPUT_KEYDOWN) {
+            Key keyObj = convertToKey(ki.key, ki.chr);
 
-			KeyInput keyInput(keyObj, KeyInput::PRESSED);
+            KeyInput keyInput(keyObj, KeyInput::PRESSED);
 
-			keyInput.setNumericPad(isNumericPad(ki.key));
+            keyInput.setNumericPad(isNumericPad(ki.key));
 
-			keyInput.setShiftPressed(ki.flags & HGEINP_SHIFT);
-			keyInput.setAltPressed(ki.flags & HGEINP_ALT);
-			keyInput.setControlPressed(ki.flags & HGEINP_CTRL);
+            keyInput.setShiftPressed(ki.flags & HGEINP_SHIFT);
+            keyInput.setAltPressed(ki.flags & HGEINP_ALT);
+            keyInput.setControlPressed(ki.flags & HGEINP_CTRL);
 
-			mKeyInputQueue.push(keyInput);
-		}
+            mKeyInputQueue.push(keyInput);
+        }
 
-		if (ki.type == INPUT_KEYUP)
-		{
-			Key keyObj = convertToKey(ki.key, ki.chr);
+        if (ki.type == INPUT_KEYUP) {
+            Key keyObj = convertToKey(ki.key, ki.chr);
 
-			KeyInput keyInput(keyObj, KeyInput::RELEASED);
+            KeyInput keyInput(keyObj, KeyInput::RELEASED);
 
-			keyInput.setNumericPad(isNumericPad(ki.key));
+            keyInput.setNumericPad(isNumericPad(ki.key));
 
-			keyInput.setShiftPressed(ki.flags & HGEINP_SHIFT);
-			keyInput.setAltPressed(ki.flags & HGEINP_ALT);
-			keyInput.setControlPressed(ki.flags & HGEINP_CTRL);
+            keyInput.setShiftPressed(ki.flags & HGEINP_SHIFT);
+            keyInput.setAltPressed(ki.flags & HGEINP_ALT);
+            keyInput.setControlPressed(ki.flags & HGEINP_CTRL);
 
-			mKeyInputQueue.push(keyInput);
-		}
-	}
+            mKeyInputQueue.push(keyInput);
+        }
+    }
 
-	Key HGEInput::convertToKey(int key, int chr)
-	{
-		int keysym;
+    Key HGEInput::convertToKey(int key, int chr) {
+        int keysym;
 
-		switch (key)
-		{
-		case HGEK_TAB:
-			keysym = Key::TAB;
-			break;
-		case HGEK_ESCAPE:
-			keysym = Key::ESCAPE;
-			break;
-		case HGEK_ALT:
-			keysym = Key::LEFT_ALT;
-			break;
-			/*
-			Unsupported by HGE.
-			case HGEK_ALT:
-			keysym = Key::RIGHT_ALT;
-			break;
-			*/
-		case HGEK_SHIFT:
-			keysym = Key::LEFT_SHIFT;
-			break;
-			/*
-			Unsuppored by HGE.
-			case HGEK_SHIFT:
-			keysym = Key::RIGHT_SHIFT;
-			break;
-			*/
-		case HGEK_CTRL:
-			keysym = Key::LEFT_CONTROL;
-			break;
-			/*
-			Unsupported by HGE.
-			case HGEK_CTRL:
-			keysym = Key::RIGHT_CONTROL;
-			break;
-			*/
-		case HGEK_LWIN:
-			keysym = Key::LEFT_META;
-			break;
-		case HGEK_RWIN:
-			keysym = Key::RIGHT_META;
-			break;
-		case HGEK_INSERT:
-			keysym = Key::INSERT;
-			break;
-		case HGEK_HOME:
-			keysym = Key::HOME;
-			break;
-		case HGEK_PGUP:
-			keysym = Key::PAGE_UP;
-			break;
-		case HGEK_PGDN:
-			keysym = Key::PAGE_DOWN;
-			break;
-		case HGEK_DELETE:
-			keysym = Key::DELETE;
-			break;
-			/*
-			Unsupported by HGE.
-			case HGEK_BACKSPACE:
-			keysym = Key::DELETE;
-			pad = true;
-			break;
-			*/
-		case HGEK_END:
-			keysym = Key::END;
-			break;
-		case HGEK_CAPSLOCK:
-			keysym = Key::CAPS_LOCK;
-			break;
-		case HGEK_BACKSPACE:
-			keysym = Key::BACKSPACE;
-			break;
-		case HGEK_F1:
-			keysym = Key::F1;
-			break;
-		case HGEK_F2:
-			keysym = Key::F2;
-			break;
-		case HGEK_F3:
-			keysym = Key::F3;
-			break;
-		case HGEK_F4:
-			keysym = Key::F4;
-			break;
-		case HGEK_F5:
-			keysym = Key::F5;
-			break;
-		case HGEK_F6:
-			keysym = Key::F6;
-			break;
-		case HGEK_F7:
-			keysym = Key::F7;
-			break;
-		case HGEK_F8:
-			keysym = Key::F8;
-			break;
-		case HGEK_F9:
-			keysym = Key::F9;
-			break;
-		case HGEK_F10:
-			keysym = Key::F10;
-			break;
-		case HGEK_F11:
-			keysym = Key::F11;
-			break;
-		case HGEK_F12:
-			keysym = Key::F12;
-			break;
-			/*
-			Unsupported by HGE
-			case HGEK_PRTSCR:
-			keysym = Key::PRINT_SCREEN;
-			break;
-			*/
-		case HGEK_PAUSE:
-			keysym = Key::PAUSE;
-			break;
-		case HGEK_SCROLLLOCK:
-			keysym = Key::SCROLL_LOCK;
-			break;
-		case HGEK_NUMLOCK:
-			keysym = Key::NUM_LOCK;
-			break;
-		case HGEK_LEFT:
-			keysym = Key::LEFT;
-			break;
-		case HGEK_RIGHT:
-			keysym = Key::RIGHT;
-			break;
-		case HGEK_UP:
-			keysym = Key::UP;
-			break;
-		case HGEK_DOWN:
-			keysym = Key::DOWN;
-			break;
-		case HGEK_ENTER:
-			keysym = Key::ENTER;
-			break;
-		default:
-			keysym = chr;
-		}
+        switch (key) {
+            case HGEK_TAB:
+                keysym = Key::TAB;
+                break;
+            case HGEK_ESCAPE:
+                keysym = Key::ESCAPE;
+                break;
+            case HGEK_ALT:
+                keysym = Key::LEFT_ALT;
+                break;
+                /*
+                Unsupported by HGE.
+                case HGEK_ALT:
+                keysym = Key::RIGHT_ALT;
+                break;
+                */
+            case HGEK_SHIFT:
+                keysym = Key::LEFT_SHIFT;
+                break;
+                /*
+                Unsuppored by HGE.
+                case HGEK_SHIFT:
+                keysym = Key::RIGHT_SHIFT;
+                break;
+                */
+            case HGEK_CTRL:
+                keysym = Key::LEFT_CONTROL;
+                break;
+                /*
+                Unsupported by HGE.
+                case HGEK_CTRL:
+                keysym = Key::RIGHT_CONTROL;
+                break;
+                */
+            case HGEK_LWIN:
+                keysym = Key::LEFT_META;
+                break;
+            case HGEK_RWIN:
+                keysym = Key::RIGHT_META;
+                break;
+            case HGEK_INSERT:
+                keysym = Key::INSERT;
+                break;
+            case HGEK_HOME:
+                keysym = Key::HOME;
+                break;
+            case HGEK_PGUP:
+                keysym = Key::PAGE_UP;
+                break;
+            case HGEK_PGDN:
+                keysym = Key::PAGE_DOWN;
+                break;
+            case HGEK_DELETE:
+                keysym = Key::DELETE;
+                break;
+                /*
+                Unsupported by HGE.
+                case HGEK_BACKSPACE:
+                keysym = Key::DELETE;
+                pad = true;
+                break;
+                */
+            case HGEK_END:
+                keysym = Key::END;
+                break;
+            case HGEK_CAPSLOCK:
+                keysym = Key::CAPS_LOCK;
+                break;
+            case HGEK_BACKSPACE:
+                keysym = Key::BACKSPACE;
+                break;
+            case HGEK_F1:
+                keysym = Key::F1;
+                break;
+            case HGEK_F2:
+                keysym = Key::F2;
+                break;
+            case HGEK_F3:
+                keysym = Key::F3;
+                break;
+            case HGEK_F4:
+                keysym = Key::F4;
+                break;
+            case HGEK_F5:
+                keysym = Key::F5;
+                break;
+            case HGEK_F6:
+                keysym = Key::F6;
+                break;
+            case HGEK_F7:
+                keysym = Key::F7;
+                break;
+            case HGEK_F8:
+                keysym = Key::F8;
+                break;
+            case HGEK_F9:
+                keysym = Key::F9;
+                break;
+            case HGEK_F10:
+                keysym = Key::F10;
+                break;
+            case HGEK_F11:
+                keysym = Key::F11;
+                break;
+            case HGEK_F12:
+                keysym = Key::F12;
+                break;
+                /*
+                Unsupported by HGE
+                case HGEK_PRTSCR:
+                keysym = Key::PRINT_SCREEN;
+                break;
+                */
+            case HGEK_PAUSE:
+                keysym = Key::PAUSE;
+                break;
+            case HGEK_SCROLLLOCK:
+                keysym = Key::SCROLL_LOCK;
+                break;
+            case HGEK_NUMLOCK:
+                keysym = Key::NUM_LOCK;
+                break;
+            case HGEK_LEFT:
+                keysym = Key::LEFT;
+                break;
+            case HGEK_RIGHT:
+                keysym = Key::RIGHT;
+                break;
+            case HGEK_UP:
+                keysym = Key::UP;
+                break;
+            case HGEK_DOWN:
+                keysym = Key::DOWN;
+                break;
+            case HGEK_ENTER:
+                keysym = Key::ENTER;
+                break;
+            default:
+                keysym = chr;
+        }
 
-		Key k = Key(keysym);
+        Key k = Key(keysym);
 
-		return k;
-	}
+        return k;
+    }
 
-	bool  HGEInput::isNumericPad(int keyCode)
-	{
-		switch (keyCode)
-		{
-		case HGEK_NUMPAD0:
-		case HGEK_NUMPAD1:
-		case HGEK_NUMPAD2:
-		case HGEK_NUMPAD3:
-		case HGEK_NUMPAD4:
-		case HGEK_NUMPAD5:
-		case HGEK_NUMPAD6:
-		case HGEK_NUMPAD7:
-		case HGEK_NUMPAD8:
-		case HGEK_NUMPAD9:
-			return true;
-		default:
-			return false;
-		}
-	}
+    bool HGEInput::isNumericPad(int keyCode) {
+        switch (keyCode) {
+            case HGEK_NUMPAD0:
+            case HGEK_NUMPAD1:
+            case HGEK_NUMPAD2:
+            case HGEK_NUMPAD3:
+            case HGEK_NUMPAD4:
+            case HGEK_NUMPAD5:
+            case HGEK_NUMPAD6:
+            case HGEK_NUMPAD7:
+            case HGEK_NUMPAD8:
+            case HGEK_NUMPAD9:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
