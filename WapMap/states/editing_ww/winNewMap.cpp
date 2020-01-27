@@ -57,7 +57,7 @@ void State::EditingWW::NewMap_Open() {
     NewMap_data->tfAuthor->setMarkedInvalid(1);
     NewMap_data->winNewMap->add(NewMap_data->tfAuthor, 335 + NewMap_data->labAuthor->getWidth(), 15);
 
-    NewMap_data->cbAddBonusPlanes = new SHR::CBox(GV->hGfxInterface, GETL2S("NewMap", "AddBackFrontPlanes"));
+    NewMap_data->cbAddBonusPlanes = new SHR::CBox(GV->hGfxInterface, GETL2S("NewMap", "AddBackFrontPlanes"), true);
     NewMap_data->cbAddBonusPlanes->adjustSize();
     NewMap_data->winNewMap->add(NewMap_data->cbAddBonusPlanes, 25, 40);
 

@@ -112,6 +112,7 @@ copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -142,7 +143,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
       <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
