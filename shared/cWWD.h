@@ -15,7 +15,6 @@
 #define RINT(i) read((char*)(&i), 4)
 
 #include <zlib.h>
-
 #include <windows.h>
 #include <string>
 #include <cstring>
@@ -562,12 +561,9 @@ namespace WWD {
         WWD_FLAGS m_iFlags;
         int m_iBaseLevel;
         GAME m_iGame;
+        int m_iPlanesCount;
 
-        //cProgressInfo * piInfo;
-        //bool m_bLoadInChunks, m_bInited, m_bFile;
-        //int m_iStepIteration, m_iStepSecondCounter;
-        //std::istream * m_isSource;
-        //std::istream * m_isBuffer;
+        void LoadFileHeader(std::istream *psSource);
 
         void LoadFromStream(std::istream *psSource);
 
@@ -589,7 +585,7 @@ namespace WWD {
 
         unsigned int CalculateChecksum(std::istream *psStream, int piOffset);
 
-        std::istringstream *Inflate(std::istream *psSource);
+        void Inflate(std::istream *psSource, std::stringstream& output);
 
         void Deflate(std::istream *psSource, std::ostream *psDest, int iLevel = 0);
         //void PerformStep();

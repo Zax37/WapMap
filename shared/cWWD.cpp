@@ -2,12 +2,17 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+
+#ifdef WAP_MAP
 #include "cProgressInfo.h"
 #include "../WapMap/cParallelLoop.h"
+#endif // WAP_MAP
 
 namespace WWD {
+#ifdef WAP_MAP
     structProgressInfo *_ghProgressInfo = 0;
     cParallelLoop *_ghProgressCallback = 0;
+#endif // WAP_MAP
 
     bool SortPlanes(WWD::Plane *a, WWD::Plane *b) {
         return a->GetZCoord() < b->GetZCoord();
@@ -41,151 +46,94 @@ WWD::Parser::Parser(const char *pszFilename, CustomMetaSerializer *hSerializer) 
     delete str;
 }
 
+void WWD::Parser::LoadFileHeader(std::istream *psSource) {
+    unsigned char sign[2];
+    psSource->RLEN(&sign, 2);
+    if (sign[0] != 244 || sign[1] != 05)
+        throw WWD_EXCEPTION(Error_BadMagicNumber);
+
+    psSource->seekg(6, std::ios_base::cur);
+    byte b;
+    psSource->RBYTE(b);
+    m_iFlags = (WWD::WWD_FLAGS) b;
+
+    psSource->seekg(7, std::ios_base::cur);
+
+    psSource->RLEN(&m_szMapName, 64);
+    psSource->RLEN(&m_szAuthor, 64);
+    psSource->RLEN(&m_szDate, 64);
+    psSource->RLEN(&m_szRezPath, 256);
+    psSource->RLEN(&m_szTilesPath, 128);
+    psSource->RLEN(&m_szPalPath, 128);
+    psSource->RINT(m_iStartX);
+    psSource->RINT(m_iStartY);
+    int unk;
+    psSource->RINT(unk);
+    printf("unknown: %d\n", unk);
+    psSource->RINT(m_iPlanesCount);
+
+    int iPlanesHeader = 0, iPlanesHeaderEnd = 0;
+    psSource->RINT(iPlanesHeader);
+    psSource->RINT(iPlanesHeaderEnd);
+
+    for (int i = 0; i < 3; i++) {
+        unsigned int t = 0;
+        psSource->RINT(t);
+        printf("#%d: %u\n", i, t);
+    }
+
+    psSource->RLEN(&m_szExePath, 128);
+    for (int i = 0; i < 4; i++)
+        psSource->RLEN(&m_szImageSets[i], 128);
+    for (int i = 0; i < 4; i++)
+        psSource->RLEN(&m_szSetsPrefixes[i], 32);
+
+    char pref[3];
+    for (int i = 0; i < 3; i++)
+        pref[i] = '\0';
+    if (m_szTilesPath[0] != 'L' && m_szTilesPath[0] != 'A' && m_szTilesPath[0] != 'D')
+        pref[0] = m_szTilesPath[0];
+    char formats[3][64];
+    sprintf(formats[0], "%s%s", pref, "LEVEL%d%*s");
+    sprintf(formats[1], "%s%s", pref, "AREA%d%*s");
+    sprintf(formats[2], "%s%s", pref, "DUNGEON%d%*s");
+    if (sscanf(m_szTilesPath, formats[0], &m_iBaseLevel)) {
+        m_iGame = Game_Claw;
+    } else if (sscanf(m_szTilesPath, formats[1], &m_iBaseLevel)) {
+        m_iGame = Game_Gruntz;
+    } else if (sscanf(m_szTilesPath, formats[2], &m_iBaseLevel)) {
+        m_iGame = Game_GetMedieval;
+    } else {
+        m_iGame = Game_Unknown;
+        m_iBaseLevel = 0;
+    }
+}
+
 void WWD::Parser::LoadFromStream(std::istream *psSource) {
-    /*if( piInfo != 0 ){
-     piInfo->Lock();
-     piInfo->SetDetailedEnd(100);
-     piInfo->SetDetailedProgress(0);
-     piInfo->SetDescription("Mapa: wczytywanie naglowka");
-     piInfo->Unlock();
-    }*/
+#ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 28;
         _ghProgressInfo->strDetailedCaption = "[NAGLOWEK]";
         _ghProgressInfo->iDetailedEnd = 198;
         _ghProgressCallback->Tick();
     }
-    std::istream *str = psSource;
-    unsigned char sign[2];
-    str->RLEN(&sign, 2);
-    if (sign[0] != 244 || sign[1] != 05)
-        throw WWD_EXCEPTION(Error_BadMagicNumber);
+#endif // WAP_MAP
 
-    str->seekg(6, std::ios_base::cur);
-    byte b;
-    str->RBYTE(b);
-    m_iFlags = (WWD::WWD_FLAGS) b;
+    LoadFileHeader(psSource);
 
-    str->seekg(7, std::ios_base::cur);
-
-    str->RLEN(&m_szMapName, 64);
-    //char test[64] = "Wreckage Level 6 aaa";
-    m_iBaseLevel = 0;
-    /*char * basenumch = strstr(m_szMapName, "Level");
-    if( basenumch != NULL ){
-     if( !sscanf(basenumch, "Level %d", &m_iBaseLevel) ){
-      if( !sscanf(basenumch, "Level - %d", &m_iBaseLevel) ){
-       printf("[WWD]Warning: unable to predict base level ID from level name.\n");
-       //throw WWD_EXCEPTION("Invalid map name (bad \"Level\").", WWDERR_INVALIDNAMEBAD);
-      }
-     }
-    }*/
-
-    str->RLEN(&m_szAuthor, 64);
-    str->RLEN(&m_szDate, 64);
-    str->RLEN(&m_szRezPath, 256);
-    str->RLEN(&m_szTilesPath, 128);
-    str->RLEN(&m_szPalPath, 128);
-    str->RINT(m_iStartX);
-    str->RINT(m_iStartY);
-    int unk;
-    str->RINT(unk);
-    printf("unknown: %d\n", unk);
-    int m_iPlanesCount;
-    str->RINT(m_iPlanesCount);
-
-    int iPlanesHeader = 0, iPlanesHeaderEnd = 0;
-    str->RINT(iPlanesHeader);
-    str->RINT(iPlanesHeaderEnd);
-
-    for (int i = 0; i < 3; i++) {
-        unsigned int t = 0;
-        str->RINT(t);
-        printf("#%d: %u\n", i, t);
-    }
-    //printf("checksum from formula: %u\n", CalculateChecksum(str, 1524));
-    //exit(1);
-    str->RLEN(&m_szExePath, 128);
-    for (int i = 0; i < 4; i++)
-        str->RLEN(&m_szImageSets[i], 128);
-    for (int i = 0; i < 4; i++)
-        str->RLEN(&m_szSetsPrefixes[i], 32);
-
-    /*if( m_iBaseLevel == 0 ){
-     for(int i=0;i<4;i++){
-      if( m_szImageSets[i][0] != '\0' ){
-       int test = 0;
-       printf("testing %s\n", m_szImageSets[i]);
-       if( sscanf(m_szImageSets[i], "LEVEL%d%*s", &test) ){
-        m_iGame = Game_Claw;
-        m_iBaseLevel = test;
-       }else if( sscanf(m_szImageSets[i], "AREA%d%*s", &test) ){
-        m_iGame = Game_Gruntz;
-        m_iBaseLevel = test;
-       }else if( sscanf(m_szImageSets[i], "DUNGEON%d%*s", &test) ){
-        m_iGame = Game_GetMedieval;
-        m_iBaseLevel = test;
-       }
-      }
-     }
-     if( m_iBaseLevel == 0 ){
-      //printf("[WWD]Warning: unable to predict base level and game type from imagesets.");
-      m_iGame = Game_Unknown;
-     }
-    }*/
-    {
-        int test = 0;
-        char pref[3];
-        for (int i = 0; i < 3; i++)
-            pref[i] = '\0';
-        if (m_szTilesPath[0] != 'L' && m_szTilesPath[0] != 'A' && m_szTilesPath[0] != 'D')
-            pref[0] = m_szTilesPath[0];
-        char formants[3][64];
-        sprintf(formants[0], "%s%s", pref, "LEVEL%d%*s");
-        sprintf(formants[1], "%s%s", pref, "AREA%d%*s");
-        sprintf(formants[2], "%s%s", pref, "DUNGEON%d%*s");
-        if (sscanf(m_szTilesPath, formants[0], &test)) {
-            m_iGame = Game_Claw;
-            m_iBaseLevel = test;
-        } else if (sscanf(m_szTilesPath, formants[1], &test)) {
-            m_iGame = Game_Gruntz;
-            m_iBaseLevel = test;
-        } else if (sscanf(m_szTilesPath, formants[2], &test)) {
-            m_iGame = Game_GetMedieval;
-            m_iBaseLevel = test;
-        } else {
-            m_iGame = Game_Unknown;
-            m_iBaseLevel = 0;
-        }
-    }
-
+	std::stringstream uncompressed_data;
     if (m_iFlags & Flag_w_Compress) {
-        /*if( piInfo != 0 ){
-         piInfo->Lock();
-         piInfo->SetDetailedProgress(25);
-         piInfo->SetDescription("Mapa: dekompresja");
-         piInfo->Unlock();
-        }*/
+#ifdef WAP_MAP
         if (_ghProgressInfo != 0) {
             _ghProgressInfo->iDetailedProgress = 2 * 28;
             _ghProgressInfo->strDetailedCaption = "[DEKOMPRESJA]";
             _ghProgressCallback->Tick();
         }
-        str->seekg(1524, std::ios_base::beg);
-        std::istringstream *uncompressed;
-        uncompressed = Inflate(str);
+#endif // WAP_MAP
+		
+		Inflate(psSource, uncompressed_data);
         printf("dekompresja ok\n");
-        int len = uncompressed->str().size();
-        str = new std::stringstream();
-
-        psSource->seekg(0, std::ios_base::beg);
-        char header[1524];
-        psSource->RLEN(&header, 1524);
-        ((std::iostream *) str)->WLEN(&header, 1524);
-        ((std::iostream *) str)->WLEN(uncompressed->str().c_str(), len);
-        str->seekg(1524, std::ios_base::beg);
-        //throw WWD_EXCEPTION("Compressed WWD are not supported.", 3);
-        printf("zrobione\n");
+		psSource = &uncompressed_data;
     }
 
     int *objcnt = new int[m_iPlanesCount];
@@ -197,26 +145,31 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
      piInfo->SetDescription("Mapa: wczytywanie warstw");
      piInfo->Unlock();
     }*/
+#ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 3 * 28;
         _ghProgressInfo->strDetailedCaption = "[WARSTWY]";
         _ghProgressCallback->Tick();
     }
+#endif // WAP_MAP
 
+    byte b;
     for (int i = 0; i < m_iPlanesCount; i++) {
         Plane *pl = new Plane();
         pl->m_hObjDeletionCB = NULL;
-        str->seekg(8, std::ios_base::cur);
-        str->RBYTE(b);
+        psSource->seekg(8, std::ios_base::cur);
+        psSource->RBYTE(b);
         pl->m_iFlags = (WWD::PLANE_FLAGS) b;
-        str->seekg(7, std::ios_base::cur);
-        str->RLEN(pl->m_szName, 64);
+        psSource->seekg(7, std::ios_base::cur);
+        psSource->RLEN(pl->m_szName, 64);
 
+#ifdef WAP_MAP
         if (_ghProgressInfo != 0) {
             _ghProgressInfo->iDetailedProgress = 3 * 28 + (float(i) / float(m_iPlanesCount) * 28.0f);
             _ghProgressInfo->strDetailedCaption = "[NAGLOWEK WARSTWY]";
             _ghProgressCallback->Tick();
         }
+#endif // WAP_MAP
 
         for (int z = 0; z < i; z++) {
             if (!strcmp(pl->m_szName, m_hPlanes[z]->GetName())) {
@@ -256,55 +209,58 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
          piInfo->Unlock();
         }*/
 
-        str->RINT(pl->m_iWpx);
-        str->RINT(pl->m_iHpx);
-        str->RINT(pl->m_iTileW);
-        str->RINT(pl->m_iTileH);
-        str->RINT(pl->m_iW);
-        str->RINT(pl->m_iH);
+        psSource->RINT(pl->m_iWpx);
+        psSource->RINT(pl->m_iHpx);
+        psSource->RINT(pl->m_iTileW);
+        psSource->RINT(pl->m_iTileH);
+        psSource->RINT(pl->m_iW);
+        psSource->RINT(pl->m_iH);
         pl->m_hTiles = new Tile *[pl->m_iW];
         for (int x = 0; x < pl->m_iW; x++) {
             pl->m_hTiles[x] = new Tile[pl->m_iH];
             //printf("creating %d: %p\n", x, pl->m_hTiles[x]);
         }
         int i1, i2;
-        str->RINT(i1);
-        str->RINT(i2);
+        psSource->RINT(i1);
+        psSource->RINT(i2);
 
-        str->RINT(pl->m_iMoveX);
-        str->RINT(pl->m_iMoveY);
-        str->RINT(pl->m_iFillColor);
+        psSource->RINT(pl->m_iMoveX);
+        psSource->RINT(pl->m_iMoveY);
+        psSource->RINT(pl->m_iFillColor);
         if (pl->m_iFillColor < 0) pl->m_iFillColor = 0;
         if (pl->m_iFillColor > 255) pl->m_iFillColor = 255;
 
-        str->RINT(pl->m_iSetsCount);
-        str->RINT(objcnt[i]);
+        psSource->RINT(pl->m_iSetsCount);
+        psSource->RINT(objcnt[i]);
         if (objcnt[i] == 0)
             pl->m_vObjects.clear();
         else
             pl->m_vObjects.reserve(objcnt[i]);
 
         int iImageSetCharsAddr, iObjectsAddr, iTilesAddr;
-        str->RINT(iTilesAddr);
-        str->RINT(iImageSetCharsAddr);
-        str->RINT(iObjectsAddr);
+        psSource->RINT(iTilesAddr);
+        psSource->RINT(iImageSetCharsAddr);
+        psSource->RINT(iObjectsAddr);
         printf("%s: %d %d\n", pl->m_szName, i1, i2);
 
-        str->RINT(pl->m_iZCoord);
-        str->seekg(12, std::ios_base::cur);
-        int setto = str->tellg();
-        str->seekg(160 * (m_iPlanesCount - 1 - i) + tdataoffset, std::ios_base::cur);
+        psSource->RINT(pl->m_iZCoord);
+        psSource->seekg(12, std::ios_base::cur);
+        int setto = psSource->tellg();
+        psSource->seekg(160 * (m_iPlanesCount - 1 - i) + tdataoffset, std::ios_base::cur);
         tdataoffset += pl->m_iW * pl->m_iH * 4;
         //klocki
 
+#ifdef WAP_MAP
         if (_ghProgressInfo != 0) {
             _ghProgressInfo->strDetailedCaption = "[KLOCKI]";
             _ghProgressCallback->Tick();
         }
+#endif // WAP_MAP
+
         for (int y = 0; y < pl->m_iH; y++) {
             for (int x = 0; x < pl->m_iW; x++) {
                 byte bytes[4];
-                str->RLEN(&bytes, 4);
+                psSource->RLEN(&bytes, 4);
                 if (bytes[0] == 255 && bytes[1] == 255 && bytes[2] == 255 && bytes[3] == 255) {
                     pl->m_hTiles[x][y].m_bInvisible = 1;
                     pl->m_hTiles[x][y].m_iID = 0;
@@ -321,7 +277,7 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
             }
         }
 
-        str->seekg(setto);
+        psSource->seekg(setto);
         m_hPlanes.push_back(pl);
     }
     Plane *mainPlane = NULL;
@@ -338,13 +294,13 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
         throw WWD_EXCEPTION(Error_NoMainPlane);
     }
 
-    str->seekg(tdataoffset, std::ios_base::cur);
+    psSource->seekg(tdataoffset, std::ios_base::cur);
 
     for (int i = 0; i < m_iPlanesCount; i++) {
         for (int x = 0; x < m_hPlanes[i]->m_iSetsCount; x++) {
             char set[256];
             for (int y = 0; y < 256; y++) {
-                str->RLEN(&set[y], 1);
+                psSource->RLEN(&set[y], 1);
                 if (set[y] == '\0')
                     break;
             }
@@ -353,11 +309,15 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
             m_hPlanes[i]->m_vImageSets.push_back(push);
         }
     }
+
+#ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 5 * 28;
         _ghProgressInfo->strDetailedCaption = "[OBIEKTY]";
         _ghProgressCallback->Tick();
     }
+#endif // WAP_MAP
+
     for (int i = 0; i < objcnt[mainplaneid]; i++) {
         /*if( piInfo != 0 ){
          piInfo->Lock();
@@ -375,54 +335,55 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
          piInfo->Unlock();
         }*/
         mainPlane->m_vObjects.push_back(new Object());
-        ReadObject(mainPlane->m_vObjects[i], str);
+        ReadObject(mainPlane->m_vObjects[i], psSource);
     }
 
     int atrcount = 0;
     int checksum;
-    str->RINT(checksum);
-    str->seekg(4, std::ios_base::cur);
-    str->RINT(atrcount);
-    str->seekg(20, std::ios_base::cur);
+    psSource->RINT(checksum);
+    psSource->seekg(4, std::ios_base::cur);
+    psSource->RINT(atrcount);
+    psSource->seekg(20, std::ios_base::cur);
 
+#ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 6 * 28;
         _ghProgressInfo->strDetailedCaption = "[ARETYBUTY KLOCKOW]";
         _ghProgressCallback->Tick();
     }
+#endif // WAP_MAP
 
     for (int i = 0; i < atrcount; i++) {
         m_hTileAtribs.push_back(new TileAtrib());
-        str->RINT(m_hTileAtribs[i]->m_iType);
+        psSource->RINT(m_hTileAtribs[i]->m_iType);
         if (m_hTileAtribs[i]->m_iType != 1 && m_hTileAtribs[i]->m_iType != 2) {
             delete[] objcnt;
             throw WWD_EXCEPTION(Error_InvalidTileProperty);
         }
-        str->seekg(4, std::ios_base::cur);
-        str->RINT(m_hTileAtribs[i]->m_iW);
-        str->RINT(m_hTileAtribs[i]->m_iH);
-        str->RINT(m_hTileAtribs[i]->m_iAtribInside);
+        psSource->seekg(4, std::ios_base::cur);
+        psSource->RINT(m_hTileAtribs[i]->m_iW);
+        psSource->RINT(m_hTileAtribs[i]->m_iH);
+        psSource->RINT(m_hTileAtribs[i]->m_iAtribInside);
         if (m_hTileAtribs[i]->m_iType == AtribType_Double) {
             m_hTileAtribs[i]->m_iAtribOutside = m_hTileAtribs[i]->m_iAtribInside;
-            str->RINT(m_hTileAtribs[i]->m_iAtribInside);
-            ReadRect(&m_hTileAtribs[i]->m_rMask, str);
+            psSource->RINT(m_hTileAtribs[i]->m_iAtribInside);
+            ReadRect(&m_hTileAtribs[i]->m_rMask, psSource);
         }
     }
-    int at = str->tellg();
-    str->seekg(0, std::ios_base::end);
-    if (((int) str->tellg()) - at != 0) {
+    int at = psSource->tellg();
+    psSource->seekg(0, std::ios_base::end);
+    if (((int) psSource->tellg()) - at != 0) {
         delete[] objcnt;
         throw WWD_EXCEPTION(Error_NotCompleteCRC);
     }
-    if (m_iFlags & Flag_w_Compress) {
-        delete str;
-    }
 
+#ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 7 * 28;
         _ghProgressInfo->strDetailedCaption = "[META TAGI]";
         _ghProgressCallback->Tick();
     }
+#endif // WAP_MAP
 
     if (hMetaSerializer != 0) {
         psSource->seekg(0, std::ios_base::end);
@@ -872,8 +833,7 @@ void WWD::Parser::Deflate(std::istream *psSource, std::ostream *psDest, int iLev
     psSource->seekg(iAbsolutePos, std::ios_base::beg);
 }
 
-std::istringstream *WWD::Parser::Inflate(std::istream *psSource) {
-    std::ostringstream output(std::ostringstream::out);
+void WWD::Parser::Inflate(std::istream *psSource, std::stringstream& output) {
     int ret;
     unsigned have;
     z_stream strm;
@@ -896,7 +856,6 @@ std::istringstream *WWD::Parser::Inflate(std::istream *psSource) {
     }
     do {
         strm.avail_in = len;
-        //printf("readng %d bytes\n", len);
         psSource->RLEN(in, len);
         if (psSource->fail()) {
             (void) inflateEnd(&strm);
@@ -908,11 +867,13 @@ std::istringstream *WWD::Parser::Inflate(std::istream *psSource) {
             break;
         strm.next_in = in;
         do {
+#ifdef WAP_MAP
             if (_ghProgressInfo != 0) {
                 _ghProgressInfo->iDetailedProgress = 2 * 28 + (float(strm.total_in) / float(len) * 28);
                 _ghProgressInfo->strDetailedCaption = "[DEKOMPRESJA]";
                 _ghProgressCallback->Tick();
             }
+#endif // WAP_MAP
             strm.avail_out = len;
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
@@ -945,8 +906,6 @@ std::istringstream *WWD::Parser::Inflate(std::istream *psSource) {
     /* clean up and return */
     (void) inflateEnd(&strm);
     //return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-    std::istringstream *rets = new std::istringstream(output.str(), std::ios_base::in);
-    return rets;
 }
 
 void WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
