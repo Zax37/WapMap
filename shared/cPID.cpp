@@ -146,7 +146,7 @@ void PID::Image::Save(const char *szOut) {
             } else {
                 byte buf[128];
                 int buflen = 0;
-                for (int i = pos; i <= pos + 128 && i < len; i++) {
+                for (int i = pos; i <= pos + 128 && i < len && buflen < 128; i++) {
                     if (m_iData[i] == 0) {
                         break;
                     } else {
