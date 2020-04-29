@@ -9,13 +9,16 @@ extern HGE *hge;
 namespace ObjEdit {
     void cObjEditAL::action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == m_hOwn->_butAddNext) {
-            m_hOwn->_butSave->simulatePress();
+            m_hOwn->Save();
+            m_hOwn->SaveChanges();
+            m_hOwn->bKill = 1;
             m_hOwn->_bAddNext = 1;
             return;
         } else if (actionEvent.getSource() == m_hOwn->_butSave) {
             m_hOwn->Save();
             m_hOwn->SaveChanges();
             m_hOwn->bKill = 1;
+            m_hOwn->hState->bEditObjDelete = 0;
             return;
         }
         m_hOwn->Action(actionEvent);
@@ -221,6 +224,18 @@ namespace ObjEdit {
 	bool cObjEdit::IsAnyInputFocused()
 	{
 		return win->gotFocus();
+	}
+
+	void cObjEdit::GetWindowPosition(int& x, int& y)
+	{
+        x = win->getX();
+        y = win->getY();
+	}
+
+	void cObjEdit::SetWindowPosition(int x, int y)
+	{
+        win->setX(x);
+        win->setY(y);
 	}
 
     void cObjEdit::SaveChanges() {

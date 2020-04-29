@@ -202,10 +202,13 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         if (hEditObj->iType == ObjEdit::enText && ((ObjEdit::cEditObjText *) hEditObj)->ObjectSaved()) {
             vObjToPick = ((ObjEdit::cEditObjText *) hEditObj)->GetObjects();
         }
+
+        int winX, winY;
+        hEditObj->GetWindowPosition(winX, winY);
+
         SetTool(EWW_TOOL_NONE);
         if (vObjToPick.size() > 0)
             vObjectsPicked = vObjToPick;
-        bEditObjDelete = 0;
         if (bAddNext) {
             WWD::Object *nobj = new WWD::Object(vObjectsPicked[0]);
             nobj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
@@ -215,11 +218,15 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(nobj);
             vObjectsPicked.clear();
             vObjectsPicked.push_back(nobj);
-            bEditObjDelete = 1;
             objContext->EmulateClickID(OBJMENU_EDIT);
             hEditObj->_iMoveInitX = objmoverelx;
             hEditObj->_iMoveInitY = objmoverely;
             hEditObj->ApplyDataFromPrevObject(specialptr);
+            bEditObjDelete = 1;
+            hEditObj->SetWindowPosition(winX, winY);
+        } else if (bEditObjDelete) {
+            objContext->EmulateClickID(OBJMENU_DELETE);
+            bEditObjDelete = 0;
         }
         vPort->MarkToRedraw(1);
     }

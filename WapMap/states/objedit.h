@@ -147,6 +147,10 @@ namespace ObjEdit {
         virtual void ApplyDataFromPrevObject(void *ptr) {};
 		
 		virtual bool IsAnyInputFocused();
+
+        void GetWindowPosition(int& x, int& y);
+
+        void SetWindowPosition(int x, int y);
     };
 };
 
