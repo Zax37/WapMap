@@ -23,147 +23,6 @@ extern HGE *hge;
 #define WINDOW_WIDTH_WITH_SCROLL CONTAINER_WIDTH + 12
 #define WINDOW_HEIGHT CONTAINER_HEIGHT + 24 + 230
 
-std::set<std::string> NANI_IMAGESETS = {
-	"LEVEL_ARCHESFRONT",
-	"LEVEL_WANTED"
-};
-
-std::map<std::string, std::string> LEVEL_STANDARD_ANI = {
-	// LEVEL 1
-	{ "LEVEL_MANICAL1", "LEVEL_MANICLES_MANICAL" },
-	{ "LEVEL_HANDS4", "LEVEL_HAND_HAND1" },
-
-	// LEVEL 13
-	{ "LEVEL_BEACHWAVES", "LEVEL_BEACHWAVES" }
-};
-
-std::set<std::string> LEVEL_NON_STANDARD = {
-	"LEVEL_AIRCART",
-	"LEVEL_AMULET",
-	"LEVEL_BLOWING1",
-	"LEVEL_BOBROCK",
-	"LEVEL_BOSSBRIDGE",
-	"LEVEL_BOSSNAME",
-	"LEVEL_BOSSPEG",
-	"LEVEL_BOSSPIKES",
-	"LEVEL_BREAKINGLEDGE",
-	"LEVEL_BREAKJEM",
-	"LEVEL_BREAKPLANK",
-	"LEVEL_CANNON",
-	"LEVEL_CANNON2",
-	"LEVEL_CANNONBUTTON",
-	"LEVEL_CANNONSWITCH",
-	"LEVEL_CONVEYLEFT",
-	"LEVEL_CONVEYMIDDLE",
-	"LEVEL_CONVEYRIGHT",
-	"LEVEL_CRATES",
-	"LEVEL_CRUMBLEPEG",
-	"LEVEL_CRUMBLINGBUSH",
-	"LEVEL_CRUMBLINGPEG",
-	"LEVEL_CRUMBLINPEG",
-	"LEVEL_CRUMBLINPEG1",
-	"LEVEL_CRUMBLINPEG2",
-	"LEVEL_ELEVATORS",
-	"LEVEL_ELEVATOR",
-	"LEVEL_ELEVATOR1",
-	"LEVEL_ELEVATOR2",
-	"LEVEL_FIRESHIELD",
-	"LEVEL_FLOORSAW",
-	"LEVEL_FLOORSPIKES",
-	"LEVEL_FLOORSPIKES1",
-	"LEVEL_FLOORSPIKES2",
-	"LEVEL_GABRIELCANNON",
-	"LEVEL_GEM",
-	"LEVEL_GOOVENT",
-	"LEVEL_GRILLELEVATOR",
-	"LEVEL_HEALTH",
-	"LEVEL_ICESHIELD",
-	"LEVEL_LASER",
-	"LEVEL_LAVAHAND",
-	"LEVEL_LAVAMOUTH",
-	"LEVEL_PEG",
-	"LEVEL_PEGSLIDER",
-	"LEVEL_POWDERKEG",
-	"LEVEL_ROPE",
-	"LEVEL_SEWAGESTEPSTONE",
-	"LEVEL_SHOOTERS_LAUNCHLEFT",
-	"LEVEL_SHOOTERS_LAUNCHRIGHT",
-	"LEVEL_SHOOTERS_PUFFDARTDOWN",
-	"LEVEL_SHOOTERS_PUFFDARTLEFT",
-	"LEVEL_SHOOTERS_PUFFDARTRIGHT",
-	"LEVEL_SHOOTERS_PUFFDARTUP",
-	"LEVEL_SHOOTERS_STALAK",
-	"LEVEL_SKULLCANNON",
-	"LEVEL_SPLASH",
-	"LEVEL_SPRINGBOX1",
-	"LEVEL_SPRINGBOX2",
-	"LEVEL_SINKBOEY",
-	"LEVEL_SINKPOT",
-	"LEVEL_SLIDAWAYPLANK",
-	"LEVEL_SLIDERPEG",
-	"LEVEL_SPRINGYFERN",
-	"LEVEL_STATUE",
-	"LEVEL_STEPPINGSTONE",
-	"LEVEL_TOWERCANNONLEFT",
-	"LEVEL_TOWERCANNONRIGHT",
-	"LEVEL_WATERROCK",
-	"LEVEL_WINDOWLEDGE",
-	"LEVEL_WINDSAND",
-
-	"LEVEL_ARROW",
-	"LEVEL_CANNONBALL",
-	"LEVEL_CRABBOMB",
-	"LEVEL_GABRIELBOMB",
-	"LEVEL_KNIFE",
-	"LEVEL_LAVAHANDPROJECTILE",
-	"LEVEL_OMARPROJECTILE",
-	"LEVEL_PROJECTILES",
-	"LEVEL_PROJECTILES_1",
-	"LEVEL_PROJECTILES_2",
-	"LEVEL_PROJECTILES_STALACTITE",
-	"LEVEL_RATBOMB",
-	"LEVEL_REDTAILBULLET",
-	"LEVEL_REDTAILBULLET_EXPLOSION",
-	"LEVEL_REDTAILKNIFE",
-	"LEVEL_MUSKETBALL",
-	"LEVEL_SIRENPROJECTILE",
-	"LEVEL_TRIDENT_TRIDENTEXPLOSION",
-	"LEVEL_TRIDENT_TRIDENTPROJECTILE",
-	"LEVEL_WOLVINGTONMAGIC",
-
-	"LEVEL_OFFICER",
-	"LEVEL_SOLDIER",
-	"LEVEL_RAT",
-	"LEVEL_PUNKRAT",
-	"LEVEL_RAUX",
-	"LEVEL_CUTTHROAT",
-	"LEVEL_ROBBERTHIEF",
-	"LEVEL_KATHERINE",
-	"LEVEL_TOWNGUARD1",
-	"LEVEL_TOWNGUARD2",
-	"LEVEL_SEAGULL",
-	"LEVEL_WOLVINGTON",
-	"LEVEL_BEARSAILOR",
-	"LEVEL_BOMBERCRAB",
-	"LEVEL_HERMITCRAB",
-	"LEVEL_REDTAILPIRATE",
-	"LEVEL_GABRIEL",
-	"LEVEL_CRAZYHOOK",
-	"LEVEL_PEGLEG",
-	"LEVEL_PARROT",
-	"LEVEL_MARROW",
-	"LEVEL_MERCAT",
-	"LEVEL_SIREN",
-	"LEVEL_FISH",
-	"LEVEL_AQUATISTENTACLE",
-	"LEVEL_KINGAQUATIS",
-	"LEVEL_CHAMELEON",
-	"LEVEL_REDTAIL",
-	"LEVEL_TIGER",
-	"LEVEL_TIGERWHITE",
-	"LEVEL_OMAR",
-};
-
 namespace ObjEdit {
 
 	std::vector<std::string> cEditObjCandy::AnimationsList = {
@@ -191,7 +50,7 @@ namespace ObjEdit {
 		for (size_t i = 0; i < GV->editState->SprBank->GetAssetsCount(); i++) {
 			cSprBankAsset* imgSet = GV->editState->SprBank->GetAssetByIterator(i);
 			std::string name(imgSet->GetID());
-			if (name.starts_with("LEVEL_") && !LEVEL_NON_STANDARD.contains(name)) {
+			if (name.starts_with("LEVEL_") && GV->vstrStandardImagesets.contains(name)) {
 				standardImgs.push_back(imgSet);
 /*#ifdef BUILD_DEBUG
 				GV->Console->Print(imgSet->GetID());
@@ -336,10 +195,10 @@ namespace ObjEdit {
 			if (actionEvent.getSource() == animated && asImageSetPick) {
 				if (asFramePick) {
 					asFramePick = NULL;
-					NANI_IMAGESETS.erase(asImageSetPick->GetID());
+					GV->vstrNANIImagesets.erase(asImageSetPick->GetID());
 				} else {
 					asFramePick = asImageSetPick->GetIMGByIterator(0);
-					NANI_IMAGESETS.insert(asImageSetPick->GetID());
+					GV->vstrNANIImagesets.insert(asImageSetPick->GetID());
 				}
 				updateDimensions();
 			}
@@ -411,7 +270,7 @@ namespace ObjEdit {
 			cSprBankAsset* imgSet = assets[i];
 			bool nani = false;
 			int add = 0;
-			if (NANI_IMAGESETS.find(imgSet->GetID()) != NANI_IMAGESETS.end()) {
+			if (GV->vstrNANIImagesets.contains(imgSet->GetID())) {
 				nani = true;
 				add = imgSet->GetSpritesCount() - 1;
 				i_off_sub = i_off;
@@ -532,7 +391,7 @@ namespace ObjEdit {
 	{
 		int count = 0;
 		for (auto const& asset : assets) {
-			if (NANI_IMAGESETS.contains(asset->GetID())) {
+			if (GV->vstrNANIImagesets.contains(asset->GetID())) {
 				count += asset->GetSpritesCount();
 			} else {
 				++count;
@@ -556,8 +415,8 @@ namespace ObjEdit {
 			}
 			else {
 				animated->setSelected(true);
-				auto it = LEVEL_STANDARD_ANI.find(asImageSetPick->GetID());
-				if (it != LEVEL_STANDARD_ANI.end()) {
+				auto it = GV->vstrStandardImagesetAnimations.find(asImageSetPick->GetID());
+				if (it != GV->vstrStandardImagesetAnimations.end()) {
 					animation->setText(it->second);
 				}
 				else {

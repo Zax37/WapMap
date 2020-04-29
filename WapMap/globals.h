@@ -24,6 +24,8 @@ extern "C" {
 #include <lauxlib.h>
 }
 
+#include <set>
+
 #define MEMUSAGEUPDATEDELAY 3.5f
 
 namespace State {
@@ -461,6 +463,9 @@ public:
     cInterfaceSheet *hGfxInterface;
 
     std::vector<std::string> vstrClawLogics;
+    std::set<std::string> vstrStandardImagesets;
+    std::map<std::string, std::string> vstrStandardImagesetAnimations;
+    std::set<std::string> vstrNANIImagesets;
 
     bool anyMapLoaded = false;
 

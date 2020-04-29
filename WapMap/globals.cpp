@@ -408,12 +408,36 @@ void cGlobals::Init() {
     for (int i = 0; i < 18; i++)
         sprLevels[i] = new hgeSprite(texLevels, (i % 3) * 300, int(i / 3) * 150, 300, 150);
 
+    std::string line;
     ptr = repo.GetFileAsRawData("logicsClaw.wls", &size);
     //void * ptr = hge->Resource_Load("res/logicsClaw.wls", &size);
-    std::string line;
-    std::istringstream istr(std::string((const char *)ptr, size));
-    while (getline(istr, line)) {
-        vstrClawLogics.push_back(line.substr(0, line.length() - 1));
+    {
+        std::istringstream istr(std::string((const char*)ptr, size));
+        while (getline(istr, line)) {
+            vstrClawLogics.push_back(line.substr(0, line.length() - 1));
+        }
+    }
+    //hge->Resource_Free(ptr);
+    delete[] ptr;
+
+    ptr = repo.GetFileAsRawData("standardImgsClaw.wis", &size);
+    {
+        std::istringstream istr(std::string((const char*)ptr, size));
+        while (getline(istr, line)) {
+            line.pop_back();
+            char* lcstr = (char*)line.c_str();
+            char* pch = strchr(lcstr, ' ');
+            if (pch) {
+                *pch = 0;
+                if (!strcmp(pch + 1, "NANI")) {
+                    vstrNANIImagesets.insert(lcstr);
+                }
+                else {
+                    vstrStandardImagesetAnimations[lcstr] = pch + 1;
+                }
+            }
+            vstrStandardImagesets.insert(lcstr);
+        }
     }
     //hge->Resource_Free(ptr);
     delete[] ptr;
