@@ -460,7 +460,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objedit\editCrate.h" />
     <ClInclude Include="objedit\editCrumblingPeg.h" />
     <ClInclude Include="objedit\editCurse.h" />
-    <ClInclude Include="objedit\editDialog.h" />
+    <ClInclude Include="objedit\editSoundTrigger.h" />
     <ClInclude Include="objedit\editElevator.h" />
     <ClInclude Include="objedit\editElevPath.h" />
     <ClInclude Include="objedit\editEnemy.h" />

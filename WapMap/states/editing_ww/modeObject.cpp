@@ -24,7 +24,7 @@
 #include "../../objEdit/editTogglePeg.h"
 #include "../../objEdit/editCandy.h"
 #include "../../objEdit/editSpringboard.h"
-#include "../../objEdit/editDialog.h"
+#include "../../objEdit/editSoundTrigger.h"
 #include "../../objEdit/editProjectile.h"
 #include "../../objEdit/editElevator.h"
 #include "../../objEdit/editCrabNest.h"

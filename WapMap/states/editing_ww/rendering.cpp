@@ -15,7 +15,7 @@
 #include "../../objEdit/editCrate.h"
 #include "../../objEdit/editStatue.h"
 #include "../../objEdit/editSpringboard.h"
-#include "../../objEdit/editDialog.h"
+#include "../../objEdit/editSoundTrigger.h"
 #include "../../cAppMenu.h"
 #include "../../cInterfaceSheet.h"
 #include "../../rendering/cRenderableItem.h"

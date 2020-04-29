@@ -1,4 +1,4 @@
-#include "editDialog.h"
+#include "editSoundTrigger.h"
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"

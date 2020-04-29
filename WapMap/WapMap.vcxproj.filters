@@ -698,9 +698,6 @@
     <ClInclude Include="objedit\editCurse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="objedit\editDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="objedit\editElevator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -984,6 +981,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\editSoundTrigger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

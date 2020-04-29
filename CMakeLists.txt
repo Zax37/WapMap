@@ -23,7 +23,7 @@ ADD_CUSTOM_TARGET(release
   COMMENT "Switch CMAKE_BUILD_TYPE to Release"
   )
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
@@ -208,7 +208,6 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCrate.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCrumblingPeg.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCurse.cpp
-	${PROJECT_SOURCE_DIR}/WapMap/objedit/editDialog.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevator.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevPath.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editEnemy.cpp
@@ -217,6 +216,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editProjectile.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editRope.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editShake.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objedit/editSoundTrigger.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editSpecialPowerup.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editSpringboard.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editStalactite.cpp
@@ -272,11 +272,7 @@ target_link_libraries(WapMap
 )
 
 file(GLOB RESOURCES
-	"res/brush"
-	"res/lang"
-	"res/bass.dll"
-	"res/Changelog.html"
-	"res/data.sfs"
+	"res/copy/*"
 )
 
 file(COPY ${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}/libcurl-d.dll DESTINATION ${CMAKE_BINARY_DIR})

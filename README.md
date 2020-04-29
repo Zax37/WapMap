@@ -17,7 +17,7 @@ merged with the header files from his version and re-implemented most of the nee
 
 ## Building
 
-1. Get Visual Studio 2017 (HGE won't build in 2019 from what I've seen).
+1. Get Visual Studio 2017 (v141) toolset to build HGE and 2019 (v142) for WapMap.
 
 2. Create some directory for the project and its dependencies (e.g. WapMap).
 
@@ -34,6 +34,6 @@ git clone https://github.com/lua/lua
 
 5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
 
-6. Open WapMap/WapMap/WapMap.sln in Visual Studio 2017 and run it!
+6. Open WapMap/WapMap/WapMap.sln in Visual Studio 2019 and run it!
 
 7. I've also created CMakeLists for the project, if you'd like to use different toolset. I'll try to keep them up to date. :)
