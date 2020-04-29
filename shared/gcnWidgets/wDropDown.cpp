@@ -81,6 +81,7 @@ namespace SHR {
     }
 
     void DropDown::draw(Graphics *graphics) {
+        UpdateTooltip(mHasMouse);
         int h;
 
         if (mDroppedDown) {
@@ -166,6 +167,7 @@ namespace SHR {
                                                    getHeight() - mFoldedUpHeight));
             drawChildren(graphics);
         }
+        RenderTooltip();
     }
 
     void DropDown::mouseEntered(MouseEvent &mouseEvent) {

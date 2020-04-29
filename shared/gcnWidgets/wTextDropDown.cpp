@@ -96,6 +96,7 @@ namespace SHR {
     }
 
     void TextDropDown::draw(Graphics *graphics) {
+        UpdateTooltip(mHasMouse);
         int h = (mDroppedDown ? mFoldedUpHeight : getHeight());
         int x, y;
         getAbsolutePosition(x, y);
@@ -192,6 +193,7 @@ namespace SHR {
                                                    getHeight() - mFoldedUpHeight));
             drawChildren(graphics);
         }
+        RenderTooltip();
     }
 
     void TextDropDown::setSelected(int selected) {

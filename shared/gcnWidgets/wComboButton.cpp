@@ -52,6 +52,7 @@ namespace SHR {
     }
 
     void ComboBut::draw(Graphics *graphics) {
+        UpdateTooltip(mHasMouse);
         int x, y;
         getAbsolutePosition(x, y);
 
@@ -73,12 +74,12 @@ namespace SHR {
 
         But::drawButton(hGfx, 2, x, y, getWidth(), getHeight(), 0xFFFFFFFF);
 
-        int lx = x + 6;
+        int lx = x + 5;
         for (int i = 0; i < vEntries.size(); i++) {
-            if (((iFocused == i && mMousePressed) || iSelectedID == i) && vEntries[i].fTimer < 0.4f) {
+            if (iSelectedID == i && vEntries[i].fTimer < 0.4f) {
                 vEntries[i].fTimer += hge->Timer_GetDelta() * 2;
                 if (vEntries[i].fTimer > 0.4f) vEntries[i].fTimer = 0.4f;
-            } else if ((iFocused != i || !mMousePressed) && iSelectedID != i && vEntries[i].fTimer > 0.2f) {
+            } else if (iSelectedID != i && vEntries[i].fTimer > 0.2f) {
                 vEntries[i].fTimer -= hge->Timer_GetDelta() * 2;
                 if (vEntries[i].fTimer < 0.2f) vEntries[i].fTimer = 0.2f;
             } else if (iFocused == i && vEntries[i].fTimer < 0.2f) {
@@ -91,23 +92,24 @@ namespace SHR {
             unsigned char p = (vEntries[i].fTimer * 2.5f * 255.0f);
 
             if (vEntries[i].fTimer > 0.0f) {
-                //printf("y %p\n", (unsigned char)(vEntries[i].fTimer*5.0f*255.0f));
-                hge->Gfx_SetClipping(lx - 2, y, vEntries[i].GetWidth(), getHeight());
+                hge->Gfx_SetClipping(lx - (i == 0 ? 5 : 2), y, vEntries[i].GetWidth() + (i == 0 ? 2 : i == vEntries.size() - 1 ? 1 : 0), getHeight());
                 But::drawButton(hGfx, 3, x, y, getWidth(), getHeight(), SETA(0xFFFFFFFF, p));
                 hge->Gfx_SetClipping();
             }
 
             if (vEntries[i].sprIcon != 0) {
-                vEntries[i].sprIcon->Render(lx, y);
-                lx += 18;
+                int addOX = (i > 0 ? 1 : 0);
+                vEntries[i].sprIcon->Render(lx + addOX, y);
+                lx += 17 + addOX;
             }
 
             GV->fntMyriad13->SetColor(ARGB(255, p, p, p));
-            GV->fntMyriad13->Render(lx, y, HGETEXT_LEFT, vEntries[i].strCaption.c_str(), 0);
+            GV->fntMyriad13->Render(lx, y + 1, HGETEXT_LEFT, vEntries[i].strCaption.c_str(), 0);
             lx += GV->fntMyriad13->GetStringWidth(vEntries[i].strCaption.c_str());
 
             lx += 6;
         }
+        RenderTooltip();
     }
 
     void ComboBut::setSelectedEntryID(int i, bool bEvent) {

@@ -542,7 +542,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         }
         //}else if( actionEvent.getSource() == conOpen ){
     } else if (actionEvent.getSource() == conActivePlane) {
-        GV->editState->ddActivePlane->setSelected(conActivePlane->GetSelectedID());
+        GV->editState->hmbTile->ddActivePlane->setSelected(conActivePlane->GetSelectedID());
         GV->editState->SwitchPlane();
         hEntries[AppMenu_Plane]->GetContext()->setVisible(0);
     } else if (actionEvent.getSource() == conOpenMRU) {

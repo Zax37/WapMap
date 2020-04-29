@@ -107,7 +107,7 @@ enum EnumGfxIcons {
     Icon_RSS,
     Icon_Pipette,
     Icon_Simulation,
-    Icon_BrushMaker,
+    Icon_Select,
     Icon_Navigator,
     Icon_AddDown,
     Icon_AddUp,

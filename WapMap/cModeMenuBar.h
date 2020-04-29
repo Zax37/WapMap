@@ -3,6 +3,7 @@
 
 #include "../shared/gcnWidgets/wButton.h"
 #include "../shared/gcnWidgets/wContext.h"
+#include "../shared/gcnWidgets/wDropDown.h"
 
 #define NOBJCON_PREV        0
 #define NOBJCON_NEXT        1
@@ -70,9 +71,10 @@ protected:
     virtual void _setEnabled(bool bEn);
 
 public:
-    SHR::But *butIconPencil, *butIconBrush, *butIconFill, *butIconWriteID;
+    SHR::DropDown* ddActivePlane;
+    SHR::But *butIconSelect, *butIconPencil, *butIconBrush, *butIconFill, *butIconWriteID;
 
-    cmmbTile();
+    cmmbTile(int startX);
 
     ~cmmbTile();
 };
@@ -114,7 +116,7 @@ public:
             *butIconEnemy[5];
     std::vector<SHR::But *> vButtons;
 
-    cmmbObject();
+    cmmbObject(int startX);
 
     ~cmmbObject();
 

@@ -21,7 +21,7 @@ extern HGE *hge;
 #define CONTAINER_WIDTH IMAGE_TILE_WIDTH * IMAGE_TILES_PER_ROW + 4
 #define CONTAINER_HEIGHT 320
 #define WINDOW_WIDTH_WITH_SCROLL CONTAINER_WIDTH + 12
-#define WINDOW_HEIGHT CONTAINER_HEIGHT + 24 + 230
+#define WINDOW_HEIGHT CONTAINER_HEIGHT + 24 + 240
 
 namespace ObjEdit {
 
@@ -71,8 +71,8 @@ namespace ObjEdit {
 		win->addMouseListener(this);
 		st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY());
 
-		win->add(_butAddNext, 100, CONTAINER_HEIGHT + 194);
-		win->add(_butSave, 212, CONTAINER_HEIGHT + 194);
+		win->add(_butAddNext, 100, CONTAINER_HEIGHT + 205);
+		win->add(_butSave, 212, CONTAINER_HEIGHT + 205);
 
 		imgsCon = new SHR::Container();
 		imgsCon->setOpaque(0);

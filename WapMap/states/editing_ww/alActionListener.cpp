@@ -96,7 +96,7 @@ namespace State {
 				logic->DeleteFile();
 				m_hOwn->SyncLogicBrowser();
 			}
-		} else if (actionEvent.getSource() == m_hOwn->butIconMove) {
+		} else if (actionEvent.getSource() == m_hOwn->hmbTile->butIconSelect) {
 			m_hOwn->SetTool(EWW_TOOL_NONE);
 		} else if (actionEvent.getSource() == m_hOwn->hmbTile->butIconWriteID) {
 			m_hOwn->SetTool(EWW_TOOL_WRITEID);
@@ -180,7 +180,7 @@ namespace State {
 							break;
 						}
 					if (pid == -1) return;
-					m_hOwn->ddActivePlane->setSelected(pid);
+					m_hOwn->hmbTile->ddActivePlane->setSelected(pid);
 				}
 				m_hOwn->SetTool(EWW_TOOL_NONE);
 				m_hOwn->SetMode(EWW_MODE_OBJECT);
@@ -293,11 +293,11 @@ namespace State {
 			}
 			if (GetSaveFileName(&ofn))
 				m_hOwn->tfmsSaveAs->setText(szFileopen, 1);
-		} else if (actionEvent.getSource() == m_hOwn->ddActivePlane && m_hOwn->hParser != NULL) {
+		} else if (actionEvent.getSource() == m_hOwn->hmbTile->ddActivePlane && m_hOwn->hParser != NULL) {
 			m_hOwn->SwitchPlane();
 			if (m_hOwn->hParser != NULL)
 				m_hOwn->SetHint("%s: %s", GETL2S("Hints", "ActivePlaneChange"),
-								m_hOwn->hParser->GetPlane(m_hOwn->ddActivePlane->getSelected())->GetName());
+								m_hOwn->hParser->GetPlane(m_hOwn->hmbTile->ddActivePlane->getSelected())->GetName());
 		} else if (actionEvent.getSource() == m_hOwn->buttpfcShow) {
 			if (m_hOwn->wintpFillColor->getHeight() == 61) {
 				m_hOwn->wintpFillColor->setWidth(202);

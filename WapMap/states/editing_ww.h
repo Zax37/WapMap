@@ -497,8 +497,6 @@ namespace State {
 
         cModeMenuBar *hmbActive;
 
-        SHR::But *butIconMove;
-
         SHR::Container *conWriteID;
         SHR::TextField *tfWriteID;
 
@@ -518,7 +516,7 @@ namespace State {
 
         cNativeController *hNativeController;
 
-        SHR::DropDown *ddActivePlane, *ddmsPlane;
+        SHR::DropDown *ddmsPlane;
         SHR::Slider *slimsScale, *sliTilePicker, *slimsCompression;
         SHR::Lab *labmsSaveAs, *labmsScale, *labmsPlane, *labmsDimensions;
         SHR::TextField *tfmsSaveAs, *winobjseaName;

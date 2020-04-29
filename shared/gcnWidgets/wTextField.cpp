@@ -118,7 +118,9 @@ namespace SHR {
 
         int dx, dy;
         getAbsolutePosition(dx, dy);
-        //hge->Gfx_SetClipping();
+        float mx, my;
+        hge->Input_GetMousePos(&mx, &my);
+        UpdateTooltip(mx > dx && my > dy && mx < dx + getWidth() && my < dy + getHeight());
 
         renderFrame(dx, dy, getWidth(), getHeight(), getAlpha(), 0);
         if (fFocusTimer > 0)
@@ -159,6 +161,7 @@ namespace SHR {
         }
 
         graphics->popClipArea();
+        RenderTooltip();
     }
 
     void TextField::drawCaret(Graphics *graphics, int x) {

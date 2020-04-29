@@ -26,7 +26,19 @@ void cModeMenuBar::SetEnabled(bool bEn) {
     _setEnabled(bEn);
 }
 
-cmmbTile::cmmbTile() {
+cmmbTile::cmmbTile(int startX) {
+    ddActivePlane = new SHR::DropDown();
+    ddActivePlane->setListModel(new State::EditingWWlModel(GV->editState, LMODEL_PLANES));
+    ddActivePlane->setDimension(gcn::Rectangle(0, 0, 150, 20));
+    ddActivePlane->addActionListener(GV->editState->al);
+    ddActivePlane->SetGfx(&GV->gcnParts);
+    ddActivePlane->adjustHeight();
+    ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
+    GV->editState->conMain->add(ddActivePlane, 127, LAY_MODEBAR_Y + 3);
+
+    butIconSelect = GV->editState->MakeButton(320 - 32, LAY_MODEBAR_Y - 3, Icon_Select, GV->editState->conMain);
+    butIconSelect->setRenderBG(0);
+    butIconSelect->SetTooltip(GETL2("Tooltip", Lang_TT_Select));
     butIconPencil = GV->editState->MakeButton(320, LAY_MODEBAR_Y - 3, Icon_Pencil, GV->editState->conMain);
     butIconPencil->setRenderBG(0);
     butIconPencil->SetTooltip(GETL2("Tooltip", Lang_TT_Pencil));
@@ -38,34 +50,39 @@ cmmbTile::cmmbTile() {
     butIconFill->SetTooltip(GETL2("Tooltip", Lang_TT_Fill));
     butIconWriteID = GV->editState->MakeButton(320 + 96, LAY_MODEBAR_Y - 3, Icon_WriteID, GV->editState->conMain);
     butIconWriteID->setRenderBG(0);
+    butIconWriteID->SetTooltip(GETL2("Tooltip", Lang_TT_WriteID));
 
     vSeparators.push_back(127 - 3);
     vSeparators.push_back(320 - 32 - 2);
 }
 
 cmmbTile::~cmmbTile() {
+    delete butIconSelect;
     delete butIconPencil;
     delete butIconBrush;
     delete butIconFill;
+    delete butIconWriteID;
 }
 
 void cmmbTile::_setVisible(bool bVis) {
+    ddActivePlane->setVisible(bVis);
+    butIconSelect->setVisible(bVis);
     butIconPencil->setVisible(bVis);
     butIconBrush->setVisible(bVis);
     butIconFill->setVisible(bVis);
     butIconWriteID->setVisible(bVis);
-    GV->editState->butIconMove->setVisible(bVis);
 }
 
 void cmmbTile::_setEnabled(bool bEn) {
+    ddActivePlane->setEnabled(bEn);
+    butIconSelect->setEnabled(bEn);
     butIconPencil->setEnabled(bEn);
     butIconBrush->setEnabled(bEn);
     butIconFill->setEnabled(bEn);
     butIconWriteID->setEnabled(bEn);
-    GV->editState->butIconMove->setEnabled(bEn);
 }
 
-cmmbObject::cmmbObject() {
+cmmbObject::cmmbObject(int startX) {
     conNewObject = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     conNewObject->hide();
     conNewObject->addActionListener(this);

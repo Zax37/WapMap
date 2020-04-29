@@ -58,6 +58,8 @@ namespace SHR {
             if (fTimer < 0.0f) fTimer = 0.0f;
         }
 
+        UpdateTooltip(hl);
+
         graphics->popClipArea();
 
         DWORD defcol = SETA(0xFFFFFFFF, getAlpha());
@@ -85,7 +87,7 @@ namespace SHR {
         graphics->pushClipArea(getDimension());
 
         graphics->drawText(getCaption(), 18, 0);
-
+        RenderTooltip();
     }
 
     bool CBox::isSelected() const {

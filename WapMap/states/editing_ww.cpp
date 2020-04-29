@@ -219,9 +219,6 @@ void State::EditingWW::Init() {
 
     //butIconShot->SetTooltip(GETL2("Tooltip", Lang_TT_Mapshot));
 
-    butIconMove = MakeButton(320 - 32, LAY_MODEBAR_Y - 3, Icon_Move, conMain);
-    butIconMove->setRenderBG(0);
-
     cbutActiveMode = new SHR::ComboBut(GV->hGfxInterface);
     cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeTile], "Tile"));
     cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeObject], "Object"));
@@ -229,20 +226,13 @@ void State::EditingWW::Init() {
     cbutActiveMode->adjustSize();
     conMain->add(cbutActiveMode, 5, LAY_MODEBAR_Y + 4);
 
-    hmbTile = new cmmbTile();
+    int modeMenuStartX = 10 + cbutActiveMode->getDimension().width;
+
+    hmbTile = new cmmbTile(modeMenuStartX);
     hmbTile->SetVisible(0);
-    hmbObject = new cmmbObject();
+    hmbObject = new cmmbObject(modeMenuStartX);
     hmbObject->SetVisible(0);
     hmbActive = NULL;
-
-    ddActivePlane = new SHR::DropDown();
-    ddActivePlane->setListModel(new EditingWWlModel(this, LMODEL_PLANES));
-    ddActivePlane->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    ddActivePlane->addActionListener(al);
-    ddActivePlane->SetGfx(&GV->gcnParts);
-    ddActivePlane->adjustHeight();
-    ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
-    conMain->add(ddActivePlane, 127, LAY_MODEBAR_Y + 3);
 
     SetIconBarVisible(0);
 
@@ -1914,9 +1904,6 @@ void State::EditingWW::InitEmpty() {
 #ifdef WM_ADD_LUA_EXECUTER
     butIconLua->setEnabled(0);
 #endif
-    butIconMove->setEnabled(0);
-
-    ddActivePlane->setVisible(0);
 
     hmbActive = NULL;
     ExitMode(iMode);
@@ -1928,7 +1915,7 @@ void State::EditingWW::InitEmpty() {
 void State::EditingWW::SynchronizeWithParser() {
     for (int i = 0; i < hParser->GetPlanesCount(); i++) {
         if ((hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)) {
-            ddActivePlane->setSelected(i);
+            hmbTile->ddActivePlane->setSelected(i);
         }
     }
 
@@ -1941,7 +1928,6 @@ void State::EditingWW::SynchronizeWithParser() {
 #ifdef WM_ADD_LUA_EXECUTER
     butIconLua->setEnabled(1);
 #endif
-    butIconMove->setEnabled(1);
 
     if (hmbActive == NULL)
         SetMode(cbutActiveMode->getSelectedEntryID() ? EWW_MODE_OBJECT : EWW_MODE_TILE);
@@ -1972,8 +1958,6 @@ void State::EditingWW::Destroy() {
     // delete [] szHint;
     delete vpMain;
     delete sliVer, sliHor;
-    delete butIconMove;
-    delete ddActivePlane;
     delete conMain;
     delete gui;
     delete vPort;
@@ -2545,11 +2529,11 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
 }
 
 WWD::Plane *State::EditingWW::GetActivePlane() {
-    return hParser->GetPlane(ddActivePlane->getSelected());
+    return hParser->GetPlane(hmbTile->ddActivePlane->getSelected());
 }
 
 int State::EditingWW::GetActivePlaneID() {
-    return ddActivePlane->getSelected();
+    return hmbTile->ddActivePlane->getSelected();
 }
 
 void State::EditingWW::SetHint(const char *pszFormat, ...) {
@@ -2564,13 +2548,11 @@ void State::EditingWW::SetHint(const char *pszFormat, ...) {
 void State::EditingWW::SetIconBarVisible(bool b) {
     //ddActivePlane->setVisible(b);
     cbutActiveMode->setVisible(b);
-    butIconMove->setVisible(b);
     //if( hmbActive != 0 )
     // hmbActive->SetVisible(b);
 }
 
 void State::EditingWW::LockToolSpecificFunctions(bool bLock) {
-    ddActivePlane->setEnabled(!bLock);
     cbutActiveMode->setEnabled(!bLock);
 #ifdef WM_ADD_LUA_EXECUTER
     butIconLua->setEnabled(bLock);
@@ -2578,8 +2560,6 @@ void State::EditingWW::LockToolSpecificFunctions(bool bLock) {
 
     if (hmbActive != 0)
         hmbActive->SetEnabled(!bLock);
-
-    butIconMove->setEnabled(!bLock);
 
     MDI->BlockDocumentSelection(bLock);
     hAppMenu->SetToolSpecificEnabled(!bLock);
@@ -2812,13 +2792,13 @@ void State::EditingWW::SetMode(int piMode) {
 
 void State::EditingWW::EnterMode(int piMode) {
     if (piMode == EWW_MODE_TILE) {
-        ddActivePlane->setVisible(1);
+        hmbTile->ddActivePlane->setVisible(1);
         SwitchActiveModeMenuBar(hmbTile);
         //butIconMode->setIcon(GV->sprIcons[Icon_Bricks]);
         cbutActiveMode->setSelectedEntryID(0);
         UpdateScrollBars();
     } else if (piMode == EWW_MODE_OBJECT) {
-        ddActivePlane->setVisible(0);
+        hmbTile->ddActivePlane->setVisible(0);
         bObjDragSelection = 0;
         SwitchActiveModeMenuBar(hmbObject);
         cbutActiveMode->setSelectedEntryID(1);
@@ -2997,7 +2977,7 @@ void State::EditingWW::PrepareForDocumentSwitch() {
     if (hParser == NULL) return;
     MDI->GetActiveDoc()->fCamX = fCamX;
     MDI->GetActiveDoc()->fCamY = fCamY;
-    MDI->GetActiveDoc()->iSelectedPlane = ddActivePlane->getSelected();
+    MDI->GetActiveDoc()->iSelectedPlane = hmbTile->ddActivePlane->getSelected();
     MDI->GetActiveDoc()->vObjectsPicked = vObjectsPicked;
     MDI->GetActiveDoc()->fZoom = fZoom;
     MDI->GetActiveDoc()->fDestZoom = fZoom;
@@ -3120,7 +3100,7 @@ void State::EditingWW::DocumentSwitched() {
 
     hStartingPosObj = MDI->GetActiveDoc()->hStartingPosObj;
 
-    ddActivePlane->setSelected(MDI->GetActiveDoc()->iSelectedPlane);
+    hmbTile->ddActivePlane->setSelected(MDI->GetActiveDoc()->iSelectedPlane);
 
     vObjectsPicked = MDI->GetActiveDoc()->vObjectsPicked;
     if (MDI->GetActiveDoc()->fCamX != -1 && MDI->GetActiveDoc()->fCamY != -1) {

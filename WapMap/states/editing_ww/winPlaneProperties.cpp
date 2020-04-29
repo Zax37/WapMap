@@ -465,7 +465,7 @@ void State::EditingWW::SavePlaneProperties() {
     }
 
     if (bZCoordchange) {
-        std::string strSelectedPl = ddActivePlane->getListModel()->getElementAt(ddActivePlane->getSelected());
+        std::string strSelectedPl = hmbTile->ddActivePlane->getListModel()->getElementAt(hmbTile->ddActivePlane->getSelected());
 
         int iNewPlIt = lbpmPlanes->getSelected();
         std::string strNewPl = tfpmName->getText();
@@ -474,7 +474,7 @@ void State::EditingWW::SavePlaneProperties() {
 
         for (int i = 0; i < hParser->GetPlanesCount(); i++) {
             if (!strcmp(hParser->GetPlane(i)->GetName(), strSelectedPl.c_str())) {
-                ddActivePlane->setSelected(i);
+                hmbTile->ddActivePlane->setSelected(i);
             }
 
             if (!strcmp(hParser->GetPlane(i)->GetName(), strNewPl.c_str())) {
@@ -500,11 +500,11 @@ void State::EditingWW::DeletePlaneProperties() {
         return;
     }
     int is = lbpmPlanes->getSelected();
-    if (is <= ddActivePlane->getSelected()) {
-        if (ddActivePlane->getSelected() > 0)
-            ddActivePlane->setSelected(ddActivePlane->getSelected() - 1);
+    if (is <= hmbTile->ddActivePlane->getSelected()) {
+        if (hmbTile->ddActivePlane->getSelected() > 0)
+            hmbTile->ddActivePlane->setSelected(hmbTile->ddActivePlane->getSelected() - 1);
         else
-            ddActivePlane->setSelected(ddActivePlane->getSelected() + 1);
+            hmbTile->ddActivePlane->setSelected(hmbTile->ddActivePlane->getSelected() + 1);
     }
     if (!hPlaneData[is]->ObjectData.bEmpty) {
         for (int z = 0; z < hParser->GetPlane(is)->GetObjectsCount(); z++)

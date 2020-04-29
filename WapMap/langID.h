@@ -344,7 +344,10 @@ enum LangTooltipID {
     Lang_TT_Tile_Pipette,
 
     Lang_TT_AddText,
-    Lang_TT_PlainObject
+    Lang_TT_PlainObject,
+
+    Lang_TT_Select,
+    Lang_TT_WriteID
 };
 
 enum LangWinDatabase {
