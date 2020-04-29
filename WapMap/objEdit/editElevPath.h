@@ -30,7 +30,6 @@ namespace ObjEdit {
 
     class cEditObjElevPath : public cObjEdit {
     private:
-        SHR::Win *win;
         SHR::But *butGenChain, *butCloseChain, *butInvertPath, *butInvX, *butInvY;
         SHR::But *butStepAdd, *butStepDel;
         lmEditObjElevPath *lmSteps;

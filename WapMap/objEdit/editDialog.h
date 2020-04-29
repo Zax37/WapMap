@@ -12,12 +12,11 @@ namespace ObjEdit {
         int getNumberOfElements();
     };
 
-    class cEditObjDialog : public cObjEdit, gcn::ListModel {
+    class cEditObjSoundTrigger : public cObjEdit, gcn::ListModel {
     private:
         SHR::RadBut *rbStandard, *rbOther;
         SHR::DropDown *ddStandardDialogs, *ddActivationArea;
         SHR::TextDropDown *tddOtherDialogs;
-        SHR::Win *win;
         SHR::Lab *labActivateMode, *labActivationArea;
         SHR::RadBut *rbActivate[3];
         SHR::TextField *tfRespawnTimes;
@@ -30,9 +29,9 @@ namespace ObjEdit {
         void UpdateName();
 
     public:
-        cEditObjDialog(WWD::Object *obj, State::EditingWW *st);
+        cEditObjSoundTrigger(WWD::Object *obj, State::EditingWW *st);
 
-        ~cEditObjDialog();
+        ~cEditObjSoundTrigger();
 
         virtual void Save();
 

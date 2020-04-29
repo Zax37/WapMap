@@ -72,6 +72,14 @@ void cSprBankAssetIMG::Load() {
     imgSprite = new hgeSprite(0, 0, 0, imgInfo.iWidth, imgInfo.iHeight);
     imgSprite->SetHotSpot(-imgInfo.iOffsetX + imgInfo.iWidth / 2, -imgInfo.iOffsetY + imgInfo.iHeight / 2);
 
+	if (imgInfo.iWidth > hIS->m_iMaxWidth) {
+		hIS->m_iMaxWidth = imgInfo.iWidth;
+	}
+
+	if (imgInfo.iHeight > hIS->m_iMaxHeight) {
+		hIS->m_iMaxHeight = imgInfo.iHeight;
+	}
+
     ((cBankImageSet *) _hBank)->GetTextureAtlaser()->AddSprite(imgSprite);
     ((cBankImageSet *) _hBank)->GetTextureAtlaser()->Pack();
 
@@ -136,15 +144,36 @@ void cSprBankAsset::AddIMG(cSprBankAssetIMG *img) {
 }
 
 void cSprBankAsset::DeleteIMG(cSprBankAssetIMG *img) {
+	bool checkMaxSize = false;
+	if (img->GetSprite()->GetWidth() == m_iMaxWidth || img->GetSprite()->GetHeight() == m_iMaxHeight) {
+		m_iMaxWidth = 0;
+		m_iMaxHeight = 0;
+		checkMaxSize = true;
+	}
+
+	size_t it = -1;
     for (size_t i = 0; i < m_vSprites.size(); i++) {
         if (m_vSprites[i] == img) {
-            delete m_vSprites[i];
-            m_vSprites.erase(m_vSprites.begin() + i);
-            SortAndFixIterators();
-            UpdateHash();
-            return;
-        }
+			it = i;
+			if (!checkMaxSize) break;
+		}
+		else if (checkMaxSize) {
+			if (img->GetSprite()->GetWidth() > m_iMaxWidth) {
+				m_iMaxWidth = img->GetSprite()->GetWidth();
+			}
+
+			if (img->GetSprite()->GetHeight() > m_iMaxHeight) {
+				m_iMaxHeight = img->GetSprite()->GetHeight();
+			}
+		}
     }
+
+	if (it != -1) {
+		delete m_vSprites[it];
+		m_vSprites.erase(m_vSprites.begin() + it);
+		SortAndFixIterators();
+		UpdateHash();
+	}
 }
 
 void cSprBankAsset::SortAndFixIterators() {

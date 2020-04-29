@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjCurse : public cObjEdit {
     private:
         SHR::RadBut *rbCurses[6];
-        SHR::Win *win;
         float fCurseAnim;
         byte iFrame;
 

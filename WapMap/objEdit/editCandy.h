@@ -3,42 +3,64 @@
 
 #include "../states/objedit.h"
 #include "../../shared/gcnWidgets/wListbox.h"
+#include "../../shared/gcnWidgets/wTab.h"
 #include "../../shared/gcnWidgets/wTextDropDown.h"
+
+class cBankImageSet;
+class cSprBankAsset;
+class cSprBankAssetIMG;
 
 namespace ObjEdit {
 
-    class cEditObjCandy : public cObjEdit, gcn::ListModel {
+	class WindowMouseListener;
+
+    class cEditObjCandy : public cObjEdit, gcn::ListModel, gcn::MouseListener {
     private:
-        SHR::Win *win;
-        SHR::Lab *labImageSet, *labAlign, *labAnimation, *labFrame;
-        SHR::TextDropDown *tddImageSet;
+		SHR::CBox *highDetail, *animated;
+		SHR::Lab *labZPos;
         SHR::RadBut *rbType[3];
-        SHR::CBox *cbAnimated;
-        SHR::TextField *tfAnimation;
-        SHR::TextField *tfFrame;
+        SHR::TextField *zCoord;
+		SHR::TextDropDown *animation;
 
-        std::vector<std::string> vsDefaultImgsets;
+		SHR::TabbedArea *tabs;
+		SHR::Container *imgsCon;
+		SHR::ScrollArea *saImgPick;
+		cSprBankAsset *asImageSetPick = NULL, *asImageSetHover = NULL;
+		cSprBankAssetIMG *asFramePick = NULL, *asFrameHover = NULL;
 
-        void UpdateLogic();
+		std::vector<cSprBankAsset*> standardImgs, customImgs, otherImgs;
+		enum TAB { TAB_STANDARD = 0, TAB_CUSTOM, TAB_OTHER };
 
-        friend class cObjPropVP;
+		static std::vector<std::string> AnimationsList;
 
+		std::function<void()> updateDimensions;
+
+		void UpdateLogic();
+		std::vector<cSprBankAsset*>& CurrentlyDisplayedImgSet();
+		int CountActualImagesToDisplay(std::vector<cSprBankAsset*>& assets);
     public:
         cEditObjCandy(WWD::Object *obj, State::EditingWW *st);
 
         ~cEditObjCandy();
 
+		//inherited
+
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
-        //virtual void Think(bool bMouseConsumed);
-        virtual void Draw();
+        //virtual void Think(bool bMouseConsumed) override;
+		virtual void Draw() override;
 
-        //inherited
-        std::string getElementAt(int i);
+		virtual void mouseClicked(MouseEvent& mouseEvent);
 
-        int getNumberOfElements();
+		std::string getElementAt(int i) { return AnimationsList[i]; }
+
+		int getNumberOfElements() { return AnimationsList.size(); }
+
+		friend class cEditCandyVP;
+		friend class cObjPropVP;
+		friend class TabChangeListener;
+		friend class WindowMouseListener;
     };
-
 }
 
 #endif

@@ -10,7 +10,7 @@
 extern HGE *hge;
 
 namespace ObjEdit {
-    cEditObjDialog::cEditObjDialog(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
+    cEditObjSoundTrigger::cEditObjSoundTrigger(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         iType = ObjEdit::enDialog;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Dialog", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 364, 400));
@@ -464,7 +464,7 @@ namespace ObjEdit {
                                    GETL2S("EditObj_Dialog", "Preview"));
     }
 
-    cEditObjDialog::~cEditObjDialog() {
+    cEditObjSoundTrigger::~cEditObjSoundTrigger() {
         for (int i = 0; i < 3; i++) delete rbActivate[i];
         delete lmSizes;
         delete cbDialog;
@@ -480,7 +480,7 @@ namespace ObjEdit {
         hState->vPort->MarkToRedraw(1);
     }
 
-    void cEditObjDialog::Save() {
+    void cEditObjSoundTrigger::Save() {
         if (rbActivate[0]->isSelected())
             hTempObj->SetParam(WWD::Param_Smarts, -1);
         else if (rbActivate[1]->isSelected())
@@ -489,7 +489,7 @@ namespace ObjEdit {
             hTempObj->SetParam(WWD::Param_Smarts, atoi(tfRespawnTimes->getText().c_str()));
     }
 
-    void cEditObjDialog::Action(const gcn::ActionEvent &actionEvent) {
+    void cEditObjSoundTrigger::Action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == win) {
             bKill = 1;
             return;
@@ -547,7 +547,7 @@ namespace ObjEdit {
         }
     }
 
-    void cEditObjDialog::UpdateName() {
+    void cEditObjSoundTrigger::UpdateName() {
         std::string dial = (cbDialog->isSelected() ? "ClawDialog" : "");
         std::string size;
         if (ddActivationArea->getSelected() == 0) size = "Tiny";
@@ -562,7 +562,7 @@ namespace ObjEdit {
         hTempObj->SetLogic(nname);
     }
 
-    void cEditObjDialog::Draw() {
+    void cEditObjSoundTrigger::Draw() {
         int dx, dy;
         win->getAbsolutePosition(dx, dy);
 
@@ -581,12 +581,12 @@ namespace ObjEdit {
         }
     }
 
-    std::string cEditObjDialog::getElementAt(int i) {
+    std::string cEditObjSoundTrigger::getElementAt(int i) {
         if (i < 0 || i >= vsStandardSounds.size()) return "";
         return vsStandardSounds[i].second;
     }
 
-    int cEditObjDialog::getNumberOfElements() {
+    int cEditObjSoundTrigger::getNumberOfElements() {
         return vsStandardSounds.size();
     }
 

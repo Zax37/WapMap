@@ -9,7 +9,6 @@ namespace ObjEdit {
     private:
         SHR::Lab *labNumber, *labActivate;
         SHR::TextField *tfNumber;
-        SHR::Win *win;
         cProcPickRect *hRectPick;
 
         friend class cObjPropVP;

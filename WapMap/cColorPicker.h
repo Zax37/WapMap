@@ -18,7 +18,7 @@ private:
     WIDG::Viewport *vp;
     DWORD dwColor;
 public:
-    cColorPicker(SHR::Contener *dest, int x, int y, DWORD dwInitColor = 0xFFFFFFFF, bool bWithAlpha = 0);
+    cColorPicker(SHR::Container *dest, int x, int y, DWORD dwInitColor = 0xFFFFFFFF, bool bWithAlpha = 0);
 
     ~cColorPicker();
 

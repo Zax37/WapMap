@@ -59,10 +59,10 @@ namespace ObjEdit {
     class cObjEdit;
 
     class cObjEditVP : public WIDG::VpCallback {
-    private:
-        cObjEdit *m_hOwn;
+    protected:
+		cObjEdit *m_hOwn;
     public:
-        virtual void Draw(int iCode);
+		virtual void Draw(int iCode);
 
         cObjEditVP(cObjEdit *owner) { m_hOwn = owner; };
     };
@@ -88,7 +88,7 @@ namespace ObjEdit {
         DWORD dwHighlightColor;
         bool bAllowDragging;
         bool _bDragging;
-        cObjEditVP *vpCB;
+		cObjEditVP *vpCB;
 
         WWD::Object *hOrigObj;
         WWD::Object *hTempObj;
@@ -98,6 +98,7 @@ namespace ObjEdit {
         bool bKill;
         cObjEditAL *hAL;
 
+		SHR::Win *win;
         SHR::But *_butAddNext, *_butSave;
 
         friend class cObjEditVP;
@@ -118,7 +119,7 @@ namespace ObjEdit {
 
         virtual void RenderObjectOverlay() {};
 
-        void Think(bool bMouseConsumed);
+        virtual void Think(bool bMouseConsumed);
 
         virtual void Action(const gcn::ActionEvent &actionEvent) {};
 
@@ -144,6 +145,8 @@ namespace ObjEdit {
         virtual void *GenerateNextObjectData() { return NULL; };
 
         virtual void ApplyDataFromPrevObject(void *ptr) {};
+		
+		virtual bool IsAnyInputFocused();
     };
 };
 

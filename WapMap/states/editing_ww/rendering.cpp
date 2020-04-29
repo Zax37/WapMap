@@ -45,6 +45,7 @@ bool State::ObjSortCoordZ(WWD::Object *a, WWD::Object *b) {
 }
 
 void State::EditingWW::DrawTileAtrib(WWD::TileAtrib *atrib, float posx, float posy, float width, float height) {
+	if (!atrib) return;
     float wid = 64.0f * width;
     float hei = 64.0f * height;
     if (atrib->GetType() == WWD::AtribType_Single) {
@@ -2328,7 +2329,7 @@ void State::EditingWW::DrawObjSearch() {
         WWD::Object *obj = GetActivePlane()->GetObjectByIterator(vObjSearchResults[i].first);
         hgeSprite *spr = SprBank->GetObjectSprite(obj);
         spr->SetColor(0xFFFFFFFF);
-        spr->SetFlip(GetUserDataFromObj(obj)->GetFlipX(), GetUserDataFromObj(obj)->GetFlipY());
+		spr->SetFlip(GetUserDataFromObj(obj)->GetFlipX(), GetUserDataFromObj(obj)->GetFlipY(), true);
         float fScale = 1;
         if (spr->GetWidth() > 130 || spr->GetHeight() > 130)
             fScale = 130 / (spr->GetWidth() > spr->GetHeight() ? spr->GetWidth() : spr->GetHeight());

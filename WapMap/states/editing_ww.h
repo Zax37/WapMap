@@ -135,63 +135,122 @@ typedef unsigned long DWORD;
 #define LMODEL_SEARCHTERM       13
 #define LMODEL_PLANESPROP       14
 
-#define OBJMENU_PROPERTIES   0
-#define OBJMENU_DUPLICATE    1
-#define OBJMENU_MOVE         2
-#define OBJMENU_COPYTOCB     3
-#define OBJMENU_DELETE       4
-#define OBJMENU_CUT          5
-#define OBJMENU_COPY         6
-#define OBJMENU_PASTE        7
-#define OBJMENU_USEASBRUSH   8
-#define OBJMENU_SETSPAWNP    9
-#define OBJMENU_NEWOBJ       10
-#define OBJMENU_EDIT         11
-#define OBJMENU_EDITLOGIC    12
+enum OBJMENU {
+	PROPERTIES = 0,
+	DUPLIC,
+	MOVE,
+	COPYTOCB,
+	DELETE,
+	CUT,
+	COPY,
+	PASTE,
+	USEASBRUSH,
+	SETSPAWNP,
+	NEWOBJ,
+	EDIT,
+	EDITLOGIC,
 
-#define OBJMENU_ZCOORD       12
-#define OBJMENU_ZC_INC       13
-#define OBJMENU_ZC_INC2      14
-#define OBJMENU_ZC_INC3      15
-#define OBJMENU_ZC_DEC       16
-#define OBJMENU_ZC_DEC2      17
-#define OBJMENU_ZC_DEC3      18
-#define OBJMENU_ZC_BACK      19
-#define OBJMENU_ZC_ACTION    20
-#define OBJMENU_ZC_FRONT     21
-#define OBJMENU_ALIGN        22
-#define OBJMENU_ALIGN_HOR    23
-#define OBJMENU_ALIGN_VERT   24
-#define OBJMENU_SPECIFICPROP 25
-#define OBJMENU_SPACE        26
-#define OBJMENU_SPACE_HOR    27
-#define OBJMENU_SPACE_VERT   28
-#define OBJMENU_TESTFROMHERE 29
+	ZCOORD,
+	ZC_INC,
+	ZC_INC2,
+	ZC_INC3,
+	ZC_DEC,
+	ZC_DEC2,
+	ZC_DEC3,
+	ZC_BACK,
+	ZC_ACTION,
+	ZC_FRONT,
+	ALIGN,
+	ALIGN_HOR,
+	ALIGN_VERT,
+	SPECIFICPROP,
+	SPACE,
+	SPACE_HOR,
+	SPACE_VERT,
+	TESTFROMHERE,
 
-#define OBJMENU_FLAGS        30
+	FLAGS,
+	FLAGS_DRAW,
+	FLAGS_DRAW_NODRAW,
+	FLAGS_DRAW_FLIPX,
+	FLAGS_DRAW_FLIPY,
+	FLAGS_DRAW_FLASH,
 
-#define OBJMENU_FLAGS_DRAW                    31
-#define OBJMENU_FLAGS_DRAW_NODRAW             32
-#define OBJMENU_FLAGS_DRAW_FLIPX              33
-#define OBJMENU_FLAGS_DRAW_FLIPY              34
-#define OBJMENU_FLAGS_DRAW_FLASH              35
+	FLAGS_DYNAMIC,
+	FLAGS_DYNAMIC_NOHIT,
+	FLAGS_DYNAMIC_ALWAYSACTIVE,
+	FLAGS_DYNAMIC_SAFE,
+	FLAGS_DYNAMIC_AUTOHITDAMAGE,
 
-#define OBJMENU_FLAGS_DYNAMIC                 36
-#define OBJMENU_FLAGS_DYNAMIC_NOHIT           37
-#define OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE    38
-#define OBJMENU_FLAGS_DYNAMIC_SAFE            39
-#define OBJMENU_FLAGS_DYNAMIC_AUTOHITDAMAGE   40
+	FLAGS_ADDITIONAL,
+	FLAGS_ADDITIONAL_DIFFICULT,
+	FLAGS_ADDITIONAL_EYECANDY,
+	FLAGS_ADDITIONAL_HIGHDETAIL,
+	FLAGS_ADDITIONAL_MULTIPLAYER,
+	FLAGS_ADDITIONAL_EXTRAMEMORY,
+	FLAGS_ADDITIONAL_FASTCPU,
 
-#define OBJMENU_FLAGS_ADDITIONAL              41
-#define OBJMENU_FLAGS_ADDITIONAL_DIFFICULT    42
-#define OBJMENU_FLAGS_ADDITIONAL_EYECANDY     43
-#define OBJMENU_FLAGS_ADDITIONAL_HIGHDETAIL   44
-#define OBJMENU_FLAGS_ADDITIONAL_MULTIPLAYER  45
-#define OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY  46
-#define OBJMENU_FLAGS_ADDITIONAL_FASTCPU      47
+	ADV_WARP_GOTO,
+	ADV_CONTAINER_RAND,
+};
 
-#define OBJMENU_ADV_WARP_GOTO      100
-#define OBJMENU_ADV_CONTAINER_RAND 101
+#define OBJMENU_PROPERTIES   OBJMENU::PROPERTIES
+#define OBJMENU_DUPLICATE    OBJMENU::DUPLIC
+#define OBJMENU_MOVE         OBJMENU::MOVE
+#define OBJMENU_COPYTOCB     OBJMENU::COPYTOCB
+#define OBJMENU_DELETE       OBJMENU::DELETE
+#define OBJMENU_CUT          OBJMENU::CUT
+#define OBJMENU_COPY         OBJMENU::COPY
+#define OBJMENU_PASTE        OBJMENU::PASTE
+#define OBJMENU_USEASBRUSH   OBJMENU::USEASBRUSH
+#define OBJMENU_SETSPAWNP    OBJMENU::SETSPAWNP
+#define OBJMENU_NEWOBJ       OBJMENU::NEWOBJ
+#define OBJMENU_EDIT         OBJMENU::EDIT
+#define OBJMENU_EDITLOGIC    OBJMENU::EDITLOGIC
+
+#define OBJMENU_ZCOORD       OBJMENU::ZCOORD
+#define OBJMENU_ZC_INC       OBJMENU::ZC_INC
+#define OBJMENU_ZC_INC2      OBJMENU::ZC_INC2
+#define OBJMENU_ZC_INC3      OBJMENU::ZC_INC3
+#define OBJMENU_ZC_DEC       OBJMENU::ZC_DEC
+#define OBJMENU_ZC_DEC2      OBJMENU::ZC_DEC2
+#define OBJMENU_ZC_DEC3      OBJMENU::ZC_DEC3
+#define OBJMENU_ZC_BACK      OBJMENU::ZC_BACK
+#define OBJMENU_ZC_ACTION    OBJMENU::ZC_ACTION
+#define OBJMENU_ZC_FRONT     OBJMENU::ZC_FRONT
+#define OBJMENU_ALIGN        OBJMENU::ALIGN
+#define OBJMENU_ALIGN_HOR    OBJMENU::ALIGN_HOR
+#define OBJMENU_ALIGN_VERT   OBJMENU::ALIGN_VERT
+#define OBJMENU_SPECIFICPROP OBJMENU::SPECIFICPROP
+#define OBJMENU_SPACE        OBJMENU::SPACE
+#define OBJMENU_SPACE_HOR    OBJMENU::SPACE_HOR
+#define OBJMENU_SPACE_VERT   OBJMENU::SPACE_VERT
+#define OBJMENU_TESTFROMHERE OBJMENU::TESTFROMHERE
+
+#define OBJMENU_FLAGS        OBJMENU::FLAGS
+
+#define OBJMENU_FLAGS_DRAW                    OBJMENU::FLAGS_DRAW
+#define OBJMENU_FLAGS_DRAW_NODRAW             OBJMENU::FLAGS_DRAW_NODRAW
+#define OBJMENU_FLAGS_DRAW_FLIPX              OBJMENU::FLAGS_DRAW_FLIPX
+#define OBJMENU_FLAGS_DRAW_FLIPY              OBJMENU::FLAGS_DRAW_FLIPY
+#define OBJMENU_FLAGS_DRAW_FLASH              OBJMENU::FLAGS_DRAW_FLASH
+
+#define OBJMENU_FLAGS_DYNAMIC                 OBJMENU::FLAGS_DYNAMIC
+#define OBJMENU_FLAGS_DYNAMIC_NOHIT           OBJMENU::FLAGS_DYNAMIC_NOHIT
+#define OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE    OBJMENU::FLAGS_DYNAMIC_ALWAYSACTIVE
+#define OBJMENU_FLAGS_DYNAMIC_SAFE            OBJMENU::FLAGS_DYNAMIC_SAFE
+#define OBJMENU_FLAGS_DYNAMIC_AUTOHITDAMAGE   OBJMENU::FLAGS_DYNAMIC_AUTOHITDAMAGE
+
+#define OBJMENU_FLAGS_ADDITIONAL              OBJMENU::FLAGS_ADDITIONAL
+#define OBJMENU_FLAGS_ADDITIONAL_DIFFICULT    OBJMENU::FLAGS_ADDITIONAL_DIFFICULT
+#define OBJMENU_FLAGS_ADDITIONAL_EYECANDY     OBJMENU::FLAGS_ADDITIONAL_EYECANDY
+#define OBJMENU_FLAGS_ADDITIONAL_HIGHDETAIL   OBJMENU::FLAGS_ADDITIONAL_HIGHDETAIL
+#define OBJMENU_FLAGS_ADDITIONAL_MULTIPLAYER  OBJMENU::FLAGS_ADDITIONAL_MULTIPLAYER
+#define OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY  OBJMENU::FLAGS_ADDITIONAL_EXTRAMEMORY
+#define OBJMENU_FLAGS_ADDITIONAL_FASTCPU      OBJMENU::FLAGS_ADDITIONAL_FASTCPU
+
+#define OBJMENU_ADV_WARP_GOTO      OBJMENU::ADV_WARP_GOTO
+#define OBJMENU_ADV_CONTAINER_RAND OBJMENU::ADV_CONTAINER_RAND
 
 #define TILMENU_CUT     0
 #define TILMENU_COPY    1
@@ -426,7 +485,7 @@ namespace State {
         SHR::ContextModel *conmodPaste, *conmodSpawnPoint, *conmodAtEmpty;//, * conmodUseAsBrush;
         std::vector<TileGhost> vTileGhosting;
 
-        SHR::Contener *conResizeUp, *conResizeLeft, *conResizeRight, *conResizeDown;
+        SHR::Container *conResizeUp, *conResizeLeft, *conResizeRight, *conResizeDown;
         SHR::But *butExtLayerLeft, *butExtLayerRight, *butExtLayerUp, *butExtLayerDown, *butExtLayerUR, *butExtLayerUL, *butExtLayerDL,
                 *butExtLayerDR;
 
@@ -440,7 +499,7 @@ namespace State {
 
         SHR::But *butIconMove;
 
-        SHR::Contener *conWriteID;
+        SHR::Container *conWriteID;
         SHR::TextField *tfWriteID;
 
         cAutoUpdater *hAU;
@@ -501,7 +560,7 @@ namespace State {
         float fdbAniTimer;
 
         SHR::TabbedArea *tadbTabs;
-        SHR::Contener *condbTiles, *condbImages, *condbAnims, *condbSounds;
+        SHR::Container *condbTiles, *condbImages, *condbAnims, *condbSounds;
         SHR::Lab *labdbAnimSpeed, *labdbAniImageSet;
         SHR::DropDown *dddbAnimSpeed;
         SHR::TextField *tfdbAniImageSet;
@@ -686,7 +745,7 @@ namespace State {
 
         WWD::Object *GetObjUnderWorldPos(int mx, int my);
 
-        SHR::But *MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener *dest, bool enable = 1, bool visible = 1,
+        SHR::But *MakeButton(int x, int y, EnumGfxIcons icon, SHR::Container *dest, bool enable = 1, bool visible = 1,
                              gcn::ActionListener *actionListener = NULL);
 
         void RenderToViewportBuffer();
@@ -751,7 +810,7 @@ namespace State {
         cBankAni *hAniBank;
         cBankLogic *hCustomLogics;
         WWD::Object *hStartingPosObj;
-        SHR::Contener *conMain;
+        SHR::Container *conMain;
 
         float fCamX, fCamY;
         float fZoom;
@@ -837,6 +896,7 @@ namespace State {
 
         void SetAnchorPlaneProperties(int anchor);
 
+        void HandleMirrorAndInvertHotkeys();
         void HandleHotkeys();
 
         //events
@@ -921,7 +981,7 @@ namespace State {
         SHR::But *butspacingOK;
 
         //welcome screen
-        SHR::Contener *winWelcome;
+        SHR::Container *winWelcome;
         SHR::But *butwsNew, *butwsOpen, *butwsRecently, *butwsWhatsnew;
         WIDG::Viewport *vpws;
         SHR::Lab *labwsRecently;
@@ -931,7 +991,7 @@ namespace State {
         void UpdateSettings();
 
         //wincrashretrieve
-        SHR::Contener *conCrashRetrieve, *conRecentFiles;
+        SHR::Container *conCrashRetrieve, *conRecentFiles;
         SHR::But *butCrashRetrieve;
         WIDG::Viewport *vpCrashRetrieve;
         char *szCrashRetrieve[10];

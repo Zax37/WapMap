@@ -417,7 +417,7 @@ namespace SHR {
 
     void Context::widgetShown(const Event &event) {
         bHide = 0;
-        if (iSelectedIt != -1) vElements[iSelectedIt]->SetFocused(0);
+        if (iSelectedIt != -1 && iSelectedIt < vElements.size()) vElements[iSelectedIt]->SetFocused(0);
         iSelectedIt = -1;
         iSelected = -1;
     }

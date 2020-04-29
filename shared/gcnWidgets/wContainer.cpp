@@ -19,7 +19,7 @@ using namespace gcn;
 
 namespace SHR {
 
-    Contener::Contener() {
+    Container::Container() {
         mOpaque = true;
         mForegroundColor = 0xFF00FF;
         bHide = 0;
@@ -28,11 +28,11 @@ namespace SHR {
         addWidgetListener(this);
     }
 
-    Contener::~Contener() {
+    Container::~Container() {
 
     }
 
-    void Contener::setShow(bool b) {
+    void Container::setShow(bool b) {
         bHide = !b;
         if (!isVisible() && b) {
             setVisible(1);
@@ -40,16 +40,16 @@ namespace SHR {
         }
     }
 
-    void Contener::widgetShown(const Event &event) {
+    void Container::widgetShown(const Event &event) {
         bHide = 0;
     }
 
-    void Contener::widgetHidden(const Event &event) {
+    void Container::widgetHidden(const Event &event) {
         mAlphaMod = 0;
         bHide = 0;
     }
 
-    void Contener::draw(Graphics *graphics) {
+    void Container::draw(Graphics *graphics) {
         if (!bHide && mAlphaMod < 1.0f) {
             mAlphaMod += hge->Timer_GetDelta() * 5.0f;
             if (mAlphaMod > 1.0f) mAlphaMod = 1.0f;
@@ -70,32 +70,32 @@ namespace SHR {
         drawChildren(graphics);
     }
 
-    void Contener::setOpaque(bool opaque) {
+    void Container::setOpaque(bool opaque) {
         mOpaque = opaque;
     }
 
-    bool Contener::isOpaque() const {
+    bool Container::isOpaque() const {
         return mOpaque;
     }
 
-    void Contener::add(Widget *widget) {
+    void Container::add(Widget *widget) {
         BasicContainer::add(widget);
     }
 
-    void Contener::add(Widget *widget, int x, int y) {
+    void Container::add(Widget *widget, int x, int y) {
         widget->setPosition(x, y);
         BasicContainer::add(widget);
     }
 
-    void Contener::remove(Widget *widget) {
+    void Container::remove(Widget *widget) {
         BasicContainer::remove(widget);
     }
 
-    void Contener::clear() {
+    void Container::clear() {
         BasicContainer::clear();
     }
 
-    gcn::Widget *Contener::findWidgetById(const std::string &id) {
+    gcn::Widget *Container::findWidgetById(const std::string &id) {
         return BasicContainer::findWidgetById(id);
     }
 }

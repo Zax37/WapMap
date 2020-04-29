@@ -11,7 +11,6 @@ namespace ObjEdit {
     private:
         SHR::RadBut *rbType[5], *rbType2[2], *rbFlags[4];
         SHR::Lab *labType, *labType2, *labBehaviour, *labDamage, *labWarpDest;
-        SHR::Win *win;
         SHR::CBox *cbPatrol;
         SHR::Lab *labTreasures, *labMoveArea;
         SHR::InvTab *invTabs[9];

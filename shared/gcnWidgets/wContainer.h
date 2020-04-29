@@ -12,12 +12,12 @@
 using namespace gcn;
 
 namespace SHR {
-    class GCN_CORE_DECLSPEC Contener : public gcn::BasicContainer,
+    class GCN_CORE_DECLSPEC Container : public gcn::BasicContainer,
                                        public gcn::WidgetListener {
     public:
-        Contener();
+        Container();
 
-        virtual ~Contener();
+        virtual ~Container();
 
         void setOpaque(bool opaque);
 

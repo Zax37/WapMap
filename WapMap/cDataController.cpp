@@ -620,7 +620,7 @@ bool cDataController::MountFile(std::string strMountPoint, cFile f) {
                     return 0;
 
             vMountEntries[i].vFiles.push_back(f);
-            GV->Console->Printf("%d files mounted @ %s", int(vMountEntries[i].vFiles.size()), strMountPoint.c_str());
+            //GV->Console->Printf("%d files mounted @ %s", int(vMountEntries[i].vFiles.size()), strMountPoint.c_str());
             _SortMountEntry(i);
             /*for(int z=0;z<vMountEntries[i].vFiles.size();z++){
              printf("%d", GetFeedPriority(vMountEntries[i].vFiles[z].hFeed));
@@ -633,7 +633,7 @@ bool cDataController::MountFile(std::string strMountPoint, cFile f) {
     n.hAsset = 0;
     n.strMountPoint = strMountPoint;
     vMountEntries.push_back(n);
-    GV->Console->Printf("New mount @ %s", strMountPoint.c_str());
+    //GV->Console->Printf("New mount @ %s", strMountPoint.c_str());
     return 1;
 }
 

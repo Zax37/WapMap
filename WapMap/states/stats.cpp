@@ -22,7 +22,7 @@ void State::MapStats::Init() {
     gui = new gcn::Gui();
     gui->setGraphics(GV->gcnGraphics);
     gui->setInput(GV->gcnInput);
-    conMain = new SHR::Contener();
+    conMain = new SHR::Container();
     conMain->setDimension(
             gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
     conMain->setOpaque(0);
@@ -41,16 +41,16 @@ void State::MapStats::Init() {
     tabbedArea = new SHR::TabbedArea();
     tabbedArea->setDimension(gcn::Rectangle(0, 0, 625, 470));
 
-    conGen = new SHR::Contener();
+    conGen = new SHR::Container();
     conGen->setDimension(gcn::Rectangle(0, 0, 620, 460));
-    conObjects = new SHR::Contener();
+    conObjects = new SHR::Container();
     conObjects->setDimension(gcn::Rectangle(0, 0, 620, 460));
     statsPl = new PlaneStat[hMap->GetPlanesCount()];
     iObjCount = 0;
     int treasures[10];
     for (int i = 0; i < 10; i++) treasures[i] = 0;
     for (int i = 0; i < hMap->GetPlanesCount(); i++) {
-        statsPl[i].conPl = new SHR::Contener();
+        statsPl[i].conPl = new SHR::Container();
         statsPl[i].conPl->setDimension(gcn::Rectangle(0, 0, 620, 460));
         statsPl[i].tileTypes = new SHR::cPieChart();
         int atrcount[6];

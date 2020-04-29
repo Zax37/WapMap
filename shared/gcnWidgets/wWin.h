@@ -12,7 +12,7 @@
 using namespace gcn;
 
 namespace SHR {
-    class GCN_CORE_DECLSPEC Win : public Contener,
+    class GCN_CORE_DECLSPEC Win : public Container,
                                   public MouseListener {
     public:
         Win(guiParts *Parts);
@@ -70,6 +70,8 @@ namespace SHR {
         void setShadow(bool b) { bDrawShadow = b; };
 
         virtual bool showHand();
+
+		bool gotFocus();
 
     protected:
         guiParts *hGfx;

@@ -7,7 +7,6 @@
 namespace ObjEdit {
     class cEditObjText : public cObjEdit {
     private:
-        SHR::Win *win;
         std::vector<WWD::Object *> hObjects;
         SHR::TextBox *tbText;
         SHR::ScrollArea *saText;

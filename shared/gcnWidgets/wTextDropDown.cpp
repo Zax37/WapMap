@@ -476,7 +476,9 @@ namespace SHR {
     }
 
     void TextDropDown::action(const ActionEvent &actionEvent) {
-        foldUp();
+		if (actionEvent.getId() != "WHEEL") {
+			foldUp();
+		}
         releaseModalMouseInputFocus();
         mActionEventId = "SELECTION";
         distributeActionEvent();

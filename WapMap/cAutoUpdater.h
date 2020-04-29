@@ -83,7 +83,7 @@ public:
     SHR::ProgressBar *pbProgress;
     WIDG::Viewport *vpActualize;
 
-    void PopupQuestion(SHR::Contener *dest);
+    void PopupQuestion(SHR::Container *dest);
 
     void TransformToDownload();
 

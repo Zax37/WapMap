@@ -34,12 +34,13 @@ void State::EditingWW::NewMap_Open() {
     NewMap_data->sliBaseLvls->setValue(1050 - 440);
 #endif
     NewMap_data->sliBaseLvls->setOrientation(SHR::Slider::VERTICAL);
-    NewMap_data->sliBaseLvls->setDimension(gcn::Rectangle(0, 0, 11, 440));
-    NewMap_data->winNewMap->add(NewMap_data->sliBaseLvls, 625, 85);
+    NewMap_data->sliBaseLvls->setDimension(gcn::Rectangle(0, 0, 11, 441));
+	NewMap_data->sliBaseLvls->setMarkerLength(50);
+    NewMap_data->winNewMap->add(NewMap_data->sliBaseLvls, 620, 84);
 
     NewMap_data->labName = new SHR::Lab(GETL2S("NewMap", "MapName"));
     NewMap_data->labName->adjustSize();
-    NewMap_data->winNewMap->add(NewMap_data->labName, 25, 15);
+	NewMap_data->winNewMap->add(NewMap_data->labName, 25, 15);
 
     NewMap_data->labAuthor = new SHR::Lab(GETL2S("NewMap", "MapAuthor"));
     NewMap_data->labAuthor->adjustSize();
@@ -122,7 +123,7 @@ void State::EditingWW::NewMap_Think() {
     hge->Gfx_SetClipping(wx + 27, wy + 101, 600, 440);
     int slival = NewMap_data->sliBaseLvls->getScaleEnd() - NewMap_data->sliBaseLvls->getValue();
     int starty = slival / 150;
-    if (mx > wx + 27 && mx < wx + 627 && my > wy + 101 && my < wy + 491 && bMouseOn)
+    if (mx > wx + 27 && mx < wx + 627 && my > wy + 101 && my < wy + 540 && bMouseOn)
         NewMap_data->sliBaseLvls->setValue(NewMap_data->sliBaseLvls->getValue() +
                                            NewMap_data->sliBaseLvls->getStepLength() * hge->Input_GetMouseWheel());
 #ifdef WM_EXT_TILESETS
@@ -170,6 +171,9 @@ void State::EditingWW::NewMap_Think() {
                 GV->sprLevels[14]->Render(dx, dy);
             }
     hge->Gfx_SetClipping();
+	hge->Gfx_RenderLine(wx + 27, wy + 101, wx + 27 + 600, wy + 101, GV->colBaseDark);
+	hge->Gfx_RenderLine(wx + 27, wy + 101, wx + 27, wy + 101 + 439, GV->colBaseDark);
+	hge->Gfx_RenderLine(wx + 27, wy + 101 + 440, wx + 27 + 600, wy + 101 + 440, GV->colBaseDark);
 }
 
 void State::EditingWW::NewMap_OK() {

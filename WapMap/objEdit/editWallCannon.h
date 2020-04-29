@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjWallCannon : public cObjEdit {
     private:
         SHR::RadBut *rbType[2];
-        SHR::Win *win;
         SHR::Lab *labSpeedX, *labSpeedY, *labDir, *labLinSpeed, *labAngle;
         SHR::TextField *tfSpeedX, *tfSpeedY, *tfAngle, *tfLinSpeed;
         bool bOrient;

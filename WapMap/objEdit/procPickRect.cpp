@@ -141,7 +141,7 @@ namespace ObjEdit {
             hEvList->action(actionEvent);
     }
 
-    void cProcPickRect::AddWidgets(SHR::Contener *dest, int x, int y) {
+    void cProcPickRect::AddWidgets(SHR::Container *dest, int x, int y) {
         for (int i = 0; i < 4; i++) {
             dest->add(lab[i], x, y + 22 * i);
             dest->add(tf[i], x + 25, y + 22 * i);

@@ -9,7 +9,6 @@ namespace ObjEdit {
         SHR::Lab *labJumpHeight;
         SHR::TextField *tfJumpHeight;
         SHR::But *butPick;
-        SHR::Win *win;
 
         friend class cObjPropVP;
 

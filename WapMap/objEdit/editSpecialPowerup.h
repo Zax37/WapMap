@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjSpecialPowerup : public cObjEdit {
     private:
         SHR::RadBut *rbType[8];
-        SHR::Win *win;
         SHR::Lab *labTime;
         SHR::CBox *cbDontDisappear;
         SHR::TextField *tfTime;

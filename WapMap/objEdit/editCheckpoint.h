@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjCheckpoint : public cObjEdit {
     private:
         SHR::RadBut *rbType[2];
-        SHR::Win *win;
         float fCpAnimTimer, fScpAnimTimer;
         int iCpAnimFrame, iScpAnimFrame;
 

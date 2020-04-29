@@ -138,9 +138,6 @@
     <ClCompile Include="objedit\editCurse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="objedit\editDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="objedit\editElevator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -562,6 +559,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\ZipLib\detail\ZipLocalFileHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objedit\editSoundTrigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

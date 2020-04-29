@@ -7,10 +7,6 @@
 extern HGE *hge;
 
 namespace ObjEdit {
-    void cObjEditVP::Draw(int iCode) {
-        m_hOwn->Draw();
-    }
-
     void cObjEditAL::action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == m_hOwn->_butAddNext) {
             m_hOwn->_butSave->simulatePress();
@@ -35,8 +31,8 @@ namespace ObjEdit {
         hOrigObj = obj;
         hState = st;
         hAL = new cObjEditAL(this);
-        vpCB = new cObjEditVP(this);
-        vpAdv = new WIDG::Viewport(vpCB, 0);
+		vpCB = new cObjEditVP(this);
+		vpAdv = new WIDG::Viewport(vpCB, 0);
         bKill = 0;
         hTempObj = new WWD::Object(hOrigObj);
         hState->GetActivePlane()->AddObjectAndCalcID(hTempObj);
@@ -88,6 +84,7 @@ namespace ObjEdit {
             mx > hState->vPort->GetX() + hState->vPort->GetWidth() ||
             my > hState->vPort->GetY() + hState->vPort->GetHeight())
             bMouseIn = 0;
+
         if (!bMouseConsumed && bMouseIn) {
             int wmx = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
                     wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
@@ -221,6 +218,11 @@ namespace ObjEdit {
         return 0;
     }
 
+	bool cObjEdit::IsAnyInputFocused()
+	{
+		return win->gotFocus();
+	}
+
     void cObjEdit::SaveChanges() {
         bObjectSaved = 1;
         bChangesMade = ChangesMade();
@@ -234,4 +236,8 @@ namespace ObjEdit {
         hState->MarkUnsaved();
         hState->vPort->MarkToRedraw(1);
     }
+	void cObjEditVP::Draw(int iCode)
+	{
+		m_hOwn->Draw();
+	}
 }

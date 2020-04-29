@@ -21,7 +21,7 @@ namespace State {
     };
 
     struct PlaneStat {
-        SHR::Contener *conPl;
+        SHR::Container *conPl;
         SHR::cPieChart *tileTypes;
     };
 
@@ -42,10 +42,10 @@ namespace State {
 
         WWD::Parser *hMap;
         gcn::Gui *gui;
-        SHR::Contener *conMain;
+        SHR::Container *conMain;
         SHR::Win *winStat;
         SHR::TabbedArea *tabbedArea;
-        SHR::Contener *conGen, *conObjects;
+        SHR::Container *conGen, *conObjects;
 
         SHR::Lab *labTreasures, *labMapName, *labMapAuthor, *labMapDate, *labMapObjectCount, *labMapPerfectScore, *labMapLayersCount;
 

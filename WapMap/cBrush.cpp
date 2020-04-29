@@ -507,7 +507,7 @@ void cBrush::AddSetting(cBrushSetting *n) {
     vSettings.push_back(n);
 }
 
-void cBrush::AddSettingsToContainer(SHR::Contener *con, int sx, int sy) {
+void cBrush::AddSettingsToContainer(SHR::Container *con, int sx, int sy) {
     for (int i = 0; i < vSettings.size(); i++) {
         con->add(vSettings[i]->labDesc, sx, sy + i * 25);
         con->add(vSettings[i]->hWidg, sx + 125, sy + i * 25);
@@ -515,7 +515,7 @@ void cBrush::AddSettingsToContainer(SHR::Contener *con, int sx, int sy) {
     hconSettings = con;
 }
 
-void cBrush::RemoveSettingsFromContainer(SHR::Contener *con) {
+void cBrush::RemoveSettingsFromContainer(SHR::Container *con) {
     for (int i = 0; i < vSettings.size(); i++) {
         con->remove(vSettings[i]->labDesc);
         con->remove(vSettings[i]->hWidg);

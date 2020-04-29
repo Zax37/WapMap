@@ -41,7 +41,7 @@ namespace State {
         gcn::Gui *gui;
         SHR::Win *myWin;
         SHR::ScrollArea *saPreview;
-        SHR::Contener *conPreview;
+        SHR::Container *conPreview;
         SHR::But *butReturn;
         SHR::Slider *sliZoom;
         float fZoomMod;

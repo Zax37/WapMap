@@ -25,7 +25,7 @@ namespace SHR {
         strcpy(m_szTooltip, n);
 
         char *pch;
-        pch = strchr(m_szTooltip, ' \n');
+        pch = strchr(m_szTooltip, '\n');
         m_iTooltipLC = 1;
         while (pch != NULL) {
             m_iTooltipLC++;

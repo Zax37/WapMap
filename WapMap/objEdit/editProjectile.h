@@ -10,7 +10,6 @@ namespace ObjEdit {
         SHR::TextField *tfSpeed, *tfDelay, *tfDamage;
         SHR::Lab *labDir;
         SHR::But *butDir[4];
-        SHR::Win *win;
 
         SHR::Lab *labActivRect;
         SHR::Lab *labX1, *labY1, *labX2, *labY2;

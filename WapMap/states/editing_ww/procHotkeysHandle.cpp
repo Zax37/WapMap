@@ -6,11 +6,36 @@
 
 extern HGE *hge;
 
+void State::EditingWW::HandleMirrorAndInvertHotkeys()
+{
+	if (iActiveTool == EWW_TOOL_EDITOBJ) {
+		if (hEditObj->IsAnyInputFocused()) return;
+		vObjectsPicked = { hEditObj->GetTempObj() };
+	}
+	int flag = hge->Input_KeyDown(HGEK_I) ? WWD::Flag_dr_Invert : WWD::Flag_dr_Mirror;
+
+	for (int i = 0; i < vObjectsPicked.size(); i++) {
+		if (vObjectsPicked[i]->GetDrawFlags() & flag)
+			vObjectsPicked[i]->SetDrawFlags(
+			(WWD::OBJ_DRAW_FLAGS) (int(vObjectsPicked[i]->GetDrawFlags()) - flag));
+		else
+			vObjectsPicked[i]->SetDrawFlags(
+			(WWD::OBJ_DRAW_FLAGS) (int(vObjectsPicked[i]->GetDrawFlags()) + flag));
+
+		GetUserDataFromObj(vObjectsPicked[i])->SyncToObj();
+	}
+
+	MarkUnsaved();
+	vPort->MarkToRedraw(1);
+}
+
 void State::EditingWW::HandleHotkeys() {
     if (iActiveTool == EWW_TOOL_EDITOBJ) {
         if (hge->Input_KeyDown(HGEK_ESCAPE)) {
             hEditObj->SetKill(1);
-        }
+		} else if (hge->Input_KeyDown(HGEK_M) || hge->Input_KeyDown(HGEK_I)) {
+			HandleMirrorAndInvertHotkeys();
+		}
         return;
     }
     if (!GV->StateMgr->IsAppFocused()) return;
@@ -124,18 +149,8 @@ void State::EditingWW::HandleHotkeys() {
             GetUserDataFromObj(vObjectsPicked[i])->SyncToObj();
         }
         vPort->MarkToRedraw(1);
-    } else if (hge->Input_KeyDown(HGEK_M) && iMode == EWW_MODE_OBJECT && vObjectsPicked.size() != 0 &&
-               vPort->GetWidget()->isMouseOver()) {
-        for (int i = 0; i < vObjectsPicked.size(); i++) {
-            if (vObjectsPicked[i]->GetDrawFlags() & WWD::Flag_dr_Mirror)
-                vObjectsPicked[i]->SetDrawFlags(
-                        (WWD::OBJ_DRAW_FLAGS) (int(vObjectsPicked[i]->GetDrawFlags()) - WWD::Flag_dr_Mirror));
-            else
-                vObjectsPicked[i]->SetDrawFlags(
-                        (WWD::OBJ_DRAW_FLAGS) (int(vObjectsPicked[i]->GetDrawFlags()) + WWD::Flag_dr_Mirror));
-        }
-        MarkUnsaved();
-        vPort->MarkToRedraw(1);
+    } else if ((hge->Input_KeyDown(HGEK_M) || hge->Input_KeyDown(HGEK_I)) && iMode == EWW_MODE_OBJECT && vObjectsPicked.size() != 0 && vPort->GetWidget()->isMouseOver()) {
+		HandleMirrorAndInvertHotkeys();
     } else if (bFocus && hge->Input_KeyDown(HGEK_HOME)) {
         fCamX = hParser->GetStartX() - (vPort->GetWidth() / 2 / fZoom);
         fCamY = hParser->GetStartY() - (vPort->GetHeight() / 2 / fZoom);

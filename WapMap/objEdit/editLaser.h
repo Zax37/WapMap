@@ -8,7 +8,6 @@ namespace ObjEdit {
     private:
         SHR::Lab *labTimeOff, *labDmg;
         SHR::TextField *tfTimeOff, *tfDmg;
-        SHR::Win *win;
 
         friend class cObjPropVP;
 

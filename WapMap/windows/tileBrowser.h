@@ -15,7 +15,7 @@ private:
     SHR::Lab *labTileSets, *labTileSetName, *labTileSetChecksum, *labTileCount,
             *labTileSetNameV, *labTileSetChecksumV, *labTileCountV;
     SHR::ScrollArea *saTiles, *saTileSets;
-    SHR::Contener *conTiles, *conTileSets;
+    SHR::Container *conTiles, *conTileSets;
     WIDG::Viewport *vpTileBrowser;
     SHR::But *butImportTileSet, *butDeleteTileSet, *butRenameTileSet, *butBrowseFolder, *butDeleteTile, *butChangeTileID, *butImageDetails,
             *butAddTiles;

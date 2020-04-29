@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjWarp : public cObjEdit {
     private:
         SHR::RadBut *rbType[3];
-        SHR::Win *win;
         SHR::But *butPick;
         SHR::TextField *tfX, *tfY;
         float fCpAnimTimer, fScpAnimTimer;

@@ -48,7 +48,7 @@ namespace SHR {
 
         Context *GetCascade() { return hCascade; };
 
-        bool IsFocused() { return bFocused; };
+        bool IsAnyInputFocused() { return bFocused; };
 
         Context *GetParent() { return hParent; };
 

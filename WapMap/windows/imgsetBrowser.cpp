@@ -27,7 +27,7 @@ winImageSetBrowser::winImageSetBrowser() {
     labImageSets->adjustSize();
     myWin->add(labImageSets, 5, 10);
 
-    conImageSets = new SHR::Contener();
+    conImageSets = new SHR::Container();
     conImageSets->setDimension(gcn::Rectangle(0, 0, 100, 100));
     conImageSets->setOpaque(0);
     saImageSets = new SHR::ScrollArea(conImageSets, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
@@ -36,7 +36,7 @@ winImageSetBrowser::winImageSetBrowser() {
     myWin->add(saImageSets, 5, 29);
     conImageSets->setWidth(saImageSets->getChildrenArea().width);
 
-    conFrames = new SHR::Contener();
+    conFrames = new SHR::Container();
     conFrames->setDimension(gcn::Rectangle(0, 0, 100, 100));
     conFrames->setOpaque(0);
     saFrames = new SHR::ScrollArea(conFrames, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
@@ -374,7 +374,7 @@ void winImageSetBrowser::Draw(int piCode) {
                                     ts->GetSpritesCount(), GETL2S("Win_ImageSetBrowser", "frames"));
         }
         hge->Gfx_SetClipping();
-        GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
+        GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 44, dx + 6 + 300, dy + 45 + 9);
 
         int tilePickX = dx + (CONST_IMGSETBROWSER_ISLISTW + 15), tilePickW =
                 myWin->getWidth() - (CONST_IMGSETBROWSER_ISLISTW + 15) - 16,

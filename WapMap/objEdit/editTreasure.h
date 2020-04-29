@@ -8,7 +8,6 @@ namespace ObjEdit {
     private:
         SHR::RadBut *rbType[31];
         SHR::CBox *cbAddGlitter;
-        SHR::Win *win;
 
         friend class cObjPropVP;
 

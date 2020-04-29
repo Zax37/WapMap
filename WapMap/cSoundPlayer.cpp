@@ -22,7 +22,7 @@ void cSoundPlayer::Play() {
     butPlay->setIcon(GV->sprIcons[Icon_Pause]);
 }
 
-cSoundPlayer::cSoundPlayer(SHR::Contener *dest, int x, int y, cSndBankAsset *as, const char *szTitle) {
+cSoundPlayer::cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as, const char *szTitle) {
     hAL = new SoundPlayerAL(this);
     if (szTitle != NULL)
         winPlayer = new SHR::Win(&GV->gcnParts, szTitle);

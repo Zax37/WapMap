@@ -40,7 +40,7 @@ private:
     cSndBankAsset *hAsset;
     float fDuration;
 public:
-    cSoundPlayer(SHR::Contener *dest, int x, int y, cSndBankAsset *as, const char *szTitle = NULL);
+    cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as, const char *szTitle = NULL);
 
     ~cSoundPlayer();
 

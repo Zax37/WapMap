@@ -8,7 +8,6 @@ namespace ObjEdit {
     class cEditObjStalactite : public cObjEdit {
     private:
         SHR::Lab *labActivate;
-        SHR::Win *win;
         cProcPickRect *hRectPick;
 
         friend class cObjPropVP;

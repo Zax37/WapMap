@@ -333,7 +333,6 @@ namespace SHR {
     }
 
     void TextField::focusGained(const Event &event) {
-
     }
 
     void TextField::focusLost(const Event &event) {

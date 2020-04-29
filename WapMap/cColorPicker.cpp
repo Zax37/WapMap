@@ -4,7 +4,7 @@
 
 extern HGE *hge;
 
-cColorPicker::cColorPicker(SHR::Contener *dest, int x, int y, DWORD dwInitColor, bool bWithAlpha) {
+cColorPicker::cColorPicker(SHR::Container *dest, int x, int y, DWORD dwInitColor, bool bWithAlpha) {
     winPicker = new SHR::Win(&GV->gcnParts, "");
     winPicker->setDimension(gcn::Rectangle(0, 0, 250, 131));
     winPicker->setMovable(0);

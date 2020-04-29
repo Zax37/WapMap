@@ -55,6 +55,7 @@ protected:
     std::vector<cSprBankAssetIMG *> m_vSprites;
     int m_iSize;
     int m_iMaxID;
+    int m_iMaxWidth = 0, m_iMaxHeight = 0;
 
     cSprBankAsset(std::string id);
 
@@ -65,7 +66,7 @@ protected:
     void AddIMG(cSprBankAssetIMG *img);
 
     friend class cBankImageSet;
-
+	friend class cSprBankAssetIMG;
 public:
     cSprBankAssetIMG *GetIMGByIterator(int it);
 
@@ -74,6 +75,10 @@ public:
     cSprBankAssetIMG *GetIMGByNoID(int noid);
 
     int GetMaxIMGID() { return m_iMaxID; };
+
+    int GetMaxIMGWidth() { return m_iMaxWidth; };
+
+    int GetMaxIMGHeight() { return m_iMaxHeight; };
 
     int GetSpritesCount() { return m_vSprites.size(); };
 

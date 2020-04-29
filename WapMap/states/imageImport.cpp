@@ -88,7 +88,7 @@ namespace State {
         labHint[1] = new SHR::Lab(GETL2S("Win_ImageImport", "TruecolorNote"));
         myWin->add(labHint[1], 5, 450 + 22 + yOffset);
 
-        conFiles = new SHR::Contener();
+        conFiles = new SHR::Container();
         conFiles->setDimension(gcn::Rectangle(0, 0, 100, 100));
         conFiles->setOpaque(0);
 

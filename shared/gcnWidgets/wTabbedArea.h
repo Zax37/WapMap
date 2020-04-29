@@ -11,10 +11,12 @@
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
 
+#include <functional>
+
 using namespace gcn;
 
 namespace SHR {
-    class Contener;
+    class Container;
 
     class Tab;
 
@@ -34,9 +36,9 @@ namespace SHR {
 
         bool isOpaque() const;
 
-        virtual void addTab(const std::string &caption, Widget *widget);
+        virtual void addTab(const std::string &caption, Widget *widget = NULL);
 
-        virtual void addTab(Tab *tab, Widget *widget);
+        virtual void addTab(Tab *tab, Widget *widget = NULL);
 
         virtual void removeTabWithIndex(unsigned int index);
 
@@ -54,6 +56,7 @@ namespace SHR {
 
         Tab *getSelectedTab();
 
+		void setSelectionChangeCallback(std::function<void()>);
 
         // Inherited from Widget
 
@@ -89,18 +92,18 @@ namespace SHR {
 
         virtual void mousePressed(MouseEvent &mouseEvent);
 
-
     protected:
         void adjustSize();
 
         void adjustTabPositions();
 
         Tab *mSelectedTab;
-        Contener *mTabContainer;
-        Contener *mWidgetContainer;
+        Container *mTabContainer;
+        Container *mWidgetContainer;
         std::vector<Tab *> mTabsToDelete;
         std::vector<std::pair<Tab *, Widget *> > mTabs;
         bool mOpaque;
+		std::function<void()> onSelectionChange;
     };
 }
 

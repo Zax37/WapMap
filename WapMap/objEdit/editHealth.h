@@ -7,7 +7,6 @@ namespace ObjEdit {
     class cEditObjHealth : public cObjEdit {
     private:
         SHR::RadBut *rbType[11];
-        SHR::Win *win;
 
         friend class cObjPropVP;
 

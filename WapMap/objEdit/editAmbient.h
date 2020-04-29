@@ -8,7 +8,6 @@
 namespace ObjEdit {
     class cEditObjAmbient : public cObjEdit {
     private:
-        SHR::Win *win;
         SHR::Lab *labVolume, *labArea, *labPlayType, *labTurnOffTime, *labTurnOnTime, *labTimeMin[2], *labTimeMax[2];
         SHR::TextField *tfVolume, *tfTimeOff[2], *tfTimeOn[2];
         SHR::RadBut *rbAreaType[2], *rbPlayPolicy[2];

@@ -5,225 +5,317 @@
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#include "../cInterfaceSheet.h"
+
+#include <SFML/Graphics.hpp>
+#include <set>
 
 extern HGE *hge;
 
+#define IMAGE_TILE_WIDTH 64
+#define IMAGE_TILE_HEIGHT 64
+#define IMAGE_TILES_PER_ROW 5
+#define IMAGE_TILE_INTERNAL_PADDING 2
+#define CONTAINER_X 0
+#define CONTAINER_Y 25
+#define CONTAINER_WIDTH IMAGE_TILE_WIDTH * IMAGE_TILES_PER_ROW + 4
+#define CONTAINER_HEIGHT 320
+#define WINDOW_WIDTH_WITH_SCROLL CONTAINER_WIDTH + 12
+#define WINDOW_HEIGHT CONTAINER_HEIGHT + 24 + 230
+
+std::set<std::string> NANI_IMAGESETS = {
+	"LEVEL_ARCHESFRONT",
+	"LEVEL_WANTED"
+};
+
+std::map<std::string, std::string> LEVEL_STANDARD_ANI = {
+	// LEVEL 1
+	{ "LEVEL_MANICAL1", "LEVEL_MANICLES_MANICAL" },
+	{ "LEVEL_HANDS4", "LEVEL_HAND_HAND1" },
+
+	// LEVEL 13
+	{ "LEVEL_BEACHWAVES", "LEVEL_BEACHWAVES" }
+};
+
+std::set<std::string> LEVEL_NON_STANDARD = {
+	"LEVEL_AIRCART",
+	"LEVEL_AMULET",
+	"LEVEL_BLOWING1",
+	"LEVEL_BOBROCK",
+	"LEVEL_BOSSBRIDGE",
+	"LEVEL_BOSSNAME",
+	"LEVEL_BOSSPEG",
+	"LEVEL_BOSSPIKES",
+	"LEVEL_BREAKINGLEDGE",
+	"LEVEL_BREAKJEM",
+	"LEVEL_BREAKPLANK",
+	"LEVEL_CANNON",
+	"LEVEL_CANNON2",
+	"LEVEL_CANNONBUTTON",
+	"LEVEL_CANNONSWITCH",
+	"LEVEL_CONVEYLEFT",
+	"LEVEL_CONVEYMIDDLE",
+	"LEVEL_CONVEYRIGHT",
+	"LEVEL_CRATES",
+	"LEVEL_CRUMBLEPEG",
+	"LEVEL_CRUMBLINGBUSH",
+	"LEVEL_CRUMBLINGPEG",
+	"LEVEL_CRUMBLINPEG",
+	"LEVEL_CRUMBLINPEG1",
+	"LEVEL_CRUMBLINPEG2",
+	"LEVEL_ELEVATORS",
+	"LEVEL_ELEVATOR",
+	"LEVEL_ELEVATOR1",
+	"LEVEL_ELEVATOR2",
+	"LEVEL_FIRESHIELD",
+	"LEVEL_FLOORSAW",
+	"LEVEL_FLOORSPIKES",
+	"LEVEL_FLOORSPIKES1",
+	"LEVEL_FLOORSPIKES2",
+	"LEVEL_GABRIELCANNON",
+	"LEVEL_GEM",
+	"LEVEL_GOOVENT",
+	"LEVEL_GRILLELEVATOR",
+	"LEVEL_HEALTH",
+	"LEVEL_ICESHIELD",
+	"LEVEL_LASER",
+	"LEVEL_LAVAHAND",
+	"LEVEL_LAVAMOUTH",
+	"LEVEL_PEG",
+	"LEVEL_PEGSLIDER",
+	"LEVEL_POWDERKEG",
+	"LEVEL_ROPE",
+	"LEVEL_SEWAGESTEPSTONE",
+	"LEVEL_SHOOTERS_LAUNCHLEFT",
+	"LEVEL_SHOOTERS_LAUNCHRIGHT",
+	"LEVEL_SHOOTERS_PUFFDARTDOWN",
+	"LEVEL_SHOOTERS_PUFFDARTLEFT",
+	"LEVEL_SHOOTERS_PUFFDARTRIGHT",
+	"LEVEL_SHOOTERS_PUFFDARTUP",
+	"LEVEL_SHOOTERS_STALAK",
+	"LEVEL_SKULLCANNON",
+	"LEVEL_SPLASH",
+	"LEVEL_SPRINGBOX1",
+	"LEVEL_SPRINGBOX2",
+	"LEVEL_SINKBOEY",
+	"LEVEL_SINKPOT",
+	"LEVEL_SLIDAWAYPLANK",
+	"LEVEL_SLIDERPEG",
+	"LEVEL_SPRINGYFERN",
+	"LEVEL_STATUE",
+	"LEVEL_STEPPINGSTONE",
+	"LEVEL_TOWERCANNONLEFT",
+	"LEVEL_TOWERCANNONRIGHT",
+	"LEVEL_WATERROCK",
+	"LEVEL_WINDOWLEDGE",
+	"LEVEL_WINDSAND",
+
+	"LEVEL_ARROW",
+	"LEVEL_CANNONBALL",
+	"LEVEL_CRABBOMB",
+	"LEVEL_GABRIELBOMB",
+	"LEVEL_KNIFE",
+	"LEVEL_LAVAHANDPROJECTILE",
+	"LEVEL_OMARPROJECTILE",
+	"LEVEL_PROJECTILES",
+	"LEVEL_PROJECTILES_1",
+	"LEVEL_PROJECTILES_2",
+	"LEVEL_PROJECTILES_STALACTITE",
+	"LEVEL_RATBOMB",
+	"LEVEL_REDTAILBULLET",
+	"LEVEL_REDTAILBULLET_EXPLOSION",
+	"LEVEL_REDTAILKNIFE",
+	"LEVEL_MUSKETBALL",
+	"LEVEL_SIRENPROJECTILE",
+	"LEVEL_TRIDENT_TRIDENTEXPLOSION",
+	"LEVEL_TRIDENT_TRIDENTPROJECTILE",
+	"LEVEL_WOLVINGTONMAGIC",
+
+	"LEVEL_OFFICER",
+	"LEVEL_SOLDIER",
+	"LEVEL_RAT",
+	"LEVEL_PUNKRAT",
+	"LEVEL_RAUX",
+	"LEVEL_CUTTHROAT",
+	"LEVEL_ROBBERTHIEF",
+	"LEVEL_KATHERINE",
+	"LEVEL_TOWNGUARD1",
+	"LEVEL_TOWNGUARD2",
+	"LEVEL_SEAGULL",
+	"LEVEL_WOLVINGTON",
+	"LEVEL_BEARSAILOR",
+	"LEVEL_BOMBERCRAB",
+	"LEVEL_HERMITCRAB",
+	"LEVEL_REDTAILPIRATE",
+	"LEVEL_GABRIEL",
+	"LEVEL_CRAZYHOOK",
+	"LEVEL_PEGLEG",
+	"LEVEL_PARROT",
+	"LEVEL_MARROW",
+	"LEVEL_MERCAT",
+	"LEVEL_SIREN",
+	"LEVEL_FISH",
+	"LEVEL_AQUATISTENTACLE",
+	"LEVEL_KINGAQUATIS",
+	"LEVEL_CHAMELEON",
+	"LEVEL_REDTAIL",
+	"LEVEL_TIGER",
+	"LEVEL_TIGERWHITE",
+	"LEVEL_OMAR",
+};
+
 namespace ObjEdit {
 
-    cEditObjCandy::cEditObjCandy(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
+	std::vector<std::string> cEditObjCandy::AnimationsList = {
+		"GAME_BACKWARD50",
+		"GAME_BACKWARD100",
+		"GAME_CYCLE50",
+		"GAME_CYCLE100",
+		"GAME_CYCLE200",
+		"GAME_CYCLE500",
+		"GAME_FORWARD50",
+		"GAME_FORWARD100",
+		"GAME_REVERSECYCLE50",
+		"GAME_REVERSECYCLE100",
+		"GAME_REVERSECYCLE200",
+		"GAME_REVERSECYCLE500",
+	};
+
+	cEditObjCandy::cEditObjCandy(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         iType = ObjEdit::enCandy;
+		
+/*#ifdef BUILD_DEBUG
+		GV->Console->Printf("Listing standard imagesets for level %d:", hState->hParser->GetBaseLevel());
+#endif // BUILD_DEBUG*/
 
-        win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Candy", "WinCaption"));
-        win->setDimension(gcn::Rectangle(0, 0, 300, 300));
-        win->setClose(1);
-        win->addActionListener(hAL);
-        win->add(vpAdv);
-        st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY());
+		for (size_t i = 0; i < GV->editState->SprBank->GetAssetsCount(); i++) {
+			cSprBankAsset* imgSet = GV->editState->SprBank->GetAssetByIterator(i);
+			std::string name(imgSet->GetID());
+			if (name.starts_with("LEVEL_") && !LEVEL_NON_STANDARD.contains(name)) {
+				standardImgs.push_back(imgSet);
+/*#ifdef BUILD_DEBUG
+				GV->Console->Print(imgSet->GetID());
+#endif // BUILD_DEBUG*/
+			}
+			else if (name.starts_with("CUSTOM_")) {
+				customImgs.push_back(imgSet);
+			} else {
+				otherImgs.push_back(imgSet);
+			}
+		}
+		int height = ceil(standardImgs.size() / (float)IMAGE_TILES_PER_ROW) * IMAGE_TILE_HEIGHT;
 
-        win->add(_butAddNext, 50, 240);
-        win->add(_butSave, 150, 240);
+		win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Candy", "WinCaption"));
+		win->setDimension(gcn::Rectangle(100, 100, (height <= CONTAINER_HEIGHT ? CONTAINER_WIDTH : WINDOW_WIDTH_WITH_SCROLL), WINDOW_HEIGHT));
+		win->setClose(1);
+		win->addActionListener(hAL);
+		win->addMouseListener(this);
+		st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY());
 
-        switch (hState->hParser->GetBaseLevel()) {
-            case 1:
-                vsDefaultImgsets.push_back("TORCH");
-                vsDefaultImgsets.push_back("TORCHSTAND");
-                vsDefaultImgsets.push_back("FLOORCELL");
-                vsDefaultImgsets.push_back("LITTLEPUDDLE");
-                vsDefaultImgsets.push_back("BIGPUDDLE");
-                vsDefaultImgsets.push_back("SKULL");
-                vsDefaultImgsets.push_back("ARCHESFRONT");
-                vsDefaultImgsets.push_back("HANDS4");
-                vsDefaultImgsets.push_back("MANICAL1");
-                vsDefaultImgsets.push_back("ARROWSIGN_UP");
-                vsDefaultImgsets.push_back("ARROWSIGN_UR");
-                vsDefaultImgsets.push_back("ARROWSIGN_RIGHT");
-                vsDefaultImgsets.push_back("ARROWSIGN_LR");
-                vsDefaultImgsets.push_back("ARROWSIGN_DOWN");
-                vsDefaultImgsets.push_back("WEB1");
-                vsDefaultImgsets.push_back("WEB3");
-                break;
-            case 2:
-                vsDefaultImgsets.push_back("FLAGSSMALL");
-                vsDefaultImgsets.push_back("TORCHSTAND");
-                vsDefaultImgsets.push_back("CARPET");
-                vsDefaultImgsets.push_back("LARODOOR1");
-                vsDefaultImgsets.push_back("LARODOOR2");
-                vsDefaultImgsets.push_back("RAUXPAINTING");
-                vsDefaultImgsets.push_back("SINGLEBUBBLE");
-                vsDefaultImgsets.push_back("TRIPLEBUBBLE");
-                vsDefaultImgsets.push_back("TORCHSTAND");
-                vsDefaultImgsets.push_back("ARROWSIGN_UP");
-                vsDefaultImgsets.push_back("ARROWSIGN_UR");
-                vsDefaultImgsets.push_back("ARROWSIGN_RIGHT");
-                vsDefaultImgsets.push_back("ARROWSIGN_LR");
-                vsDefaultImgsets.push_back("ARROWSIGN_DOWN");
-                break;
-            case 3:
-                vsDefaultImgsets.push_back("STARTSKULLPOST");
-                vsDefaultImgsets.push_back("SKULLSIGN");
-                vsDefaultImgsets.push_back("TORCH");
-                vsDefaultImgsets.push_back("STONES");
-                vsDefaultImgsets.push_back("HAMMER");
-                vsDefaultImgsets.push_back("BUSH1");
-                vsDefaultImgsets.push_back("BUSH2");
-                vsDefaultImgsets.push_back("SPIKES1");
-                vsDefaultImgsets.push_back("SPIKE2");
-                vsDefaultImgsets.push_back("BUTTERBLY");
-                vsDefaultImgsets.push_back("ROPE1");
-                vsDefaultImgsets.push_back("TREASUREMAP1");
-                vsDefaultImgsets.push_back("ARROWSIGN_UP");
-                vsDefaultImgsets.push_back("ARROWSIGN_UR");
-                vsDefaultImgsets.push_back("ARROWSIGN_RIGHT");
-                vsDefaultImgsets.push_back("ARROWSIGN_LR");
-                vsDefaultImgsets.push_back("ARROWSIGN_DOWN");
-                break;
-            case 4:
-                vsDefaultImgsets.push_back("TORCH");
-                vsDefaultImgsets.push_back("TORCH2");
-                vsDefaultImgsets.push_back("BUSH");
-                vsDefaultImgsets.push_back("BUSH1");
-                vsDefaultImgsets.push_back("BUSH2");
-                vsDefaultImgsets.push_back("SMALLPLANT1");
-                vsDefaultImgsets.push_back("BIGPLANT1");
-                vsDefaultImgsets.push_back("FRONTWEEDS");
-                vsDefaultImgsets.push_back("FLOWER1");
-                vsDefaultImgsets.push_back("ENDSIGN1");
-                vsDefaultImgsets.push_back("ENDSIGN2");
-                vsDefaultImgsets.push_back("TREETRUNKCOVER");
-                vsDefaultImgsets.push_back("SINGLEGOO");
-                vsDefaultImgsets.push_back("TRIPLEGOO");
-                vsDefaultImgsets.push_back("ARROWSIGN_UP");
-                vsDefaultImgsets.push_back("ARROWSIGN_UR");
-                vsDefaultImgsets.push_back("ARROWSIGN_RIGHT");
-                vsDefaultImgsets.push_back("ARROWSIGN_LR");
-                vsDefaultImgsets.push_back("ARROWSIGN_DOWN");
-                vsDefaultImgsets.push_back("GOOLEFT");
-                vsDefaultImgsets.push_back("GOOMIDDLE");
-                vsDefaultImgsets.push_back("GOORIGHT");
-                vsDefaultImgsets.push_back("GOOCOVERUP");
-                break;
-            case 6:
-                vsDefaultImgsets.push_back("SEWERLAMP");
-                vsDefaultImgsets.push_back("STREETLAMP");
-                vsDefaultImgsets.push_back("PLANTERHEDGE");
-                vsDefaultImgsets.push_back("POTTEDSHORTBUSH");
-                vsDefaultImgsets.push_back("POTTEDTALLBUSH");
-                vsDefaultImgsets.push_back("SMALLPLANTER1");
-                vsDefaultImgsets.push_back("SMALLPLANTER2");
-                vsDefaultImgsets.push_back("SMALLPLANTER3");
-                vsDefaultImgsets.push_back("BIGPLANTER");
-                vsDefaultImgsets.push_back("BLOW1");
-                vsDefaultImgsets.push_back("ENDWINDOW");
-                vsDefaultImgsets.push_back("SIGNPOST");
-                vsDefaultImgsets.push_back("SIGN_UP");
-                vsDefaultImgsets.push_back("SIGN_RIGHT");
-                vsDefaultImgsets.push_back("SIGN_DOWN");
-                vsDefaultImgsets.push_back("PORT1");
-                vsDefaultImgsets.push_back("PORT2");
-                vsDefaultImgsets.push_back("PORT3");
-                vsDefaultImgsets.push_back("VERTTUBEALL");
-                vsDefaultImgsets.push_back("HORIZONTALTUBEALL");
-                vsDefaultImgsets.push_back("PIPETOPLEFT");
-                vsDefaultImgsets.push_back("PIPETOPRIGHT");
-                vsDefaultImgsets.push_back("TRIPLEGOO");
-                vsDefaultImgsets.push_back("WANTED");
-                vsDefaultImgsets.push_back("WATER1");
-                vsDefaultImgsets.push_back("WATER2");
-                vsDefaultImgsets.push_back("WINDOW1");
-                vsDefaultImgsets.push_back("WINDOW2");
-                vsDefaultImgsets.push_back("WINDOW3");
-                vsDefaultImgsets.push_back("WINDOW4");
-                vsDefaultImgsets.push_back("ENDSIGN");
-                break;
-        }
-        if (strlen(hTempObj->GetImageSet()) == 0 || hState->SprBank->GetAssetByID(hTempObj->GetImageSet()) == 0) {
-            std::string nis = "LEVEL_";
-            nis += vsDefaultImgsets[0].c_str();
-            hTempObj->SetImageSet(nis.c_str());
-        }
+		win->add(_butAddNext, 100, CONTAINER_HEIGHT + 194);
+		win->add(_butSave, 212, CONTAINER_HEIGHT + 194);
 
-        labImageSet = new SHR::Lab(GETL2S("EditObj_Candy", "Imageset"));
-        labImageSet->adjustSize();
-        win->add(labImageSet, 5, 15);
+		imgsCon = new SHR::Container();
+		imgsCon->setOpaque(0);
+		saImgPick = new SHR::ScrollArea(imgsCon, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_AUTO);
+		saImgPick->setDimension(gcn::Rectangle(0, 0, WINDOW_WIDTH_WITH_SCROLL, CONTAINER_HEIGHT - 1));
+		saImgPick->setOpaque(0);
+		//win->add(imgsCon, CONTAINER_X, CONTAINER_Y);
+		win->add(saImgPick, -4 + CONTAINER_X, 8 + CONTAINER_Y);
 
-        tddImageSet = new SHR::TextDropDown(hTempObj->GetImageSet(), this);
-        tddImageSet->setDimension(gcn::Rectangle(0, 0, 200, 20));
-        tddImageSet->SetGfx(&GV->gcnParts);
-        tddImageSet->addActionListener(hAL);
-        tddImageSet->setText(hTempObj->GetImageSet());
-        win->add(tddImageSet, 10 + labImageSet->getWidth(), 15);
+		win->add(vpAdv);
 
-        labFrame = new SHR::Lab(GETL2S("EditObj_Candy", "Frame"));
-        labFrame->adjustSize();
-        win->add(labFrame, 5, 43);
+		updateDimensions = [this]() {
+			int spritesCount = CountActualImagesToDisplay(CurrentlyDisplayedImgSet());
+			int height = ceil(spritesCount / (float)IMAGE_TILES_PER_ROW) * IMAGE_TILE_HEIGHT;
+			imgsCon->setDimension(gcn::Rectangle(0, 0, WINDOW_WIDTH_WITH_SCROLL, height));
+			tabs->setWidth(height <= CONTAINER_HEIGHT ? CONTAINER_WIDTH : WINDOW_WIDTH_WITH_SCROLL);
 
-        char tmp[64];
-        sprintf(tmp, "%d", hTempObj->GetParam(WWD::Param_LocationI));
-        tfFrame = new SHR::TextField(tmp);
-        tfFrame->addActionListener(hAL);
-        tfFrame->setDimension(gcn::Rectangle(0, 0, 125, 20));
-        tfFrame->SetNumerical(1, 1);
-        win->add(tfFrame, 110, 45);
+			const gcn::Rectangle& dimension = win->getDimension();
+			win->setDimension(gcn::Rectangle(dimension.x, dimension.y, (height <= CONTAINER_HEIGHT ? CONTAINER_WIDTH : WINDOW_WIDTH_WITH_SCROLL), dimension.height));
+		};
 
-        cSprBankAsset *as = hState->SprBank->GetAssetByID(hTempObj->GetImageSet());
+		tabs = new SHR::TabbedArea();
+		tabs->setDimension(gcn::Rectangle(0, 0, CONTAINER_WIDTH, 24));
+		tabs->setSelectionChangeCallback(updateDimensions);
+		tabs->addTab(GETL2S("EditObj_Candy", "Tab_Standard"));
+		tabs->addTab(GETL2S("EditObj_Candy", "Tab_Custom"));
+		tabs->addTab(GETL2S("EditObj_Candy", "Tab_Other"));
+		win->add(tabs, 0, 8);
 
-        labFrame->setColor(!as ? 0xFF323232 : 0xFF000000);
-        tfFrame->setEnabled(as != 0);
+		highDetail = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_Candy", "HighDetail"));
+		highDetail->adjustSize();
+		highDetail->addActionListener(hAL);
+		win->add(highDetail, 8, CONTAINER_HEIGHT + 42);
 
-        cbAnimated = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_Candy", "Animated"));
-        cbAnimated->adjustSize();
-        cbAnimated->addActionListener(hAL);
-        win->add(cbAnimated, 5, 69);
-        cbAnimated->setSelected(strstr(hTempObj->GetLogic(), "Ani") != 0);
+		labZPos = new SHR::Lab(GETL2S("EditObj_Candy", "ZCoord"));
+		labZPos->adjustSize();
+		win->add(labZPos, 8, CONTAINER_HEIGHT + 67);
 
-        labAnimation = new SHR::Lab(GETL2S("EditObj_Candy", "Animation"));
-        labAnimation->adjustSize();
-        labAnimation->setColor(cbAnimated->isSelected() ? 0xFF000000 : 0xFF323232);
-        win->add(labAnimation, 5, 90);
+		int z = GetUserDataFromObj(obj)->GetZ();
+		if (strstr(obj->GetLogic(), "Behind")) {
+			highDetail->setSelected(true);
+			if (!z) {
+				z = 990;
+			}
+		}
+		else if (strstr(obj->GetLogic(), "Front")) {
+			highDetail->setSelected(true);
+			if (!z) {
+				z = 5100;
+			}
+		}
 
-        tfAnimation = new SHR::TextField(hTempObj->GetAnim());
-        tfAnimation->setDimension(gcn::Rectangle(0, 0, 275 - labAnimation->getWidth(), 20));
-        tfAnimation->setEnabled(cbAnimated->isSelected());
-        tfAnimation->addActionListener(hAL);
-        win->add(tfAnimation, 10 + labAnimation->getWidth(), 90);
-
-        labAlign = new SHR::Lab(GETL2S("EditObj_Candy", "Align"));
-        labAlign->adjustSize();
-        win->add(labAlign, 5, 119);
-
-        sprintf(tmp, "%p", this);
-        rbType[0] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Behind"), tmp,
-                                    strstr(hTempObj->GetLogic(), "Behind"));
+#define EOC_GROUP_Y CONTAINER_HEIGHT + 90
+		std::string group = std::to_string((int)this);
+        rbType[0] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Z_Behind"), group, z == 990);
         rbType[0]->adjustSize();
         rbType[0]->addActionListener(hAL);
-        win->add(rbType[0], 5, 140);
+        win->add(rbType[0], 8, EOC_GROUP_Y);
 
-        rbType[1] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Nothing"), tmp,
-                                    strstr(hTempObj->GetLogic(), "DoNothing"));
+        rbType[1] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Z_Front"), group, z == 5100);
         rbType[1]->adjustSize();
         rbType[1]->addActionListener(hAL);
-        if (!strcmp(hTempObj->GetLogic(), "AniCycle"))
-            rbType[1]->setSelected(1);
-        win->add(rbType[1], 105, 140);
+		win->add(rbType[1], 8, EOC_GROUP_Y + 22);
 
-        rbType[2] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Front"), tmp,
-                                    strstr(hTempObj->GetLogic(), "Front"));
-        rbType[2]->adjustSize();
-        rbType[2]->addActionListener(hAL);
-        win->add(rbType[2], 205, 140);
+		bool customZ = z != 990 && z != 5100;
+		rbType[2] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Candy", "Z_Custom"), group, customZ);
+		rbType[2]->adjustSize();
+		rbType[2]->addActionListener(hAL);
+		win->add(rbType[2], 8, EOC_GROUP_Y + 44);
+
+        zCoord = new SHR::TextField(customZ ? std::to_string(z) : "1000");
+		zCoord->SetNumerical(1);
+		zCoord->setDimension(gcn::Rectangle(0, 0, 80, 20));
+		zCoord->setEnabled(customZ);
+		zCoord->addActionListener(hAL);
+		win->add(zCoord, 12 + rbType[2]->getWidth(), EOC_GROUP_Y + 42);
+
+		animated = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_Candy", "Animated"));
+		animated->setSelected(strstr(obj->GetLogic(), "Ani"));
+		animated->adjustSize();
+		animated->addActionListener(hAL);
+		win->add(animated, 8, CONTAINER_HEIGHT + 163);
+
+		const char* anim = obj->GetAnim();
+		if (!anim || !*anim) anim = "GAME_CYCLE100";
+		animation = new SHR::TextDropDown(anim, this);
+		animation->setWidth(CONTAINER_WIDTH - animated->getWidth() - 28);
+		animation->setEnabled(animated->isSelected());
+		animation->setText(anim);
+		animation->addActionListener(hAL);
+		win->add(animation, 16 + animated->getWidth(), CONTAINER_HEIGHT + 161);
     }
 
     cEditObjCandy::~cEditObjCandy() {
-        delete labAlign;
+        /*delete labAlign;
         for (int i = 0; i < 3; i++)
             delete rbType[i];
         delete tfAnimation;
         delete labAnimation;
         delete cbAnimated;
-        delete labFrame;
-        delete tfFrame;
         delete labImageSet;
-        delete tddImageSet;
+        delete tddImageSet;*/
         delete win;
         hState->vPort->MarkToRedraw(1);
     }
@@ -232,70 +324,250 @@ namespace ObjEdit {
         if (actionEvent.getSource() == win) {
             bKill = 1;
             return;
-        } else if (actionEvent.getSource() == tddImageSet) {
-            if (actionEvent.getId() == "SELECTION") {
-                char *ntext = new char[strlen(tddImageSet->getText().c_str()) + 10];
-                sprintf(ntext, "LEVEL_%s", tddImageSet->getText().c_str());
-                tddImageSet->setText(ntext);
-                delete[] ntext;
-            }
-            hTempObj->SetImageSet(tddImageSet->getText().c_str());
-            cSprBankAsset *as = hState->SprBank->GetAssetByID(hTempObj->GetImageSet());
-            tfFrame->setEnabled(as != 0);
-            labFrame->setColor(!as ? 0xFF323232 : 0xFF000000);
-            if (as) {
-                if (hTempObj->GetParam(WWD::Param_LocationI) >= as->GetSpritesCount()) {
-                    hTempObj->SetParam(WWD::Param_LocationI, as->GetSpritesCount() - 1);
-                    char n[64];
-                    sprintf(n, "%d", as->GetSpritesCount() - 1);
-                    tfFrame->setText(n);
-                }
-                char n[256];
-                sprintf(n, "%s: [%d]", GETL2S("EditObj_Candy", "Frame"), hTempObj->GetParam(WWD::Param_LocationI));
-                labFrame->setCaption(n);
-                labFrame->adjustSize();
-            }
-            hState->vPort->MarkToRedraw(1);
-        } else if (actionEvent.getSource() == tfFrame) {
-            hTempObj->SetParam(WWD::Param_LocationI, atoi(tfFrame->getText().c_str()));
-            GetUserDataFromObj(hTempObj)->SyncToObj();
-            hState->vPort->MarkToRedraw(1);
-        } else if (actionEvent.getSource() == cbAnimated) {
-            tfAnimation->setEnabled(cbAnimated->isSelected());
-            hTempObj->SetAnim(cbAnimated->isSelected() ? tfAnimation->getText().c_str() : "");
-            UpdateLogic();
-        } else if (actionEvent.getSource() == tfAnimation) {
-            hTempObj->SetAnim(tfAnimation->getText().c_str());
-        }
-        for (int i = 0; i < 3; i++)
-            if (actionEvent.getSource() == rbType[i]) {
-                UpdateLogic();
-                if (i == 0) hTempObj->SetParam(WWD::Param_LocationZ, 1000);
-                if (i == 2) hTempObj->SetParam(WWD::Param_LocationZ, 5000);
-            }
+		} else if (actionEvent.getSource() == animation) {
+			const std::string& anim = animation->getText();
+			hTempObj->SetAnim(anim.c_str());
+		} else if (actionEvent.getSource() == highDetail || actionEvent.getSource() == animated) {
+			animation->setEnabled(animated->isSelected());
+			if (!animated->isSelected()) {
+				hTempObj->SetAnim("");
+			}
+			UpdateLogic();
+			if (actionEvent.getSource() == animated && asImageSetPick) {
+				if (asFramePick) {
+					asFramePick = NULL;
+					NANI_IMAGESETS.erase(asImageSetPick->GetID());
+				} else {
+					asFramePick = asImageSetPick->GetIMGByIterator(0);
+					NANI_IMAGESETS.insert(asImageSetPick->GetID());
+				}
+				updateDimensions();
+			}
+		} else if (actionEvent.getSource() == zCoord) {
+			const std::string& str = zCoord->getText();
+			int z = 0;
+			if (!str.empty()) {
+				z = std::stoi(str);
+			}
+			GetUserDataFromObj(hTempObj)->SetZ(z);
+			hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationZ, z);
+			UpdateLogic();
+			hState->vPort->MarkToRedraw(1);
+		} else for (int i = 0; i < 3; ++i) if (actionEvent.getSource() == rbType[i]) {
+			int z = 0;
+			switch (i) {
+			case 0:
+				z = 990;
+				break;
+			case 1:
+				z = 5100;
+				break;
+			case 2:
+				const std::string& str = zCoord->getText();
+				if (str.empty()) {
+					z = 0;
+				} else {
+					z = std::stoi(str);
+				}
+				break;
+			}
+			GetUserDataFromObj(hTempObj)->SetZ(z);
+			hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationZ, z);
+			zCoord->setEnabled(i == 2);
+			UpdateLogic();
+			hState->vPort->MarkToRedraw(1);
+			break;
+		}
     }
 
-    void cEditObjCandy::Draw() {
-        int dx, dy;
-        win->getAbsolutePosition(dx, dy);
-    }
+	void cEditObjCandy::Draw()
+	{
+		float mx, my;
+		hge->Input_GetMousePos(&mx, &my);
+		int dx, dy;
+		win->getAbsolutePosition(dx, dy);
+		dx += 2 + CONTAINER_X;
+		dy += 24 + CONTAINER_Y;
+		int w = win->getWidth();
 
-    std::string cEditObjCandy::getElementAt(int i) {
-        if (i < 0 || i >= vsDefaultImgsets.size()) return "";
-        return vsDefaultImgsets[i];
-    }
+		hge->Gfx_SetClipping(dx, dy, CONTAINER_WIDTH - 1, CONTAINER_HEIGHT - 1);
 
-    int cEditObjCandy::getNumberOfElements() {
-        return vsDefaultImgsets.size();
-    }
+		std::vector<cSprBankAsset*>& assets = CurrentlyDisplayedImgSet();
 
-    void cEditObjCandy::UpdateLogic() {
-        if (rbType[0]->isSelected()) {
-            hTempObj->SetLogic(cbAnimated->isSelected() ? "BehindAniCandy" : "BehindCandy");
-        } else if (rbType[1]->isSelected()) {
-            hTempObj->SetLogic(cbAnimated->isSelected() ? "AniCycle" : "DoNothing");
-        } else if (rbType[2]->isSelected()) {
-            hTempObj->SetLogic(cbAnimated->isSelected() ? "FrontAniCandy" : "FrontCandy");
-        }
-    }
+		cSprBankAsset* lastHoveredImg = asImageSetHover;
+		cSprBankAssetIMG* lastHoveredFrame = asFrameHover;
+		asImageSetHover = NULL;
+		asFrameHover = NULL;
+		float time = hge->Timer_GetTime();
+		int frame = time * 5;
+
+		GV->hGfxInterface->sprMainBackground->RenderStretch(dx, dy, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT);
+
+		float dyo = dy - saImgPick->getVerticalScrollAmount();
+
+		int count = assets.size();
+		int i_off = 0, i_off_sub = 0;
+		for (size_t i = 0; i < count; i++) {
+			cSprBankAsset* imgSet = assets[i];
+			bool nani = false;
+			int add = 0;
+			if (NANI_IMAGESETS.find(imgSet->GetID()) != NANI_IMAGESETS.end()) {
+				nani = true;
+				add = imgSet->GetSpritesCount() - 1;
+				i_off_sub = i_off;
+				i_off += add;
+			}
+
+			do {
+				int gridX = ((i + i_off - add) % IMAGE_TILES_PER_ROW),
+					gridY = ((i + i_off - add) / IMAGE_TILES_PER_ROW);
+				int drawX = dx + gridX * IMAGE_TILE_WIDTH,
+					drawY = dyo + gridY * IMAGE_TILE_HEIGHT;
+
+				int it = nani ? i_off - i_off_sub - add : frame % imgSet->GetSpritesCount();
+				cSprBankAssetIMG* frame = imgSet->GetIMGByIterator(it);
+				hgeSprite *spr = frame->GetSprite();
+				spr->SetFlip(false, false, true);
+
+				DWORD colBorder = GV->colLineDark;
+
+				if (mx > drawX && my > drawY && mx < drawX + IMAGE_TILE_WIDTH && my < drawY + IMAGE_TILE_HEIGHT) {
+					if (my < dy + CONTAINER_HEIGHT) {
+						asImageSetHover = imgSet;
+						asFrameHover = nani ? frame : NULL;
+						colBorder = TILE_HIGHLIGHT_COLOR;
+
+						if (lastHoveredImg != asImageSetHover || lastHoveredFrame != asFrameHover) {
+							imgsCon->UpdateTooltip(false);
+							imgsCon->SetTooltip(nani ? (std::string(imgSet->GetID()) + " (" + std::to_string(frame->GetID()) + ')').c_str() : imgSet->GetID());
+						}
+						imgsCon->UpdateTooltip(true);
+					}
+				}
+
+				if (imgSet == asImageSetPick && (!nani || asFramePick == frame)) {
+					colBorder = 0xFF1585e2;
+				}
+
+				hge->Gfx_RenderLine(drawX + 1, drawY + 1, drawX + IMAGE_TILE_WIDTH - 2, drawY + 1, colBorder);
+				hge->Gfx_RenderLine(drawX + 1, drawY + 1, drawX + 1, drawY + IMAGE_TILE_HEIGHT - 2, colBorder);
+				hge->Gfx_RenderLine(drawX + IMAGE_TILE_WIDTH - 1, drawY + 1, drawX + IMAGE_TILE_WIDTH - 1, drawY + IMAGE_TILE_HEIGHT - 2, colBorder);
+				hge->Gfx_RenderLine(drawX + 1, drawY + IMAGE_TILE_HEIGHT - 1, drawX + IMAGE_TILE_WIDTH - 2, drawY + IMAGE_TILE_HEIGHT - 1, colBorder);
+
+				GV->sprCheckboard->RenderStretch(drawX + 1, drawY + 1, drawX + IMAGE_TILE_WIDTH - 2, drawY + IMAGE_TILE_HEIGHT - 2);
+
+				int boxSide = IMAGE_TILE_WIDTH - IMAGE_TILE_INTERNAL_PADDING * 2;
+				int offset = IMAGE_TILE_WIDTH * 0.5;
+				int x = drawX + offset;
+				int y = drawY + offset;
+
+				//float ox, oy;
+				//spr->GetHotSpot(&ox, &oy);
+				float width = nani ? spr->GetWidth() : imgSet->GetMaxIMGWidth();
+				float height = nani ? spr->GetHeight() : imgSet->GetMaxIMGHeight();
+
+				if (width < boxSide && height < boxSide) {
+					/*x += ((ox - spr->GetWidth() * 0.5));
+					y += ((oy - spr->GetHeight() * 0.5));*/
+					spr->Render(x, y);
+				}
+				else {
+					float scale = 1.0f;
+					if (width > height)
+						scale = boxSide / width;
+					else
+						scale = boxSide / height;
+
+					/*x += ((ox - spr->GetWidth() * 0.5) * scale);
+					y += ((oy - spr->GetHeight() * 0.5) * scale);*/
+					spr->RenderEx(x, y, 0, scale);
+				}
+			} while (nani && add-- > 0);
+
+			//GV->fntMyriad13->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFa1a1a1));
+			//GV->fntMyriad13->printf(drawX + IMAGE_TILE_WIDTH * 0.5, drawY + IMAGE_TILE_HEIGHT - 13, HGETEXT_CENTER, "%s", 0, imgSet->GetID());
+		}
+
+		hge->Gfx_SetClipping();
+		hge->Gfx_RenderLine(dx, dy + CONTAINER_HEIGHT, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT, GV->colLineBright);
+
+		if (asImageSetHover) {
+			imgsCon->RenderTooltip();
+		} else {
+			imgsCon->UpdateTooltip(false);
+		}
+	}
+
+	void cEditObjCandy::UpdateLogic()
+	{
+		if (highDetail->isSelected()) {
+			int z = GetUserDataFromObj(hTempObj)->GetZ();
+			std::string logic(z < 4000 ? "Behind" : "Front");
+			if (animated->isSelected()) {
+				logic += "Ani";
+			}
+			logic += "Candy";
+			hTempObj->SetLogic(logic.c_str());
+		} else if (animated->isSelected()) {
+			hTempObj->SetLogic("AniCycle");
+		} else {
+			hTempObj->SetLogic("DoNothing");
+		}
+	}
+
+	std::vector<cSprBankAsset*>& cEditObjCandy::CurrentlyDisplayedImgSet()
+	{
+		switch (tabs->getSelectedTabIndex()) {
+		case TAB_STANDARD:
+			return standardImgs;
+		case TAB_CUSTOM:
+			return customImgs;
+		default:
+		case TAB_OTHER:
+			return otherImgs;
+		}
+	}
+
+	int cEditObjCandy::CountActualImagesToDisplay(std::vector<cSprBankAsset*>& assets)
+	{
+		int count = 0;
+		for (auto const& asset : assets) {
+			if (NANI_IMAGESETS.contains(asset->GetID())) {
+				count += asset->GetSpritesCount();
+			} else {
+				++count;
+			}
+		}
+		return count;
+	}
+
+	void cEditObjCandy::mouseClicked(MouseEvent & mouseEvent)
+	{
+		if (asImageSetHover) {
+			asImageSetPick = asImageSetHover;
+			asFramePick = asFrameHover;
+
+			if (asFramePick || asImageSetPick->GetSpritesCount() == 1) {
+				animated->setSelected(false);
+				int frameI = asFramePick ? asFramePick->GetID() : -1;
+				GetUserDataFromObj(hTempObj)->SetI(frameI);
+				hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationI, frameI);
+				animation->setEnabled(false);
+			}
+			else {
+				animated->setSelected(true);
+				auto it = LEVEL_STANDARD_ANI.find(asImageSetPick->GetID());
+				if (it != LEVEL_STANDARD_ANI.end()) {
+					animation->setText(it->second);
+				}
+				else {
+					animation->setText("GAME_CYCLE100");
+				}
+				animation->setEnabled(true);
+			}
+			UpdateLogic();
+			hTempObj->SetImageSet(asImageSetPick->GetID());
+			hState->vPort->MarkToRedraw(1);
+		}
+	}
 }

@@ -989,14 +989,14 @@ bool State::EditingWW::IsEditableObject(WWD::Object *obj, ObjEdit::cObjEdit **hE
     } else if (!strcmp(obj->GetLogic(), "FrontAniCandy") || !strcmp(obj->GetLogic(), "BehindAniCandy") ||
                !strcmp(obj->GetLogic(), "FrontCandy") || !strcmp(obj->GetLogic(), "BehindCandy") ||
                !strcmp(obj->GetLogic(), "DoNothing") || !strcmp(obj->GetLogic(), "DoNothingNormal") ||
-               !strcmp(obj->GetLogic(), "AniCycle")) {
+               !strcmp(obj->GetLogic(), "AniCycle") || !strcmp(obj->GetLogic(), "AniCycleNormal") || !strcmp(obj->GetLogic(), "SimpleAnimation")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCandy(obj, this);
         ret = 1;
     } else if (!strcmp(obj->GetLogic(), "SpringBoard") || !strcmp(obj->GetLogic(), "GroundBlower")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSpringboard(obj, this);
         ret = 1;
     } else if (strstr(obj->GetLogic(), "SoundTrigger")) {
-        if (hEdit != 0) *hEdit = new ObjEdit::cEditObjDialog(obj, this);
+        if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSoundTrigger(obj, this);
         ret = 1;
     } else if (!strcmp(obj->GetLogic(), "TProjectile")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjProjectile(obj, this);
@@ -1175,9 +1175,9 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
     } else if (widg == hmbObject->butIconTogglePeg) {
         obj->SetLogic("TogglePeg");
     } else if (widg == hmbObject->butIconEyeCandy) {
-        obj->SetLogic("FrontCandy");
+        obj->SetLogic("DoNothing");
         obj->SetParam(WWD::Param_LocationI, -1);
-        obj->SetParam(WWD::Param_LocationZ, 5000);
+        obj->SetParam(WWD::Param_LocationZ, 990);
     } else if (widg == hmbObject->butIconSpringBoard) {
         obj->SetLogic(hParser->GetBaseLevel() == 6 ? "GroundBlower" : "SpringBoard");
         if (hParser->GetBaseLevel() == 4 || hParser->GetBaseLevel() == 13)

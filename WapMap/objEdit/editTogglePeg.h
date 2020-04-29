@@ -9,7 +9,7 @@ namespace ObjEdit {
         SHR::RadBut *rbType[3];
         SHR::Lab *labTimeOn, *labTimeOff, *labOffset, *labnobjDelay, *labIncrement;
         SHR::TextField *tfTimeOn, *tfTimeOff, *tfOffset, *tfnobjDelay;
-        SHR::Win *win, *winSeries;
+        SHR::Win *winSeries;
         SHR::CBox *cbAlwaysOn;
         std::vector<std::string> vszDefaultImgsets;
 

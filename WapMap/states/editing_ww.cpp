@@ -138,7 +138,7 @@ void State::EditingWW::Init() {
     gui->setGraphics(GV->gcnGraphics);
     gui->setInput(GV->gcnInput);
 
-    conMain = new SHR::Contener();
+    conMain = new SHR::Container();
     conMain->setDimension(
             gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
 
@@ -156,7 +156,7 @@ void State::EditingWW::Init() {
     vpMain = new WIDG::Viewport(vp, VP_VIEWPORT);
     conMain->add(vpMain, 0, 0);
 
-    conWriteID = new SHR::Contener();
+    conWriteID = new SHR::Container();
     conWriteID->setDimension(gcn::Rectangle(0, 0, 48, 20));
     conWriteID->setVisible(0);
     conWriteID->setOpaque(0);
@@ -246,23 +246,23 @@ void State::EditingWW::Init() {
 
     SetIconBarVisible(0);
 
-    conResizeLeft = new SHR::Contener();
+    conResizeLeft = new SHR::Container();
     conResizeLeft->setDimension(gcn::Rectangle(vPort->GetX(), vPort->GetY() + 40, 40, vPort->GetHeight() - 80));
     conResizeLeft->setVisible(0);
     conResizeLeft->setOpaque(0);
     conMain->add(conResizeLeft);
-    conResizeRight = new SHR::Contener();
+    conResizeRight = new SHR::Container();
     conResizeRight->setDimension(
             gcn::Rectangle(vPort->GetX() + vPort->GetWidth() - 40, vPort->GetY() + 40, 40, vPort->GetHeight() - 80));
     conResizeRight->setVisible(0);
     conResizeRight->setOpaque(0);
     conMain->add(conResizeRight);
-    conResizeUp = new SHR::Contener();
+    conResizeUp = new SHR::Container();
     conResizeUp->setDimension(gcn::Rectangle(vPort->GetX(), vPort->GetY(), vPort->GetWidth(), 40));
     conResizeUp->setVisible(0);
     conResizeUp->setOpaque(0);
     conMain->add(conResizeUp);
-    conResizeDown = new SHR::Contener();
+    conResizeDown = new SHR::Container();
     conResizeDown->setDimension(
             gcn::Rectangle(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 40, vPort->GetWidth(), 40));
     conResizeDown->setVisible(0);
@@ -838,13 +838,13 @@ void State::EditingWW::Init() {
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 300);
 
 
-    condbTiles = new SHR::Contener();
+    condbTiles = new SHR::Container();
     condbTiles->setDimension(gcn::Rectangle(0, 0, 790, 570));
-    condbImages = new SHR::Contener();
+    condbImages = new SHR::Container();
     condbImages->setDimension(gcn::Rectangle(0, 0, 790, 570));
-    condbAnims = new SHR::Contener();
+    condbAnims = new SHR::Container();
     condbAnims->setDimension(gcn::Rectangle(0, 0, 790, 570));
-    condbSounds = new SHR::Contener();
+    condbSounds = new SHR::Container();
     condbSounds->setDimension(gcn::Rectangle(0, 0, 790, 570));
 
     tadbTabs = new SHR::TabbedArea();
@@ -1498,7 +1498,7 @@ void State::EditingWW::Init() {
     GV->Console->AddModifiableBool("redraw", &bConstRedraw);
     GV->Console->AddModifiableBool("drawprop", &bDrawTileProperties);
 
-    conRecentFiles = new SHR::Contener();
+    conRecentFiles = new SHR::Container();
     conRecentFiles->setOpaque(0);
     labloadLastOpened = new SHR::Lab(GETL2S("HomeScreen", "RecentDocs"));
     labloadLastOpened->adjustSize();
@@ -1563,7 +1563,7 @@ void State::EditingWW::Init() {
                 }
             }
             if (linec > 0) {
-                conCrashRetrieve = new SHR::Contener();
+                conCrashRetrieve = new SHR::Container();
                 conCrashRetrieve->setOpaque(0);
                 conCrashRetrieve->setDimension(gcn::Rectangle(0, 0, 590, 25 + (linec > 10 ? 11 : linec) * 25 + 40));
                 vpCrashRetrieve = new WIDG::Viewport(vp, VP_CRASHRETRIEVE);
@@ -1584,7 +1584,7 @@ void State::EditingWW::Init() {
         }
     }
 
-    winWelcome = new SHR::Contener();
+    winWelcome = new SHR::Container();
     winWelcome->setDimension(gcn::Rectangle(0, 0, 600, 180));
     winWelcome->setOpaque(0);
     conMain->add(winWelcome, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 300,
@@ -1624,7 +1624,7 @@ void State::EditingWW::Init() {
     hAppMenu->SyncMRU();
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0 || conCrashRetrieve) {
-        SHR::Contener *contenertoadd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
+        SHR::Container *contenertoadd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
 
         winWelcome->setHeight(winWelcome->getHeight() + contenertoadd->getHeight());
         winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
@@ -2851,7 +2851,7 @@ void State::EditingWW::ExitMode(int piMode) {
     }
 }
 
-SHR::But *State::EditingWW::MakeButton(int x, int y, EnumGfxIcons icon, SHR::Contener *dest, bool enable, bool visible,
+SHR::But *State::EditingWW::MakeButton(int x, int y, EnumGfxIcons icon, SHR::Container *dest, bool enable, bool visible,
                                        gcn::ActionListener *actionListener) {
     SHR::But *but = new SHR::But(GV->hGfxInterface, GV->sprIcons[icon]);
     but->setDimension(gcn::Rectangle(0, 0, 32, 32));

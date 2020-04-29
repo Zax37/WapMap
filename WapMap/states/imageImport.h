@@ -71,7 +71,7 @@ namespace State {
         SHR::ScrollArea *saFileList;
         SHR::Lab *labHint[2], *labFiles, *labMountOut, *labMountOutV;
         SHR::But *butSave, *butSelectFiles, *butCancel, *butAutoID;
-        SHR::Contener *conFiles;
+        SHR::Container *conFiles;
         SHR::Lab *labOutputFormat;
         SHR::DropDown *ddOutputFormat;
 

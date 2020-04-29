@@ -17,7 +17,6 @@ namespace ObjEdit {
     class cEditObjStatue : public cObjEdit {
     private:
         SHR::RadBut *rbType[2];
-        SHR::Win *win;
         cInvPickbox *hInventory;
         lmEditObjStatueDurability *lmDurability;
         SHR::DropDown *ddDurability;

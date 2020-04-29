@@ -61,10 +61,6 @@ namespace SHR {
         // and a partial visible row at the bottom.
         int numberOfRows = currentClipArea.height / rowHeight + 2;
 
-        if (numberOfRows > mListModel->getNumberOfElements()) {
-            numberOfRows = mListModel->getNumberOfElements();
-        }
-
         // Calculate which row to start drawing. If the list box
         // has a negative y coordinate value we should check if
         // we should drop rows in the begining of the list as
@@ -78,11 +74,17 @@ namespace SHR {
             startRow = 0;
         }
 
+		int endRow = startRow + numberOfRows;
+
+		if (endRow > mListModel->getNumberOfElements()) {
+			endRow = mListModel->getNumberOfElements();
+		}
+
         int i;
         // The y coordinate where we start to draw the text is
         // simply the y coordinate multiplied with the font height.
         int y = rowHeight * startRow;
-        for (i = startRow; i < startRow + numberOfRows; ++i) {
+        for (i = startRow; i < endRow; ++i) {
             if (i == mSelected || i == mHighlighted) {
                 graphics->setColor(i == mSelected ? 0x1585e2 : 0x454545);
                 graphics->fillRectangle(Rectangle(0, y, getWidth(), rowHeight));

@@ -26,7 +26,7 @@ namespace State {
         myWin->setMovable(0);
         myWin->setClose(1);
         myWin->addActionListener(this);
-        conPreview = new SHR::Contener();
+        conPreview = new SHR::Container();
         conPreview->setDimension(gcn::Rectangle(0, 0, 100, 100));
         conPreview->setOpaque(0);
 

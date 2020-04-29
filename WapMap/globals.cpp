@@ -394,8 +394,10 @@ void cGlobals::Init() {
 #endif // SFS_COMPILER
 
     cSFS_Repository repo("data.sfs");
-    //mkdir("res");
-    //repo.Unpack();
+#if BUILD_DEBUG
+//mkdir("res");
+//repo.Unpack();
+#endif
     void *ptr;
     int size;
 

@@ -47,7 +47,7 @@ namespace detail {
         if (stream.fail() || Signature != SignatureConstant) {
             stream.clear();
             stream.seekg(
-                    static_cast<std::ios::off_type>(static_cast<std::ios::streamoff>(stream.tellg()) - stream.gcount()),
+                    static_cast<std::ios::off_type>(static_cast<std::streamoff>(stream.tellg()) - stream.gcount()),
                     std::ios::beg);
             return false;
         }

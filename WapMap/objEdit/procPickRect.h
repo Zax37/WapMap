@@ -50,7 +50,7 @@ namespace ObjEdit {
 
         void Think();
 
-        void AddWidgets(SHR::Contener *dest, int x, int y);
+        void AddWidgets(SHR::Container *dest, int x, int y);
 
         int GetValue(int i) { return atoi(tf[i]->getText().c_str()); };
 

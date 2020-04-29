@@ -18,9 +18,9 @@ namespace SHR {
         addKeyListener(this);
         addMouseListener(this);
 
-        mTabContainer = new Contener();
+        mTabContainer = new Container();
         mTabContainer->setOpaque(false);
-        mWidgetContainer = new Contener();
+        mWidgetContainer = new Container();
 
         add(mTabContainer);
         add(mWidgetContainer);
@@ -138,7 +138,7 @@ namespace SHR {
     void TabbedArea::setSelectedTab(Tab *tab) {
         unsigned int i;
         for (i = 0; i < mTabs.size(); i++) {
-            if (mTabs[i].first == mSelectedTab) {
+            if (mTabs[i].first == mSelectedTab && mTabs[i].second) {
                 mWidgetContainer->remove(mTabs[i].second);
             }
         }
@@ -146,9 +146,15 @@ namespace SHR {
         for (i = 0; i < mTabs.size(); i++) {
             if (mTabs[i].first == tab) {
                 mSelectedTab = tab;
-                mWidgetContainer->add(mTabs[i].second);
+				if (mTabs[i].second) {
+					mWidgetContainer->add(mTabs[i].second);
+				}
             }
         }
+
+		if (onSelectionChange) {
+			onSelectionChange();
+		}
     }
 
     int TabbedArea::getSelectedTabIndex() const {
@@ -166,6 +172,11 @@ namespace SHR {
         return mSelectedTab;
     }
 
+	void TabbedArea::setSelectionChangeCallback(std::function<void()> selectionChangeCallback)
+	{
+		onSelectionChange = selectionChangeCallback;
+	}
+
     void TabbedArea::setOpaque(bool opaque) {
         mOpaque = opaque;
     }
@@ -182,16 +193,6 @@ namespace SHR {
         Color shadowColor = faceColor - 0x303030;
         shadowColor.a = alpha;
 
-        //hge->Gfx_RenderLine(dx, dy+105, dx+winWorld->getWidth()-15, dy+105, 0xFF5c5c5c);
-        //hge->Gfx_RenderLine(dx, dy+104, dx+winWorld->getWidth()-15, dy+104, 0xFF1f1f1f);
-
-        // Draw a border.
-        /*graphics->setColor(0x5c5c5c);
-        graphics->drawLine(0,
-                           mTabContainer->getHeight(),
-                           0,
-                           getHeight() - 2);*/
-
         if (isOpaque()) {
             graphics->setColor(getBaseColor());
             graphics->fillRectangle(gcn::Rectangle(2, 2,
@@ -203,12 +204,12 @@ namespace SHR {
 
         // Draw a line underneath the tabs.
         graphics->setColor(0x1f1f1f);
-        graphics->drawLine(1,
+        graphics->drawLine(0,
                            mTabContainer->getHeight(),
                            getWidth() - 2,
                            mTabContainer->getHeight());
         graphics->setColor(0x5c5c5c);
-        graphics->drawLine(1,
+        graphics->drawLine(0,
                            mTabContainer->getHeight() + 1,
                            getWidth() - 2,
                            mTabContainer->getHeight() + 1);
@@ -224,7 +225,7 @@ namespace SHR {
         }
 
         graphics->setColor(0x1f1f1f);
-        graphics->drawLine(1,
+        graphics->drawLine(0,
                            getHeight() - 2,
                            getWidth() - 1,
                            getHeight() - 2);
@@ -232,9 +233,9 @@ namespace SHR {
                            mTabContainer->getHeight() + 1,
                            getWidth() - 2,
                            getHeight() - 2);
-        graphics->drawLine(1,
+        graphics->drawLine(0,
                            mTabContainer->getHeight() + 1,
-                           1,
+                           0,
                            getHeight() - 2);
 
         graphics->setColor(0x5c5c5c);
@@ -242,14 +243,10 @@ namespace SHR {
                            mTabContainer->getHeight() + 1,
                            getWidth() - 1,
                            getHeight() - 1);
-        graphics->drawLine(1,
+        graphics->drawLine(0,
                            getHeight() - 1,
                            getWidth() - 1,
                            getHeight() - 1);
-        graphics->drawLine(2,
-                           mTabContainer->getHeight() + 1,
-                           2,
-                           getHeight() - 3);
     }
 
     void TabbedArea::logic() {

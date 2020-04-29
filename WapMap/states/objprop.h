@@ -67,7 +67,7 @@ namespace State {
         SHR::TextField *tfX1, *tfY1, *tfX2, *tfY2;
         SHR::But *butPick, *butClear;
 
-        cRectPropGUI(WWD::Rect *src, SHR::Contener *dest, int dx, int dy, const char *desc);
+        cRectPropGUI(WWD::Rect *src, SHR::Container *dest, int dx, int dy, const char *desc);
 
         ~cRectPropGUI();
 
@@ -178,7 +178,7 @@ namespace State {
         gcn::Gui *gui;
         cObjectProp *hProp;
         EditingWW *mainSt;
-        SHR::Contener *conMain;
+        SHR::Container *conMain;
         bool bMoveObject;
         //friend class LoadMapActionListener;
     };

@@ -73,6 +73,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
 
     remove(".wm_update.exe");
 
+	// HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.wwd ?
+
+	HKEY hkey;
+	std::string extension = ".wwd";
+	const char* desc = "WAP32 Map Document";
+	std::string app = std::string(tmp) + " %1";
+	const char* action = "Edit with WapMap";
+
+	std::string path = extension +
+		"\\shell\\" +
+		action +
+		"\\"
+		"command\\";
+
+	if (RegCreateKeyEx(HKEY_CLASSES_ROOT, extension.c_str(), 0, 0, 0, KEY_ALL_ACCESS, 0, &hkey, 0) == ERROR_SUCCESS)
+	{
+		RegSetValueEx(hkey, "", 0, REG_SZ, (BYTE*)desc, strlen(desc));
+		RegCloseKey(hkey);
+	}
+
+	if (RegCreateKeyEx(HKEY_CLASSES_ROOT, path.c_str(), 0, 0, 0, KEY_ALL_ACCESS, 0, &hkey, 0) == ERROR_SUCCESS)
+	{
+		RegSetValueEx(hkey, "", 0, REG_SZ, (BYTE*)app.c_str(), app.length());
+		RegCloseKey(hkey);
+	}
+
 #ifndef BUILD_DEBUG
     char *fn = SHR::GetFile(tmp);
     if (strcmp(fn, EXENAME) != 0) {

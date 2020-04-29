@@ -9,7 +9,6 @@ namespace ObjEdit {
         SHR::CBox *cbAnimated;
         SHR::Lab *labSpeed, *labOffset;
         SHR::TextField *tfSpeed, *tfOffset;
-        SHR::Win *win;
 
         friend class cObjPropVP;
 

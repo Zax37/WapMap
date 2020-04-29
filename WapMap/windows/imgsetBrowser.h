@@ -17,7 +17,7 @@ private:
             *labImageFileName, *labImagePath, *labImageDim,
             *labImageFileNameV, *labImagePathV, *labImageDimV;
     SHR::ScrollArea *saFrames, *saImageSets;
-    SHR::Contener *conFrames, *conImageSets;
+    SHR::Container *conFrames, *conImageSets;
     WIDG::Viewport *vp;
     SHR::But *butImportImageSet, *butDeleteImageSet, *butRenameImageSet, *butBrowseFolder, *butDeleteFrame, *butChangeFrameID, *butImageDetails,
             *butAddFrames;

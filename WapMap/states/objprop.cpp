@@ -160,7 +160,7 @@ namespace State {
         }
     }
 
-    cRectPropGUI::cRectPropGUI(WWD::Rect *src, SHR::Contener *dest, int dx, int dy, const char *desc) {
+    cRectPropGUI::cRectPropGUI(WWD::Rect *src, SHR::Container *dest, int dx, int dy, const char *desc) {
         labDesc = new SHR::Lab(desc);
         labDesc->adjustSize();
         dest->add(labDesc, dx, dy);
@@ -1544,7 +1544,7 @@ State::ObjProp::ObjProp(EditingWW *main, WWD::Object *obj, bool bMove) {
     gui = new gcn::Gui();
     gui->setGraphics(GV->gcnGraphics);
     gui->setInput(GV->gcnInput);
-    conMain = new SHR::Contener();
+    conMain = new SHR::Container();
     conMain->setDimension(
             gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
     conMain->setOpaque(0);

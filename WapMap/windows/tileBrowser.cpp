@@ -22,7 +22,7 @@ winTileBrowser::winTileBrowser() {
     labTileSets->adjustSize();
     myWin->add(labTileSets, 5, 10);
 
-    conTileSets = new SHR::Contener();
+    conTileSets = new SHR::Container();
     conTileSets->setDimension(gcn::Rectangle(0, 0, 100, 100));
     conTileSets->setOpaque(0);
     saTileSets = new SHR::ScrollArea(conTileSets, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
@@ -31,7 +31,7 @@ winTileBrowser::winTileBrowser() {
     myWin->add(saTileSets, 5, 29);
     conTileSets->setWidth(saTileSets->getChildrenArea().width);
 
-    conTiles = new SHR::Contener();
+    conTiles = new SHR::Container();
     conTiles->setDimension(gcn::Rectangle(0, 0, 100, 100));
     conTiles->setOpaque(0);
     saTiles = new SHR::ScrollArea(conTiles, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);

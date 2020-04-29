@@ -228,7 +228,7 @@ cAutoUpdater::~cAutoUpdater() {
     }
 }
 
-void cAutoUpdater::PopupQuestion(SHR::Contener *dest) {
+void cAutoUpdater::PopupQuestion(SHR::Container *dest) {
     hAL = new cAUAL(this);
     if (winActualize == NULL)
         winActualize = new SHR::Win(&GV->gcnParts, GETL(Lang_ActualizeCaption));

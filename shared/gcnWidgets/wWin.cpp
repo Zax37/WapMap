@@ -255,6 +255,14 @@ namespace SHR {
         return (mMouseOver && mx > x + getWidth() - 18 && my > y + 5 && mx < x + getWidth() - 2 && my < y + 21);
     }
 
+	bool Win::gotFocus()
+	{
+		for (gcn::Widget* child : mWidgets) {
+			if (child->isFocused()) return true;
+		}
+		return false;
+	}
+
     void Win::mousePressed(MouseEvent &mouseEvent) {
         if (mouseEvent.getSource() != this) {
             return;

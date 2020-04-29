@@ -8,7 +8,6 @@ namespace ObjEdit {
     class cEditObjShake : public cObjEdit {
     private:
         SHR::Lab *labActivate;
-        SHR::Win *win;
         cProcPickRect *hRectPick;
 
         friend class cObjPropVP;

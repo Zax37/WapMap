@@ -54,7 +54,7 @@ struct cBrushSetting {
 
 class cBrush {
 private:
-    SHR::Contener *hconSettings;
+    SHR::Container *hconSettings;
     std::vector<cBrushSetting *> vSettings;
     char *m_szErrorInfo;
     int m_iBaseLvl;
@@ -76,9 +76,9 @@ public:
 
     bool HasSettings() { return vSettings.size() != 0; };
 
-    void AddSettingsToContainer(SHR::Contener *con, int sx, int sy);
+    void AddSettingsToContainer(SHR::Container *con, int sx, int sy);
 
-    void RemoveSettingsFromContainer(SHR::Contener *con);
+    void RemoveSettingsFromContainer(SHR::Container *con);
 
     int GetSettingsHeight();
 
