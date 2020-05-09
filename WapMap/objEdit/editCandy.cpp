@@ -167,14 +167,20 @@ namespace ObjEdit {
     }
 
     cEditObjCandy::~cEditObjCandy() {
-        /*delete labAlign;
-        for (int i = 0; i < 3; i++)
-            delete rbType[i];
-        delete tfAnimation;
-        delete labAnimation;
-        delete cbAnimated;
-        delete labImageSet;
-        delete tddImageSet;*/
+        delete highDetail;
+        delete animated;
+        delete labZPos;
+
+        for (auto & i : rbType)
+            delete i;
+
+        delete zCoord;
+        delete animation;
+
+        delete tabs;
+        delete imgsCon;
+        delete saImgPick;
+
         delete win;
         hState->vPort->MarkToRedraw(1);
     }
@@ -350,9 +356,7 @@ namespace ObjEdit {
 		hge->Gfx_SetClipping();
 		hge->Gfx_RenderLine(dx, dy + CONTAINER_HEIGHT, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT, GV->colLineBright);
 
-		if (asImageSetHover) {
-			imgsCon->RenderTooltip();
-		} else {
+		if (!asImageSetHover) {
 			imgsCon->UpdateTooltip(false);
 		}
 	}

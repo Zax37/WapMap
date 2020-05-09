@@ -565,6 +565,7 @@ namespace ObjEdit {
     }
 
     void cEditObjElevPath::SynchronizeObj() {
+        hTempObj->SetParam(WWD::Param_Powerup, 0);
         hTempObj->SetMoveRect(WWD::Rect(0, 0, 0, 0));
         hTempObj->SetHitRect(WWD::Rect(0, 0, 0, 0));
         hTempObj->SetAttackRect(WWD::Rect(0, 0, 0, 0));

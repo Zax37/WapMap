@@ -57,10 +57,11 @@ void State::MapStats::Init() {
         for (int a = 0; a < 5; a++) atrcount[a] = 0;
         for (int y = 0; y < hMap->GetPlane(i)->GetPlaneHeight(); y++)
             for (int x = 0; x < hMap->GetPlane(i)->GetPlaneWidth(); x++) {
-                if (hMap->GetPlane(i)->GetTile(x, y)->IsFilled() || hMap->GetPlane(i)->GetTile(x, y)->IsInvisible())
+                WWD::Tile* tile = hMap->GetPlane(i)->GetTile(x, y);
+                if (!tile->IsFilled() || !tile->IsInvisible())
                     atrcount[0]++;
                 else {
-                    WWD::TileAtrib *atr = hMap->GetTileAtribs(hMap->GetPlane(i)->GetTile(x, y)->GetID());
+                    WWD::TileAttrib *atr = hMap->GetTileAttribs(tile->GetID());
                     if (atr == NULL) {
                         atrcount[0]++;
                         continue;
@@ -70,7 +71,7 @@ void State::MapStats::Init() {
                     if (attr > 5) attr = 5;
                     atrcount[attr]++;
 
-                    if (atr->GetType() == WWD::AtribType_Double) {
+                    if (atr->GetType() == WWD::AttribType_Double) {
                         attr = int(atr->GetAtribOutside());
                         if (attr > 5) attr = 5;
                         atrcount[attr]++;

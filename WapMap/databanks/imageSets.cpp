@@ -61,11 +61,14 @@ cSprBankAsset::~cSprBankAsset() {
 }
 
 void cSprBankAssetIMG::Load() {
-    cDC_MountEntry myEntry = hParent->GetParent()->GetMountEntry(GetMountPoint());
-    printf("mnt entry: %s\n files: %d\n", myEntry.strMountPoint.c_str(), myEntry.vFiles.size());
-    if (myEntry.vFiles[0].hFeed != GetFile().hFeed ||
-        myEntry.vFiles[0].strPath != GetFile().strPath)
-        SetFile(myEntry.vFiles[0]);
+    cDC_MountEntry* entry = hParent->GetParent()->GetMountEntry(GetMountPoint());
+    if (!entry) {
+        GV->Console->Print("~r~Entry not found! (cSprBankAssetIMG::Load)~w~");
+        return;
+    }
+    if (entry->vFiles[0].hFeed != GetFile().hFeed || entry->vFiles[0].strPath != GetFile().strPath) {
+        SetFile(entry->vFiles[0]);
+    }
 
     if (!hParent->GetParent()->IsLoadableImage(GetFile(), &imgInfo, cImageInfo::Full))
         return;
@@ -83,8 +86,9 @@ void cSprBankAssetIMG::Load() {
     ((cBankImageSet *) _hBank)->GetTextureAtlaser()->AddSprite(imgSprite);
     ((cBankImageSet *) _hBank)->GetTextureAtlaser()->Pack();
 
-    if (imgSprite->GetTexture() == 0)
+    if (imgSprite->GetTexture() == 0) {
         return;
+    }
 
     float x, y, w, h;
     imgSprite->GetTextureRect(&x, &y, &w, &h);
@@ -133,9 +137,11 @@ cSprBankAssetIMG::~cSprBankAssetIMG() {
 }
 
 std::string cSprBankAssetIMG::GetMountPoint() {
-    char tmp[16];
-    sprintf(tmp, "%d", m_iID);
-    return std::string("/IMAGES/") + hIS->GetID() + "/" + tmp;
+    std::string ret("/IMAGES/");
+    ret += hIS->GetID();
+    ret += '/';
+    ret += std::to_string(m_iID);
+    return ret;
 }
 
 void cSprBankAsset::AddIMG(cSprBankAssetIMG *img) {
@@ -219,11 +225,12 @@ cSprBankAssetIMG *cSprBankAsset::GetIMGByNoID(int noid) {
 }
 
 hgeSprite *cBankImageSet::GetObjectSprite(WWD::Object *obj) {
+    int i = obj->GetI();
     if (strstr(obj->GetImageSet(), "FONT") != NULL)
         //return GetSpriteFromAsset(obj->GetImageSet(), std::max(obj->GetParam(WWD::Param_LocationI), 0));
-        return GetSpriteFromAsset(obj->GetImageSet(), std::max(GetUserDataFromObj(obj)->GetI(), 0));
+        return GetSpriteFromAsset(obj->GetImageSet(), std::max(i, 0));
     else if (GV->editState->hTileset->GetSet(obj->GetImageSet()) != 0) {
-        cTile *t = GV->editState->hTileset->GetSet(obj->GetImageSet())->GetTile(GetUserDataFromObj(obj)->GetI());
+        cTile *t = GV->editState->hTileset->GetSet(obj->GetImageSet())->GetTile(i);
         if (!t) return GV->sprSmiley;
         t->GetImage()->SetHotSpot(t->GetImage()->GetWidth() / 2, t->GetImage()->GetHeight() / 2);
         return t->GetImage();
@@ -233,11 +240,11 @@ hgeSprite *cBankImageSet::GetObjectSprite(WWD::Object *obj) {
         }
         //return GetSpriteFromAsset(obj->GetImageSet(), std::max(obj->GetParam(WWD::Param_LocationI)-1, 0));
         if (!strcmp(obj->GetLogic(), "TigerGuard") && obj->GetParam(WWD::Param_Smarts) == 1)
-            return GetSpriteFromAsset("LEVEL_TIGERWHITE", GetUserDataFromObj(obj)->GetI());
+            return GetSpriteFromAsset("LEVEL_TIGERWHITE", i);
         else if (!strcmp(obj->GetLogic(), "HermitCrab") && obj->GetUserValue(0) != 0)
-            return GetSpriteFromAsset("LEVEL_BOMBERCRAB", GetUserDataFromObj(obj)->GetI());
+            return GetSpriteFromAsset("LEVEL_BOMBERCRAB", i);
         else
-            return GetSpriteFromAsset(obj->GetImageSet(), GetUserDataFromObj(obj)->GetI());
+            return GetSpriteFromAsset(obj->GetImageSet(), i);
     }
 }
 
@@ -419,16 +426,17 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
     size_t lslash = strFilePath.rfind('/');
     if (lslash == strFilePath.length() - 1)
         return "";
-    std::string strSet = (lslash == std::string::npos ? strPrefix
-                                                      : strPrefix + "_" + strFilePath.substr(0, lslash)),
-            strFile = (lslash == std::string::npos ? strFilePath
-                                                   : strFilePath.substr(lslash));
-    size_t filedot = strFile.rfind('.');
-    if (filedot == std::string::npos || filedot == 0 || filedot == strFile.length() - 1)
-        return "";
-    std::string strExtension = strFile.substr(filedot + 1);
-    std::transform(strExtension.begin(), strExtension.end(), strExtension.begin(), ::tolower);
-    if (strExtension != "pid" && strExtension != "bmp" && strExtension != "pcx")
+    std::string strSet(strPrefix);
+    if (lslash != std::string::npos) {
+        strSet.push_back('_');
+        strSet.append(strFilePath.c_str(), lslash);
+    }
+    std::string strFile(strFilePath);
+    if (lslash != std::string::npos) {
+        strFile.append(strFilePath.c_str() + lslash);
+    }
+    const char* fileDot = strrchr(strFile.c_str(), '.');
+    if (!fileDot || !canReadExtension(fileDot + 1))
         return "";
     std::transform(strSet.begin(), strSet.end(), strSet.begin(), ::toupper);
     size_t slash = strSet.find('/');
@@ -447,10 +455,8 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
             numpos++;
         }
     }
-    char buf[16];
-    sprintf(buf, "%d", tid);
 
-    return "/IMAGES/" + strSet + "/" + buf;
+    return "/IMAGES/" + strSet + '/' + std::to_string(tid);
 }
 
 cAsset *cBankImageSet::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {
@@ -490,4 +496,17 @@ void cBankImageSet::DeleteAsset(cAsset *hAsset) {
                 return;
             }
     }
+}
+
+bool cBankImageSet::canReadExtension(const char *ext) {
+    if (ext[0] == 'P' || ext[0] == 'p') {
+        if ((ext[1] == 'I' || ext[1] == 'i')) {
+            return (ext[2] == 'D' || ext[2] == 'd') && ext[3] == 0;
+        } else return (ext[1] == 'C' || ext[1] == 'c')
+            && (ext[2] == 'X' || ext[2] == 'x')
+            && ext[3] == 0;
+    } else return ((ext[0] == 'B' || ext[0] == 'b')
+               && (ext[1] == 'M' || ext[1] == 'm')
+               && (ext[2] == 'P' || ext[2] == 'p')
+               && ext[3] == 0);
 }

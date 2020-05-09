@@ -14,6 +14,13 @@ typedef unsigned char byte;
 #define RBYTE(b) read((char*)(&b), 1)
 #define RLEN(data, len) read((char*)(data), len)
 
+struct membuf : std::streambuf
+{
+    membuf(char* begin, char* end) {
+        this->setg(begin, begin, end);
+    }
+};
+
 namespace PID {
 
     enum FLAGS {
@@ -101,7 +108,7 @@ namespace PID {
 
     class Image : public HeaderInfo {
     private:
-        bool m_bInited, m_bFile, m_bDeletePal, m_bForceFlare;
+        bool m_bInited, m_bDeletePal, m_bForceFlare;
 
         byte *m_iData;
 
@@ -114,8 +121,6 @@ namespace PID {
         void CleanUp();
 
         void Load(std::istream *pisSource, bool pbForceUsing, bool pbForceTransparency);
-
-        HGE *hHGE;
     public:
         Image(int w, int h);
 
@@ -162,6 +167,12 @@ namespace PID {
         byte GetColorIdAt(int x, int y);
 
         void Save(const char *szOut);
+
+        byte* StealDataPtr() {
+            byte* data = m_iData;
+            m_iData = NULL;
+            return data;
+        }
     };
 };
 

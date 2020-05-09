@@ -343,6 +343,7 @@ cTile *cTileImageSet::GetTile(short piID) {
 }
 
 cTile *cBankTile::GetTile(const char *pszSet, short piID) {
+    if (pszSet == NULL) return NULL;
     for (int i = 0; i < m_vhSets.size(); i++) {
         if (!strcmp(pszSet, m_vhSets[i]->m_szName)) {
             return m_vhSets[i]->GetTile(piID);
@@ -352,7 +353,7 @@ cTile *cBankTile::GetTile(const char *pszSet, short piID) {
 }
 
 cTileImageSet *cBankTile::GetSet(const char *pszSet, bool bCaseSensitive) {
-
+    if (pszSet == NULL) return NULL;
     for (int i = 0; i < m_vhSets.size(); i++) {
         if (bCaseSensitive && !strcmp(pszSet, m_vhSets[i]->m_szName) ||
             !bCaseSensitive && !strcmpi(pszSet, m_vhSets[i]->m_szName)) {
@@ -518,14 +519,18 @@ void cTile::Load() {
         return;
     }
 
-    cDC_MountEntry myEntry = hParent->GetParent()->GetMountEntry(GetMountPoint());
+    cDC_MountEntry* entry = hParent->GetParent()->GetMountEntry(GetMountPoint());
+    if (!entry) {
+        GV->Console->Print("~r~Entry not found! (cTile::Load)~w~");
+        return;
+    }
 
     int iSlotX, iSlotY;
     myTexture->GetFreeSlot();
     myTexture->GetLastSlotPos(iSlotX, iSlotY);
 
     imgSprite = new hgeSprite(myTexture->GetTexture(), iSlotX * 64, iSlotY * 64, 64, 64);
-    for (auto file : myEntry.vFiles) {
+    for (auto file : entry->vFiles) {
         if (file.hFeed != GetFile().hFeed ||
             file.strPath != GetFile().strPath)
             SetFile(file);

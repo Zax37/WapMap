@@ -140,12 +140,16 @@ public:
 
     int getNumberOfElements();
 
+    static bool canReadExtension(const char* ext);
 
     virtual void BatchProcessStart(cDataController *hDC);
 
     virtual void BatchProcessEnd(cDataController *hDC);
 
-    virtual std::string GetFolderName() { return std::string("IMAGES"); };
+    const std::string& GetFolderName() override {
+        static const std::string name = "IMAGES";
+        return name;
+    };
 
     virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix);
 

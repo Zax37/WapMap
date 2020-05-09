@@ -92,6 +92,7 @@
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;d3d9.lib;d3dx9d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;libcurl-d_imp.lib;lua.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -309,6 +310,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="objedit\editCrate.cpp" />
     <ClCompile Include="objedit\editCrumblingPeg.cpp" />
     <ClCompile Include="objedit\editCurse.cpp" />
+    <ClCompile Include="objEdit\editFloorSpike.cpp" />
     <ClCompile Include="objedit\editSoundTrigger.cpp" />
     <ClCompile Include="objedit\editElevator.cpp" />
     <ClCompile Include="objedit\editElevPath.cpp" />
@@ -328,6 +330,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="objedit\editWallCannon.cpp" />
     <ClCompile Include="objedit\editWarp.cpp" />
     <ClCompile Include="objedit\procPickRect.cpp" />
+    <ClCompile Include="objEdit\procPickXYLockable.cpp" />
     <ClCompile Include="objedit\winInventoryPickbox.cpp" />
     <ClCompile Include="objQuadTree.cpp" />
     <ClCompile Include="rendering\cRenderableItem.cpp" />
@@ -460,6 +463,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objedit\editCrate.h" />
     <ClInclude Include="objedit\editCrumblingPeg.h" />
     <ClInclude Include="objedit\editCurse.h" />
+    <ClInclude Include="objEdit\editFloorSpike.h" />
     <ClInclude Include="objedit\editSoundTrigger.h" />
     <ClInclude Include="objedit\editElevator.h" />
     <ClInclude Include="objedit\editElevPath.h" />
@@ -479,6 +483,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="objedit\editWallCannon.h" />
     <ClInclude Include="objedit\editWarp.h" />
     <ClInclude Include="objedit\procPickRect.h" />
+    <ClInclude Include="objEdit\procPickXYLockable.h" />
     <ClInclude Include="objedit\winInventoryPickbox.h" />
     <ClInclude Include="objQuadTree.h" />
     <ClInclude Include="rendering\cRenderableItem.h" />

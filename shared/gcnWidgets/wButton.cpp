@@ -131,10 +131,10 @@ namespace SHR {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.0f) fTimer = 0.0f;
         } else if (isEnabled() && fTimer < 0.0f) {
-            fTimer += hge->Timer_GetDelta();
+            fTimer += hge->Timer_GetDelta() * 2.5f;
             if (fTimer > 0.0f) fTimer = 0.0f;
         } else if (!isEnabled() && fTimer > -0.2f) {
-            fTimer -= hge->Timer_GetDelta();
+            fTimer -= hge->Timer_GetDelta() * 2.5f;
             if (fTimer < -0.2f) fTimer = -0.2f;
         }
 
@@ -226,20 +226,21 @@ namespace SHR {
                 }*/
             }
         } else if (sprIcon != 0) {
+            int iconX = (getWidth() - sprIcon->GetWidth()) / 2;
+            int iconY = (getHeight() - sprIcon->GetHeight()) / 2;
             sprIcon->SetColor((!isEnabled() && !bRenderBG) ? 0x55FFFFFF : SETA(colIcon, getAlpha()));
-            sprIcon->RenderStretch(x, y, x + getWidth(), y + getHeight());
+            sprIcon->Render(x + iconX, y + iconY);
             if (fTimer > 0.0f && isEnabled()) {
                 sprIcon->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
                 unsigned char a = fTimer * 5.0f * 255.0f * getAlphaModifier();
                 sprIcon->SetColor(SETA(0xFFFFFFFF, a));
-                sprIcon->RenderStretch(x, y, x + getWidth(), y + getHeight());
+                sprIcon->Render(x + iconX, y + iconY);
                 sprIcon->SetBlendMode(BLEND_DEFAULT);
             }
             hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
             sprIcon->SetColor(0xFFFFFFFF);
         }
         hge->Gfx_SetClipping();
-        RenderTooltip();
     }
 
     void But::adjustSize() {

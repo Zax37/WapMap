@@ -70,7 +70,6 @@ private:
     Gfx16Icons iIcon;
     bool bEnabled;
     SHR::Context *hContext;
-    bool bFocused;
     float fTimer;
 public:
     cAppMenu_Entry(std::string lab, Gfx16Icons ico);

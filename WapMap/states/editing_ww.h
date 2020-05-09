@@ -37,6 +37,7 @@
 #include "hgesprite.h"
 #include "../cControllerIPC.h"
 #include "../states/mapshot.h"
+#include "../LogicInfo.h"
 
 #ifndef byte
 typedef unsigned char byte;
@@ -48,7 +49,7 @@ typedef unsigned long DWORD;
 #define SIM_TOGGLEPEG_DEFAULT_OFF 1.500f //in secs
 #define SIM_TOGGLEPEG_ADDITIONAL_DELAY 0.750f //in secs
 #define SIM_EYECANDY_DELAY 0.100f //in seconds
-#define SIM_ELEVATOR_DEFAULT_SPEED 125 //in pixels per second
+#define DEFAULT_ELEVATOR_SPEED 125 //in pixels per second
 
 #define COL_ORANGE_ARROW 0xFFffae00
 
@@ -257,23 +258,12 @@ enum OBJMENU {
 #define TILMENU_PASTE   2
 #define TILMENU_DELETE  3
 
-#define SPECOBJ_START -2
-
-#define OBJ_UNKNOWN     0
-#define OBJ_ROPE        1
-#define OBJ_CURSE       2
-#define OBJ_TREASURE    3
-#define OBJ_SOUND       4
-#define OBJ_ENEMY       5
-
 #define COLOR_SOLID     0x770000FF
 #define COLOR_GROUND    0x7700FF00
 #define COLOR_CLIMB     0X77FFFF00
 #define COLOR_DEATH     0x77FF0000
 
 #define HINT_TIME 5
-
-//#define SCR2WRD_X(x) int( m_hOwn->fCamX*(m_hOwn->GetActivePlane()->GetMoveModX()/100.0f)*+mx/m_hOwn->fZoom )
 
 //forward declarations
 class cAppMenu;
@@ -555,6 +545,8 @@ namespace State {
 
         void ExpandLogicBrowser();
 
+        LogicInfo GetLogicInfo(const char* logic) { return {logic}; }
+
         float fdbAniTimer;
 
         SHR::TabbedArea *tadbTabs;
@@ -589,7 +581,7 @@ namespace State {
         SHR::CBox *cbobrApplyScatterSeparately;
 
         SHR::CBox *cbmsDrawObjects;
-        SHR::Lab *labloadLastOpened, *labClawPath, *labLang;
+        SHR::Lab *labLoadLastOpened, *labClawPath, *labLang;
         SHR::Link *lnkLastOpened[10];
 
         SHR::Win *winDuplicate;
@@ -604,7 +596,7 @@ namespace State {
         SHR::But *buttpPrev, *buttpNext, *buttpZoom, *buttpApply, *buttpShow, *buttpPipette;
         SHR::TextField *tftpTileID, *tftpW, *tftpH, *tftpX1, *tftpX2, *tftpY1, *tftpY2;
         SHR::RadBut *rbtpSingle, *rbtpDouble, *rbtpIn[5], *rbtpOut[5];
-        WWD::TileAtrib *htpWorkingAtrib;
+        WWD::TileAttrib *hTempAttrib = nullptr;
         bool btpDragDropMask;
         int itpDDx1, itpDDy1;
         int itpSelectedTile;
@@ -634,8 +626,7 @@ namespace State {
         bool **bFloodFillBuf;
 
         int iTilePicked;
-
-        bool bClipboardCopy;
+        bool lockDrawing;
 
         char szHint[256];
         //int iHintID;
@@ -760,8 +751,6 @@ namespace State {
 
         void ShowAndUpdateDuplicateMenu();
 
-        int GetObjectType(WWD::Object *obj);
-
         float fObjContextX, fObjContextY;
         bool bDrawTileProperties;
         bool bLockScroll;
@@ -778,11 +767,11 @@ namespace State {
 
         WWD::Parser *hParser;
 
-        void SyncAtribMenuWithTile();
+        void SyncAttribMenuWithTile();
 
         std::vector<std::pair<int, int> > m_vMeasurePoints;
 
-        void DrawTileAtrib(WWD::TileAtrib *atrib, float posx, float posy, float width, float height);
+        void DrawTileAtrib(WWD::TileAttrib *atrib, float posx, float posy, float width, float height);
 
         std::vector<WWD::Object *> GetObjectsInArea(WWD::Plane *plane, int x, int y, int w, int h);
 
@@ -949,19 +938,19 @@ namespace State {
 
         void CreateObjectWithEasyEdit(gcn::Widget *widg);
 
+        const char* GetDefaultElevatorImageSet();
+
         cInventoryController *hInvCtrl;
 
         bool bShowHand;
         DWORD dwCursorColor;
 
-        bool IsObjectEnemy(WWD::Object *obj);
-
         std::vector<gcn::Widget *> vWidgetsToMinimalise;
         std::vector<gcn::Widget *> vMinimalisedWidgets;
 
-        void MinimaliseWindows();
+        void MinimizeWindows();
 
-        void MaximaliseWindows();
+        void MaximizeWindows();
 
         bool bObjectAlignAxis;
 
@@ -1013,7 +1002,7 @@ namespace State {
 
         char *FixLevelName(int iBaseLvl, const char *name);
 
-        std::vector<cInventoryItem> GetContenerItems(WWD::Object *obj);
+        std::vector<cInventoryItem> GetContainerItems(WWD::Object *obj);
 
         cServerIPC *hServerIPC;
 
@@ -1024,7 +1013,7 @@ namespace State {
         cAppMenu *hAppMenu;
         byte gamesLastOpened[10];
 
-        int PromptForDocument(char *dest);
+        bool OpenDocuments();
 
         int iTileDrawStartX, iTileDrawStartY;
 

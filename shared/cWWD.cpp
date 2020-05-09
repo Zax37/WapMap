@@ -6,6 +6,7 @@
 #ifdef WAP_MAP
 #include "cProgressInfo.h"
 #include "../WapMap/cParallelLoop.h"
+#include "../WapMap/cObjectUserData.h"
 #endif // WAP_MAP
 
 namespace WWD {
@@ -34,74 +35,32 @@ WWD::Parser::Parser(void *ptr, uint32_t iLen, CustomMetaSerializer *hSerializer)
 
 WWD::Parser::Parser(const char *pszFilename, CustomMetaSerializer *hSerializer) {
     hMetaSerializer = hSerializer;
-    //throw WWD_EXCEPTION(Error_Unknown);
-    //piInfo = 0;
     strcpy(m_szFile, pszFilename);
-    std::ifstream *str = new std::ifstream(pszFilename, std::ios_base::binary | std::ios_base::in);
-    if (str->fail())
+    std::ifstream str(pszFilename, std::ios_base::binary | std::ios_base::in);
+    if (str.fail())
         throw WWD_EXCEPTION(Error_OpenAccess);
-    LoadFromStream(str);
+    LoadFromStream(&str);
 
-    str->close();
-    delete str;
+    str.close();
 }
 
 void WWD::Parser::LoadFileHeader(std::istream *psSource) {
-    unsigned char sign[2];
-    psSource->RLEN(&sign, 2);
-    if (sign[0] != 244 || sign[1] != 05)
+    psSource->read((char*)&m_Header, sizeof(WWDHeader));
+    if (m_Header.size != sizeof(WWDHeader))
         throw WWD_EXCEPTION(Error_BadMagicNumber);
 
-    psSource->seekg(6, std::ios_base::cur);
-    byte b;
-    psSource->RBYTE(b);
-    m_iFlags = (WWD::WWD_FLAGS) b;
-
-    psSource->seekg(7, std::ios_base::cur);
-
-    psSource->RLEN(&m_szMapName, 64);
-    psSource->RLEN(&m_szAuthor, 64);
-    psSource->RLEN(&m_szDate, 64);
-    psSource->RLEN(&m_szRezPath, 256);
-    psSource->RLEN(&m_szTilesPath, 128);
-    psSource->RLEN(&m_szPalPath, 128);
-    psSource->RINT(m_iStartX);
-    psSource->RINT(m_iStartY);
-    int unk;
-    psSource->RINT(unk);
-    printf("unknown: %d\n", unk);
-    psSource->RINT(m_iPlanesCount);
-
-    int iPlanesHeader = 0, iPlanesHeaderEnd = 0;
-    psSource->RINT(iPlanesHeader);
-    psSource->RINT(iPlanesHeaderEnd);
-
-    for (int i = 0; i < 3; i++) {
-        unsigned int t = 0;
-        psSource->RINT(t);
-        printf("#%d: %u\n", i, t);
-    }
-
-    psSource->RLEN(&m_szExePath, 128);
-    for (int i = 0; i < 4; i++)
-        psSource->RLEN(&m_szImageSets[i], 128);
-    for (int i = 0; i < 4; i++)
-        psSource->RLEN(&m_szSetsPrefixes[i], 32);
-
-    char pref[3];
-    for (int i = 0; i < 3; i++)
-        pref[i] = '\0';
-    if (m_szTilesPath[0] != 'L' && m_szTilesPath[0] != 'A' && m_szTilesPath[0] != 'D')
-        pref[0] = m_szTilesPath[0];
+    char pref[3] = {0};
+    if (m_Header.m_szTilesPath[0] != 'L' && m_Header.m_szTilesPath[0] != 'A' && m_Header.m_szTilesPath[0] != 'D')
+        pref[0] = m_Header.m_szTilesPath[0];
     char formats[3][64];
     sprintf(formats[0], "%s%s", pref, "LEVEL%d%*s");
     sprintf(formats[1], "%s%s", pref, "AREA%d%*s");
     sprintf(formats[2], "%s%s", pref, "DUNGEON%d%*s");
-    if (sscanf(m_szTilesPath, formats[0], &m_iBaseLevel)) {
+    if (sscanf(m_Header.m_szTilesPath, formats[0], &m_iBaseLevel)) {
         m_iGame = Game_Claw;
-    } else if (sscanf(m_szTilesPath, formats[1], &m_iBaseLevel)) {
+    } else if (sscanf(m_Header.m_szTilesPath, formats[1], &m_iBaseLevel)) {
         m_iGame = Game_Gruntz;
-    } else if (sscanf(m_szTilesPath, formats[2], &m_iBaseLevel)) {
+    } else if (sscanf(m_Header.m_szTilesPath, formats[2], &m_iBaseLevel)) {
         m_iGame = Game_GetMedieval;
     } else {
         m_iGame = Game_Unknown;
@@ -122,7 +81,7 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
     LoadFileHeader(psSource);
 
 	std::stringstream uncompressed_data;
-    if (m_iFlags & Flag_w_Compress) {
+    if (m_Header.m_iFlags & Flag_w_Compress) {
 #ifdef WAP_MAP
         if (_ghProgressInfo != 0) {
             _ghProgressInfo->iDetailedProgress = 2 * 28;
@@ -130,21 +89,11 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
             _ghProgressCallback->Tick();
         }
 #endif // WAP_MAP
-		
+
 		Inflate(psSource, uncompressed_data);
-        printf("dekompresja ok\n");
 		psSource = &uncompressed_data;
     }
 
-    int *objcnt = new int[m_iPlanesCount];
-    int tdataoffset = 0;
-
-    /*if( piInfo != 0 ){
-     piInfo->Lock();
-     piInfo->SetDetailedProgress(50);
-     piInfo->SetDescription("Mapa: wczytywanie warstw");
-     piInfo->Unlock();
-    }*/
 #ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 3 * 28;
@@ -153,29 +102,24 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
     }
 #endif // WAP_MAP
 
-    byte b;
-    for (int i = 0; i < m_iPlanesCount; i++) {
-        Plane *pl = new Plane();
-        pl->m_hObjDeletionCB = NULL;
-        psSource->seekg(8, std::ios_base::cur);
-        psSource->RBYTE(b);
-        pl->m_iFlags = (WWD::PLANE_FLAGS) b;
-        psSource->seekg(7, std::ios_base::cur);
-        psSource->RLEN(pl->m_szName, 64);
+    size_t pos = m_Header.size;
+    if (pos != m_Header.m_hPlanesStart) {
+        psSource->seekg(m_Header.m_hPlanesStart - pos, std::ios_base::cur);
+    }
 
-#ifdef WAP_MAP
-        if (_ghProgressInfo != 0) {
-            _ghProgressInfo->iDetailedProgress = 3 * 28 + (float(i) / float(m_iPlanesCount) * 28.0f);
-            _ghProgressInfo->strDetailedCaption = "[NAGLOWEK WARSTWY]";
-            _ghProgressCallback->Tick();
-        }
-#endif // WAP_MAP
+    for (int i = 0; i < m_Header.m_iPlanesCount; i++) {
+        Plane *pl = new Plane(false);
+        psSource->read((char *) &pl->m_Header, sizeof(PlaneHeader));
+        pos += sizeof(PlaneHeader);
+        if (pl->m_Header.size != sizeof(PlaneHeader))
+            throw WWD_EXCEPTION(Error_BadMagicNumber);
+        pl->m_hObjDeletionCB = NULL;
 
         for (int z = 0; z < i; z++) {
-            if (!strcmp(pl->m_szName, m_hPlanes[z]->GetName())) {
+            if (!strcmp(pl->m_Header.m_szName, m_hPlanes[z]->GetName())) {
                 char ntmp[64];
                 char tmp[64];
-                strncpy(tmp, pl->m_szName, 60);
+                strncpy(tmp, pl->m_Header.m_szName, 60);
                 int d = 2;
                 while (1) {
                     sprintf(ntmp, "%s (%d)", tmp, d);
@@ -187,68 +131,31 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
                     d++;
                     if (!bFound) break;
                 }
-                strcpy(pl->m_szName, ntmp);
+                strcpy(pl->m_Header.m_szName, ntmp);
                 //printf("[WWD]: Plane name conflict for '%s'. Renamed to: '%s'.\n", m_hPlanes[z]->GetName(), ntmp);
                 break;
             }
         }
 
-        /*if( piInfo != 0 ){
-         piInfo->Lock();
-         if( i == 0 )
-          piInfo->SetDetailedProgress(50);
-         else
-          piInfo->SetDetailedProgress(50+(20*((100.0f/(float(m_iPlanesCount)/float(i))/100))));
+        pl->m_hTiles = new Tile[pl->m_Header.m_iW * pl->m_Header.m_iH];
+        pl->rowOffsets = new unsigned[pl->m_Header.m_iH];
 
-         //10 = 20
-         //5 = 10
-
-         char tmp[129];
-         sprintf(tmp, "Mapa: wczytywanie warstwy %s (%d/%d)", pl->m_szName, i, m_iPlanesCount);
-         piInfo->SetDescription(tmp);
-         piInfo->Unlock();
-        }*/
-
-        psSource->RINT(pl->m_iWpx);
-        psSource->RINT(pl->m_iHpx);
-        psSource->RINT(pl->m_iTileW);
-        psSource->RINT(pl->m_iTileH);
-        psSource->RINT(pl->m_iW);
-        psSource->RINT(pl->m_iH);
-        pl->m_hTiles = new Tile *[pl->m_iW];
-        for (int x = 0; x < pl->m_iW; x++) {
-            pl->m_hTiles[x] = new Tile[pl->m_iH];
-            //printf("creating %d: %p\n", x, pl->m_hTiles[x]);
+        for (int i = 0; i < pl->m_Header.m_iH; ++i) {
+            pl->rowOffsets[i] = pl->m_Header.m_iW * i;
         }
-        int i1, i2;
-        psSource->RINT(i1);
-        psSource->RINT(i2);
 
-        psSource->RINT(pl->m_iMoveX);
-        psSource->RINT(pl->m_iMoveY);
-        psSource->RINT(pl->m_iFillColor);
-        if (pl->m_iFillColor < 0) pl->m_iFillColor = 0;
-        if (pl->m_iFillColor > 255) pl->m_iFillColor = 255;
+        if (pl->m_Header.m_iFillColor < 0) pl->m_Header.m_iFillColor = 0;
+        if (pl->m_Header.m_iFillColor > 255) pl->m_Header.m_iFillColor = 255;
 
-        psSource->RINT(pl->m_iSetsCount);
-        psSource->RINT(objcnt[i]);
-        if (objcnt[i] == 0)
-            pl->m_vObjects.clear();
-        else
-            pl->m_vObjects.reserve(objcnt[i]);
+        if (pl->m_Header.m_iObjectsCount > 0)
+            pl->m_vObjects.reserve(pl->m_Header.m_iObjectsCount);
 
-        int iImageSetCharsAddr, iObjectsAddr, iTilesAddr;
-        psSource->RINT(iTilesAddr);
-        psSource->RINT(iImageSetCharsAddr);
-        psSource->RINT(iObjectsAddr);
-        printf("%s: %d %d\n", pl->m_szName, i1, i2);
+        m_hPlanes.push_back(pl);
 
-        psSource->RINT(pl->m_iZCoord);
-        psSource->seekg(12, std::ios_base::cur);
-        int setto = psSource->tellg();
-        psSource->seekg(160 * (m_iPlanesCount - 1 - i) + tdataoffset, std::ios_base::cur);
-        tdataoffset += pl->m_iW * pl->m_iH * 4;
-        //klocki
+        if (pl->m_Header.m_iFlags & Flag_p_MainPlane) {
+            mainPlane = pl;
+        }
+    }
 
 #ifdef WAP_MAP
         if (_ghProgressInfo != 0) {
@@ -256,57 +163,54 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
             _ghProgressCallback->Tick();
         }
 #endif // WAP_MAP
+    for (int i = 0; i < m_Header.m_iPlanesCount; i++) {
+        Plane *pl = m_hPlanes[i];
+        if (pos != pl->m_Header.m_iTilesDataPtr) {
+            psSource->seekg(pl->m_Header.m_iTilesDataPtr - pos, std::ios_base::cur);
+        }
 
-        for (int y = 0; y < pl->m_iH; y++) {
-            for (int x = 0; x < pl->m_iW; x++) {
-                byte bytes[4];
-                psSource->RLEN(&bytes, 4);
-                if (bytes[0] == 255 && bytes[1] == 255 && bytes[2] == 255 && bytes[3] == 255) {
-                    pl->m_hTiles[x][y].m_bInvisible = 1;
-                    pl->m_hTiles[x][y].m_iID = 0;
-                } else
-                    pl->m_hTiles[x][y].m_bInvisible = 0;
+        size_t planeSize = pl->m_Header.m_iW * pl->m_Header.m_iH;
+        for (size_t i = 0; i < planeSize; ++i) {
+            unsigned int tile;
+            psSource->RINT(tile);
+            if (tile == WWD_TILE_EMPTY) {
+                pl->m_hTiles[i].m_bInvisible = 1;
+                pl->m_hTiles[i].m_bFilled = 0;
+                pl->m_hTiles[i].m_iID = 0;
+            } else {
+                pl->m_hTiles[i].m_bInvisible = 0;
 
-                if (bytes[0] == 238 && bytes[1] == 238 && bytes[2] == 238 && bytes[3] == 238) {
-                    pl->m_hTiles[x][y].m_bFilled = 1;
-                    pl->m_hTiles[x][y].m_iID = 0;
-                } else
-                    pl->m_hTiles[x][y].m_bFilled = 0;
-
-                pl->m_hTiles[x][y].m_iID = bytes[0] + bytes[1] * 256;
+                if (tile == WWD_TILE_FILL) {
+                    pl->m_hTiles[i].m_bFilled = 1;
+                    pl->m_hTiles[i].m_iID = 0;
+                } else {
+                    pl->m_hTiles[i].m_bFilled = 0;
+                    pl->m_hTiles[i].m_iID = tile;
+                }
             }
         }
+        pos += planeSize * 4;
+    }
 
-        psSource->seekg(setto);
-        m_hPlanes.push_back(pl);
-    }
-    Plane *mainPlane = NULL;
-    int mainplaneid = 0;
-    for (int i = 0; i < m_iPlanesCount; i++) {
-        if (m_hPlanes[i]->m_iFlags & Flag_p_MainPlane) {
-            mainPlane = m_hPlanes[i];
-            mainplaneid = i;
-            break;
-        }
-    }
     if (mainPlane == NULL) {
-        delete[] objcnt;
         throw WWD_EXCEPTION(Error_NoMainPlane);
     }
 
-    psSource->seekg(tdataoffset, std::ios_base::cur);
+    for (int i = 0; i < m_Header.m_iPlanesCount; ++i) {
+        Plane *pl = m_hPlanes[i];
 
-    for (int i = 0; i < m_iPlanesCount; i++) {
-        for (int x = 0; x < m_hPlanes[i]->m_iSetsCount; x++) {
-            char set[256];
-            for (int y = 0; y < 256; y++) {
-                psSource->RLEN(&set[y], 1);
-                if (set[y] == '\0')
-                    break;
-            }
-            char *push = new char[strlen(set) + 1];
-            strcpy(push, set);
-            m_hPlanes[i]->m_vImageSets.push_back(push);
+        if (pos != pl->m_Header.m_iSetsDataPtr) {
+            psSource->seekg(pl->m_Header.m_iSetsDataPtr - pos, std::ios_base::cur);
+        }
+
+        int setsToLoad = m_hPlanes[i]->m_Header.m_iSetsCount;
+        m_hPlanes[i]->m_vImageSets.reserve(setsToLoad);
+
+        while (--setsToLoad >= 0) {
+            std::string strBuf;
+            std::getline( *psSource, strBuf, '\0' );
+            pos += strBuf.length() + 1;
+            m_hPlanes[i]->m_vImageSets.emplace_back(strBuf);
         }
     }
 
@@ -317,33 +221,16 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
         _ghProgressCallback->Tick();
     }
 #endif // WAP_MAP
+    if (mainPlane->m_Header.m_iObjectsDataPtr) {
+        if (pos != mainPlane->m_Header.m_iObjectsDataPtr) {
+            psSource->seekg(mainPlane->m_Header.m_iObjectsDataPtr - pos, std::ios_base::cur);
+        }
 
-    for (int i = 0; i < objcnt[mainplaneid]; i++) {
-        /*if( piInfo != 0 ){
-         piInfo->Lock();
-         if( i == 0 )
-          piInfo->SetDetailedProgress(70);
-         else
-          piInfo->SetDetailedProgress(70+(20*((100.0f/(float(objcnt[mainplaneid])/float(i))/100))));
-
-         //10 = 20
-         //5 = 10
-
-         char tmp[129];
-         sprintf(tmp, "Mapa: wczytywanie obiektow (%d/%d)", i, objcnt[mainplaneid]);
-         piInfo->SetDescription(tmp);
-         piInfo->Unlock();
-        }*/
-        mainPlane->m_vObjects.push_back(new Object());
-        ReadObject(mainPlane->m_vObjects[i], psSource);
+        for (int i = 0; i < mainPlane->m_Header.m_iObjectsCount; i++) {
+            mainPlane->m_vObjects.push_back(new Object());
+            pos += ReadObject(mainPlane->m_vObjects[i], psSource);
+        }
     }
-
-    int atrcount = 0;
-    int checksum;
-    psSource->RINT(checksum);
-    psSource->seekg(4, std::ios_base::cur);
-    psSource->RINT(atrcount);
-    psSource->seekg(20, std::ios_base::cur);
 
 #ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
@@ -352,31 +239,40 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
         _ghProgressCallback->Tick();
     }
 #endif // WAP_MAP
+    if (pos != m_Header.m_hTileAttributesStart) {
+        psSource->seekg(m_Header.m_hTileAttributesStart - pos, std::ios_base::cur);
+    }
 
-    for (int i = 0; i < atrcount; i++) {
-        m_hTileAtribs.push_back(new TileAtrib());
-        psSource->RINT(m_hTileAtribs[i]->m_iType);
-        if (m_hTileAtribs[i]->m_iType != 1 && m_hTileAtribs[i]->m_iType != 2) {
-            delete[] objcnt;
+    int attribsCount = 0, checksum;
+    psSource->RINT(checksum);
+    psSource->seekg(4, std::ios_base::cur);
+    psSource->RINT(attribsCount);
+    psSource->seekg(20, std::ios_base::cur);
+
+    m_hTileAttribs.reserve(attribsCount);
+
+    for (int i = 0; i < attribsCount; i++) {
+        m_hTileAttribs.push_back(new TileAttrib());
+        psSource->RINT(m_hTileAttribs[i]->m_iType);
+        if (m_hTileAttribs[i]->m_iType != 1 && m_hTileAttribs[i]->m_iType != 2) {
             throw WWD_EXCEPTION(Error_InvalidTileProperty);
         }
         psSource->seekg(4, std::ios_base::cur);
-        psSource->RINT(m_hTileAtribs[i]->m_iW);
-        psSource->RINT(m_hTileAtribs[i]->m_iH);
-        psSource->RINT(m_hTileAtribs[i]->m_iAtribInside);
-        if (m_hTileAtribs[i]->m_iType == AtribType_Double) {
-            m_hTileAtribs[i]->m_iAtribOutside = m_hTileAtribs[i]->m_iAtribInside;
-            psSource->RINT(m_hTileAtribs[i]->m_iAtribInside);
-            ReadRect(&m_hTileAtribs[i]->m_rMask, psSource);
+        psSource->RINT(m_hTileAttribs[i]->m_iW);
+        psSource->RINT(m_hTileAttribs[i]->m_iH);
+        psSource->RINT(m_hTileAttribs[i]->m_iAtribInside);
+        if (m_hTileAttribs[i]->m_iType == AttribType_Double) {
+            m_hTileAttribs[i]->m_iAtribOutside = m_hTileAttribs[i]->m_iAtribInside;
+            psSource->RINT(m_hTileAttribs[i]->m_iAtribInside);
+            ReadRect(&m_hTileAttribs[i]->m_rMask, psSource);
         }
     }
     int at = psSource->tellg();
     psSource->seekg(0, std::ios_base::end);
     if (((int) psSource->tellg()) - at != 0) {
-        delete[] objcnt;
         throw WWD_EXCEPTION(Error_NotCompleteCRC);
     }
-
+/*
 #ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 7 * 28;
@@ -388,9 +284,7 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
     if (hMetaSerializer != 0) {
         psSource->seekg(0, std::ios_base::end);
         hMetaSerializer->DeserializeFrom(psSource);
-    }
-
-    delete[] objcnt;
+    }*/
 }
 
 void WWD::Parser::CleanStr(char *pszStr, int piSize) {
@@ -398,7 +292,7 @@ void WWD::Parser::CleanStr(char *pszStr, int piSize) {
         pszStr[i] = '\0';
 }
 
-WWD::TileAtrib::TileAtrib(int pW, int pH, TILE_ATRIBTYPE pType, TILE_ATRIB pIns, TILE_ATRIB pOut, Rect pMask) {
+WWD::TileAttrib::TileAttrib(int pW, int pH, TILE_ATTRIB_TYPE pType, TILE_ATTRIB pIns, TILE_ATTRIB pOut, Rect pMask) {
     m_iW = pW;
     m_iH = pH;
     m_iType = pType;
@@ -414,163 +308,72 @@ void WWD::Parser::CompileToFile(const char *pszFilename, bool pbWithActualDate) 
         throw WWD_EXCEPTION(Error_SaveAccess);
     char datecopy[64];
     if (pbWithActualDate) {
-        strncpy(datecopy, m_szDate, 64);
+        strncpy(datecopy, m_Header.m_szDate, 64);
         UpdateDate();
     }
     CompileToStream(&file);
     file.close();
     if (pbWithActualDate)
-        strncpy(m_szDate, datecopy, 64);
+        strncpy(m_Header.m_szDate, datecopy, 64);
 }
 
 void WWD::Parser::CompileToStream(std::iostream *psDestination) {
-    //printf("atrib is %d\n", (int)GetTileAtribs(298)->GetAtribInside());
-    //if( m_iFlags & Flag_w_Compress )
-    // throw WWD_EXCEPTION("Compressed WWD are not supported.", 3);
-
-    int iOverallTilesCount = 0;
-    for (size_t x = 0; x < m_hPlanes.size(); x++) {
-        iOverallTilesCount += m_hPlanes[x]->GetPlaneWidth() * m_hPlanes[x]->GetPlaneHeight();
-    }
-
-    int iPlanesStart = 1524;
-    int iTilesOffset = iPlanesStart + m_hPlanes.size() * 160, iSetStringsOffset = iTilesOffset + iOverallTilesCount * 4;
-    int iObjectsStart = iSetStringsOffset;
-
-    for (size_t z = 0; z < m_hPlanes.size(); z++) {
-        for (int y = 0; y < m_hPlanes[z]->GetImageSetsCount(); y++) {
-            iObjectsStart += strlen(m_hPlanes[z]->m_vImageSets[y]) + 1;
+    m_Header.m_iPlanesCount = m_hPlanes.size();
+    unsigned iOverallTilesCount = 0;
+    unsigned iTilesStart = m_Header.size + m_hPlanes.size() * sizeof(PlaneHeader);
+    unsigned iObjectsStart = iTilesStart;
+    for (auto & m_hPlane : m_hPlanes) {
+        iOverallTilesCount += m_hPlane->GetPlaneWidth() * m_hPlane->GetPlaneHeight();
+        for (int y = 0; y < m_hPlane->GetImageSetsCount(); y++) {
+            iObjectsStart += m_hPlane->m_vImageSets[y].length() + 1;
         }
     }
-    //printf("sets start %d\n", iSetStringsOffset);
-    int iPlanesEnd = iObjectsStart;
-    for (size_t z = 0; z < m_hPlanes.size(); z++) {
-        for (int y = 0; y < m_hPlanes[z]->GetObjectsCount(); y++) {
-            Object *obj = m_hPlanes[z]->GetObjectByIterator(y);
-            iPlanesEnd += 284 + strlen(obj->m_szName) + strlen(obj->m_szLogic) + strlen(obj->m_szImageSet) +
-                          strlen(obj->m_szAnim);
+    iObjectsStart += iOverallTilesCount * 4;
+
+    m_Header.m_hTileAttributesStart = iObjectsStart;
+    for (auto & m_hPlane : m_hPlanes) {
+        for (int y = 0; y < m_hPlane->GetObjectsCount(); y++) {
+            Object *obj = m_hPlane->GetObjectByIterator(y);
+            m_Header.m_hTileAttributesStart += 284 + strlen(obj->m_szName) + strlen(obj->m_szLogic)
+                                                   + strlen(obj->m_szImageSet) + strlen(obj->m_szAnim);
         }
     }
-    //printf("planes end %d\n", iPlanesEnd);
-    //printf("atrib is %d\n", (int)GetTileAtribs(298)->GetAtribInside());
 
-    char sign[4];
-    sign[0] = 0xF4;
-    sign[1] = 0x05;
-    sign[2] = sign[3] = 0x00;
-    psDestination->write((char *) sign, 4);
-
-    byte b = 0;
-    for (int i = 0; i < 4; i++)
-        psDestination->WBYTE(b);
-
-    b = m_iFlags;
-    psDestination->WBYTE(b);
-
-    b = 0;
-    for (int x = 0; x < 7; x++)
-        psDestination->WBYTE(b);
-
-    CleanStr(m_szMapName, 64);
-    CleanStr(m_szAuthor, 64);
-    CleanStr(m_szDate, 64);
-    CleanStr(m_szRezPath, 256);
-    CleanStr(m_szTilesPath, 128);
-    CleanStr(m_szPalPath, 128);
-    CleanStr(m_szExePath, 128);
+    CleanStr(m_Header.m_szMapName, 64);
+    CleanStr(m_Header.m_szAuthor, 64);
+    CleanStr(m_Header.m_szDate, 64);
+    CleanStr(m_Header.m_szRezPath, 256);
+    CleanStr(m_Header.m_szTilesPath, 128);
+    CleanStr(m_Header.m_szPalPath, 128);
+    CleanStr(m_Header.m_szExePath, 128);
     for (int x = 0; x < 4; x++)
-        CleanStr(m_szImageSets[x], 128);
+        CleanStr(m_Header.m_szImageSets[x], 128);
     for (int x = 0; x < 4; x++)
-        CleanStr(m_szSetsPrefixes[x], 32);
+        CleanStr(m_Header.m_szSetsPrefixes[x], 32);
 
-    psDestination->WLEN(&m_szMapName, 64);
-    psDestination->WLEN(&m_szAuthor, 64);
-    psDestination->WLEN(&m_szDate, 64);
-    psDestination->WLEN(&m_szRezPath, 256);
-    psDestination->WLEN(&m_szTilesPath, 128);
-    psDestination->WLEN(&m_szPalPath, 128);
-    psDestination->WLEN(&m_iStartX, 4);
-    psDestination->WLEN(&m_iStartY, 4);
-    int i = 0;
-    psDestination->WLEN(&i, 4);
-    i = m_hPlanes.size();
-    psDestination->WLEN(&i, 4);
-    i = iPlanesStart;
-    psDestination->WLEN(&i, 4);
-    i = iPlanesEnd;
-    psDestination->WLEN(&i, 4);
-    i = 0;
-    psDestination->WLEN(&i, 4);
-    psDestination->WLEN(&i, 4);
-    psDestination->WLEN(&i, 4);
-    psDestination->WLEN(&m_szExePath, 128);
-    for (int x = 0; x < 4; x++)
-        psDestination->WLEN(&m_szImageSets[x], 128);
-    for (int x = 0; x < 4; x++)
-        psDestination->WLEN(&m_szSetsPrefixes[x], 32);
+    psDestination->WLEN(&m_Header.size, m_Header.size);
 
     std::iostream *psTrueDestination = psDestination;
-    if (m_iFlags & Flag_w_Compress) {
+    if (m_Header.m_iFlags & Flag_w_Compress) {
         psDestination = new std::stringstream("", std::ios_base::out | std::ios_base::in | std::ios_base::binary);
         printf("original: 0x%p, uncompressed: 0x%p\n", psTrueDestination, psDestination);
     }
 
-    int iTOff = 0, iSOff = 0;
+    int iTOff = 0, iSOff = 0; byte b;
     for (size_t x = 0; x < m_hPlanes.size(); x++) {
-        b = 160;
-        psDestination->WBYTE(b);
+        CleanStr(m_hPlanes[x]->m_Header.m_szName, 64);
+        m_hPlanes[x]->m_Header.m_iSetsCount = m_hPlanes[x]->m_vImageSets.size();
+        m_hPlanes[x]->m_Header.m_iObjectsCount = m_hPlanes[x]->GetObjectsCount();
+        m_hPlanes[x]->m_Header.m_iTilesDataPtr = iTilesStart + iTOff;
+        m_hPlanes[x]->m_Header.m_iSetsDataPtr = iTilesStart + iOverallTilesCount * 4 + iSOff;
+        m_hPlanes[x]->m_Header.m_iObjectsDataPtr = (m_hPlanes[x]->GetObjectsCount() == 0) ? 0 : iObjectsStart;
+        psDestination->WLEN(&m_hPlanes[x]->m_Header.size, m_hPlanes[x]->m_Header.size);
 
-        b = 0;
-        for (int y = 0; y < 7; y++)
-            psDestination->WBYTE(b);
-
-        b = m_hPlanes[x]->GetFlags();
-        psDestination->WBYTE(b);
-
-        b = 0;
-        for (int y = 0; y < 7; y++)
-            psDestination->WBYTE(b);
-
-        CleanStr(m_hPlanes[x]->m_szName, 64);
-        psDestination->WLEN(&m_hPlanes[x]->m_szName, 64);
-        psDestination->WLEN(&m_hPlanes[x]->m_iWpx, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iHpx, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iTileW, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iTileH, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iW, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iH, 4);
-        i = 0;
-        psDestination->WLEN(&i, 4);
-        psDestination->WLEN(&i, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iMoveX, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iMoveY, 4);
-        psDestination->WLEN(&m_hPlanes[x]->m_iFillColor, 4);
-        i = m_hPlanes[x]->m_vImageSets.size();
-        psDestination->WLEN(&i, 4);
-        i = m_hPlanes[x]->GetObjectsCount();
-        psDestination->WLEN(&i, 4);
-        i = 1524 + 160 * m_hPlanes.size() + iTOff;
-        psDestination->WLEN(&i, 4);
-        i = 1524 + 160 * m_hPlanes.size() + iOverallTilesCount * 4 + iSOff;
-        psDestination->WLEN(&i, 4);
-
-        iTOff += m_hPlanes[x]->m_iW * m_hPlanes[x]->m_iH * 4;
+        iTOff += m_hPlanes[x]->m_Header.m_iW * m_hPlanes[x]->m_Header.m_iH * 4;
         for (int y = 0; y < m_hPlanes[x]->GetImageSetsCount(); y++) {
-            iSOff += strlen(m_hPlanes[x]->m_vImageSets[y]) + 1;
+            iSOff += m_hPlanes[x]->m_vImageSets[y].length() + 1;
         }
-
-        if (m_hPlanes[x]->GetObjectsCount() == 0) {
-            i = 0;
-            psDestination->WLEN(&i, 4);
-        } else {
-            psDestination->WLEN(&iObjectsStart, 4);
-        }
-        psDestination->WLEN(&m_hPlanes[x]->m_iZCoord, 4);
-        b = 0;
-        for (int y = 0; y < 12; y++)
-            psDestination->WBYTE(b);
     }
-    //printf("atrib is %d\n", (int)GetTileAtribs(298)->GetAtribInside());
 
     for (size_t z = 0; z < m_hPlanes.size(); z++) {
         for (int y = 0; y < m_hPlanes[z]->GetPlaneHeight(); y++)
@@ -600,7 +403,7 @@ void WWD::Parser::CompileToStream(std::iostream *psDestination) {
 
     for (size_t z = 0; z < m_hPlanes.size(); z++) {
         for (int y = 0; y < m_hPlanes[z]->GetImageSetsCount(); y++) {
-            psDestination->WLEN(m_hPlanes[z]->m_vImageSets[y], strlen(m_hPlanes[z]->m_vImageSets[y]) + 1);
+            psDestination->WLEN(m_hPlanes[z]->m_vImageSets[y].c_str(), m_hPlanes[z]->m_vImageSets[y].length() + 1);
         }
     }
 
@@ -610,34 +413,33 @@ void WWD::Parser::CompileToStream(std::iostream *psDestination) {
         }
     }
 
-    //printf("atrib is %d\n", (int)GetTileAtribs(298)->GetAtribInside());
-    i = 32;
+    int i = 32;
     psDestination->WLEN(&i, 4);
     i = 0;
     psDestination->WLEN(&i, 4);
-    i = m_hTileAtribs.size();
+    i = m_hTileAttribs.size();
     psDestination->WLEN(&i, 4);
     i = 0;
     for (int z = 0; z < 5; z++)
         psDestination->WLEN(&i, 4);
 
-    for (size_t z = 0; z < m_hTileAtribs.size(); z++) {
+    for (size_t z = 0; z < m_hTileAttribs.size(); z++) {
         //printf("wr %d@%d|", z, (int)psDestination->tellp());
         //if( (int)psDestination->tellp() == 188545){
-        //printf("flag is %d (%d)\n", (int)m_hTileAtribs[z].m_iAtribInside, z);
+        //printf("flag is %d (%d)\n", (int)m_hTileAttribs[z].m_iAtribInside, z);
         //}
-        psDestination->WLEN(&m_hTileAtribs[z]->m_iType, 4);
+        psDestination->WLEN(&m_hTileAttribs[z]->m_iType, 4);
         psDestination->WLEN(&i, 4);
-        psDestination->WLEN(&m_hTileAtribs[z]->m_iW, 4);
-        psDestination->WLEN(&m_hTileAtribs[z]->m_iH, 4);
-        if (m_hTileAtribs[z]->m_iType == AtribType_Double) {
-            psDestination->WLEN(&m_hTileAtribs[z]->m_iAtribOutside, 4);
-            psDestination->WLEN(&m_hTileAtribs[z]->m_iAtribInside, 4);
-            WriteRect(&m_hTileAtribs[z]->m_rMask, psDestination);
+        psDestination->WLEN(&m_hTileAttribs[z]->m_iW, 4);
+        psDestination->WLEN(&m_hTileAttribs[z]->m_iH, 4);
+        if (m_hTileAttribs[z]->m_iType == AttribType_Double) {
+            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribOutside, 4);
+            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribInside, 4);
+            WriteRect(&m_hTileAttribs[z]->m_rMask, psDestination);
         } else
-            psDestination->WLEN(&m_hTileAtribs[z]->m_iAtribInside, 4);
+            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribInside, 4);
     }
-    if (m_iFlags & Flag_w_Compress) {
+    if (m_Header.m_iFlags & Flag_w_Compress) {
         //printf("original: 0x%p, uncompressed: 0x%p\n", psTrueDestination, psDestination);
         //printf("orig pos: %d uncompr pos: %d\n", int(psTrueDestination->tellp()), int(psDestination->tellp()));
         std::iostream *uncompressed = psDestination;
@@ -655,11 +457,11 @@ void WWD::Parser::CompileToStream(std::iostream *psDestination) {
     psDestination->seekp(748, std::ios_base::beg);
     psDestination->WLEN(&sum, 4);
 
-    if (hMetaSerializer != 0) {
+    /*if (hMetaSerializer != 0) {
         psDestination->seekp(0, std::ios_base::end);
         psDestination->seekg(0, std::ios_base::end);
         hMetaSerializer->SerializeTo(psDestination);
-    }
+    }*/
 }
 
 unsigned int WWD::Parser::CalculateChecksum(std::istream *psStream, int piOffset) {
@@ -908,7 +710,7 @@ void WWD::Parser::Inflate(std::istream *psSource, std::stringstream& output) {
     //return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-void WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
+size_t WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
     psSource->RINT(hObj->m_iParams[Param_ID]);
     int iNameLen, iLogicLen, iImageSetLen, iAnimLen;
     psSource->RINT(iNameLen);
@@ -980,6 +782,8 @@ void WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
     hObj->m_szAnim = new char[iAnimLen + 1];
     psSource->RLEN(hObj->m_szAnim, iAnimLen);
     hObj->m_szAnim[iAnimLen] = '\0';
+
+    return 284 + iNameLen + iLogicLen + iImageSetLen + iAnimLen;
 }
 
 int WWD::Parser::FormFlag(byte b1, byte b2) {
@@ -1012,48 +816,41 @@ WWD::Object::~Object() {
 }
 
 WWD::Plane::~Plane() {
-    for (size_t i = 0; i < m_vImageSets.size(); i++)
-        delete[] m_vImageSets[i];
-    m_vImageSets.clear();
     for (size_t i = 0; i < m_vObjects.size(); i++)
         delete m_vObjects[i];
-    m_vObjects.clear();
 
-    for (int i = 0; i < m_iW; i++) {
-        delete[] m_hTiles[i];
-        m_hTiles[i] = 0;
-    }
+    delete[] rowOffsets;
     delete[] m_hTiles;
 }
 
-WWD::TileAtrib::~TileAtrib() {
+WWD::TileAttrib::~TileAttrib() {
 
 }
 
 WWD::Parser::~Parser() {
     for (size_t i = 0; i < m_hPlanes.size(); i++)
         delete m_hPlanes[i];
-    for (size_t i = 0; i < m_hTileAtribs.size(); i++)
-        delete m_hTileAtribs[i];
+    for (size_t i = 0; i < m_hTileAttribs.size(); i++)
+        delete m_hTileAttribs[i];
 }
 
 WWD::Tile *WWD::Plane::GetTile(int piX, int piY) {
     if (piX < 0 || piY < 0) return 0;
-    if (piX >= m_iW) {
-        if ((m_iFlags & Flag_p_XWrapping) != 0) {
+    if (piX >= m_Header.m_iW) {
+        if ((m_Header.m_iFlags & Flag_p_XWrapping) != 0) {
             piX = ClampX(piX);
         } else {
             return 0;
         }
     }
-    if (piY >= m_iH) {
-        if ((m_iFlags & Flag_p_YWrapping) != 0) {
+    if (piY >= m_Header.m_iH) {
+        if ((m_Header.m_iFlags & Flag_p_YWrapping) != 0) {
             piY = ClampY(piY);
         } else {
             return 0;
         }
     }
-    return &m_hTiles[piX][piY];
+    return &m_hTiles[rowOffsets[piY] + piX];
 }
 
 void WWD::Parser::SetFilePath(const char *nPath) {
@@ -1061,25 +858,23 @@ void WWD::Parser::SetFilePath(const char *nPath) {
 }
 
 void WWD::Parser::SetFlag(WWD_FLAGS piFlag, bool pbValue) {
-    if ((pbValue && (m_iFlags & piFlag)) ||
-        (!pbValue && !(m_iFlags & piFlag)))
+    if ((pbValue && (m_Header.m_iFlags & piFlag)) ||
+        (!pbValue && !(m_Header.m_iFlags & piFlag)))
         return;
     if (pbValue) {
-        int a = m_iFlags;
+        int a = m_Header.m_iFlags;
         a += piFlag;
-        m_iFlags = (WWD_FLAGS) a;
+        m_Header.m_iFlags = a;
     } else {
-        int a = m_iFlags;
+        int a = m_Header.m_iFlags;
         //a &= piFlag;
         a -= piFlag;
-        m_iFlags = (WWD_FLAGS) a;
+        m_Header.m_iFlags = a;
     }
 }
 
 bool WWD::Parser::GetFlag(WWD_FLAGS piFlag) {
-    if (m_iFlags & piFlag)
-        return 1;
-    return 0;
+    return m_Header.m_iFlags & piFlag;
 }
 
 void WWD::Plane::DeleteObject(Object *ptr) {
@@ -1206,9 +1001,24 @@ void WWD::Plane::AddObjectAndCalcID(Object *n) {
 }
 
 WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) throw(Exception) {
+    const char* dot = strrchr(pszFilepath, '.');
+    if (!dot || (dot[1] != 'W' && dot[1] != 'w')) {
+        throw WWD_EXCEPTION(Error_UnknownMapExtension);
+    }
+
+    if ((dot[2] == 'M' || dot[2] == 'm')
+        && (dot[3] == 'D' || dot[3] == 'd')
+        && dot[4] == 0) {
+        return Game_Claw2;
+    } else if ((dot[2] != 'W' && dot[2] != 'w')
+        || (dot[3] != 'D' && dot[3] != 'd') || dot[4] != 0) {
+        throw WWD_EXCEPTION(Error_UnknownMapExtension);
+    }
+
     std::ifstream str(pszFilepath, std::ios_base::binary | std::ios_base::in);
-    if (str.fail())
+    if (str.fail()) {
         throw WWD_EXCEPTION(Error_OpenAccess);
+    }
 
     str.seekg(884, std::ios_base::beg);
     for (int i = 0; i < 4; i++) {
@@ -1263,19 +1073,43 @@ void WWD::Object::SetAnim(const char *nanim) {
     strcpy(m_szAnim, nanim);
 }
 
+int WWD::Object::GetX() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetX() : GetParam(Param_LocationX);
+}
+
+int WWD::Object::GetY() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetY() : GetParam(Param_LocationY);
+}
+
+int WWD::Object::GetZ() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetZ() : GetParam(Param_LocationZ);
+}
+
+int WWD::Object::GetI() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetI() : GetParam(Param_LocationI);
+}
+
+bool WWD::Object::GetFlipX() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetFlipX() : GetDrawFlags() & Flag_dr_Mirror;
+}
+
+bool WWD::Object::GetFlipY() {
+    return m_hUserData ? GetUserDataFromObj(this)->GetFlipY() : GetDrawFlags() & Flag_dr_Invert;
+}
+
 void WWD::Parser::SetImageSetPrefix(int id, const char *npref) {
-    strncpy(m_szSetsPrefixes[id], npref, 32);
+    strncpy(m_Header.m_szSetsPrefixes[id], npref, 32);
 }
 
 void WWD::Parser::SetImageSet(int id, const char *npath) {
-    strncpy(m_szImageSets[id], npath, 128);
+    strncpy(m_Header.m_szImageSets[id], npath, 128);
 }
 
-WWD::TileAtrib::TileAtrib(TileAtrib *src) {
+WWD::TileAttrib::TileAttrib(TileAttrib *src) {
     SetTo(src);
 }
 
-void WWD::TileAtrib::SetTo(TileAtrib *src) {
+void WWD::TileAttrib::SetTo(TileAttrib *src) {
     m_iW = src->GetW();
     m_iH = src->GetH();
     m_iType = src->GetType();
@@ -1284,7 +1118,7 @@ void WWD::TileAtrib::SetTo(TileAtrib *src) {
     m_rMask = src->GetMask();
 }
 
-WWD::TileAtrib::TileAtrib() {
+WWD::TileAttrib::TileAttrib() {
     m_iW = m_iH = 0;
 }
 
@@ -1322,24 +1156,24 @@ bool WWD::Rect::Collide(WWD::Rect b) {
     return collide || overlap;
 }
 
-std::vector<WWD::CollisionRect> WWD::TileAtrib::GetColRects() {
+std::vector<WWD::CollisionRect> WWD::TileAttrib::GetColRects() {
     std::vector<CollisionRect> r;
-    if (GetType() == WWD::AtribType_Single ||
-        GetType() == WWD::AtribType_Double && GetAtribInside() == GetAtribOutside()) {
-        if (GetAtribInside() == WWD::Atrib_Clear) return r;
+    if (GetType() == WWD::AttribType_Single ||
+        GetType() == WWD::AttribType_Double && GetAtribInside() == GetAtribOutside()) {
+        if (GetAtribInside() == WWD::Attrib_Clear) return r;
         CollisionRect n;
         n.WWD_CR_TYPE = GetAtribInside();
         n.WWD_CR_RECT = Rect(0, 0, 63, 63);
         r.push_back(n);
         return r;
     }
-    if (GetAtribInside() != WWD::Atrib_Clear) {
+    if (GetAtribInside() != WWD::Attrib_Clear) {
         CollisionRect n;
         n.WWD_CR_TYPE = GetAtribInside();
         n.WWD_CR_RECT = GetMask();
         r.push_back(n);
     }
-    if (GetAtribOutside() != WWD::Atrib_Clear) {
+    if (GetAtribOutside() != WWD::Attrib_Clear) {
         Rect mask = GetMask();
         if (mask.y1 != 0) {
             CollisionRect n;
@@ -1389,162 +1223,125 @@ bool WWD::Tile::operator!=(const WWD::Tile &src) {
     return !(*this == src);
 }
 
-void WWD::Plane::Resize(int nw, int nh) {
-    Tile **newt;
-    newt = new Tile *[nw];
-    for (int x = 0; x < nw; x++)
-        newt[x] = new Tile[nh];
+void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
+    int s = nw * nh;
+    Tile * newt = new Tile[s];
 
-    for (int y = 0; y < nh; y++)
-        for (int x = 0; x < nw; x++) {
-            if ((x >= m_iW || y >= m_iH) || m_hTiles == NULL) {
-                newt[x][y].SetInvisible(1);
-                continue;
+    if (m_hTiles) {
+        if (ox || oy) {
+            int objectsOffsetX = -ox * m_Header.m_iTileW,
+                objectsOffsetY = -oy * m_Header.m_iTileH;
+
+            for (auto& m_vObject : m_vObjects) {
+                m_vObject->SetParam(WWD::Param_LocationX, m_vObject->GetParam(WWD::Param_LocationX) + objectsOffsetX);
+                m_vObject->SetParam(WWD::Param_LocationY, m_vObject->GetParam(WWD::Param_LocationY) + objectsOffsetY);
             }
-            newt[x][y] = m_hTiles[x][y];
         }
 
-    if (m_hTiles != NULL) {
-        for (int x = 0; x < m_iW; x++) {
-            delete[] m_hTiles[x];
-            m_hTiles[x] = 0;
+        int i = 0, y = 0;
+        while (oy > 0) {
+            for (int x = 0; x < nw; ++x, ++i) {
+                newt[i].SetInvisible(1);
+            }
+            --oy;
+            ++y;
         }
+
+        int tx = std::min(nw, m_Header.m_iW + ox),
+            ty = std::min(nh, m_Header.m_iH + oy);
+
+        for (; y < ty; ++y) {
+            int x = 0;
+            int rowOffset = rowOffsets[y];
+
+            for (; x < ox; ++x, ++i) {
+                newt[i].SetInvisible(1);
+            }
+
+            for (; x < tx; ++x, ++i) {
+                newt[i] = m_hTiles[rowOffset + x];
+            }
+
+            for (; x < nw; ++x, ++i) {
+                newt[i].SetInvisible(1);
+            }
+        }
+
+        for (; y < nh; ++y) {
+            for (int x = 0; x < nw; ++x, ++i) {
+                newt[i].SetInvisible(1);
+            }
+        }
+    
         delete[] m_hTiles;
+        delete[] rowOffsets;
     }
+    else {
+        for (int i = 0; i < s; ++i) {
+            newt[i].SetInvisible(1);
+        }
+    }
+
     m_hTiles = newt;
-    m_iW = nw;
-    m_iH = nh;
-    m_iWpx = m_iW * m_iTileW;
-    m_iHpx = m_iH * m_iTileH;
+    rowOffsets = new unsigned[nh];
+
+    for (int i = 0; i < nh; ++i) {
+        rowOffsets[i] = i * nw;
+    }
+
+    m_Header.m_iW = nw;
+    m_Header.m_iH = nh;
+    m_Header.m_iWpx = m_Header.m_iW * m_Header.m_iTileW;
+    m_Header.m_iHpx = m_Header.m_iH * m_Header.m_iTileH;
 }
 
-void WWD::Plane::ResizeAnchor(int rx, int ry, int anchor) {
-    Tile **tnew = new Tile *[rx];
-    for (int x = 0; x < rx; x++) {
-        tnew[x] = new Tile[ry];
-        for (int y = 0; y < ry; y++)
-            tnew[x][y].SetInvisible(1);
-    }
-    int xdiff = rx - m_iW, ydiff = ry - m_iH;
-    int xplace, yplace;
-    if (anchor == 1 || anchor == 2 || anchor == 3) yplace = 0;
-    if (anchor == 4 || anchor == 5 || anchor == 6) yplace = 1;
-    if (anchor == 7 || anchor == 8 || anchor == 9) yplace = 2;
+void WWD::Plane::ResizeAnchor(int nw, int nh, int anchor) {
+    int xDiff = nw - m_Header.m_iW, yDiff = nh - m_Header.m_iH;
 
-    if (anchor == 1 || anchor == 4 || anchor == 7) xplace = 0;
-    if (anchor == 2 || anchor == 5 || anchor == 8) xplace = 1;
-    if (anchor == 3 || anchor == 6 || anchor == 9) xplace = 2;
+    int ox = 0, oy = 0;
 
-    int srcx = 0, srcy = 0, destx = 0, desty = 0;
-    int objx = 0, objy = 0;
-
-    if (xdiff < 0) { //plane cut x
-        if (xplace == 1) //cut from both sides
-            srcx = xdiff / 2;
-        else if (xplace == 2) //cut from left
-            srcx = xdiff;
-    }
-    if (ydiff < 0) { //plane cut y
-        if (yplace == 1) //cut from both sides
-            srcy = ydiff / 2;
-        else if (yplace == 2) //cut from right
-            srcy = ydiff;
+    switch (anchor % 3) {
+    case 0: // right anchor
+        ox = xDiff;
+        break;
+    case 2: // center anchor
+        ox = xDiff / 2;
+        break;
     }
 
-    if (xdiff >= 0) { //plane extend x
-        if (xplace == 1) //add from both sides
-            destx = xdiff / 2;
-        else if (xplace == 2) //add from left
-            destx = xdiff;
-    }
-    if (ydiff >= 0) { //plane extend y
-        if (yplace == 1) //add from both sides
-            desty = ydiff / 2;
-        else if (yplace == 2) //add from up
-            desty = ydiff;
+    switch (anchor / 3) {
+    case 0: // bottom anchor
+        oy = yDiff;
+        break;
+    case 2: // center anchor
+        oy = yDiff / 2;
+        break;
     }
 
-    objx = (-srcx * m_iTileW) + (destx * m_iTileW);
-    objy = (-srcy * m_iTileH) + (desty * m_iTileH);
-
-    for (int y = desty; y < ry; y++)
-        for (int x = destx; x < rx; x++) {
-            if (x - destx + srcx < 0 || x - destx + srcx >= m_iW ||
-                y - desty + srcy < 0 || y - desty + srcy >= m_iH)
-                continue;
-            tnew[x][y] = m_hTiles[x - destx + srcx][y - desty + srcy];
-        }
-
-    for (int x = 0; x < m_iW; x++) {
-        delete[] m_hTiles[x];
-        m_hTiles[x] = 0;
-    }
-    delete[] m_hTiles;
-    m_hTiles = tnew;
-    m_iW = rx;
-    m_iH = ry;
-    m_iWpx = m_iW * m_iTileW;
-    m_iHpx = m_iH * m_iTileH;
-
-    if (objx != 0 || objy != 0) {
-        for (size_t i = 0; i < m_vObjects.size(); i++) {
-            m_vObjects[i]->SetParam(WWD::Param_LocationX, m_vObjects[i]->GetParam(WWD::Param_LocationX) + objx);
-            m_vObjects[i]->SetParam(WWD::Param_LocationY, m_vObjects[i]->GetParam(WWD::Param_LocationY) + objy);
-        }
-    }
+    Resize(nw, nh, ox, oy);
 }
 
-void WWD::Plane::ResizeRelative(int rx, int ry, bool ax, bool ay) {
-    int nw = m_iW + rx, nh = m_iH + ry;
-    Tile **newt;
-    newt = new Tile *[nw];
-    for (int x = 0; x < nw; x++) {
-        newt[x] = new Tile[nh];
+void WWD::Plane::ResizeAddTiles(int ax, int ay) {
+    int ox = 0, oy = 0;
+
+    if (ax < 0) {
+        ax = -ax;
+        ox = ax;
     }
 
-    int srcstartx = 0, srcstarty = 0;
-    int destx = 0, desty = 0;
-    int objoffx = 0, objoffy = 0;
-    if (!ax) {
-        if (rx > 0) destx = rx;
-        else if (rx < 0) srcstartx = -rx;
-        objoffx = abs(rx) * m_iTileW;
+    if (ay < 0) {
+        ay = -ay;
+        oy = ay;
     }
-    if (!ay) {
-        if (ry > 0) desty = ry;
-        else if (ry < 0) srcstarty = -ry;
-        objoffy = abs(ry) * m_iTileH;
-    }
-    for (int y = 0; y < m_iH; y++)
-        for (int x = 0; x < m_iW; x++) {
-            if (x + srcstartx >= m_iW || y + srcstarty >= m_iH) continue;
-            if (x + destx >= nw || y + desty >= nh) continue;
-            newt[x + destx][y + desty] = m_hTiles[x + srcstartx][y + srcstarty];
-        }
 
-    for (int x = 0; x < m_iW; x++) {
-        delete[] m_hTiles[x];
-        m_hTiles[x] = 0;
-    }
-    delete[] m_hTiles;
-    m_hTiles = newt;
-    m_iW = nw;
-    m_iH = nh;
-    m_iWpx = m_iW * m_iTileW;
-    m_iHpx = m_iH * m_iTileH;
-
-    if (objoffx != 0 || objoffy != 0) {
-        for (size_t i = 0; i < m_vObjects.size(); i++) {
-            m_vObjects[i]->SetParam(WWD::Param_LocationX, m_vObjects[i]->GetParam(WWD::Param_LocationX) + objoffx);
-            m_vObjects[i]->SetParam(WWD::Param_LocationY, m_vObjects[i]->GetParam(WWD::Param_LocationY) + objoffy);
-        }
-    }
+    int nw = m_Header.m_iW + ax, nh = m_Header.m_iH + ay;
+    Resize(nw, nh, ox, oy);
 }
 
 void WWD::Parser::UpdateDate() {
     SYSTEMTIME st;
     GetLocalTime(&st);
-    sprintf(m_szDate, "%02d:%02d %02d.%02d.%d", st.wHour, st.wMinute, st.wDay, st.wMonth, st.wYear);
+    sprintf(m_Header.m_szDate, "%02d:%02d %02d.%02d.%d", st.wHour, st.wMinute, st.wDay, st.wMonth, st.wYear);
 }
 
 void WWD::Parser::DeletePlane(int piID) {
@@ -1568,50 +1365,44 @@ void WWD::Parser::SortPlanes() {
 }
 
 void WWD::Plane::SetFlag(PLANE_FLAGS piFlag, bool pbValue) {
-    if (pbValue && (m_iFlags & piFlag) ||
-        !pbValue && !(m_iFlags & piFlag))
+    if (pbValue && (m_Header.m_iFlags & piFlag) ||
+        !pbValue && !(m_Header.m_iFlags & piFlag))
         return;
     if (pbValue) {
-        int a = m_iFlags;
+        int a = m_Header.m_iFlags;
         a += piFlag;
-        m_iFlags = (PLANE_FLAGS) a;
+        m_Header.m_iFlags = (PLANE_FLAGS) a;
     } else {
-        int a = m_iFlags;
+        int a = m_Header.m_iFlags;
         //a &= piFlag;
         a -= piFlag;
-        m_iFlags = (PLANE_FLAGS) a;
+        m_Header.m_iFlags = (PLANE_FLAGS) a;
     }
 }
 
 bool WWD::Plane::GetFlag(PLANE_FLAGS piFlag) {
-    if (m_iFlags & piFlag)
-        return 1;
-    return 0;
+    return m_Header.m_iFlags & piFlag;
 }
 
 void WWD::Plane::AddImageSet(const char *n) {
-    char *n2 = new char[strlen(n) + 1];
-    strcpy(n2, n);
-    m_vImageSets.push_back(n2);
+    m_vImageSets.emplace_back(n);
 }
 
 void WWD::Plane::ClearImageSets() {
-    for (int i = 0; i < m_vImageSets.size(); i++)
-        delete[] m_vImageSets[i];
     m_vImageSets.clear();
 }
 
-void WWD::Parser::SetTileAtribsCount(int i) {
-    if (i == m_hTileAtribs.size()) return;
-    if (i > m_hTileAtribs.size()) {
-        int num = i - m_hTileAtribs.size();
+void WWD::Parser::SetTileAttribsCount(int i) {
+    if (i == m_hTileAttribs.size()) return;
+    if (i > m_hTileAttribs.size()) {
+        int num = i - m_hTileAttribs.size();
         for (int x = 0; x < num; x++)
-            m_hTileAtribs.push_back(new TileAtrib(64, 64, AtribType_Single, Atrib_Clear));
+            m_hTileAttribs.push_back(new TileAttrib(64, 64, AttribType_Single, Attrib_Clear));
         return;
     }
-    int num = m_hTileAtribs.size() - i;
-    int start = m_hTileAtribs.size() - num;
-    for (int x = start; x < m_hTileAtribs.size(); x++)
-        delete m_hTileAtribs[x];
-    m_hTileAtribs.erase(m_hTileAtribs.begin() + start, m_hTileAtribs.begin() + start + num);
+    int num = m_hTileAttribs.size() - i;
+    int start = m_hTileAttribs.size() - num;
+    for (int x = start; x < m_hTileAttribs.size(); x++)
+        delete m_hTileAttribs[x];
+    m_hTileAttribs.erase(m_hTileAttribs.begin() + start, m_hTileAttribs.begin() + start + num);
 }

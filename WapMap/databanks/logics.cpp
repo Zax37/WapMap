@@ -52,7 +52,9 @@ void cCustomLogic::Save() {
 }
 
 void cCustomLogic::DeleteFile() {
-    std::string strAbsPath = GetFile().hFeed->GetAbsoluteLocation() + "/" + GetFile().strPath;
+    std::string strAbsPath = GetFile().hFeed->GetAbsoluteLocation();
+    strAbsPath.push_back('/');
+    strAbsPath += GetFile().strPath;
     remove(strAbsPath.c_str());
 }
 
@@ -105,22 +107,31 @@ bool cBankLogic::RenameLogic(cCustomLogic *hLogic, std::string strName) {
     std::string dirpath = "";
     if (origFile.strPath.find_last_of("/\\") != std::string::npos)
         dirpath = origFile.strPath.substr(0, origFile.strPath.find_last_of("/\\"));
-    std::string nFilePath = dirpath + "/" + strName + ".lua";
+    std::string nFilePath = dirpath;
+    nFilePath += '/';
+    nFilePath += strName;
+    nFilePath += ".lua";
 
-    std::string absOrigPath = origFile.hFeed->GetAbsoluteLocation() + "/" + origFile.strPath;
-    std::string absNewPath = origFile.hFeed->GetAbsoluteLocation() + "/" + nFilePath;
+    std::string absOrigPath = origFile.hFeed->GetAbsoluteLocation();
+    absOrigPath += '/';
+    absOrigPath += origFile.strPath;
+
+    std::string absNewPath = origFile.hFeed->GetAbsoluteLocation();
+    absNewPath += '/';
+    absNewPath += nFilePath;
+
     FILE *f = fopen(absNewPath.c_str(), "rb");
     if (f != 0) {
         fclose(f);
-        return 0;
+        return false;
     }
     if (rename(absOrigPath.c_str(), absNewPath.c_str()) != 0)
-        return 0;
+        return false;
     origFile.strPath = nFilePath;
     hLogic->SetFile(origFile);
     hLogic->SetName(strName);
     SortLogics();
-    return 1;
+    return true;
 }
 
 void cBankLogic::ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles) {

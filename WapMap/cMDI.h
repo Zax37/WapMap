@@ -30,7 +30,7 @@ class cDataController;
 class cTabMDI {
 public:
     DocumentData *dd;
-    bool bFocused, bSelected;
+    bool bFocused, bSelected, bCloseFocused;
     float fTimer, fCloseTimer;
 
     cTabMDI();
@@ -57,11 +57,11 @@ struct DocumentData {
     cBankImageSet *hSprBank;
     cBankSound *hSndBank;
     cBankAni *hAniBank;
-    cBankTile *hTileset;
-    cBankLogic *hCustomLogics;
+    cBankTile *hTilesBank;
+    cBankLogic *hCustomLogicBank;
     char *hTileClipboardImageSet;
     int iTileCBw, iTileCBh;
-    WWD::Tile **hTileClipboard;
+    WWD::Tile *hTileClipboard;
     cDataController *hDataCtrl;
 
     cTabMDI *hTab;

@@ -5,6 +5,8 @@
 extern HGE *hge;
 
 namespace SHR {
+    cTooltip* cTooltip::currentlyDisplayedTooltip = NULL;
+
     cTooltip::cTooltip() {
         m_szTooltip = 0;
         m_fTooltipTimer = 0;
@@ -16,6 +18,10 @@ namespace SHR {
     cTooltip::~cTooltip() {
         if (m_szTooltip != 0)
             delete[] m_szTooltip;
+
+        if (currentlyDisplayedTooltip == this) {
+            currentlyDisplayedTooltip = NULL;
+        }
     }
 
     void cTooltip::SetTooltip(const char *n) {
@@ -34,6 +40,12 @@ namespace SHR {
     }
 
     void cTooltip::RenderTooltip() {
+        if (currentlyDisplayedTooltip) {
+            currentlyDisplayedTooltip->_RenderTooltip();
+        }
+    }
+
+    void cTooltip::_RenderTooltip() {
         if (!HasTooltip() || !IsTooltipVisible()) return;
         int w = GV->fntMyriad13->GetStringWidth(m_szTooltip),
                 h = GV->fntMyriad13->GetHeight() * m_iTooltipLC;
@@ -72,6 +84,9 @@ namespace SHR {
     void cTooltip::UpdateTooltip(bool hasmouse) {
         if (!hasmouse) {
             m_bTooltipVisible = 0;
+            if (m_bTooltipVisible && currentlyDisplayedTooltip == this) {
+                currentlyDisplayedTooltip = NULL;
+            }
             return;
         }
         float mx, my;
@@ -86,6 +101,7 @@ namespace SHR {
             m_iTooltipY = -1;
         } else if (m_fTooltipTimer > SHR_TOOLTIP_DELAY) {
             m_bTooltipVisible = 1;
+            currentlyDisplayedTooltip = this;
         } else {
             m_fTooltipTimer += hge->Timer_GetDelta();
         }

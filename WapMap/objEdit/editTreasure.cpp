@@ -123,7 +123,7 @@ namespace ObjEdit {
             int iframe = hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
             hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
             spr->SetColor(0xFFFFFFFF);
-            spr->SetFlip(0, 0);
+            spr->SetFlip(0, 0, true);
             int grdim = spr->GetWidth();
             if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
             float fScale = 1.0f;

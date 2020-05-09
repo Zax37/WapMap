@@ -2,70 +2,16 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
-#include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
 
-#define DEFAULT_ENEMY(x, y) (std::pair<std::string,std::string>(x, y))
+
 
 extern HGE *hge;
 
 namespace ObjEdit {
     cEditObjEnemy::cEditObjEnemy(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
-        int baselvl = GV->editState->hParser->GetBaseLevel();
-        if (baselvl == 1 || baselvl == 2) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("Officer", "LEVEL_OFFICER"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Soldier", "LEVEL_SOLDIER"));
-            if (baselvl == 1)
-                vstrpTypes.push_back(DEFAULT_ENEMY("Rat", "LEVEL_RAT"));
-            else
-                vstrpTypes.push_back(DEFAULT_ENEMY("Raux", "LEVEL_RAUX"));
-        } else if (baselvl == 3 || baselvl == 4) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("RobberThief", "LEVEL_ROBBERTHIEF"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("CutThroat", "LEVEL_CUTTHROAT"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Rat", "LEVEL_RAT"));
-            if (baselvl == 4)
-                vstrpTypes.push_back(DEFAULT_ENEMY("Katherine", "LEVEL_KATHERINE"));
-        } else if (baselvl == 5 || baselvl == 6) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("TownGuard1", "LEVEL_TOWNGUARD1"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("TownGuard2", "LEVEL_TOWNGUARD2"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Seagull", "LEVEL_SEAGULL"));
-            if (baselvl == 6) {
-                vstrpTypes.push_back(DEFAULT_ENEMY("Rat", "LEVEL_RAT"));
-                vstrpTypes.push_back(DEFAULT_ENEMY("Wolvington", "LEVEL_WOLVINGTON"));
-            }
-        } else if (baselvl == 7 || baselvl == 8) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("RedTailPirate", "LEVEL_REDTAILPIRATE"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("BearSailor", "LEVEL_BEARSAILOR"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Seagull", "LEVEL_SEAGULL"));
-            if (baselvl == 7)
-                vstrpTypes.push_back(DEFAULT_ENEMY("HermitCrab", "LEVEL_HERMITCRAB"));
-            else {
-                vstrpTypes.push_back(DEFAULT_ENEMY("Gabriel", "LEVEL_GABRIEL"));
-            }
-        } else if (baselvl == 9 || baselvl == 10) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("PegLeg", "LEVEL_PEGLEG"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("CrazyHook", "LEVEL_CRAZYHOOK"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Seagull", "LEVEL_SEAGULL"));
-            if (baselvl == 10) {
-                vstrpTypes.push_back(DEFAULT_ENEMY("Marrow", "LEVEL_MARROW"));
-            }
-        } else if (baselvl == 11 || baselvl == 12) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("Mercat", "LEVEL_MERCAT"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Siren", "LEVEL_SIREN"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Fish", "LEVEL_FISH"));
-            if (baselvl == 12) {
-                vstrpTypes.push_back(DEFAULT_ENEMY("Aquatis", "LEVEL_KINGAQUATIS"));
-            }
-        } else if (baselvl == 13) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("RedTailPirate", "LEVEL_REDTAILPIRATE"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("BearSailor", "LEVEL_BEARSAILOR"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Chameleon", "LEVEL_CHAMELEON"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("RedTail", "LEVEL_REDTAIL"));
-        } else if (baselvl == 14) {
-            vstrpTypes.push_back(DEFAULT_ENEMY("TigerGuard", "LEVEL_TIGER"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Chameleon", "LEVEL_CHAMELEON"));
-            vstrpTypes.push_back(DEFAULT_ENEMY("Omar", "LEVEL_OMAR"));
-        }
+        int base = GV->editState->hParser->GetBaseLevel();
+        LogicInfo::GetEnemyLogicPairs(vstrpTypes, base);
 
         iType = ObjEdit::enEnemy;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Enemy", "WinCaption"));
@@ -76,9 +22,6 @@ namespace ObjEdit {
         win->setMovable(0);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
 
-        for (int i = 0; i < 5; i++)
-            rbType[i] = NULL;
-
         labType = new SHR::Lab(GETL2S("EditObj_Enemy", "Type"));
         labType->adjustSize();
         win->add(labType, 5, 10);
@@ -86,34 +29,27 @@ namespace ObjEdit {
         char tmp[128];
         sprintf(tmp, "a_%p", this);
         for (int i = 0; i < vstrpTypes.size(); i++) {
+            bool diff = false;
             char tmp2[128];
-            sprintf(tmp2, "Logic_%s", vstrpTypes[i].first.c_str());
-            rbType[i] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Enemy", tmp2), tmp,
-                                        !strcmp(hTempObj->GetLogic(), vstrpTypes[i].first.c_str()));
-            rbType[i]->adjustSize();
-            rbType[i]->addActionListener(hAL);
-            win->add(rbType[i], 5, 30 + i * 20);
+            if (i > 0 && vstrpTypes[i].first == vstrpTypes[i - 1].first) {
+                sprintf(tmp2, "Logic_%s2", vstrpTypes[i].first.c_str());
+                diff = true;
+            } else {
+                sprintf(tmp2, "Logic_%s", vstrpTypes[i].first.c_str());
+            }
+
+            auto typeRB = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Enemy", tmp2), tmp,
+                    !strcmp(hTempObj->GetLogic(), vstrpTypes[i].first.c_str()) && (!diff ||
+                            (hTempObj->GetUserValue(0) && !strcmp(hTempObj->GetLogic(), "HermitCrab"))
+                            || (hTempObj->GetParam(WWD::Param_Smarts) && !strcmp(hTempObj->GetLogic(), "TigerGuard"))
+                    ));
+            typeRB->adjustSize();
+            typeRB->addActionListener(hAL);
+            rbType.push_back(typeRB);
+            win->add(typeRB, 5, 32 + i * 20);
         }
 
-        labType2 = new SHR::Lab(GETL2S("EditObj_Enemy", "Variety"));
-        labType2->adjustSize();
-        win->add(labType2, 155, 30);
-
-        sprintf(tmp, "b_%p", this);
-        for (int i = 0; i < 2; i++) {
-            const char *cap;
-            if (i)
-                cap = GETL2S("EditObj_Enemy", (baselvl == 7 ? "Variety_Bomber" : "Variety_White"));
-            else
-                cap = GETL2S("EditObj_Enemy", "Variety_Normal");
-            rbType2[i] = new SHR::RadBut(GV->hGfxInterface, cap, tmp, 0);
-            rbType2[i]->adjustSize();
-            rbType2[i]->addActionListener(hAL);
-            win->add(rbType2[i], 155, 50 + i * 20);
-        }
-        rbType2[0]->setSelected(1);
-
-        int yoffset = 40 + vstrpTypes.size() * 20;
+        int yoffset = 42 + vstrpTypes.size() * 20;
 
         labBehaviour = new SHR::Lab(GETL2S("EditObj_Enemy", "Behaviour"));
         labBehaviour->adjustSize();
@@ -144,12 +80,6 @@ namespace ObjEdit {
             rbFlags[3]->setSelected(1);
         } else {
             rbFlags[0]->setSelected(1);
-        }
-
-        if (baselvl == 7 && rbType[2]->isSelected()) {
-            rbType2[hTempObj->GetUserValue(0) > 0]->setSelected(1);
-        } else if (baselvl == 14 && rbType[0]->isSelected()) {
-            rbType2[hTempObj->GetParam(WWD::Param_Smarts) == 1]->setSelected(1);
         }
 
         labTreasures = new SHR::Lab(GETL2S("EditObj_Enemy", "Treasures"));
@@ -199,30 +129,30 @@ namespace ObjEdit {
         win->add(labMoveArea, 5, yoffset);
 
         hRectPick = new cProcPickRect(hTempObj);
-        hRectPick->SetActionListener(hAL);
-        hRectPick->SetType(PickRect_MinMax);
-        hRectPick->AddWidgets(win, 5, yoffset + 20);
-        hRectPick->SetAllowEmpty(1);
-        hRectPick->SetAllowEmptyAxis(1);
-        hRectPick->GetPickButton()->addActionListener(hAL);
+        hRectPick->setActionListener(hAL);
+        hRectPick->setType(PickRect_MinMax);
+        hRectPick->setAllowEmpty(1);
+        hRectPick->setAllowEmptyAxis(1);
+        hRectPick->getPickButton()->addActionListener(hAL);
+        win->add(hRectPick, 5, yoffset + 20);
 
         butClearArea = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_Enemy", "Clear"));
         butClearArea->setDimension(gcn::Rectangle(0, 0, 125, 33));
         butClearArea->addActionListener(hAL);
-        win->add(butClearArea, 5, yoffset + 20 + 88 + 33);
+        win->add(butClearArea, 5, yoffset + 20 + 88 + 36);
 
         labDamage = new SHR::Lab(GETL2S("EditObj_Enemy", "Damage"));
-        win->add(labDamage, 5, yoffset + 20 + 88 + 70 + 4);
+        win->add(labDamage, 5, yoffset + 20 + 88 + 70 + 9);
 
         sprintf(tmp, "%d", hTempObj->GetParam(WWD::Param_Damage));
         tfDamage = new SHR::TextField(tmp);
         tfDamage->setDimension(gcn::Rectangle(0, 0, 150, 20));
         tfDamage->SetNumerical(1, 0);
-        win->add(tfDamage, 140, yoffset + 20 + 88 + 70 + 4);
+        win->add(tfDamage, 140, yoffset + 20 + 88 + 70 + 6);
 
         labWarpDest = new SHR::Lab("");
         labWarpDest->adjustSize();
-        win->add(labWarpDest, 5, yoffset + 20 + 88 + 70 + 4);
+        win->add(labWarpDest, 5, yoffset + 20 + 88 + 70 + 6);
 
         sprintf(tmp, "%d", hTempObj->GetParam(WWD::Param_SpeedX));
         tfSpeedX = new SHR::TextField(tmp);
@@ -234,12 +164,12 @@ namespace ObjEdit {
         tfSpeedY = new SHR::TextField(tmp);
         tfSpeedY->setDimension(gcn::Rectangle(0, 0, 100, 20));
         tfSpeedY->SetNumerical(1, 0);
-        win->add(tfSpeedY, 25, yoffset + 20 + 88 + 70 + 4 + 40);
+        win->add(tfSpeedY, 25, yoffset + 20 + 88 + 70 + 4 + 42);
 
         butPickSpeedXY = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_Enemy", "Pick"));
         butPickSpeedXY->setDimension(gcn::Rectangle(0, 0, 125, 33));
         butPickSpeedXY->addActionListener(hAL);
-        win->add(butPickSpeedXY, 150, yoffset + 20 + 88 + 70 + 4 + 14);
+        win->add(butPickSpeedXY, 150, yoffset + 20 + 88 + 70 + 4 + 24);
 
         win->add(_butAddNext, 50, 15);
         win->add(_butSave, 150, 15);
@@ -268,11 +198,8 @@ namespace ObjEdit {
         delete labBehaviour;
         for (int i = 0; i < 4; i++)
             delete rbFlags[i];
-        delete labType2;
-        for (int i = 0; i < 5; i++)
-            delete rbType[i];
-        for (int i = 0; i < 2; i++)
-            delete rbType2[i];
+        for (auto& t : rbType)
+            delete t;
         delete labType;
         delete win;
     }
@@ -310,7 +237,7 @@ namespace ObjEdit {
             if (!strcmp(hTempObj->GetLogic(), "HermitCrab")) {
                 labTreasures->setVisible(1);
                 invTabs[0]->setVisible(1);
-                invTabs[0]->setPosition(190, 30 + vstrpTypes.size() * 20 + 40 + 130);
+                invTabs[0]->setPosition(190, 30 + vstrpTypes.size() * 20 + 40 + 135 + 40);
                 for (int i = 1; i < 9; i++) {
                     invTabs[i]->setVisible(0);
                 }
@@ -319,7 +246,7 @@ namespace ObjEdit {
                 for (int i = 0; i < 9; i++) {
                     invTabs[i]->setVisible(1);
                     invTabs[i]->setPosition(140 + (i % 3) * 50,
-                                            30 + vstrpTypes.size() * 20 + 30 + 130 + 50 * int(i / 3));
+                                            30 + vstrpTypes.size() * 20 + 30 + 135 + 50 * int(i / 3));
                 }
             }
         } else {
@@ -339,7 +266,7 @@ namespace ObjEdit {
         tfDamage->setVisible(dmgvis);
 
         tfDamage->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labDamage->setColor(tfDamage->isEnabled() ? 0xFF000000 : 0xFF222222);
+        labDamage->setColor(tfDamage->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
 
         bool warpvis = 0;
         for (int i = 0; i < 9; i++)
@@ -363,7 +290,7 @@ namespace ObjEdit {
         tfSpeedY->setVisible(warpvis || gemvis);
         tfSpeedX->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
         tfSpeedY->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labWarpDest->setColor(tfSpeedX->isEnabled() ? 0xFF000000 : 0xFF222222);
+        labWarpDest->setColor(tfSpeedX->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
         butPickSpeedXY->setVisible(warpvis || gemvis);
         butPickSpeedXY->setEnabled(!hRectPick->IsPicking());
         if (warpvis || gemvis) {
@@ -373,48 +300,37 @@ namespace ObjEdit {
 
         win->setHeight(95 + 150 + addheight + vstrpTypes.size() * 20 + dmgvis * 28 + (warpvis || gemvis) * 68);
         win->setY(GV->editState->vPort->GetY());
-        _butSave->setY(win->getHeight() - 60);
-        _butAddNext->setY(win->getHeight() - 60);
+        _butSave->setY(win->getHeight() - 55);
+        _butAddNext->setY(win->getHeight() - 55);
 
         _butSave->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY &&
                              !tfSpeedX->isMarkedInvalid() && !tfSpeedY->isMarkedInvalid());
 
-        for (int i = 0; i < 5; i++)
-            if (rbType[i] != NULL)
-                rbType[i]->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
+        for (auto& t : rbType)
+            t->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
         for (int i = 0; i < 4; i++)
             rbFlags[i]->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-
-        bool varietyvisible = (GV->editState->hParser->GetBaseLevel() == 7 && rbType[3]->isSelected() ||
-                               GV->editState->hParser->GetBaseLevel() == 14 && rbType[0]->isSelected());
-        labType2->setVisible(varietyvisible);
-        rbType2[0]->setVisible(varietyvisible);
-        rbType2[1]->setVisible(varietyvisible);
-
-        rbType2[0]->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        rbType2[1]->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
 
         if (hRectPick->IsPicking() || bPickSpeedXY) {
             cbPatrol->setEnabled(0);
         } else {
-            if (!strcmp(hTempObj->GetLogic(), "Seagull") || !strcmp(hTempObj->GetLogic(), "Fish")) {
+            if (!strcmp(hTempObj->GetLogic(), "Seagull") || !strcmp(hTempObj->GetLogic(), "Fish") || !strcmp(hTempObj->GetLogic(), "HermitCrab")) {
                 cbPatrol->setSelected(1);
                 cbPatrol->setEnabled(0);
-            } else if (!strcmp(hTempObj->GetLogic(), "HermitCrab")) {
-                cbPatrol->setSelected(0);
-                cbPatrol->setEnabled(0);
-            } else
+            } else {
                 cbPatrol->setEnabled(1);
+            }
         }
 
         butPickSpeedXY->setCaption(GETL2S("EditObj_Enemy", bPickSpeedXY ? "Cancel" : "Pick"));
 
-        hRectPick->Enable(cbPatrol->isSelected() && !bPickSpeedXY);
+        labMoveArea->setColor(cbPatrol->isSelected() && !bPickSpeedXY ? 0xFFa1a1a1 : 0xEE000000);
+        hRectPick->setEnabled(cbPatrol->isSelected() && !bPickSpeedXY);
         butClearArea->setEnabled(cbPatrol->isSelected() && !bPickSpeedXY && !hRectPick->IsPicking());
-        hTempObj->SetParam(WWD::Param_MinX, cbPatrol->isSelected() ? hRectPick->GetValue(0) : 0);
-        hTempObj->SetParam(WWD::Param_MinY, cbPatrol->isSelected() ? hRectPick->GetValue(1) : 0);
-        hTempObj->SetParam(WWD::Param_MaxX, cbPatrol->isSelected() ? hRectPick->GetValue(2) : 0);
-        hTempObj->SetParam(WWD::Param_MaxY, cbPatrol->isSelected() ? hRectPick->GetValue(3) : 0);
+        hTempObj->SetParam(WWD::Param_MinX, cbPatrol->isSelected() ? hRectPick->getValue(0) : 0);
+        hTempObj->SetParam(WWD::Param_MinY, cbPatrol->isSelected() ? hRectPick->getValue(1) : 0);
+        hTempObj->SetParam(WWD::Param_MaxX, cbPatrol->isSelected() ? hRectPick->getValue(2) : 0);
+        hTempObj->SetParam(WWD::Param_MaxY, cbPatrol->isSelected() ? hRectPick->getValue(3) : 0);
     }
 
     void cEditObjEnemy::Save() {
@@ -461,12 +377,12 @@ namespace ObjEdit {
             bKill = 1;
             return;
         } else if (actionEvent.getSource() == butClearArea) {
-            hRectPick->SetValues(0, 0, 0, 0);
+            hRectPick->setValues(0, 0, 0, 0);
             return;
         } else if (actionEvent.getSource() == cbPatrol) {
             RebuildWindow();
             return;
-        } else if (actionEvent.getSource() == hRectPick->GetPickButton()) {
+        } else if (actionEvent.getSource() == hRectPick->getPickButton()) {
             RebuildWindow();
             return;
         } else if (actionEvent.getSource() == butPickSpeedXY) {
@@ -487,25 +403,15 @@ namespace ObjEdit {
                 RebuildWindow();
             return;
         }
-        for (int i = 0; i < 5; i++)
-            if (rbType[i] != NULL && actionEvent.getSource() == rbType[i]) {
-                hTempObj->SetLogic(vstrpTypes[i].first.c_str());
-                hTempObj->SetImageSet(vstrpTypes[i].second.c_str());
-                GV->editState->vPort->MarkToRedraw(1);
+        for (int i = 0; i < rbType.size(); ++i)
+            if (actionEvent.getSource() == rbType[i]) {
+                UpdateEnemyObject(hTempObj, vstrpTypes[i]);
+                GV->editState->vPort->MarkToRedraw(true);
                 RebuildWindow();
                 return;
             }
-        for (int i = 0; i < 2; i++)
-            if (actionEvent.getSource() == rbType2[i]) {
-                if (GV->editState->hParser->GetBaseLevel() == 7) {
-                    hTempObj->SetUserValue(0, i == 1);
-                } else {
-                    hTempObj->SetParam(WWD::Param_Smarts, i == 1);
-                }
-                GV->editState->vPort->MarkToRedraw(1);
-            }
-        for (int i = 0; i < 9; i++)
-            if (actionEvent.getSource() == invTabs[i]) {
+        for (auto & invTab : invTabs)
+            if (actionEvent.getSource() == invTab) {
                 RebuildWindow();
             }
     }
@@ -555,7 +461,7 @@ namespace ObjEdit {
             my < GV->editState->vPort->GetY() + GV->editState->vPort->GetHeight() &&
             GV->editState->conMain->getWidgetAt(mx, my) == GV->editState->vPort->GetWidget()) {
             int wmx = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
-                    wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
+                wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
             hgeSprite *spr;
             if (bPickGem)
                 spr = GV->editState->SprBank->GetAssetByID("LEVEL_GEM")->GetIMGByIterator(0)->GetSprite();
@@ -563,10 +469,11 @@ namespace ObjEdit {
                 spr = GV->editState->SprBank->GetAssetByID("CLAW")->GetIMGByID(401)->GetSprite();
             spr->SetColor(0xBBFFFFFF);
             spr->RenderEx(mx, my, 0, GV->editState->fZoom);
-            GV->fntMyriad13->printf(mx + spr->GetWidth() / 2 + 1, my + 1, HGETEXT_LEFT, "~l~%s: %d, %d", 0,
-                                    GETL2S("EditObj_Warp", "SpawnPos"), wmx, wmy);
-            GV->fntMyriad13->printf(mx + spr->GetWidth() / 2, my, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, ~y~%d", 0,
-                                    GETL2S("EditObj_Warp", "SpawnPos"), wmx, wmy);
+            mx += (spr->GetWidth() / 2 + 15) * GV->editState->fZoom;
+            GV->fntMyriad13->printf(mx + 1, my + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
+                                    GETL2S("EditObj_Enemy", bPickGem ? "GemDest" : "WarpDest"), wmx, wmy);
+            GV->fntMyriad13->printf(mx, my, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
+                                    GETL2S("EditObj_Enemy", bPickGem ? "GemDest" : "WarpDest"), wmx, wmy);
         }
     }
 
@@ -574,11 +481,6 @@ namespace ObjEdit {
         int dx, dy;
         win->getAbsolutePosition(dx, dy);
         dy += 24;
-
-        if (labType2->isVisible()) {
-            hge->Gfx_RenderLine(dx + 137, dy, dx + 137, dy + 30 + vstrpTypes.size() * 20, GV->colLineDark);
-            hge->Gfx_RenderLine(dx + 138, dy, dx + 138, dy + 30 + vstrpTypes.size() * 20, GV->colLineBright);
-        }
 
         hge->Gfx_RenderLine(dx, dy + 30 + vstrpTypes.size() * 20, dx + win->getWidth(),
                             dy + 30 + vstrpTypes.size() * 20, GV->colLineDark);
@@ -590,31 +492,48 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 161 + vstrpTypes.size() * 20, dx + win->getWidth(),
                             dy + 161 + vstrpTypes.size() * 20, GV->colLineBright);
 
-        hge->Gfx_RenderLine(dx, dy + 160 + 173 + 5 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                            dy + 160 + 173 + 5 + vstrpTypes.size() * 20, GV->colLineDark);
-        hge->Gfx_RenderLine(dx, dy + 161 + 173 + 5 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                            dy + 161 + 173 + 5 + vstrpTypes.size() * 20, GV->colLineBright);
+        hge->Gfx_RenderLine(dx, dy + 160 + 178 + 5 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                            dy + 160 + 178 + 5 + vstrpTypes.size() * 20, GV->colLineDark);
+        hge->Gfx_RenderLine(dx, dy + 161 + 178 + 5 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                            dy + 161 + 178 + 5 + vstrpTypes.size() * 20, GV->colLineBright);
 
         if (labTreasures->isVisible()) {
             hge->Gfx_RenderLine(dx + 137, dy + 160 + vstrpTypes.size() * 20, dx + 137,
-                                dy + 161 + 173 + 3 + vstrpTypes.size() * 20, GV->colLineDark);
+                                dy + 161 + 178 + 3 + vstrpTypes.size() * 20, GV->colLineDark);
             hge->Gfx_RenderLine(dx + 138, dy + 160 + vstrpTypes.size() * 20, dx + 138,
-                                dy + 161 + 173 + 3 + vstrpTypes.size() * 20, GV->colLineBright);
+                                dy + 161 + 178 + 3 + vstrpTypes.size() * 20, GV->colLineBright);
         }
 
         if (tfDamage->isVisible()) {
-            hge->Gfx_RenderLine(dx, dy + 160 + 173 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                                dy + 160 + 28 + 173 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
-            hge->Gfx_RenderLine(dx, dy + 161 + 173 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                                dy + 161 + 28 + 173 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
+            hge->Gfx_RenderLine(dx, dy + 160 + 178 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                                dy + 160 + 28 + 178 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
+            hge->Gfx_RenderLine(dx, dy + 161 + 178 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                                dy + 161 + 28 + 178 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
         } else if (tfSpeedX->isVisible()) {
-            GV->fntMyriad13->SetColor(tfSpeedX->isEnabled() ? 0xFF000000 : 0xFF222222);
-            GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 28 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
-            GV->fntMyriad13->Render(dx + 5, dy + 160 + 170 + 48 + 8 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
-            hge->Gfx_RenderLine(dx, dy + 160 + 173 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                                dy + 160 + 173 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
-            hge->Gfx_RenderLine(dx, dy + 161 + 173 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
-                                dy + 161 + 173 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
+            GV->fntMyriad13->SetColor(tfSpeedX->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
+            GV->fntMyriad13->Render(dx + 8, dy + 160 + 170 + 28 + 10 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
+            GV->fntMyriad13->Render(dx + 8, dy + 160 + 170 + 48 + 12 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
+            hge->Gfx_RenderLine(dx, dy + 160 + 178 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                                dy + 160 + 178 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
+            hge->Gfx_RenderLine(dx, dy + 161 + 178 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
+                                dy + 161 + 178 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
         }
+    }
+
+    void cEditObjEnemy::UpdateEnemyObject(WWD::Object *obj, const std::pair<std::string, std::string>& dataPair) {
+        if (dataPair.second == "LEVEL_TIGERWHITE") {
+            obj->SetParam(WWD::Param_Smarts, 1);
+        } else {
+            obj->SetParam(WWD::Param_Smarts, 0);
+
+            if (dataPair.second == "LEVEL_BOMBERCRAB") {
+                obj->SetUserValue(0, 1);
+            } else {
+                obj->SetUserValue(0, 0);
+            }
+        }
+
+        obj->SetLogic(dataPair.first.c_str());
+        obj->SetImageSet(dataPair.second.c_str());
     }
 }

@@ -7,6 +7,8 @@ extern HGE *hge;
 
 namespace ObjEdit {
     cProcPickRect::cProcPickRect(WWD::Object *phObj) {
+        setOpaque(false);
+
         iType = PickRect_MinMax;
         hEvList = 0;
         bDrag = 0;
@@ -40,6 +42,12 @@ namespace ObjEdit {
         butPick->setDimension(gcn::Rectangle(0, 0, 125, 33));
         butPick->addActionListener(this);
 
+        for (int i = 0; i < 4; i++) {
+            SHR::Container::add(lab[i], 0, 22 * i + 2);
+            SHR::Container::add(tf[i], 25, 22 * i);
+        }
+        SHR::Container::add(butPick, 0, 22 * 4 + 3);
+
         bPicking = 0;
     }
 
@@ -51,7 +59,7 @@ namespace ObjEdit {
         delete butPick;
     }
 
-    void cProcPickRect::Validate() {
+    void cProcPickRect::validate() {
         int v[4];
         for (int i = 0; i < 4; i++)
             v[i] = atoi(tf[i]->getText().c_str());
@@ -62,21 +70,21 @@ namespace ObjEdit {
         tf[3]->setMarkedInvalid(v[3] == 0 && !allownull && !(bAllowEmptyAxis && v[1] == 0) || v[1] > v[3]);
     }
 
-    void cProcPickRect::SetAllowEmpty(bool b) {
+    void cProcPickRect::setAllowEmpty(bool b) {
         bAllowEmpty = b;
-        Validate();
+        validate();
     }
 
-    void cProcPickRect::SetAllowEmptyAxis(bool b) {
+    void cProcPickRect::setAllowEmptyAxis(bool b) {
         bAllowEmptyAxis = b;
-        Validate();
+        validate();
     }
 
-    void cProcPickRect::Enable(bool b) {
+    void cProcPickRect::setEnabled(bool b) {
         if (bPicking) return;
         for (int i = 0; i < 4; i++) {
             tf[i]->setEnabled(b);
-            lab[i]->setColor(b ? 0xFF000000 : 0xFF222222);
+            lab[i]->setColor(b ? 0xFFa1a1a1 : 0xEE000000);
         }
         butPick->setEnabled(b);
     }
@@ -100,7 +108,7 @@ namespace ObjEdit {
             bDrag = 1;
             iDragX = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx);
             iDragY = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
-            SetValues(iDragX, iDragY, iDragX, iDragY);
+            setValues(iDragX, iDragY, iDragX, iDragY);
             iDragmX = iDragX;
             iDragmY = iDragY;
             return;
@@ -110,25 +118,25 @@ namespace ObjEdit {
             return;
 
         int ax = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
-                ay = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
+            ay = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
 
         if (ax < iDragX) {
-            SetValues(ax, -1, iDragX);
+            setValues(ax, -1, iDragX);
         } else {
-            SetValues(-1, -1, ax);
+            setValues(-1, -1, ax);
         }
         if (ay < iDragY) {
-            SetValues(-1, ay, -1, iDragY);
+            setValues(-1, ay, -1, iDragY);
         } else {
-            SetValues(-1, -1, -1, ay);
+            setValues(-1, -1, -1, ay);
         }
     }
 
     void cProcPickRect::action(const gcn::ActionEvent &actionEvent) {
         for (int i = 0; i < 4; i++)
             if (actionEvent.getSource() == tf[i]) {
-                SetValues();
-                Validate();
+                setValues();
+                validate();
             }
         if (actionEvent.getSource() == butPick) {
             bPicking = !bPicking;
@@ -141,22 +149,14 @@ namespace ObjEdit {
             hEvList->action(actionEvent);
     }
 
-    void cProcPickRect::AddWidgets(SHR::Container *dest, int x, int y) {
-        for (int i = 0; i < 4; i++) {
-            dest->add(lab[i], x, y + 22 * i);
-            dest->add(tf[i], x + 25, y + 22 * i);
-        }
-        dest->add(butPick, x, y + 22 * 4);
-    }
-
-    bool cProcPickRect::IsValid() {
+    bool cProcPickRect::isValid() {
         return !tf[0]->isMarkedInvalid() &&
                !tf[1]->isMarkedInvalid() &&
                !tf[2]->isMarkedInvalid() &&
                !tf[3]->isMarkedInvalid();
     }
 
-    void cProcPickRect::SetValues(int x1, int y1, int x2, int y2) {
+    void cProcPickRect::setValues(int x1, int y1, int x2, int y2) {
         if (x1 != -1) {
             char tmp[50];
             sprintf(tmp, "%d", x1);
@@ -178,26 +178,26 @@ namespace ObjEdit {
             tf[3]->setText(tmp);
         }
         if (iType == PickRect_MinMax) {
-            hObj->SetParam(WWD::Param_MinX, x1 == -1 ? GetValue(0) : x1);
-            hObj->SetParam(WWD::Param_MinY, y1 == -1 ? GetValue(1) : y1);
-            hObj->SetParam(WWD::Param_MaxX, x2 == -1 ? GetValue(2) : x2);
-            hObj->SetParam(WWD::Param_MaxY, y2 == -1 ? GetValue(3) : y2);
+            hObj->SetParam(WWD::Param_MinX, x1 == -1 ? getValue(0) : x1);
+            hObj->SetParam(WWD::Param_MinY, y1 == -1 ? getValue(1) : y1);
+            hObj->SetParam(WWD::Param_MaxX, x2 == -1 ? getValue(2) : x2);
+            hObj->SetParam(WWD::Param_MaxY, y2 == -1 ? getValue(3) : y2);
         } else {
             WWD::Rect r;
-            r.x1 = GetValue(0);
-            r.y1 = GetValue(1);
-            r.x2 = GetValue(2);
-            r.y2 = GetValue(3);
+            r.x1 = getValue(0);
+            r.y1 = getValue(1);
+            r.x2 = getValue(2);
+            r.y2 = getValue(3);
             if (iType == PickRect_AttackRect) {
                 hObj->SetAttackRect(r);
             } else if (iType == PickRect_UserRect1) {
                 hObj->SetUserRect(0, r);
             }
         }
-        Validate();
+        validate();
     }
 
-    void cProcPickRect::SetVisible(bool b) {
+    void cProcPickRect::setVisible(bool b) {
         for (int i = 0; i < 4; i++) {
             tf[i]->setVisible(b);
             lab[i]->setVisible(b);
@@ -205,11 +205,11 @@ namespace ObjEdit {
         butPick->setVisible(b);
     }
 
-    void cProcPickRect::SetType(enProcPickRectType type) {
+    void cProcPickRect::setType(enProcPickRectType type) {
         iType = type;
         char tmp[50];
         if (iType == PickRect_MinMax) {
-            SetValues(hObj->GetParam(WWD::Param_MinX), hObj->GetParam(WWD::Param_MinY),
+            setValues(hObj->GetParam(WWD::Param_MinX), hObj->GetParam(WWD::Param_MinY),
                       hObj->GetParam(WWD::Param_MaxX), hObj->GetParam(WWD::Param_MaxY));
         } else {
             WWD::Rect r;
@@ -218,8 +218,8 @@ namespace ObjEdit {
             } else if (iType == PickRect_UserRect1) {
                 r = hObj->GetUserRect(0);
             }
-            SetValues(r.x1, r.y1, r.x2, r.y2);
+            setValues(r.x1, r.y1, r.x2, r.y2);
         }
-        Validate();
+        validate();
     }
 }

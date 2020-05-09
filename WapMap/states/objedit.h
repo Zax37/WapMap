@@ -51,7 +51,8 @@ namespace ObjEdit {
         enLaser,
         enAmbient,
         enEnemy,
-        enText
+        enText,
+        enFloorSpike
     };
 
     class EditingWW;

@@ -259,7 +259,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/windows/tileBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/wViewport.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/res.rc
-)
+        WapMap/objEdit/procPickXYLockable.cpp WapMap/objEdit/procPickXYLockable.h WapMap/objEdit/editFloorSpike.cpp WapMap/objEdit/editFloorSpike.h)
 
 target_link_libraries(WapMap
     ${HGE_LIBS}

@@ -15,7 +15,7 @@ namespace ObjEdit {
         PickRect_UserRect1
     };
 
-    class cProcPickRect : public gcn::ActionListener {
+    class cProcPickRect : public gcn::ActionListener, public SHR::Container {
     private:
         enProcPickRectType iType;
         bool bPicking, bDrag;
@@ -29,44 +29,42 @@ namespace ObjEdit {
         int iDragmX, iDragmY;
         gcn::ActionListener *hEvList;
 
-        void Validate();
+        void validate();
 
     public:
         cProcPickRect(WWD::Object *hObj);
 
         ~cProcPickRect();
 
-        void Enable(bool b);
+        void setEnabled(bool b);
 
         bool IsPicking() { return bPicking; };
 
-        bool IsValid();
+        bool isValid();
 
         bool IsEnabled() { return butPick->isEnabled(); };
 
-        void SetAllowEmpty(bool b);
+        void setAllowEmpty(bool b);
 
-        void SetAllowEmptyAxis(bool b);
+        void setAllowEmptyAxis(bool b);
 
         void Think();
 
-        void AddWidgets(SHR::Container *dest, int x, int y);
-
-        int GetValue(int i) { return atoi(tf[i]->getText().c_str()); };
+        int getValue(int i) { return atoi(tf[i]->getText().c_str()); };
 
         void action(const gcn::ActionEvent &actionEvent);//inherited from actionlistener
 
-        void SetActionListener(gcn::ActionListener *al) { hEvList = al; };
+        void setActionListener(gcn::ActionListener *al) { hEvList = al; };
 
-        SHR::But *GetPickButton() { return butPick; };
+        SHR::But *getPickButton() { return butPick; };
 
-        SHR::TextField *GetTextField(int i) { return tf[i]; };
+        SHR::TextField *getTextField(int i) { return tf[i]; };
 
-        void SetType(enProcPickRectType type);
+        void setType(enProcPickRectType type);
 
-        void SetValues(int x1 = -1, int y1 = -1, int x2 = -1, int y2 = -1);
+        void setValues(int x1 = -1, int y1 = -1, int x2 = -1, int y2 = -1);
 
-        void SetVisible(bool b);
+        void setVisible(bool b);
     };
 }
 

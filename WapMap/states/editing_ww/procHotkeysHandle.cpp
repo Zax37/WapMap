@@ -84,7 +84,7 @@ void State::EditingWW::HandleHotkeys() {
                iTileSelectX1 != -1 && iTileSelectX2 != -1 && iTileSelectY1 != -1 && iTileSelectY2 != -1) {
         tilContext->EmulateClickID(TILMENU_DELETE);
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V) &&
-               vObjectClipboard.size() != 0 && iMode == EWW_MODE_OBJECT) {
+               !vObjectClipboard.empty() && iMode == EWW_MODE_OBJECT) {
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
         objContext->setX(mx);
@@ -94,14 +94,26 @@ void State::EditingWW::HandleHotkeys() {
         objContext->EmulateClickID(OBJMENU_DELETE);
     } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_P)) {
 
-    } else if (bFocus && iMode == EWW_MODE_TILE &&
-               (iActiveTool == EWW_TOOL_BRUSH || iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL)) {
-        if (hge->Input_KeyDown(HGEK_R))
+    } else if (iMode == EWW_MODE_TILE && (iActiveTool == EWW_TOOL_BRUSH || iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL)) {
+        if (hge->Input_KeyDown(HGEK_R)) {
+            iActiveTool = EWW_TOOL_PENCIL;
             iTilePicked = EWW_TILE_ERASE;
-        else if (hge->Input_KeyDown(HGEK_P))
+            vPort->MarkToRedraw(1);
+        }
+        else if (hge->Input_KeyDown(HGEK_P)) {
+            if (iActiveTool == EWW_TOOL_BRUSH) {
+                SetTool(EWW_TOOL_PENCIL);
+            } else {
+                iActiveTool = EWW_TOOL_PENCIL;
+            }
             iTilePicked = EWW_TILE_PIPETTE;
-        else if (hge->Input_KeyDown(HGEK_F))
+            vPort->MarkToRedraw(1);
+        }
+        else if (hge->Input_KeyDown(HGEK_F)) {
+            iActiveTool = EWW_TOOL_PENCIL;
             iTilePicked = EWW_TILE_FILL;
+            vPort->MarkToRedraw(1);
+        }
 
         int iOldP = iTilePicked;
         if (hge->Input_KeyDown(HGEK_ADD)) {

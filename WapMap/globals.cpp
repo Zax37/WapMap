@@ -721,9 +721,10 @@ void cGlobals::Init() {
             sprIcons[x + 30 + y * 14] = new hgeSprite(texMain, 224 + x * 32, 261 + y * 32, 32, 32);
 
     for (int y = 0; y < 3; y++)
-        for (int x = 0; x < 16; x++)
-            if (114 + x + y * 16 < GfxIcons_Count)
-                sprIcons[114 + x + y * 16] = new hgeSprite(texMain, 512 + x * 32, 528 + y * 32, 32, 32);
+        for (int x = 0; x < 16; x++) {
+            if (114 + x + y * 16 >= GfxIcons_Count) break;
+            sprIcons[114 + x + y * 16] = new hgeSprite(texMain, 512 + x * 32, 528 + y * 32, 32, 32);
+        }
 
     for (int y = 0; y < 3; y++) {
         for (int i = 0; i < 27; i++)
@@ -734,12 +735,13 @@ void cGlobals::Init() {
         sprIcons16[81 + x] = new hgeSprite(texMain, 736 + 16 * x, 512, 16, 16);
     for (int x = 0; x < 32; x++)
         sprIcons16[99 + x] = new hgeSprite(texMain, 512 + 16 * x, 720, 16, 16);
-    for (int x = 0; x < 2; x++)
+    for (int x = 0; x < Gfx16Icons_Count - Icon16_Package; x++) {
         sprIcons16[131 + x] = new hgeSprite(texMain, 512 + 16 * x, 736, 16, 16);
+    }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         sprGamesBig[i] = new hgeSprite(texMain, 190, 135 + 32 * i, 32, 32);
-        sprGamesSmall[i] = new hgeSprite(texMain, 126 + 16 * i, 215, 16, 16);
+        sprGamesSmall[i] = new hgeSprite(texMain, 78 + 16 * i, 215, 16, 16);
     }
 
     sprTile = new hgeSprite(texMain, 384, 640, 64, 64);
@@ -922,8 +924,8 @@ void cGlobals::Init() {
     colBase = 0xff4d4d4d;//0xff989898;
     colBaseDark = colBase - 0x000F0F0F;
 
-    colLineDark = 0xFF0E0E0E;
-    colLineBright = 0xFF2B2B2B;
+    colLineDark = 0x7F070707;
+    colLineBright = 0x7F565656;
     colOutline = colBase - 0x004d4d4d;
 
     colBaseGCN = 0x4d4d4d;//0x989898;

@@ -24,7 +24,6 @@ namespace SHR {
         mForegroundColor = 0xFF00FF;
         bHide = 0;
         mAlphaMod = 1.0f;
-        //setFrameSize(0);
         addWidgetListener(this);
     }
 

@@ -9,18 +9,20 @@
 namespace ObjEdit {
     class cEditObjEnemy : public cObjEdit {
     private:
-        SHR::RadBut *rbType[5], *rbType2[2], *rbFlags[4];
+        SHR::RadBut *rbFlags[4];
         SHR::Lab *labType, *labType2, *labBehaviour, *labDamage, *labWarpDest;
         SHR::CBox *cbPatrol;
         SHR::Lab *labTreasures, *labMoveArea;
         SHR::InvTab *invTabs[9];
         SHR::But *butClearArea, *butPickSpeedXY;
         SHR::TextField *tfDamage, *tfSpeedX, *tfSpeedY;
-        std::vector<std::pair<std::string, std::string> > vstrpTypes;
+        std::vector<std::pair<std::string, std::string>> vstrpTypes;
         cInvPickbox *hInventory;
         cProcPickRect *hRectPick;
         bool bPickSpeedXY;
         bool bPickGem;
+
+        std::vector<SHR::RadBut*> rbType;
 
         void RebuildWindow();
 
@@ -43,6 +45,10 @@ namespace ObjEdit {
         virtual void Draw();
 
         virtual void RenderObjectOverlay();
+
+        static void UpdateEnemyObject(WWD::Object *obj, const std::pair<std::string, std::string>& dataPair);
+
+        bool isPickingXY() { return bPickSpeedXY; }
     };
 
 }

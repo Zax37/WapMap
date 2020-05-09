@@ -85,9 +85,7 @@ namespace SHR {
         graphics->setColor(isEnabled() ? 0xa1a1a1 : 0x5e5e5e);
 
         graphics->pushClipArea(getDimension());
-
         graphics->drawText(getCaption(), 18, 0);
-        RenderTooltip();
     }
 
     bool CBox::isSelected() const {

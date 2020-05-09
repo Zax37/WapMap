@@ -13,28 +13,33 @@
 extern HGE *hge;
 
 namespace SHR {
-    ComboButEntry::ComboButEntry(hgeSprite *ico, std::string cap) {
+    ComboButEntry::ComboButEntry(hgeSprite *ico, std::string cap, const char* tooltip) {
         sprIcon = ico;
         strCaption = cap;
+        if (tooltip) {
+            SetTooltip(tooltip);
+        }
         fTimer = 0;
         iID = -1;
         UpdateWidth();
     }
 
+    ComboButEntry::ComboButEntry(const ComboButEntry& other)
+        : ComboButEntry(other.GetIcon(), other.GetCaption(), other.GetTooltip()) { }
 
     void ComboButEntry::SetIcon(hgeSprite *spr) {
         sprIcon = spr;
         UpdateWidth();
     }
 
-    void ComboButEntry::SetCaption(std::string str) {
+    void ComboButEntry::SetCaption(const char* str) {
         strCaption = str;
         UpdateWidth();
     }
 
 
     void ComboButEntry::UpdateWidth() {
-        iWidth = 4 + 16 + 4 + GV->fntMyriad13->GetStringWidth(strCaption.c_str());
+        iWidth = 10 + (sprIcon == NULL ? 0 : 16) + (int)GV->fntMyriad13->GetStringWidth(strCaption.c_str());
     }
 
     ComboBut::ComboBut(cInterfaceSheet *Parts) {
@@ -52,7 +57,6 @@ namespace SHR {
     }
 
     void ComboBut::draw(Graphics *graphics) {
-        UpdateTooltip(mHasMouse);
         int x, y;
         getAbsolutePosition(x, y);
 
@@ -62,19 +66,26 @@ namespace SHR {
         if (mx > x && my > y && mx < x + getWidth() && my < y + getHeight()) {
             int sx = mx - x;
             int optx = 0;
-            for (size_t i = 0; i < vEntries.size(); i++) {
+            size_t i = 0;
+            for (; i < vEntries.size(); i++) {
                 int w = vEntries[i].GetWidth();
                 if (sx < optx + w) {
+                    vEntries[i].UpdateTooltip(true);
                     iFocused = i;
                     break;
+                } else {
+                    vEntries[i].UpdateTooltip(false);
                 }
                 optx += w;
+            }
+            for (++i; i < vEntries.size(); i++) {
+                vEntries[i].UpdateTooltip(false);
             }
         }
 
         But::drawButton(hGfx, 2, x, y, getWidth(), getHeight(), 0xFFFFFFFF);
 
-        int lx = x + 5;
+        int lx = x + 6;
         for (int i = 0; i < vEntries.size(); i++) {
             if (iSelectedID == i && vEntries[i].fTimer < 0.4f) {
                 vEntries[i].fTimer += hge->Timer_GetDelta() * 2;
@@ -101,15 +112,18 @@ namespace SHR {
                 int addOX = (i > 0 ? 1 : 0);
                 vEntries[i].sprIcon->Render(lx + addOX, y);
                 lx += 17 + addOX;
+            } else if (i > 0) {
+                lx += 3;
+            } else {
+                lx += 1;
             }
 
             GV->fntMyriad13->SetColor(ARGB(255, p, p, p));
             GV->fntMyriad13->Render(lx, y + 1, HGETEXT_LEFT, vEntries[i].strCaption.c_str(), 0);
             lx += GV->fntMyriad13->GetStringWidth(vEntries[i].strCaption.c_str());
 
-            lx += 6;
+            lx += i == 0 ? 8 : 7;
         }
-        RenderTooltip();
     }
 
     void ComboBut::setSelectedEntryID(int i, bool bEvent) {

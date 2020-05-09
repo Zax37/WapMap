@@ -319,7 +319,7 @@ namespace SHR {
             && mHasMouse) {
             mMousePressed = false;
             mouseEvent.consume();
-            if (vElements[iSelectedIt]->IsEnabled()) {
+            if (iSelectedIt != -1 && vElements[iSelectedIt]->IsEnabled()) {
                 distributeActionEvent();
             }
         } else if (mouseEvent.getButton() == MouseEvent::LEFT) {

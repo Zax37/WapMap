@@ -26,6 +26,9 @@
 typedef unsigned char byte;
 #endif
 
+#define WWD_TILE_FILL 0xEEEEEEEE
+#define WWD_TILE_EMPTY 0xFFFFFFFF
+
 class cParallelLoop;
 
 struct structProgressInfo;
@@ -44,7 +47,8 @@ namespace WWD {
         Error_SaveAccess,
         Error_Inflate,
         Error_Deflate,
-        Error_LoadingMemory
+        Error_LoadingMemory,
+        Error_UnknownMapExtension
     };
 
 #define OBJ_PARAMS_CNT 29
@@ -153,22 +157,23 @@ namespace WWD {
         Flag_p_AutoTileSize = 16
     };
 
-    enum TILE_ATRIB {
-        Atrib_Clear = 0,
-        Atrib_Solid = 1,
-        Atrib_Ground = 2,
-        Atrib_Climb = 3,
-        Atrib_Death = 4
+    enum TILE_ATTRIB {
+        Attrib_Clear = 0,
+        Attrib_Solid = 1,
+        Attrib_Ground = 2,
+        Attrib_Climb = 3,
+        Attrib_Death = 4
     };
 
-    enum TILE_ATRIBTYPE {
-        AtribType_Single = 1,
-        AtribType_Double = 2
+    enum TILE_ATTRIB_TYPE {
+        AttribType_Single = 1,
+        AttribType_Double = 2,
+        AttribType_Mask = 3
     };
 
     class Rect;
 
-    typedef std::pair<TILE_ATRIB, Rect> CollisionRect;
+    typedef std::pair<TILE_ATTRIB, Rect> CollisionRect;
 #define WWD_CR_TYPE first
 #define WWD_CR_RECT second
 
@@ -176,7 +181,8 @@ namespace WWD {
         Game_Unknown = 0,
         Game_Claw = 1,
         Game_GetMedieval = 2,
-        Game_Gruntz = 3
+        Game_Gruntz = 3,
+        Game_Claw2 = 4,
     };
 
     class CustomMetaSerializer {
@@ -285,34 +291,34 @@ namespace WWD {
         bool operator!=(const Rect &oth) const { return !(*this == oth); };
     };
 
-    class TileAtrib {
+    class TileAttrib {
     private:
-        TILE_ATRIBTYPE m_iType;
+        TILE_ATTRIB_TYPE m_iType;
         int m_iW, m_iH;
-        TILE_ATRIB m_iAtribOutside, m_iAtribInside;
+        TILE_ATTRIB m_iAtribOutside, m_iAtribInside;
         Rect m_rMask;
 
         friend class Parser;
 
     public:
-        ~TileAtrib();
+        ~TileAttrib();
 
-        TileAtrib(TileAtrib *src);
+        TileAttrib(TileAttrib *src);
 
-        TileAtrib();
+        TileAttrib();
 
-        TileAtrib(int pW, int pH, TILE_ATRIBTYPE pType, TILE_ATRIB pIns, TILE_ATRIB pOut = Atrib_Clear,
-                  Rect pMask = Rect(0, 0, 0, 0));
+        TileAttrib(int pW, int pH, TILE_ATTRIB_TYPE pType, TILE_ATTRIB pIns, TILE_ATTRIB pOut = Attrib_Clear,
+                   Rect pMask = Rect(0, 0, 0, 0));
 
-        void SetTo(TileAtrib *src);
+        void SetTo(TileAttrib *src);
 
-        TILE_ATRIBTYPE GetType() { return m_iType; };
+        TILE_ATTRIB_TYPE GetType() { return m_iType; };
 
-        void SetType(TILE_ATRIBTYPE atr) { m_iType = atr; };
+        void SetType(TILE_ATTRIB_TYPE atr) { m_iType = atr; };
 
-        TILE_ATRIB GetAtribInside() { return m_iAtribInside; };
+        TILE_ATTRIB GetAtribInside() { return m_iAtribInside; };
 
-        void SetAtribInside(TILE_ATRIB atr) { m_iAtribInside = atr; };
+        void SetAtribInside(TILE_ATTRIB atr) { m_iAtribInside = atr; };
 
         int GetW() { return m_iW; };
 
@@ -323,9 +329,9 @@ namespace WWD {
         void SetH(int h) { m_iH = h; };
 
         //double only
-        TILE_ATRIB GetAtribOutside() { return m_iAtribOutside; };
+        TILE_ATTRIB GetAtribOutside() { return m_iAtribOutside; };
 
-        void SetAtribOutside(TILE_ATRIB atr) { m_iAtribOutside = atr; };
+        void SetAtribOutside(TILE_ATTRIB atr) { m_iAtribOutside = atr; };
 
         Rect GetMask() { return m_rMask; };
 
@@ -434,16 +440,40 @@ namespace WWD {
         void SetHitTypeFlags(OBJ_TYPE_FLAGS n) { m_iFlagsHitType = n; };
 
         void *GetUserData() { return m_hUserData; };
+
+        int GetX();
+
+        int GetY();
+
+        int GetZ();
+
+        int GetI();
+
+        bool GetFlipX();
+
+        bool GetFlipY();
     };
+
+    struct PlaneHeader {
+        int size;
+        int null;
+        int m_iFlags;
+        int null2;
+        char m_szName[64];
+        int m_iWpx, m_iHpx, m_iTileW, m_iTileH, m_iW, m_iH,
+        m_iOffsetX, m_iOffsetY, m_iMoveX, m_iMoveY, m_iFillColor;
+        unsigned m_iSetsCount, m_iObjectsCount, m_iTilesDataPtr, m_iSetsDataPtr, m_iObjectsDataPtr;
+        int m_iZCoord, null3, null4, null5;
+    };
+
+    static_assert(sizeof(PlaneHeader) == 160, "Bad plane header size!");
 
     class Plane {
     private:
-        PLANE_FLAGS m_iFlags;
-        char m_szName[64];
-        std::vector<char *> m_vImageSets;
-        Tile **m_hTiles;
+        PlaneHeader m_Header;
+        std::vector<std::string> m_vImageSets;
+        Tile *m_hTiles; unsigned *rowOffsets;
         std::vector<Object *> m_vObjects;
-        int m_iZCoord, m_iFillColor, m_iMoveX, m_iMoveY, m_iW, m_iH, m_iTileW, m_iTileH, m_iSetsCount, m_iWpx, m_iHpx;
 
         ~Plane();
 
@@ -452,61 +482,67 @@ namespace WWD {
         friend class Parser;
 
     public:
-        Plane() { m_hTiles = NULL; };
+        Plane(bool zeroFillHeader = true) {
+            m_hTiles = NULL;
+            if (zeroFillHeader) {
+                SecureZeroMemory(&m_Header.size, sizeof(PlaneHeader));
+                m_Header.size = sizeof(PlaneHeader);
+            }
+        };
 
-        PLANE_FLAGS GetFlags() { return m_iFlags; };
+        PLANE_FLAGS GetFlags() { return (PLANE_FLAGS)m_Header.m_iFlags; };
 
         void SetFlag(PLANE_FLAGS piFlag, bool pbValue);
 
         bool GetFlag(PLANE_FLAGS piFlag);
 
-        void SetName(const char *n) { strncpy(m_szName, n, 64); };
+        void SetName(const char *n) { strncpy(m_Header.m_szName, n, 64); };
 
-        const char *GetName() { return m_szName; };
+        const char *GetName() { return m_Header.m_szName; };
 
-        void SetZCoord(int n) { m_iZCoord = n; };
+        void SetZCoord(int n) { m_Header.m_iZCoord = n; };
 
-        int GetZCoord() { return m_iZCoord; };
+        int GetZCoord() { return m_Header.m_iZCoord; };
 
-        int GetFillColor() { return m_iFillColor; };
+        int GetFillColor() { return m_Header.m_iFillColor; };
 
         void SetTileWidth(int n) {
-            m_iTileW = n;
-            m_iWpx = m_iW * n;
+            m_Header.m_iTileW = n;
+            m_Header.m_iWpx = m_Header.m_iW * n;
         };
 
-        int GetTileWidth() { return m_iTileW; };
+        int GetTileWidth() { return m_Header.m_iTileW; };
 
         void SetTileHeight(int n) {
-            m_iTileH = n;
-            m_iHpx = m_iH * n;
+            m_Header.m_iTileH = n;
+            m_Header.m_iHpx = m_Header.m_iH * n;
         };
 
-        int GetTileHeight() { return m_iTileH; };
+        int GetTileHeight() { return m_Header.m_iTileH; };
 
-        int GetPlaneWidth() { return m_iW; };
+        int GetPlaneWidth() { return m_Header.m_iW; };
 
-        int GetPlaneHeight() { return m_iH; };
+        int GetPlaneHeight() { return m_Header.m_iH; };
 
-        int GetPlaneWidthPx() { return m_iWpx; };
+        int GetPlaneWidthPx() { return m_Header.m_iWpx; };
 
-        int GetPlaneHeightPx() { return m_iHpx; };
+        int GetPlaneHeightPx() { return m_Header.m_iHpx; };
 
-        void SetMoveModX(int n) { m_iMoveX = n; };
+        void SetMoveModX(int n) { m_Header.m_iMoveX = n; };
 
-        int GetMoveModX() { return m_iMoveX; };
+        int GetMoveModX() { return m_Header.m_iMoveX; };
 
-        void SetMoveModY(int n) { m_iMoveY = n; };
+        void SetMoveModY(int n) { m_Header.m_iMoveY = n; };
 
-        int GetMoveModY() { return m_iMoveY; };
+        int GetMoveModY() { return m_Header.m_iMoveY; };
 
         int GetObjectsCount() { return m_vObjects.size(); };
 
-        int ClampX(int x) { return x % (m_iW); };
+        int ClampX(int x) { return x % (m_Header.m_iW); };
 
-        int ClampY(int y) { return y % (m_iH); };
+        int ClampY(int y) { return y % (m_Header.m_iH); };
 
-        const char *GetImageSet(int piID) { return m_vImageSets[piID]; };
+        const char *GetImageSet(int piID) { return piID < m_vImageSets.size() ? m_vImageSets[piID].c_str() : NULL; };
 
         int GetImageSetsCount() { return m_vImageSets.size(); };
 
@@ -538,30 +574,55 @@ namespace WWD {
 
         void DeleteObjectFromListByID(int piID);
 
-        void SetFillColor(int iColor) { if (iColor >= 0 && iColor < 256) m_iFillColor = iColor; };
+        void SetFillColor(int iColor) { if (iColor >= 0 && iColor < 256) m_Header.m_iFillColor = iColor; };
 
-        Tile *GetTile(int piX, int piY);
+        Tile* GetTile(int piX, int piY);
 
-        void Resize(int nw, int nh);
+        void Resize(int nw, int nh, int ox = 0, int oy = 0);
 
-        void ResizeRelative(int rx, int ry, bool ax, bool ay);
+        void ResizeAddTiles(int ax, int ay);
 
-        void ResizeAnchor(int rx, int ry, int anchor);
+        void ResizeAnchor(int nw, int nh, int anchor);
     };
+
+    struct WWDHeader
+    {
+        unsigned size;
+        int null;
+        int m_iFlags;
+        int null2;
+        char m_szMapName[64];
+        char m_szAuthor[64];
+        char m_szDate[64];
+        char m_szRezPath[256];
+        char m_szTilesPath[128];
+        char m_szPalPath[128];
+        int m_iStartX;
+        int m_iStartY;
+        int null3;
+        unsigned m_iPlanesCount;
+        unsigned m_hPlanesStart;
+        unsigned m_hTileAttributesStart;
+        unsigned unpackedSize;
+        int checksum;
+        int null4;
+        char m_szExePath[128];
+        char m_szImageSets[4][128];
+        char m_szSetsPrefixes[4][32];
+    };
+
+    static_assert(sizeof(WWDHeader) == 1524, "Bad WWD header size!");
 
     class Parser {
     private:
         CustomMetaSerializer *hMetaSerializer;
-        std::vector<TileAtrib *> m_hTileAtribs;
+        std::vector<TileAttrib *> m_hTileAttribs;
         std::vector<Plane *> m_hPlanes;
         char m_szFile[MAX_PATH];
-        char m_szMapName[64], m_szAuthor[64], m_szDate[64], m_szRezPath[256], m_szTilesPath[128], m_szPalPath[128], m_szExePath[128];
-        char m_szImageSets[4][128], m_szSetsPrefixes[4][32];
-        int m_iStartX, m_iStartY;
-        WWD_FLAGS m_iFlags;
+        WWDHeader m_Header;
+        Plane *mainPlane = NULL;
         int m_iBaseLevel;
         GAME m_iGame;
-        int m_iPlanesCount;
 
         void LoadFileHeader(std::istream *psSource);
 
@@ -575,7 +636,7 @@ namespace WWD {
 
         void MoveBytes(std::ostream *psStream, int c);
 
-        void ReadObject(Object *hObj, std::istream *psSource);
+        size_t ReadObject(Object *hObj, std::istream *psSource);
 
         void ReadRect(Rect *phRect, std::istream *psSource);
 
@@ -597,39 +658,41 @@ namespace WWD {
         //void Step(int piIterations = 1);
         ~Parser();
 
-        const char *GetName() { return (const char *) m_szMapName; };
+        Plane* GetMainPlane() { return mainPlane; }
 
-        void SetName(const char *nname) { strncpy(m_szMapName, nname, 64); };
+        const char *GetName() { return (const char *) m_Header.m_szMapName; };
 
-        const char *GetAuthor() { return (const char *) m_szAuthor; };
+        void SetName(const char *nname) { strncpy(m_Header.m_szMapName, nname, 64); };
 
-        void SetAuthor(const char *nauthor) { strncpy(m_szAuthor, nauthor, 64); };
+        const char *GetAuthor() { return (const char *) m_Header.m_szAuthor; };
 
-        const char *GetDate() { return (const char *) m_szDate; };
+        void SetAuthor(const char *nauthor) { strncpy(m_Header.m_szAuthor, nauthor, 64); };
+
+        const char *GetDate() { return (const char *) m_Header.m_szDate; };
 
         void UpdateDate();
 
-        const char *GetRezPath() { return (const char *) m_szRezPath; };
+        const char *GetRezPath() { return (const char *) m_Header.m_szRezPath; };
 
-        void SetRezPath(const char *n) { strncpy(m_szRezPath, n, 256); };
+        void SetRezPath(const char *n) { strncpy(m_Header.m_szRezPath, n, 256); };
 
-        const char *GetTilesPath() { return (const char *) m_szTilesPath; };
+        const char *GetTilesPath() { return (const char *) m_Header.m_szTilesPath; };
 
-        void SetTilesPath(const char *n) { strncpy(m_szTilesPath, n, 128); };
+        void SetTilesPath(const char *n) { strncpy(m_Header.m_szTilesPath, n, 128); };
 
-        const char *GetPalettePath() { return (const char *) m_szPalPath; };
+        const char *GetPalettePath() { return (const char *) m_Header.m_szPalPath; };
 
-        void SetPalettePath(const char *n) { strncpy(m_szPalPath, n, 128); };
+        void SetPalettePath(const char *n) { strncpy(m_Header.m_szPalPath, n, 128); };
 
-        const char *GetExePath() { return (const char *) m_szExePath; };
+        const char *GetExePath() { return (const char *) m_Header.m_szExePath; };
 
-        void SetExePath(const char *n) { strncpy(m_szExePath, n, 128); };
+        void SetExePath(const char *n) { strncpy(m_Header.m_szExePath, n, 128); };
 
-        const char *GetImageSet(int piID) { return (const char *) m_szImageSets[piID]; };
+        const char *GetImageSet(int piID) { return (const char *) m_Header.m_szImageSets[piID]; };
 
         void SetImageSet(int id, const char *npath);
 
-        const char *GetImageSetPrefix(int piID) { return (const char *) m_szSetsPrefixes[piID]; };
+        const char *GetImageSetPrefix(int piID) { return (const char *) m_Header.m_szSetsPrefixes[piID]; };
 
         void SetImageSetPrefix(int id, const char *npref);
 
@@ -637,17 +700,17 @@ namespace WWD {
 
         void SetFilePath(const char *nPath);
 
-        int GetStartX() { return m_iStartX; };
+        int GetStartX() { return m_Header.m_iStartX; };
 
-        int GetStartY() { return m_iStartY; };
+        int GetStartY() { return m_Header.m_iStartY; };
 
-        void SetStartX(int x) { m_iStartX = x; };
+        void SetStartX(int x) { m_Header.m_iStartX = x; };
 
-        void SetStartY(int y) { m_iStartY = y; };
+        void SetStartY(int y) { m_Header.m_iStartY = y; };
 
         int GetBaseLevel() { return m_iBaseLevel; };
 
-        WWD_FLAGS GetFlags() { return m_iFlags; };
+        WWD_FLAGS GetFlags() { return (WWD_FLAGS)m_Header.m_iFlags; };
 
         int GetPlanesCount() { return m_hPlanes.size(); };
 
@@ -666,16 +729,16 @@ namespace WWD {
 
         void CompileToFile(const char *pszFilename, bool pbWithActualDate = 1);
 
-        TileAtrib *GetTileAtribs(int piTile) {
-            if (piTile < 0 || piTile >= int(m_hTileAtribs.size())) return NULL;
-            return m_hTileAtribs[piTile];
+        TileAttrib *GetTileAttribs(int piTile) {
+            if (piTile < 0 || piTile >= int(m_hTileAttribs.size())) return NULL;
+            return m_hTileAttribs[piTile];
         };
 
-        void SetTileAtribs(int piTile, TileAtrib *htaAtribs) { m_hTileAtribs[piTile]->SetTo(htaAtribs); };
+        void SetTileAttribs(int piTile, TileAttrib *htaAttribs) { m_hTileAttribs[piTile]->SetTo(htaAttribs); };
 
-        int GetTileAtribsCount() { return m_hTileAtribs.size(); };
+        int GetTileAttribsCount() { return m_hTileAttribs.size(); };
 
-        void SetTileAtribsCount(int i);
+        void SetTileAttribsCount(int i);
 
         void SetFlag(WWD_FLAGS piFlag, bool pbValue);
 

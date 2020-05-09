@@ -8,6 +8,8 @@
 cModeMenuBar::cModeMenuBar() {
     bEnabled = 1;
     bVisible = 1;
+
+    vSeparators.push_back(127 - 3);
 }
 
 cModeMenuBar::~cModeMenuBar() {
@@ -52,11 +54,11 @@ cmmbTile::cmmbTile(int startX) {
     butIconWriteID->setRenderBG(0);
     butIconWriteID->SetTooltip(GETL2("Tooltip", Lang_TT_WriteID));
 
-    vSeparators.push_back(127 - 3);
     vSeparators.push_back(320 - 32 - 2);
 }
 
 cmmbTile::~cmmbTile() {
+    delete ddActivePlane;
     delete butIconSelect;
     delete butIconPencil;
     delete butIconBrush;
@@ -87,100 +89,65 @@ cmmbObject::cmmbObject(int startX) {
     conNewObject->hide();
     conNewObject->addActionListener(this);
 
-    int yoff = LAY_MODEBAR_Y - 3;
+    int yOff = LAY_MODEBAR_Y - 3;
 
-    butIconSearchObject = GV->editState->MakeButton(69, yoff, Icon_Zoom, GV->editState->conMain, 1, 0);
+    butIconSearchObject = GV->editState->MakeButton(69, yOff, Icon_Zoom, GV->editState->conMain, 1, 0);
     butIconSearchObject->SetTooltip(GETL2("Tooltip", Lang_TT_SearchObject));
 
-    int xoff = 360;
+    int xOff = 360;
 
-    butIconNewObjEmpty = GV->editState->MakeButton(xoff, yoff, Icon_Star, GV->editState->conMain, 1, 0);
+    butIconNewObjEmpty = GV->editState->MakeButton(xOff, yOff, Icon_Star, GV->editState->conMain, 1, 0);
     butIconNewObjEmpty->SetTooltip(GETL2("Tooltip", Lang_TT_NewObject));
-    xoff += 32;
-    butIconCrumblinPeg = GV->editState->MakeButton(xoff, yoff, Icon_CrumblinPeg, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconBreakPlank = GV->editState->MakeButton(xoff, yoff, Icon_BreakPlank, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconTogglePeg = GV->editState->MakeButton(xoff, yoff, Icon_TogglePeg, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconElevator = GV->editState->MakeButton(xoff, yoff, Icon_SlidingPeg, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconPathElevator = GV->editState->MakeButton(xoff, yoff, Icon_ElevatorPath, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconSpringBoard = GV->editState->MakeButton(xoff, yoff, Icon_SpringBoard, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconRope = GV->editState->MakeButton(xoff, yoff, Icon_Rope, GV->editState->conMain, 1, 0);
-    xoff += 32;
+    butIconCrumblinPeg = GV->editState->MakeButton(xOff, yOff, Icon_CrumblinPeg, GV->editState->conMain, 1, 0);
+    butIconCrumblinPeg->SetTooltip(GETL2("Tooltip", Lang_TT_NewCrumblingPeg));
+    butIconBreakPlank = GV->editState->MakeButton(xOff, yOff, Icon_BreakPlank, GV->editState->conMain, 1, 0);
+    butIconBreakPlank->SetTooltip(GETL2("Tooltip", Lang_TT_NewBreakPlank));
+    butIconTogglePeg = GV->editState->MakeButton(xOff, yOff, Icon_TogglePeg, GV->editState->conMain, 1, 0);
+    butIconTogglePeg->SetTooltip(GETL2("Tooltip", Lang_TT_NewTogglePeg));
+    butIconElevator = GV->editState->MakeButton(xOff, yOff, Icon_SlidingPeg, GV->editState->conMain, 1, 0);
+    butIconElevator->SetTooltip(GETL2("Tooltip", Lang_TT_NewElevator));
+    butIconPathElevator = GV->editState->MakeButton(xOff, yOff, Icon_ElevatorPath, GV->editState->conMain, 1, 0);
+    butIconPathElevator->SetTooltip(GETL2("Tooltip", Lang_TT_NewPathElevator));
+    butIconSpringBoard = GV->editState->MakeButton(xOff, yOff, Icon_SpringBoard, GV->editState->conMain, 1, 0);
+    butIconSpringBoard->SetTooltip(GETL2("Tooltip", Lang_TT_NewSpringBoard));
+    butIconRope = GV->editState->MakeButton(xOff, yOff, Icon_Rope, GV->editState->conMain, 1, 0);
+    butIconRope->SetTooltip(GETL2("Tooltip", Lang_TT_NewRope));
 
-    xoff += 5;
+    butIconTreasure = GV->editState->MakeButton(xOff, yOff, Icon_Treasure, GV->editState->conMain, 1, 0);
+    butIconTreasure->SetTooltip(GETL2("Tooltip", Lang_TT_NewTreasure));
+    butIconHealth = GV->editState->MakeButton(xOff, yOff, Icon_Health, GV->editState->conMain, 1, 0);
+    butIconHealth->SetTooltip(GETL2("Tooltip", Lang_TT_NewPickup));
+    butIconCatnip = GV->editState->MakeButton(xOff, yOff, Icon_Catnip, GV->editState->conMain, 1, 0);
+    butIconCatnip->SetTooltip(GETL2("Tooltip", Lang_TT_NewPowerup));
+    butIconCurse = GV->editState->MakeButton(xOff, yOff, Icon_Curse, GV->editState->conMain, 1, 0);
+    butIconCurse->SetTooltip(GETL2("Tooltip", Lang_TT_NewCurse));
+    butIconCrate = GV->editState->MakeButton(xOff, yOff, Icon_Crate, GV->editState->conMain, 1, 0);
+    butIconCrate->SetTooltip(GETL2("Tooltip", Lang_TT_NewCrate));
+    butIconStatue = GV->editState->MakeButton(xOff, yOff, Icon_Statue, GV->editState->conMain, 1, 0);
+    butIconStatue->SetTooltip(GETL2("Tooltip", Lang_TT_NewStatue));
 
-    butIconTreasure = GV->editState->MakeButton(xoff, yoff, Icon_Treasure, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconHealth = GV->editState->MakeButton(xoff, yoff, Icon_Health, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconCatnip = GV->editState->MakeButton(xoff, yoff, Icon_Catnip, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconCurse = GV->editState->MakeButton(xoff, yoff, Icon_Curse, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconCrate = GV->editState->MakeButton(xoff, yoff, Icon_Crate, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconStatue = GV->editState->MakeButton(xoff, yoff, Icon_Statue, GV->editState->conMain, 1, 0);
-    xoff += 32;
+    butIconEnemy = GV->editState->MakeButton(xOff, yOff, Icon_NPC_Rat, GV->editState->conMain, 1, 0);
 
-    xoff += 5;
+    butIconPowderKeg = GV->editState->MakeButton(xOff, yOff, Icon_PowderKeg, GV->editState->conMain, 1, 0);
+    butIconCannon = GV->editState->MakeButton(xOff, yOff, Icon_CannonWall, GV->editState->conMain, 1, 0);
+    butIconSpikes = GV->editState->MakeButton(xOff, yOff, Icon_Spikes, GV->editState->conMain, 1, 0);
+    butIconProjectile = GV->editState->MakeButton(xOff, yOff, Icon_Projectile, GV->editState->conMain, 1, 0);
+    butIconCrabNest = GV->editState->MakeButton(xOff, yOff, Icon_CrabNest, GV->editState->conMain, 1, 0);
+    butIconStalactite = GV->editState->MakeButton(xOff, yOff, Icon_Stalactite, GV->editState->conMain, 1, 0);
+    butIconLaser = GV->editState->MakeButton(xOff, yOff, Icon_Laser, GV->editState->conMain, 1, 0);
 
-    for (int i = 0; i < 5; i++) {
-        butIconEnemy[i] = GV->editState->MakeButton(xoff, yoff, Icon_NPC_Rat, GV->editState->conMain, 1, 0);
-        xoff += 32;
-    }
-
-    xoff += 5;
-
-    butIconPowderKeg = GV->editState->MakeButton(xoff, yoff, Icon_PowderKeg, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconCannon = GV->editState->MakeButton(xoff, yoff, Icon_Cannon, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconWallCannon = GV->editState->MakeButton(xoff, yoff, Icon_CannonWall, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconSpikes = GV->editState->MakeButton(xoff, yoff, Icon_Spikes, GV->editState->conMain, 0, 0);
-    xoff += 32;
-    butIconProjectile = GV->editState->MakeButton(xoff, yoff, Icon_Projectile, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconCrabNest = GV->editState->MakeButton(xoff, yoff, Icon_CrabNest, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconStalactite = GV->editState->MakeButton(xoff, yoff, Icon_Stalactite, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconLaser = GV->editState->MakeButton(xoff, yoff, Icon_Laser, GV->editState->conMain, 1, 0);
-    xoff += 32;
-
-    xoff += 5;
-
-    butIconEyeCandy = GV->editState->MakeButton(xoff, yoff, Icon_Animated, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconText = GV->editState->MakeButton(xoff, yoff, Icon_Text, GV->editState->conMain, 1, 0);
+    butIconEyeCandy = GV->editState->MakeButton(xOff, yOff, Icon_Animated, GV->editState->conMain, 1, 0);
+    butIconText = GV->editState->MakeButton(xOff, yOff, Icon_Text, GV->editState->conMain, 1, 0);
     butIconText->SetTooltip(GETL2("Tooltip", Lang_TT_AddText));
-    xoff += 32;
-    butIconShake = GV->editState->MakeButton(xoff, yoff, Icon_Shake, GV->editState->conMain, 1, 0);
-    xoff += 32;
+    butIconShake = GV->editState->MakeButton(xOff, yOff, Icon_Shake, GV->editState->conMain, 1, 0);
 
-    xoff += 5;
+    butIconCheckpoint = GV->editState->MakeButton(xOff, yOff, Icon_Flag, GV->editState->conMain, 1, 0);
+    butIconWarp = GV->editState->MakeButton(xOff, yOff, Icon_Warp, GV->editState->conMain, 1, 0);
 
-    butIconCheckpoint = GV->editState->MakeButton(xoff, yoff, Icon_Flag, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconWarp = GV->editState->MakeButton(xoff, yoff, Icon_Warp, GV->editState->conMain, 1, 0);
-    xoff += 32;
+    butIconDialog = GV->editState->MakeButton(xOff, yOff, Icon_Exclamation, GV->editState->conMain, 1, 0);
+    butIconSound = GV->editState->MakeButton(xOff, yOff, Icon_Music, GV->editState->conMain, 1, 0);
 
-    xoff += 5;
-
-    butIconDialog = GV->editState->MakeButton(xoff, yoff, Icon_Exclamation, GV->editState->conMain, 1, 0);
-    xoff += 32;
-    butIconSound = GV->editState->MakeButton(xoff, yoff, Icon_Music, GV->editState->conMain, 1, 0);
-    xoff += 32;
-
-    xoff += 5;
-
-    butIconMapPiece = GV->editState->MakeButton(xoff, yoff, Icon_Map, GV->editState->conMain, 1, 0);
-    xoff += 32;
+    butIconMapPiece = GV->editState->MakeButton(xOff, yOff, Icon_Map, GV->editState->conMain, 1, 0);
 
     vButtons.push_back(butIconSearchObject);
     vButtons.push_back(butIconNewObjEmpty);
@@ -197,11 +164,9 @@ cmmbObject::cmmbObject(int startX) {
     vButtons.push_back(butIconCurse);
     vButtons.push_back(butIconCrate);
     vButtons.push_back(butIconStatue);
-    for (int i = 0; i < 5; i++)
-        vButtons.push_back(butIconEnemy[i]); //15-19
+    vButtons.push_back(butIconEnemy); //15-19
     vButtons.push_back(butIconPowderKeg); //20
     vButtons.push_back(butIconCannon);
-    vButtons.push_back(butIconWallCannon);
     vButtons.push_back(butIconSpikes);
     vButtons.push_back(butIconProjectile);
     vButtons.push_back(butIconCrabNest); //25
@@ -223,7 +188,7 @@ cmmbObject::cmmbObject(int startX) {
             cNewObjContextEl(NOBJCON_ADV, GETL2S("ContextNewObj", "Empty"), GV->sprIcons16[Icon16_Star],
                              butIconNewObjEmpty));
     vContextElements.push_back(cNewObjContextEl(NOBJCON_CRUMBLE, GETL2S("ContextNewObj", "CrumblingPeg"),
-                                                GV->sprIcons16[Icon16_CrumblinPeg], butIconCrumblinPeg));
+                                                GV->sprIcons16[Icon16_CrumblingPeg], butIconCrumblinPeg));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_BREAKPL, GETL2S("ContextNewObj", "BreakPlank"), GV->sprIcons16[Icon16_BreakPlank],
                              butIconBreakPlank));
@@ -262,11 +227,8 @@ cmmbObject::cmmbObject(int startX) {
             cNewObjContextEl(NOBJCON_POWDER, GETL2S("ContextNewObj", "PowderKeg"), GV->sprIcons16[Icon16_PowderKeg],
                              butIconPowderKeg));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_CANNON, GETL2S("ContextNewObj", "Cannon"), GV->sprIcons16[Icon16_Cannon],
+            cNewObjContextEl(NOBJCON_WALCAN, GETL2S("ContextNewObj", "Cannon"), GV->sprIcons16[Icon16_CannonWall],
                              butIconCannon));
-    vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_WALCAN, GETL2S("ContextNewObj", "WallCannon"), GV->sprIcons16[Icon16_CannonWall],
-                             butIconWallCannon));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_SPIKES, GETL2S("ContextNewObj", "Spikes"), GV->sprIcons16[Icon16_Spikes],
                              butIconSpikes));
@@ -307,103 +269,16 @@ cmmbObject::cmmbObject(int startX) {
 void cmmbObject::DocumentSwitched() {
     int base = GV->editState->hParser->GetBaseLevel();
 
-    if (base == 2 || base == 5 || base == 8 || base == 9 || base == 11) {
-        butIconCrumblinPeg->setId("OFF");
-    } else {
-        butIconCrumblinPeg->setId("");
-    }
-
-    if (base == 2)
-        butIconWallCannon->setId("");
-    else
-        butIconWallCannon->setId("OFF");
-
-    if (base == 5) {
-        butIconStatue->setId("");
-    } else {
-        butIconStatue->setId("OFF");
-    }
+    butIconCrumblinPeg->setId(base == 2 || base == 5 || base == 8 || base == 9 || base == 11 ? "OFF" : "");
+    butIconCannon->setId(base == 2 || base == 9 ? "" : "OFF");
+    butIconStatue->setId(base == 5 ? "" :"OFF");
     butIconBreakPlank->setId(base == 5 || base == 11 ? "" : "OFF");
-    butIconCannon->setId(base == 2 || base == 9 || base == 8 ? "" : "OFF");
-
     butIconTogglePeg->setId(base == 3 || base == 4 || base == 6 || base == 7 || base == 9 ? "OFF" : "");
-
     butIconStalactite->setId(base == 12 ? "" : "OFF");
     butIconLaser->setId(base == 11 ? "" : "OFF");
-
-    if (base % 2 == 1 && base != 13)
-        butIconMapPiece->setId("");
-    else
-        butIconMapPiece->setId("OFF");
-
-    if (base == 12)
-        butIconCrate->setId("OFF");
-    else
-        butIconCrate->setId("");
-
-    for (int i = 0; i < 5; i++) butIconEnemy[i]->setId("OFF");
-    int npcon = 0;
-    if (base == 1 || base == 2) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_Officer]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_Soldier]);
-        if (base == 2)
-            butIconEnemy[2]->setIcon(GV->sprIcons[Icon_LaRauxe]);
-        else
-            butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Rat]);
-        npcon = 3;
-    } else if (base == 3 || base == 4) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_RobberThief]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_CutThroat]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Rat]);
-        npcon = 3;
-        if (base == 4) {
-            butIconEnemy[3]->setIcon(GV->sprIcons[Icon_Catherine]);
-            npcon++;
-        }
-    } else if (base == 5 || base == 6) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_TownGuard1]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_TownGuard2]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Seagull]);
-        npcon = 3;
-        if (base == 6) {
-            butIconEnemy[3]->setIcon(GV->sprIcons[Icon_NPC_Rat]);
-            butIconEnemy[4]->setIcon(GV->sprIcons[Icon_Wolvington]);
-            npcon = 5;
-        }
-    } else if (base == 7 || base == 8) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_RedTailPirate]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_BearSailor]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Seagull]);
-        butIconEnemy[3]->setIcon(GV->sprIcons[(base == 7 ? Icon_NPC_Crab : Icon_Gabriel)]);
-        npcon = 4;
-    } else if (base == 9 || base == 10) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_Pegleg]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_CrazyHook]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Seagull]);
-        if (base == 10)
-            butIconEnemy[3]->setIcon(GV->sprIcons[Icon_Marrow]);
-        npcon = 3 + (base == 10);
-    } else if (base == 11 || base == 12) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_Merkat]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_Siren]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Fish]);
-        if (base == 12)
-            butIconEnemy[3]->setIcon(GV->sprIcons[Icon_Aquatis]);
-        npcon = 3 + (base == 12);
-    } else if (base == 13) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_RedTailPirate]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_BearSailor]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Chameleon]);
-        butIconEnemy[3]->setIcon(GV->sprIcons[Icon_RedTail]);
-        npcon = 4;
-    } else if (base == 14) {
-        butIconEnemy[0]->setIcon(GV->sprIcons[Icon_NPC_TigerGuard1]);
-        butIconEnemy[1]->setIcon(GV->sprIcons[Icon_NPC_TigerGuard2]);
-        butIconEnemy[2]->setIcon(GV->sprIcons[Icon_NPC_Chameleon]);
-        butIconEnemy[3]->setIcon(GV->sprIcons[Icon_Omar]);
-        npcon = 4;
-    }
-    for (int i = 0; i < npcon; i++) butIconEnemy[i]->setId("");
+    butIconMapPiece->setId(base % 2 == 1 && base != 13 ? "" : "OFF");
+    butIconCrate->setId(base == 12 ? "OFF" :"");
+    butIconSpikes->setId(base == 3 || base == 4 || base == 10 || base >= 12 ? "" :"OFF");
 
     if (base == 5 || base == 7 || base == 10 || base == 11 || base == 12 || base == 14)
         butIconPowderKeg->setId("OFF");
@@ -424,9 +299,9 @@ void cmmbObject::DocumentSwitched() {
 
     _setVisible(bVisible);
 
-    int xoff = GV->editState->cbutActiveMode->getWidth() + 20;
+    int xoff = GV->editState->cbutActiveMode->getWidth() + 12;
 
-    vSeparators.clear();
+    vSeparators.resize(1);
     for (int i = 0; i < vButtons.size(); i++) {
         if (vButtons[i]->getId() != "OFF") {
             vButtons[i]->setX(xoff);

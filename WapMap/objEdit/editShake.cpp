@@ -25,11 +25,11 @@ namespace ObjEdit {
         win->add(labActivate, 5, 10);
 
         hRectPick = new cProcPickRect(hTempObj);
-        hRectPick->AddWidgets(win, 5, 30);
-        hRectPick->SetActionListener(hAL);
-        hRectPick->SetType(PickRect_AttackRect);
+        hRectPick->setActionListener(hAL);
+        hRectPick->setType(PickRect_AttackRect);
+        win->add(hRectPick, 5, 30);
 
-        _butSave->setEnabled(hRectPick->IsValid());
+        _butSave->setEnabled(hRectPick->isValid());
     }
 
     cEditObjShake::~cEditObjShake() {
@@ -43,9 +43,9 @@ namespace ObjEdit {
         if (actionEvent.getSource() == win) {
             bKill = 1;
             return;
-        } else if (actionEvent.getSource() == hRectPick->GetPickButton()) {
+        } else if (actionEvent.getSource() == hRectPick->getPickButton()) {
             bAllowDragging = !hRectPick->IsPicking();
-            _butSave->setEnabled(hRectPick->IsValid() && !hRectPick->IsPicking());
+            _butSave->setEnabled(hRectPick->isValid() && !hRectPick->IsPicking());
             return;
         }
     }

@@ -96,6 +96,5 @@ namespace ObjEdit {
                                                                                                             dy + 100);
         hState->SprBank->GetAssetByID("GAME_SUPERCHECKPOINT")->GetIMGByID(iScpAnimFrame)->GetSprite()->Render(dx + 124,
                                                                                                               dy + 250);
-        GV->fntMyriad13->SetColor(0xFF000000);
     }
 }

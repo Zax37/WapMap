@@ -48,9 +48,12 @@ void State::cLayerRenderBuffer::GfxLost() {
 
 int State::cLayerRenderBuffer::GetEntityCount(int x1, int y1, int x2, int y2) {
     int rcount = 0;
+    WWD::Tile* tile;
     for (int y = y1; y <= y2; y++)
-        for (int x = x1; x <= x2; x++)
-            if (hPlane->GetTile(x, y) != 0 && !hPlane->GetTile(x, y)->IsInvisible())
+        for (int x = x1; x <= x2; x++) {
+            tile = hPlane->GetTile(x, y);
+            if (tile && !tile->IsInvisible())
                 rcount++;
+        }
     return rcount;
 }

@@ -165,9 +165,8 @@ void cDiscFeed::SetFileContent(const char *path, std::string strContent) {
 
 unsigned char *cDiscFeed::GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart,
                                          unsigned int iReadLen) {
-    std::string npath = (bIsHDD ? std::string(path)
-                                : strAbsoluteLocation + "/" + std::string(path));
-    FILE *f = fopen(npath.c_str(), "rb");
+    std::string realPath(bIsHDD ? path : strAbsoluteLocation + "/" + std::string(path));
+    FILE *f = fopen(realPath.c_str(), "rb");
     if (!f) {
         oiDataLength = 0;
         return 0;

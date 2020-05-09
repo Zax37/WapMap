@@ -281,7 +281,17 @@ namespace ObjEdit {
                         iRandNum = 1;
                 }
             }
-            for (int i = 0; i < 9; i++) invTabs[i]->SetItem(cInventoryItem("", -1));
+            for (int i = 0; i < 9; i++) {
+                if (invTabs[i]) {
+                    invTabs[i]->SetItem(cInventoryItem("", -1));
+                }
+                else {
+                    if (iRandNum >= i) {
+                        iRandNum = hge->Random_Int(1, i);
+                    }
+                    break;
+                }
+            }
             for (int i = 0; i < iRandNum; i++) {
                 int id = hge->Random_Int(0, (cbIncludeSpecials->isSelected() ? InventoryItemsCount - 2
                                                                              : 31));

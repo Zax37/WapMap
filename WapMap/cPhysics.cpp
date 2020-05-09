@@ -35,16 +35,17 @@ void cPhysicWorld::CompileTiles() {
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
             if (assigned[y * width + x]) continue;
-            if (hPl->GetTile(x, y)->GetID() != -1) {
-                WWD::TileAtrib *ta = GV->editState->hParser->GetTileAtribs(hPl->GetTile(x, y)->GetID());
+            WWD::Tile* tile = hPl->GetTile(x, y);
+            if (tile && !tile->IsInvisible() && !tile->IsFilled()) {
+                WWD::TileAttrib *ta = GV->editState->hParser->GetTileAttribs(tile->GetID());
 
-                if (ta->GetType() == WWD::AtribType_Single) {
-                    if (ta->GetAtribInside() == WWD::Atrib_Clear)
+                if (ta->GetType() == WWD::AttribType_Single) {
+                    if (ta->GetAtribInside() == WWD::Attrib_Clear)
                         continue;
                     int width = 1, height = 1;
                     for (int x2 = x + 1; x2 < hPl->GetPlaneWidth(); x2++) {
-                        WWD::TileAtrib *ta2 = GV->editState->hParser->GetTileAtribs(hPl->GetTile(x2, y)->GetID());
-                        if (!assigned[y * width + x2] && ta2->GetType() == WWD::AtribType_Single &&
+                        WWD::TileAttrib *ta2 = GV->editState->hParser->GetTileAttribs(hPl->GetTile(x2, y)->GetID());
+                        if (!assigned[y * width + x2] && ta2->GetType() == WWD::AttribType_Single &&
                             ta2->GetAtribInside() == ta->GetAtribInside()) {
                             width++;
                             assigned[y * width + x2] = 1;
@@ -54,8 +55,8 @@ void cPhysicWorld::CompileTiles() {
                     for (int y2 = y + 1; y2 < hPl->GetPlaneHeight(); y2++) {
                         bool rowOk = 1;
                         for (int x2 = x; x2 < x + width; x2++) {
-                            WWD::TileAtrib *ta2 = GV->editState->hParser->GetTileAtribs(hPl->GetTile(x2, y2)->GetID());
-                            if (assigned[y2 * width + x2] || !(ta2->GetType() == WWD::AtribType_Single &&
+                            WWD::TileAttrib *ta2 = GV->editState->hParser->GetTileAttribs(hPl->GetTile(x2, y2)->GetID());
+                            if (assigned[y2 * width + x2] || !(ta2->GetType() == WWD::AttribType_Single &&
                                                                ta2->GetAtribInside() == ta->GetAtribInside())) {
                                 rowOk = 0;
                                 break;
@@ -69,24 +70,24 @@ void cPhysicWorld::CompileTiles() {
 
                     new cPhysicBody(this, x * hPl->GetTileWidth(), y * hPl->GetTileHeight(),
                                     hPl->GetTileWidth() * width, hPl->GetTileHeight() * height, ta->GetAtribInside());
-                } else if (ta->GetType() == WWD::AtribType_Double) {
-                    if (ta->GetAtribInside() == WWD::Atrib_Clear && ta->GetAtribOutside() == WWD::Atrib_Clear)
+                } else if (ta->GetType() == WWD::AttribType_Double) {
+                    if (ta->GetAtribInside() == WWD::Attrib_Clear && ta->GetAtribOutside() == WWD::Attrib_Clear)
                         continue;
-                    if (ta->GetAtribInside() != WWD::Atrib_Clear) {
+                    if (ta->GetAtribInside() != WWD::Attrib_Clear) {
                         int maskw = ta->GetMask().x2 - ta->GetMask().x1, maskh = ta->GetMask().y2 - ta->GetMask().y1;
                         int width = 0, height = 0;
-                        if (maskw == 63 && ta->GetAtribOutside() == WWD::Atrib_Clear) {
+                        if (maskw == 63 && ta->GetAtribOutside() == WWD::Attrib_Clear) {
                             for (int x2 = x + 1; x2 < hPl->GetPlaneWidth(); x2++)
-                                if (hPl->GetTile(x2, y)->GetID() == hPl->GetTile(x, y)->GetID() &&
+                                if (hPl->GetTile(x2, y) == tile &&
                                     !assigned[y * width + x2]) {
                                     width++;
                                     assigned[y * width + x2] = 1;
                                 } else
                                     break;
                         }
-                        if (maskh == 63 && ta->GetAtribOutside() == WWD::Atrib_Clear && width == 0) {
+                        if (maskh == 63 && ta->GetAtribOutside() == WWD::Attrib_Clear && width == 0) {
                             for (int y2 = y + 1; y2 < hPl->GetPlaneHeight(); y2++)
-                                if (hPl->GetTile(x, y2)->GetID() == hPl->GetTile(x, y)->GetID() &&
+                                if (hPl->GetTile(x, y2) == tile &&
                                     !assigned[y2 * width + x]) {
                                     height++;
                                     assigned[y2 * width + x] = 1;
@@ -100,7 +101,7 @@ void cPhysicWorld::CompileTiles() {
                                         y * hPl->GetTileHeight() + ta->GetMask().y1, width, height,
                                         ta->GetAtribInside());
                     }
-                    if (ta->GetAtribOutside() != WWD::Atrib_Clear) {
+                    if (ta->GetAtribOutside() != WWD::Attrib_Clear) {
                         if (ta->GetMask().y1 != 0)
                             new cPhysicBody(this, x * hPl->GetTileWidth(), y * hPl->GetTileHeight(), 64,
                                             ta->GetMask().y1, ta->GetAtribOutside());
@@ -151,9 +152,9 @@ cPhysicBody::cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float
     w->RegisterBody(this);
     hOwner = w;
     if (it == BODY_ELEVATOR)
-        iAtrib = WWD::Atrib_Ground;
+        iAtrib = WWD::Attrib_Ground;
     else
-        iAtrib = WWD::Atrib_Clear;
+        iAtrib = WWD::Attrib_Clear;
     hObj = obj;
     bSleep = 1;
     bGlueObject = 0;
@@ -172,7 +173,7 @@ void cPhysicBody::WakeUp() {
     hOwner->BodyWakeUpNotify(this);
 }
 
-cPhysicBody::cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float height, WWD::TILE_ATRIB atr) {
+cPhysicBody::cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float height, WWD::TILE_ATTRIB atr) {
     fX = x1;
     fY = y1;
     fW = width;
@@ -201,7 +202,7 @@ cPhysicBody::cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float
     fH = height;
     w->RegisterBody(this);
     hOwner = w;
-    iAtrib = WWD::Atrib_Clear;
+    iAtrib = WWD::Attrib_Clear;
     hObj = obj;
     bSleep = 1;
     bGlueObject = 0;
@@ -254,7 +255,7 @@ void cPhysicBody::Update() {
                     continue;
                 }
 
-                if (col[i]->GetAtrib() != WWD::Atrib_Climb && col[i]->GetAtrib() != WWD::Atrib_Ground)
+                if (col[i]->GetAtrib() != WWD::Attrib_Climb && col[i]->GetAtrib() != WWD::Attrib_Ground)
                     if (fSpeedX > 0 && col[i]->GetX() > fX && abs(col[i]->GetY() - (fY + fH)) > 3) {
                         fX = col[i]->GetX() - fW;
                         fSpeedX = 0;
@@ -264,7 +265,7 @@ void cPhysicBody::Update() {
                     }
 
                 if (fSpeedY > 0 && col[i]->GetY() > fY) {
-                    if (col[i]->GetAtrib() == WWD::Atrib_Ground || col[i]->GetAtrib() == WWD::Atrib_Climb) {
+                    if (col[i]->GetAtrib() == WWD::Attrib_Ground || col[i]->GetAtrib() == WWD::Attrib_Climb) {
                         if (fBaseY + fH < col[i]->GetY()) {
                             fY = col[i]->GetY() - fH;
                             fSpeedY = 0;
@@ -273,8 +274,8 @@ void cPhysicBody::Update() {
                         fY = col[i]->GetY() - fH;
                         fSpeedY = 0;
                     }
-                } else if (fSpeedY < 0 && col[i]->GetY() < fY && col[i]->GetAtrib() != WWD::Atrib_Climb &&
-                           col[i]->GetAtrib() != WWD::Atrib_Ground) {
+                } else if (fSpeedY < 0 && col[i]->GetY() < fY && col[i]->GetAtrib() != WWD::Attrib_Climb &&
+                           col[i]->GetAtrib() != WWD::Attrib_Ground) {
                     fY = col[i]->GetY() + col[i]->GetHeight();
                     fSpeedY = 0;
                 }
@@ -286,8 +287,8 @@ void cPhysicBody::Update() {
     bFly = 1;
     std::vector<cPhysicBody *> under = hOwner->hQT->GetBodiesByArea(fX, fY + fH, fW, 2, 0);
     for (int i = 0; i < under.size(); i++) {
-        if (under[i]->GetAtrib() == WWD::Atrib_Ground || under[i]->GetAtrib() == WWD::Atrib_Solid ||
-            under[i]->GetAtrib() == WWD::Atrib_Climb) {
+        if (under[i]->GetAtrib() == WWD::Attrib_Ground || under[i]->GetAtrib() == WWD::Attrib_Solid ||
+            under[i]->GetAtrib() == WWD::Attrib_Climb) {
             if (under[i]->GetY() >= fY + fH) {
                 bFly = 0;
                 break;

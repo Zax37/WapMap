@@ -67,7 +67,10 @@ public:
 
     virtual void ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles);
 
-    virtual std::string GetFolderName() { return std::string("SOUNDS"); };
+    const std::string& GetFolderName() override {
+        static const std::string name = "SOUNDS";
+        return name;
+    };
 };
 
 #endif

@@ -5,7 +5,6 @@
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
 #include "guichan/listmodel.hpp"
-#include "guichan/mouseinput.hpp"
 #include "guichan/selectionlistener.hpp"
 
 namespace SHR {

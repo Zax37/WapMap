@@ -49,7 +49,7 @@ private:
     float fX, fY, fW, fH;
     cPhysicWorld *hOwner;
     std::vector<cBodyQuadTree *> m_vhCells;
-    WWD::TILE_ATRIB iAtrib;
+    WWD::TILE_ATTRIB iAtrib;
     bool bSleep;
     WWD::Object *hObj;
     bool bGlueObject;
@@ -67,7 +67,7 @@ private:
     bool bNoSleep;
 public:
     cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float height,
-                WWD::TILE_ATRIB atr = WWD::Atrib_Clear); //static
+                WWD::TILE_ATTRIB atr = WWD::Attrib_Clear); //static
     cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float height, WWD::Object *obj,
                 enBodyType it); //dynamic
     cPhysicBody(cPhysicWorld *w, float x1, float y1, float width, float height,
@@ -100,7 +100,7 @@ public:
 
     void ClearCellReferences();
 
-    WWD::TILE_ATRIB GetAtrib() { return iAtrib; };
+    WWD::TILE_ATTRIB GetAtrib() { return iAtrib; };
 
     bool IsSleeping() { return bSleep; };
 

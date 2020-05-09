@@ -155,14 +155,15 @@ int wmGetTile(lua_State *L) {
             }
         }
     }
-    if (plane->GetTile(x, y) == NULL)
+    WWD::Tile* tile = plane->GetTile(x, y);
+    if (!tile)
         lua_pushinteger(L, BRUSH_OUTOFBOUND);
-    else if (plane->GetTile(x, y)->IsInvisible())
+    else if (tile->IsInvisible())
         lua_pushinteger(L, BRUSH_EMPTY);
-    else if (plane->GetTile(x, y)->IsFilled())
+    else if (tile->IsFilled())
         lua_pushinteger(L, BRUSH_FILLED);
     else
-        lua_pushinteger(L, plane->GetTile(x, y)->GetID());
+        lua_pushinteger(L, tile->GetID());
 
     return 1;
 }
@@ -196,10 +197,11 @@ int wmPlaceTile(lua_State *L) {
         return 0;
     }
 
+    WWD::Tile* t = plane->GetTile(x, y);
     if (hGhostingBank != 0) {
-        if (plane->GetTile(x, y)->IsInvisible() && tile == BRUSH_EMPTY) return 0;
-        if (plane->GetTile(x, y)->IsFilled() && tile == BRUSH_FILLED) return 0;
-        if (plane->GetTile(x, y)->GetID() == tile) return 0;
+        if (t->IsInvisible() && tile == BRUSH_EMPTY) return 0;
+        if (t->IsFilled() && tile == BRUSH_FILLED) return 0;
+        if (t->GetID() == tile) return 0;
         TileGhost tg;
         tg.x = x;
         tg.y = y;
@@ -220,11 +222,11 @@ int wmPlaceTile(lua_State *L) {
     }
 
     if (tile == BRUSH_EMPTY)
-        plane->GetTile(x, y)->SetInvisible(1);
+        t->SetInvisible(1);
     else if (tile == BRUSH_FILLED)
-        plane->GetTile(x, y)->SetFilled(1);
+        t->SetFilled(1);
     else
-        plane->GetTile(x, y)->SetID(tile);
+        t->SetID(tile);
     GV_BRUSH_bChanges = 1;
 
     return 0;

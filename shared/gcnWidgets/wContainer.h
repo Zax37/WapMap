@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include "guichan/basicContainer.hpp"
+#include "guichan/basiccontainer.hpp"
 #include "guichan/graphics.hpp"
 #include "guichan/platform.hpp"
 #include "guichan/mouselistener.hpp"
@@ -13,7 +13,7 @@ using namespace gcn;
 
 namespace SHR {
     class GCN_CORE_DECLSPEC Container : public gcn::BasicContainer,
-                                       public gcn::WidgetListener {
+                                        public gcn::WidgetListener {
     public:
         Container();
 

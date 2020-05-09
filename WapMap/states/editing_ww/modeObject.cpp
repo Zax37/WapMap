@@ -34,6 +34,7 @@
 #include "../../objEdit/editAmbient.h"
 #include "../../objEdit/editEnemy.h"
 #include "../../objEdit/editText.h"
+#include "../../objEdit/editFloorSpike.h"
 
 #include "../../databanks/logics.h"
 
@@ -47,11 +48,6 @@ void EditingWW_ObjDeletionCB(WWD::Object *obj) {
 void State::EditingWW::NotifyObjectDeletion(WWD::Object *obj) {
     GetUserDataFromObj(obj)->ClearCellReferences();
     delete GetUserDataFromObj(obj);
-    for (int i = 0; i < vObjectClipboard.size(); i++)
-        if (vObjectClipboard[i] == obj) {
-            vObjectClipboard.erase(vObjectClipboard.begin() + i);
-            i--;
-        }
     for (int i = 0; i < vObjectsBrushCB.size(); i++)
         if (vObjectsBrushCB[i] == obj) {
             vObjectsBrushCB.erase(vObjectsBrushCB.begin() + i);
@@ -541,7 +537,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                     objContext->setPosition(mx, my);
                     fObjContextX = fCamX;
                     fObjContextY = fCamY;
-                    if (vObjectClipboard.size() != 0) {
+                    if (!vObjectClipboard.empty()) {
                         char ncap[256];
                         if (vObjectClipboard.size() == 1)
                             sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), vObjectClipboard[0]->GetLogic());
@@ -733,10 +729,12 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         if (hge->Input_KeyDown(HGEK_LBUTTON)) {
             bool bRecalc = 0;
             for (int i = 0; i < vObjectsPicked.size(); i++) {
-                if (vObjectsPicked[i]->GetParam(WWD::Param_MinX) != 0 ||
+                if ((!strstr(vObjectsPicked[i]->GetLogic(), "Elevator")
+                    && (vObjectsPicked[i]->GetParam(WWD::Param_MinX) != 0 ||
                     vObjectsPicked[i]->GetParam(WWD::Param_MinY) != 0 ||
                     vObjectsPicked[i]->GetParam(WWD::Param_MaxX) != 0 ||
-                    vObjectsPicked[i]->GetParam(WWD::Param_MaxY) != 0 ||
+                    vObjectsPicked[i]->GetParam(WWD::Param_MaxY) != 0))
+                    ||
                     (!strcmp(vObjectsPicked[i]->GetLogic(), "Shake") &&
                      (vObjectsPicked[i]->GetAttackRect().x1 != 0 ||
                       vObjectsPicked[i]->GetAttackRect().y1 != 0 ||
@@ -750,11 +748,11 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                 }
             }
             for (int i = 0; i < vObjectsPicked.size(); i++) {
-                if (bRecalc) {
+                if (bRecalc || strstr(vObjectsPicked[i]->GetLogic(), "Elevator")) {
                     int diffx = GetUserDataFromObj(vObjectsPicked[i])->GetX() -
                                 vObjectsPicked[i]->GetParam(WWD::Param_LocationX),
-                            diffy = GetUserDataFromObj(vObjectsPicked[i])->GetY() -
-                                    vObjectsPicked[i]->GetParam(WWD::Param_LocationY);
+                        diffy = GetUserDataFromObj(vObjectsPicked[i])->GetY() -
+                                vObjectsPicked[i]->GetParam(WWD::Param_LocationY);
                     if (!strcmp(vObjectsPicked[i]->GetLogic(), "Shake")) {
                         WWD::Rect atrect = vObjectsPicked[i]->GetAttackRect();
                         if (atrect.x1 != 0) atrect.x1 += diffx;
@@ -913,134 +911,88 @@ void State::EditingWW::ShowAndUpdateDuplicateMenu() {
     tfdTimes->requestFocus();
 }
 
-int State::EditingWW::GetObjectType(WWD::Object *obj) {
-    char *loweredlogic = SHR::ToLower(obj->GetLogic());
-    //char * loweredgfx = SHR::ToLower(obj->GetImageSet());
-    int ret = OBJ_UNKNOWN;
-    if (strstr(loweredlogic, "sound") != NULL)
-        ret = OBJ_SOUND;
-    else if (strstr(loweredlogic, "curse") != NULL)
-        ret = OBJ_CURSE;
-    else if (strstr(loweredlogic, "treasure") != NULL)
-        ret = OBJ_TREASURE;
-    else if (IsObjectEnemy(obj))
-        ret = OBJ_ENEMY;
-    delete[] loweredlogic;
-    //delete []
-    return ret;
-}
-
-bool State::EditingWW::IsEditableObject(WWD::Object *obj, ObjEdit::cObjEdit **hEdit) {
-    char *loweredlogic = SHR::ToLower(obj->GetLogic());
-    bool ret = 0;
-    if (strstr(loweredlogic, "curse")) {
-        /*!strcmp(obj->GetLogic(), "StartElevator") ||
-        !strcmp(obj->GetLogic(), "TriggerElevator") ||
-        !strcmp(obj->GetLogic(), "OneWayStartElevator") ||
-        !strcmp(obj->GetLogic(), "OneWayTriggerElevator") ||
-        !strcmp(obj->GetLogic(), "PathElevator") ||
-        !strcmp(obj->GetLogic(), "StandardElevator") ){*/
+bool State::EditingWW::IsEditableObject(WWD::Object* obj, ObjEdit::cObjEdit** hEdit) {
+    LogicInfo logicInfo = GetLogicInfo(obj->GetLogic());
+    if (!strcmp(obj->GetLogic(), "CursePowerup")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCurse(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "PathElevator")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjElevPath(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "Checkpoint") ||
-               !strcmp(obj->GetLogic(), "FirstSuperCheckpoint") ||
-               !strcmp(obj->GetLogic(), "SecondSuperCheckpoint")) {
+        !strcmp(obj->GetLogic(), "FirstSuperCheckpoint") ||
+        !strcmp(obj->GetLogic(), "SecondSuperCheckpoint")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCheckpoint(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "SpecialPowerup") &&
-               (!strcmp(obj->GetImageSet(), "GAME_WARP") || !strcmp(obj->GetImageSet(), "GAME_VERTWARP")) ||
-               !strcmp(obj->GetLogic(), "BossWarp") && !strcmp(obj->GetImageSet(), "GAME_BOSSWARP")) {
+        (!strcmp(obj->GetImageSet(), "GAME_WARP") || !strcmp(obj->GetImageSet(), "GAME_VERTWARP")) ||
+        !strcmp(obj->GetLogic(), "BossWarp") && !strcmp(obj->GetImageSet(), "GAME_BOSSWARP")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjWarp(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "TowerCannonLeft") || !strcmp(obj->GetLogic(), "TowerCannonRight") ||
-               !strcmp(obj->GetLogic(), "SkullCannon")) {
+        !strcmp(obj->GetLogic(), "SkullCannon")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjWallCannon(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "CrumblingPeg") || !strcmp(obj->GetLogic(), "CrumblingPegNoRespawn")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCrumblingPeg(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "FrontStatue") || !strcmp(obj->GetLogic(), "BehindStatue")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjStatue(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "BreakPlank")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjBreakPlank(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "FrontCrate") || !strcmp(obj->GetLogic(), "FrontStackedCrates") ||
-               !strcmp(obj->GetLogic(), "BehindCrate") || !strcmp(obj->GetLogic(), "BackStackedCrates")) {
+        !strcmp(obj->GetLogic(), "BehindCrate") || !strcmp(obj->GetLogic(), "BackStackedCrates")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCrate(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "GlitterlessPowerup") || !strcmp(obj->GetLogic(), "TreasurePowerup")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjTreasure(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "AniRope") ||
-               !strcmp(obj->GetLogic(), "DoNothing") && !strcmp(obj->GetImageSet(), "LEVEL_ROPE")) {
+        !strcmp(obj->GetLogic(), "DoNothing") && !strcmp(obj->GetImageSet(), "LEVEL_ROPE")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjRope(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "HealthPowerup") &&
-               !(!strcmp(obj->GetImageSet(), "GAME_CATNIPS_NIP1") ||
-                 !strcmp(obj->GetImageSet(), "GAME_CATNIPS_NIP2")) ||
-               !strcmp(obj->GetLogic(), "AmmoPowerup") || !strcmp(obj->GetLogic(), "MagicPowerup") ||
-               !strcmp(obj->GetLogic(), "SpecialPowerup") && !strcmp(obj->GetImageSet(), "GAME_DYNAMITE")) {
+        !(!strcmp(obj->GetImageSet(), "GAME_CATNIPS_NIP1") ||
+            !strcmp(obj->GetImageSet(), "GAME_CATNIPS_NIP2")) ||
+        !strcmp(obj->GetLogic(), "AmmoPowerup") || !strcmp(obj->GetLogic(), "MagicPowerup") ||
+        !strcmp(obj->GetLogic(), "SpecialPowerup") && !strcmp(obj->GetImageSet(), "GAME_DYNAMITE")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjHealth(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "SpecialPowerup") || !strcmp(obj->GetLogic(), "HealthPowerup")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSpecialPowerup(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "TogglePeg") || !strcmp(obj->GetLogic(), "TogglePeg2") ||
-               !strcmp(obj->GetLogic(), "TogglePeg3") || !strcmp(obj->GetLogic(), "TogglePeg4")) {
+        !strcmp(obj->GetLogic(), "TogglePeg3") || !strcmp(obj->GetLogic(), "TogglePeg4") || !strcmp(obj->GetLogic(), "SlidingElevator")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjTogglePeg(obj, this);
-        ret = 1;
+    } else if (!strcmp(obj->GetLogic(), "FloorSpike") || !strcmp(obj->GetLogic(), "FloorSpike2") ||
+        !strcmp(obj->GetLogic(), "FloorSpike3") || !strcmp(obj->GetLogic(), "FloorSpike4")) {
+        if (hEdit != 0) *hEdit = new ObjEdit::cEditObjFloorSpike(obj, this);
     } else if (!strcmp(obj->GetLogic(), "FrontAniCandy") || !strcmp(obj->GetLogic(), "BehindAniCandy") ||
-               !strcmp(obj->GetLogic(), "FrontCandy") || !strcmp(obj->GetLogic(), "BehindCandy") ||
-               !strcmp(obj->GetLogic(), "DoNothing") || !strcmp(obj->GetLogic(), "DoNothingNormal") ||
-               !strcmp(obj->GetLogic(), "AniCycle") || !strcmp(obj->GetLogic(), "AniCycleNormal") || !strcmp(obj->GetLogic(), "SimpleAnimation")) {
+        !strcmp(obj->GetLogic(), "FrontCandy") || !strcmp(obj->GetLogic(), "BehindCandy") ||
+        !strcmp(obj->GetLogic(), "DoNothing") || !strcmp(obj->GetLogic(), "DoNothingNormal") ||
+        !strcmp(obj->GetLogic(), "AniCycle") || !strcmp(obj->GetLogic(), "AniCycleNormal") || !strcmp(obj->GetLogic(), "SimpleAnimation")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCandy(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "SpringBoard") || !strcmp(obj->GetLogic(), "GroundBlower")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSpringboard(obj, this);
-        ret = 1;
     } else if (strstr(obj->GetLogic(), "SoundTrigger")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSoundTrigger(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "TProjectile")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjProjectile(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "Elevator") || !strcmp(obj->GetLogic(), "StartElevator") ||
-               !strcmp(obj->GetLogic(), "TriggerElevator") || !strcmp(obj->GetLogic(), "StopElevator") ||
-               !strcmp(obj->GetLogic(), "OneWayStartElevator") || !strcmp(obj->GetLogic(), "OneWayTriggerElevator") ||
-               !strcmp(obj->GetLogic(), "StandardElevator")) {
+        !strcmp(obj->GetLogic(), "TriggerElevator") || !strcmp(obj->GetLogic(), "StopElevator") ||
+        !strcmp(obj->GetLogic(), "OneWayStartElevator") || !strcmp(obj->GetLogic(), "OneWayTriggerElevator") ||
+        !strcmp(obj->GetLogic(), "StandardElevator")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjElevator(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "CrabNest")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCrabNest(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "Shake")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjShake(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "Laser")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjLaser(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "Stalactite")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjStalactite(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "GlobalAmbientSound") ||
-               !strcmp(obj->GetLogic(), "AmbientSound") ||
-               !strcmp(obj->GetLogic(), "SpotAmbientSound") ||
-               !strcmp(obj->GetLogic(), "AmbientPosSound")) {
+        !strcmp(obj->GetLogic(), "AmbientSound") ||
+        !strcmp(obj->GetLogic(), "SpotAmbientSound") ||
+        !strcmp(obj->GetLogic(), "AmbientPosSound")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjAmbient(obj, this);
-        ret = 1;
-    } else if (IsObjectEnemy(obj)) {
+    } else if (logicInfo.IsEnemy()) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjEnemy(obj, this);
-        ret = 1;
     } else if (!strcmp(obj->GetLogic(), "_WM_TEXT")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjText(obj, this);
-        ret = 1;
+    } else {
+        return false;
     }
-    delete[] loweredlogic;
-    return ret;
+    return true;
 }
 
 void State::EditingWW::OpenObjectEdit(WWD::Object *obj) {
@@ -1054,36 +1006,15 @@ void State::EditingWW::OpenObjectEdit(WWD::Object *obj) {
     }
 }
 
-bool State::EditingWW::IsObjectEnemy(WWD::Object *obj) {
-    if (!strcmp(obj->GetLogic(), "Rat") ||
-        !strcmp(obj->GetLogic(), "Soldier") ||
-        !strcmp(obj->GetLogic(), "Officer") ||
-        !strcmp(obj->GetLogic(), "Raux") ||
-        !strcmp(obj->GetLogic(), "RobberThief") ||
-        !strcmp(obj->GetLogic(), "CutThroat") ||
-        !strcmp(obj->GetLogic(), "Katherine") ||
-        !strcmp(obj->GetLogic(), "Seagull") ||
-        !strcmp(obj->GetLogic(), "TownGuard1") ||
-        !strcmp(obj->GetLogic(), "TownGuard2") ||
-        !strcmp(obj->GetLogic(), "Wolvington") ||
-        !strcmp(obj->GetLogic(), "HermitCrab") ||
-        !strcmp(obj->GetLogic(), "BearSailor") ||
-        !strcmp(obj->GetLogic(), "RedTailPirate") ||
-        !strcmp(obj->GetLogic(), "Gabriel") ||
-        !strcmp(obj->GetLogic(), "PegLeg") || //yup, pirate with guns
-        !strcmp(obj->GetLogic(), "CrazyHook") ||
-        !strcmp(obj->GetLogic(), "Marrow") ||
-        !strcmp(obj->GetLogic(), "Fish") ||
-        !strcmp(obj->GetLogic(), "Mercat") ||
-        !strcmp(obj->GetLogic(), "Mermaid") ||
-        !strcmp(obj->GetLogic(), "Aquatis") ||
-        !strcmp(obj->GetLogic(), "Chameleon") ||
-        !strcmp(obj->GetLogic(), "RedTail") ||
-        !strcmp(obj->GetLogic(), "TigerGuard") ||
-        !strcmp(obj->GetLogic(), "Omar")) {
-        return 1;
-    }
-    return 0;
+const char* State::EditingWW::GetDefaultElevatorImageSet() {
+    if (hParser->GetBaseLevel() == 1) return "LEVEL_ELEVATORS";
+    else if (hParser->GetBaseLevel() == 13 ||
+        hParser->GetBaseLevel() == 3)
+        return "LEVEL_ELEVATOR1";
+    else if (hParser->GetBaseLevel() == 6) return "LEVEL_GRILLELEVATOR";
+    else if (hParser->GetBaseLevel() == 10) return "LEVEL_TRAPELEVATOR";
+    else if (hParser->GetBaseLevel() == 7) return "LEVEL_AIRCART";
+    else return "LEVEL_ELEVATOR";
 }
 
 void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
@@ -1101,21 +1032,17 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
     if (widg == hmbObject->butIconCurse) {
         obj->SetLogic("CursePowerup");
         obj->SetImageSet("GAME_CURSES_FREEZE");
+    } else if (widg == hmbObject->butIconSpikes) {
+        obj->SetLogic("FloorSpike");
+        obj->SetImageSet(hParser->GetBaseLevel() == 3 || hParser->GetBaseLevel() == 10 || hParser->GetBaseLevel() == 13 ? "LEVEL_FLOORSPIKES1" : "LEVEL_FLOORSPIKES");
+    } else if (widg == hmbObject->butIconElevator) {
+        obj->SetLogic("Elevator");
+        obj->SetImageSet(GetDefaultElevatorImageSet());
+        obj->SetParam(WWD::Param_MinX, obj->GetX());
+        obj->SetParam(WWD::Param_MaxX, obj->GetX() + 150);
     } else if (widg == hmbObject->butIconPathElevator) {
         obj->SetLogic("PathElevator");
-        if (hParser->GetBaseLevel() == 1) obj->SetImageSet("LEVEL_ELEVATORS");
-        else if (hParser->GetBaseLevel() == 13 ||
-                 hParser->GetBaseLevel() == 3)
-            obj->SetImageSet("LEVEL_ELEVATOR1");
-        else if (hParser->GetBaseLevel() == 6) obj->SetImageSet("LEVEL_GRILLELEVATOR");
-        else if (hParser->GetBaseLevel() == 10) obj->SetImageSet("LEVEL_TRAPELEVATOR");
-        else if (hParser->GetBaseLevel() == 7) obj->SetImageSet("LEVEL_AIRCART");
-        else if (hParser->GetBaseLevel() == 2 ||
-                 hParser->GetBaseLevel() == 4 ||
-                 hParser->GetBaseLevel() == 5 ||
-                 hParser->GetBaseLevel() == 9 ||
-                 hParser->GetBaseLevel() > 10)
-            obj->SetImageSet("LEVEL_ELEVATOR");
+        obj->SetImageSet(GetDefaultElevatorImageSet());
         obj->SetMoveRect(WWD::Rect(2, 100, 0, 0));
     } else if (widg == hmbObject->butIconCheckpoint) {
         obj->SetLogic("Checkpoint");
@@ -1131,9 +1058,14 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         obj->SetLogic("PowderKeg");
         obj->SetImageSet("LEVEL_POWDERKEG");
         bDoContext = 0;
-    } else if (widg == hmbObject->butIconWallCannon) {
-        obj->SetLogic("TowerCannonRight");
-        obj->SetImageSet("LEVEL_TOWERCANNONRIGHT");
+    } else if (widg == hmbObject->butIconCannon) {
+        if (hParser->GetBaseLevel() == 9) {
+            obj->SetLogic("SkullCannon");
+            obj->SetImageSet("LEVEL_SKULLCANNON");
+        } else {
+            obj->SetLogic("TowerCannonRight");
+            obj->SetImageSet("LEVEL_TOWERCANNONRIGHT");
+        }
     } else if (widg == hmbObject->butIconCrumblinPeg) {
         obj->SetLogic("CrumblingPeg");
         if (hParser->GetBaseLevel() == 1)
@@ -1235,15 +1167,6 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         obj->SetImageSet("LEVEL_LASER");
         obj->SetParam(WWD::Param_Damage, 10);
         obj->SetParam(WWD::Param_Counter, 1500);
-    } else if (widg == hmbObject->butIconCannon) {
-        if (hParser->GetBaseLevel() == 2 || hParser->GetBaseLevel() == 8) {
-            obj->SetLogic("PunkRat");
-            obj->SetImageSet("LEVEL_PUNKRAT");
-            bDoContext = 0;
-        } else {
-            obj->SetLogic("SkullCannon");
-            obj->SetImageSet("LEVEL_SKULLCANNON");
-        }
     } else if (widg == hmbObject->butIconSound) {
         obj->SetLogic("GlobalAmbientSound");
         obj->SetImageSet("GAME_SOUNDICON");
@@ -1252,105 +1175,12 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         obj->SetLogic("SoundTrigger");
         obj->SetImageSet("GAME_SOUNDICON");
         obj->SetDrawFlags(WWD::Flag_dr_NoDraw);
-    } else if (widg == hmbObject->butIconEnemy[0]) {
-        if (hParser->GetBaseLevel() == 1 || hParser->GetBaseLevel() == 2) {
-            obj->SetLogic("Officer");
-            obj->SetImageSet("LEVEL_OFFICER");
-        } else if (hParser->GetBaseLevel() == 3 || hParser->GetBaseLevel() == 4) {
-            obj->SetLogic("RobberThief");
-            obj->SetImageSet("LEVEL_ROBBERTHIEF");
-        } else if (hParser->GetBaseLevel() == 5 || hParser->GetBaseLevel() == 6) {
-            obj->SetLogic("TownGuard1");
-            obj->SetImageSet("LEVEL_TOWNGUARD1");
-        } else if (hParser->GetBaseLevel() == 7 || hParser->GetBaseLevel() == 8 || hParser->GetBaseLevel() == 13) {
-            obj->SetLogic("RedTailPirate");
-            obj->SetImageSet("LEVEL_REDTAILPIRATE");
-        } else if (hParser->GetBaseLevel() == 9 || hParser->GetBaseLevel() == 10) {
-            obj->SetLogic("PegLeg");
-            obj->SetImageSet("LEVEL_PEGLEG");
-        } else if (hParser->GetBaseLevel() == 11 || hParser->GetBaseLevel() == 12) {
-            obj->SetLogic("Mercat");
-            obj->SetImageSet("LEVEL_MERCAT");
-        } else if (hParser->GetBaseLevel() == 14) {
-            obj->SetLogic("TigerGuard");
-            obj->SetImageSet("LEVEL_TIGER");
-        }
-    } else if (widg == hmbObject->butIconEnemy[1]) {
-        if (hParser->GetBaseLevel() == 1 || hParser->GetBaseLevel() == 2) {
-            obj->SetLogic("Soldier");
-            obj->SetImageSet("LEVEL_SOLDIER");
-        } else if (hParser->GetBaseLevel() == 3 || hParser->GetBaseLevel() == 4) {
-            obj->SetLogic("CutThroat");
-            obj->SetImageSet("LEVEL_CUTTHROAT");
-        } else if (hParser->GetBaseLevel() == 5 || hParser->GetBaseLevel() == 6) {
-            obj->SetLogic("TownGuard2");
-            obj->SetImageSet("LEVEL_TOWNGUARD2");
-        } else if (hParser->GetBaseLevel() == 7 || hParser->GetBaseLevel() == 8 || hParser->GetBaseLevel() == 13) {
-            obj->SetLogic("BearSailor");
-            obj->SetImageSet("LEVEL_BEARSAILOR");
-        } else if (hParser->GetBaseLevel() == 9 || hParser->GetBaseLevel() == 10) {
-            obj->SetLogic("CrazyHook");
-            obj->SetImageSet("LEVEL_CRAZYHOOK");
-        } else if (hParser->GetBaseLevel() == 11 || hParser->GetBaseLevel() == 12) {
-            obj->SetLogic("Siren");
-            obj->SetImageSet("LEVEL_SIREN");
-        } else if (hParser->GetBaseLevel() == 14) {
-            obj->SetLogic("TigerGuard");
-            obj->SetImageSet("LEVEL_TIGER");
-            obj->SetParam(WWD::Param_Smarts, 1);
-        }
-    } else if (widg == hmbObject->butIconEnemy[2]) {
-        if (hParser->GetBaseLevel() == 2) {
-            obj->SetLogic("Raux");
-            obj->SetImageSet("LEVEL_RAUX");
-        } else if (hParser->GetBaseLevel() < 5) {
-            obj->SetLogic("Rat");
-            obj->SetImageSet("LEVEL_RAT");
-        } else if (hParser->GetBaseLevel() == 5 || hParser->GetBaseLevel() == 6 ||
-                   hParser->GetBaseLevel() == 9 || hParser->GetBaseLevel() == 10 ||
-                   hParser->GetBaseLevel() == 7 || hParser->GetBaseLevel() == 8) {
-            obj->SetLogic("Seagull");
-            obj->SetImageSet("LEVEL_SEAGULL");
-        } else if (hParser->GetBaseLevel() == 11 || hParser->GetBaseLevel() == 12) {
-            obj->SetLogic("Fish");
-            obj->SetImageSet("LEVEL_FISH");
-        } else if (hParser->GetBaseLevel() == 13 || hParser->GetBaseLevel() == 14) {
-            obj->SetLogic("Chameleon");
-            obj->SetImageSet("LEVEL_CHAMELEON");
-        }
-    } else if (widg == hmbObject->butIconEnemy[3]) {
-        if (hParser->GetBaseLevel() == 4) {
-            obj->SetLogic("Katherine");
-            obj->SetImageSet("LEVEL_KATHERINE");
-        } else if (hParser->GetBaseLevel() == 6) {
-            obj->SetLogic("Rat");
-            obj->SetImageSet("LEVEL_RAT");
-        } else if (hParser->GetBaseLevel() == 7) {
-            obj->SetLogic("HermitCrab");
-            obj->SetImageSet("LEVEL_HERMITCRAB");
-        } else if (hParser->GetBaseLevel() == 10) {
-            obj->SetLogic("Marrow");
-            obj->SetImageSet("LEVEL_MARROW");
-        } else if (hParser->GetBaseLevel() == 12) {
-            obj->SetLogic("Aquatis");
-            obj->SetImageSet("LEVEL_KINGAQUATIS");
-        } else if (hParser->GetBaseLevel() == 13) {
-            obj->SetLogic("RedTail");
-            obj->SetImageSet("LEVEL_REDTAIL");
-        } else if (hParser->GetBaseLevel() == 14) {
-            obj->SetLogic("Omar");
-            obj->SetImageSet("LEVEL_OMAR");
-        } else if (hParser->GetBaseLevel() == 8) {
-            obj->SetLogic("Gabriel");
-            obj->SetImageSet("LEVEL_GABRIEL");
-        }
-    } else if (widg == hmbObject->butIconEnemy[4]) {
-        if (hParser->GetBaseLevel() == 6) {
-            obj->SetLogic("Wolvington");
-            obj->SetImageSet("LEVEL_WOLVINGTON");
-        }
     } else if (widg == hmbObject->butIconText) {
         obj->SetLogic("_WM_TEXT");
+    } else if (widg == hmbObject->butIconEnemy) {
+        std::vector<std::pair<std::string, std::string>> vstrpTypes;
+        LogicInfo::GetEnemyLogicPairs(vstrpTypes, hParser->GetBaseLevel());
+        ObjEdit::cEditObjEnemy::UpdateEnemyObject(obj, vstrpTypes[0]);
     }
     GetActivePlane()->AddObjectAndCalcID(obj);
     obj->SetUserData(new cObjUserData(obj));
@@ -1386,7 +1216,7 @@ bool State::EditingWW::AreObjectSpecificOptionsAvailable(WWD::Object *obj, SHR::
     return 0;
 }
 
-std::vector<cInventoryItem> State::EditingWW::GetContenerItems(WWD::Object *obj) {
+std::vector<cInventoryItem> State::EditingWW::GetContainerItems(WWD::Object *obj) {
     return std::vector<cInventoryItem>();
 }
 

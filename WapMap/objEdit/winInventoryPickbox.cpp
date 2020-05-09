@@ -99,7 +99,7 @@ namespace ObjEdit {
                     int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
                     hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
                     spr->SetColor(0xFFFFFFFF);
-                    spr->SetFlip(0, 0);
+                    spr->SetFlip(0, 0, 1);
                     int grdim = spr->GetWidth();
                     if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
                     float fScale = 1.0f;
@@ -126,16 +126,16 @@ namespace ObjEdit {
             }
         }
         if (pickedid != -1) {
-            GV->fntMyriad13->SetColor(0xFF000000);
+            GV->fntMyriad13->SetColor(0xFFFFFFFF);
             GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 5, HGETEXT_LEFT,
-                                    "%s: (%s #~y~%d~l~)", 0,
+                                    "%s: (%s #~y~%d~w~)", 0,
                                     GETL2S("EditObj_Inventory", "Effect"),
                                     GETL2S("EditObj_Inventory", "ItemID"),
                                     pickedid);
             char tmp[32];
             sprintf(tmp, "E_%d", pickedid);
             GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 7 + 15, HGETEXT_LEFT,
-                                    "~y~%s~l~", 0,
+                                    "~y~%s~w~", 0,
                                     GETL2S("EditObj_Inventory", tmp));
         }
     }

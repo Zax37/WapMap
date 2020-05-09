@@ -161,7 +161,6 @@ namespace SHR {
         }
 
         graphics->popClipArea();
-        RenderTooltip();
     }
 
     void TextField::drawCaret(Graphics *graphics, int x) {
@@ -340,6 +339,10 @@ namespace SHR {
 
     void TextField::focusLost(const Event &event) {
         mSelectionPosition = -1;
+
+        if (bNumerical && mText.empty()) {
+            mText = "0";
+        }
     }
 
     void TextField::fixScroll() {

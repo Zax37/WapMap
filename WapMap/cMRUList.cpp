@@ -82,7 +82,7 @@ void cMruList::Reload() {
         RegQueryValueEx(key, "MRUList", NULL, NULL, (LPBYTE) (&mrulist), &size);
         iFilesCount = strlen(mrulist);
 
-        for (int i = 0; i < strlen(mrulist); i++) {
+        for (int i = 0; i < iFilesCount; ++i) {
             char keyname[2];
             keyname[0] = mrulist[i];
             keyname[1] = '\0';
@@ -102,14 +102,14 @@ void cMruList::Reload() {
 }
 
 void cMruList::PushNewFile(const char *path, bool bSaveToRegistry) {
-    bool added = 0;
+    bool added = false;
     for (int i = 0; i < iFilesCount; i++) {
-        if (!strcmp(path, sRecentlyUsed[i].c_str())) {
-            std::string tmp = sRecentlyUsed[i];
-            for (int y = i; y > 0; y--)
+        if (sRecentlyUsed[i] == path) {
+            const std::string& pathStr = sRecentlyUsed[i];
+            for (int y = i; y > 0; --y)
                 sRecentlyUsed[y] = sRecentlyUsed[y - 1];
-            sRecentlyUsed[0] = tmp;
-            added = 1;
+            sRecentlyUsed[0] = pathStr;
+            added = true;
             break;
         }
     }

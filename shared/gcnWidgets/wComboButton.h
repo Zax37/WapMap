@@ -25,7 +25,7 @@ struct cInterfaceSheet;
 namespace SHR {
     class ComboBut;
 
-    class ComboButEntry {
+    class ComboButEntry : cTooltip {
     private:
         float fTimer;
         int iID;
@@ -38,15 +38,17 @@ namespace SHR {
         friend class ComboBut;
 
     public:
-        ComboButEntry(hgeSprite *ico, std::string cap);
+        ComboButEntry(hgeSprite *ico, std::string cap, const char* tooltip = NULL);
+
+        ComboButEntry(const ComboButEntry& other);
 
         void SetIcon(hgeSprite *spr);
 
-        void SetCaption(std::string str);
+        void SetCaption(const char* str);
 
-        hgeSprite *GetIcon() { return sprIcon; };
+        hgeSprite *GetIcon() const { return sprIcon; };
 
-        std::string GetCaption() { return strCaption; };
+        const char* GetCaption() const { return strCaption.c_str(); };
 
         int GetID() { return iID; };
 

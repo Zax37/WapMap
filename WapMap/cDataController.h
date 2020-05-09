@@ -94,7 +94,10 @@ private:
 public:
     virtual void DeleteAsset(cAsset *hAsset) {};
 
-    virtual std::string GetFolderName() { return ""; };
+    virtual const std::string& GetFolderName() {
+        static const std::string name;
+        return name;
+    };
 
     virtual void BatchProcessStart(cDataController *hDC) {};
 
@@ -133,8 +136,6 @@ public:
 
     void UnregisterAsset(cAsset *hPtr);
 
-    std::string AddPrefixPathToPath(std::string strRelativePath);
-
     std::string GetPrefix() { return strPrefix; };
 
     std::string GetPath() { return strPath; };
@@ -142,8 +143,6 @@ public:
     cDataController *GetParent() { return hParent; };
 
     int GetLoadPolicy() { return iLoadPolicy; };
-
-    PID::Palette *GetWorkingPalette();
 };
 
 struct cImageInfo {
@@ -236,23 +235,17 @@ public:
 
     bool RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iRy, int iRowSpan);
 
-    std::string FilePathToIdentifier(std::string strPath);
-
     void SetLooper(cParallelLoop *h) { hLooper = h; };
 
     cParallelLoop *GetLooper() { return hLooper; };
 
     void FixCustomDir();
 
-    std::string CreateGlobalScriptFile();
-
     void OpenCodeEditor(std::string logicName, bool nonExisting = false);
 
     cFile AssignFileForLogic(std::string strLogicName);
 
     void Think();
-
-    void ForceRefreshFeeds();
 
     bool MountFile(std::string strMountPoint, cFile f);
 
@@ -262,7 +255,7 @@ public:
 
     int GetMountPointID(std::string strMountPoint);
 
-    cDC_MountEntry GetMountEntry(std::string strMountPoint);
+    cDC_MountEntry* GetMountEntry(const std::string& strMountPoint);
 
 };
 

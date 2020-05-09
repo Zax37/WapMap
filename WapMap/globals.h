@@ -201,6 +201,7 @@ enum EnumGfxIcons {
     Icon_HardDrive,
     Icon_Package,
     Icon_Spray,
+    Icon_Lock,
     GfxIcons_Count
 };
 
@@ -222,7 +223,7 @@ enum Gfx16Icons {
     Icon16_ClawHead,
     Icon16_Curse,
     Icon16_Flag,
-    Icon16_CrumblinPeg,
+    Icon16_CrumblingPeg,
     Icon16_Elevator,
     Icon16_Rope,
     Icon16_TogglePeg,
@@ -338,6 +339,7 @@ enum Gfx16Icons {
     Icon16_HardDrive,
     Icon16_Package,
     Icon16_AppliedPartially,
+    Icon16_Lock,
     Gfx16Icons_Count
 };
 
@@ -366,7 +368,7 @@ public:
     hgeSprite *sprShadeBar;
     hgeSprite *sprIconGoodSmall, *sprIconBadSmall, *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count], *sprIcons128[Gfx128IconsCnt];
     hgeSprite *sprMicroVert, *sprMicroHor, *sprMicroZoom, *sprSmiley;
-    hgeSprite *sprGamesBig[4], *sprGamesSmall[4], *sprBlank;
+    hgeSprite *sprGamesBig[5], *sprGamesSmall[5], *sprBlank;
     hgeSprite *sprMicroIcons[2];
 
     hgeSprite *sprCaptionMinimalize[2], *sprCaptionClose[2];

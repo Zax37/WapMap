@@ -564,6 +564,12 @@
     <ClCompile Include="objedit\editSoundTrigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="objEdit\procPickXYLockable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objEdit\editFloorSpike.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bodyQuadTree.h">
@@ -984,6 +990,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objedit\editSoundTrigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objEdit\procPickXYLockable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objEdit\editFloorSpike.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

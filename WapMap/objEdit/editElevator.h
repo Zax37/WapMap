@@ -4,31 +4,35 @@
 #include "../states/objedit.h"
 #include "../../shared/gcnWidgets/wListbox.h"
 #include "../../shared/gcnWidgets/wTextDropDown.h"
+#include "../../shared/gcnWidgets/wComboButton.h"
 #include "procPickRect.h"
+#include "procPickXYLockable.h"
 
 namespace ObjEdit {
 
     class cEditObjElevator : public cObjEdit {
     private:
-        SHR::Win *winType, *winProp;
-        SHR::Lab *labType, *labTypeDesc[4];
-        SHR::RadBut *rbType[4];
-        SHR::Lab *labSpeedX, *labSpeedY, *labSpeedLinear, *labAngle;
-        SHR::TextField *tfSpeedX, *tfSpeedY, *tfSpeedLinear, *tfAngle;
+        SHR::Lab *labType;
+        SHR::ComboBut *type;
+        SHR::CBox *cbOneWay;
+
+        SHR::Lab *labMoveArea;
+        SHR::RadBut *automatic, *manual;
+        cProcPickXYLockable *hTravelDistPick;
+        cProcPickRect *hRectPick;
+
+        cProcPickXYLockable *hSpeedPick;
+
         SHR::Lab *labDirection;
         SHR::But *butDirection[8];
-        SHR::Lab *labMoveArea;
-        SHR::RadBut *rbMoveAreaType[2];
-        SHR::But *butPickSpeed;
-        SHR::CBox *cbOneWay;
-        SHR::Lab *labOneWay;
-        cProcPickRect *hRectPick;
-        bool bRectangleArea;
-        bool bAreaAxis;
+
         int iDirection;
         WWD::Rect rArea;
 
-        void RebuildWindow();
+        void UpdateDirection(bool init = false);
+
+        void UpdateLogic();
+        void UpdateOneWayCheckBoxEnabled();
 
         friend class cObjPropVP;
 
@@ -44,7 +48,7 @@ namespace ObjEdit {
 
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
-        virtual void Draw();
+        virtual void Draw() override;
     };
 
 }

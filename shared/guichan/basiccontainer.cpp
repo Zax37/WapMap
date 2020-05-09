@@ -206,21 +206,49 @@ namespace gcn {
 
         widget->_setParent(this);
         widget->addDeathListener(this);
+
+        int endX = widget->getX() + widget->getWidth();
+        int endY = widget->getY() + widget->getHeight();
+
+        if (mDimension.width < endX) {
+            setWidth(endX);
+        }
+        if (mDimension.height < endY) {
+            setHeight(endY);
+        }
     }
 
     void BasicContainer::remove(Widget *widget) {
-        WidgetListIterator iter;
-        for (iter = mWidgets.begin(); iter != mWidgets.end(); iter++) {
+        int endX = 0, endY = 0;
+
+        bool found = false;
+        WidgetListIterator iter = mWidgets.begin();
+        while (iter != mWidgets.end()) {
             if (*iter == widget) {
-                mWidgets.erase(iter);
+                found = true;
+                iter = mWidgets.erase(iter);
                 widget->_setFocusHandler(NULL);
                 widget->_setParent(NULL);
                 widget->removeDeathListener(this);
-                return;
+            } else {
+                const Rectangle& rect = (*iter)->getDimension();
+
+                if (rect.x + rect.width > endX) {
+                    endX = rect.x + rect.width;
+                }
+                if (rect.y + rect.height > endY) {
+                    endY = rect.y + rect.height;
+                }
+
+                iter++;
             }
         }
 
-        throw GCN_EXCEPTION("There is no such widget in this container.");
+        if (!found) {
+            throw GCN_EXCEPTION("There is no such widget in this container.");
+        }
+
+        setDimension(Rectangle(getX(), getY(), endX, endY));
     }
 
     void BasicContainer::clear() {
@@ -257,14 +285,6 @@ namespace gcn {
                 graphics->pushClipArea((*iter)->getDimension());
                 (*iter)->draw(graphics);
                 graphics->popClipArea();
-            }
-        }
-
-        for (iter = mWidgets.begin(); iter != mWidgets.end(); iter++) {
-            if ((*iter)->isVisible()) {
-                //graphics->pushClipArea((*iter)->getDimension());
-                (*iter)->RenderTooltip();
-                //graphics->popClipArea();
             }
         }
 

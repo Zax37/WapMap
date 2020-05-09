@@ -6,7 +6,7 @@
 
 typedef std::pair<std::string, int> cInventoryItem;
 
-#define GetInventoryItemName(x) (x.first.c_str())
+#define GetInventoryItemImageSet(x) (x.first.c_str())
 #define GetInventoryItemID(x)   (x.second)
 
 #define InventoryItemsCount 58

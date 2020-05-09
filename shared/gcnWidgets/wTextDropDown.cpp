@@ -193,7 +193,6 @@ namespace SHR {
                                                    getHeight() - mFoldedUpHeight));
             drawChildren(graphics);
         }
-        RenderTooltip();
     }
 
     void TextDropDown::setSelected(int selected) {

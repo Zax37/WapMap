@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #ifndef WLEN
 #define WLEN(data, len) write((char*)(&data), len)
@@ -26,8 +27,9 @@ PID::Palette::Palette(std::istream *pisSource) {
 }
 
 PID::Palette::Palette(const void *phMem, int iLen) {
-    std::istringstream isSource(std::string((char *)phMem, iLen), std::ios_base::binary | std::ios_base::in);
-    Load(&isSource);
+    membuf buf((char*)phMem, (char*)phMem + iLen);
+    std::istream in(&buf);
+    Load(&in);
 }
 
 void PID::Palette::Load(std::istream *pisSource) {
@@ -43,8 +45,8 @@ void PID::Palette::SetColorRGB(int i, byte r, byte g, byte b) {
 PID::HeaderInfo::HeaderInfo() {
     m_iW = m_iH = m_iID = 0;
     m_iFlags = (PID::FLAGS) 0;
-    for (int i = 0; i < 4; i++)
-        m_iU[i] = 0;
+    for (int & i : m_iU)
+        i = 0;
 }
 
 PID::HeaderInfo::HeaderInfo(const void *phMem) {
@@ -58,16 +60,13 @@ PID::HeaderInfo::HeaderInfo(const void *phMem) {
 }
 
 PID::Image::Image(HGE *phHGE) {
-    hHGE = phHGE;
     m_bForceFlare = 0;
     m_bInited = 0;
-    //m_iPixels = NULL;
     m_hPal = NULL;
     iColorKeyType = Colorkey_None;
 }
 
 PID::Image::Image(int w, int h) {
-    hHGE = 0;
     m_bForceFlare = 0;
     iColorKeyType = Colorkey_None;
     m_hPal = 0;
@@ -83,7 +82,6 @@ PID::Image::Image(int w, int h) {
 
 PID::Image::Image(const char *pszFilename, Palette *phPal, bool pbForceUsing, bool pbCanDelete, HGE *phHGE,
                   bool pbForceTransparency) {
-    hHGE = phHGE;
     m_bForceFlare = 0;
     iColorKeyType = Colorkey_None;
     LoadFile(pszFilename, phPal, pbForceUsing, pbCanDelete, pbForceTransparency);
@@ -91,7 +89,6 @@ PID::Image::Image(const char *pszFilename, Palette *phPal, bool pbForceUsing, bo
 
 PID::Image::Image(const void *phMem, int iLen, Palette *phPal, bool pbForceUsing, bool pbCanDelete, HGE *phHGE,
                   bool pbForceTransparency) {
-    hHGE = phHGE;
     m_bForceFlare = 0;
     iColorKeyType = Colorkey_None;
     LoadMemory(phMem, iLen, phPal, pbForceUsing, pbCanDelete, pbForceTransparency);
@@ -111,8 +108,9 @@ void PID::Image::LoadMemory(const void *phMem, int iLen, Palette *phPal, bool pb
                             bool pbForceTransparency) {
     m_hPal = phPal;
     m_bDeletePal = pbCanDelete;
-    std::istringstream isSource(std::string((char *)phMem, iLen), std::ios_base::binary | std::ios_base::in);
-    Load(&isSource, pbForceUsing, pbForceTransparency);
+    membuf buf((char*)phMem, (char*)phMem + iLen);
+    std::istream in(&buf);
+    Load(&in, pbForceUsing, pbForceTransparency);
     m_bInited = 1;
 }
 
@@ -216,64 +214,36 @@ void PID::Image::Load(std::istream *pisSource, bool pbForceUsing, bool pbForceTr
         pisSource->seekg(32);
     }
 
-    m_iData = new byte[m_iW * m_iH];
-    ZeroMemory(m_iData, m_iW * m_iH);
-    //if( m_hPal != NULL )
-    //m_iPixels = new byte[m_iW*m_iH*4];
-
-    int x = 0, y = 0, end = m_iW * m_iH;
+    int length = m_iW * m_iH;
+    m_iData = new byte[length];
+    BYTE num;
+    char* ptr = (char*)m_iData;
+    char* end = ptr + length;
     if ((m_iFlags & Flag_Compression)) {
-        while (1) {
-            BYTE num, pixel;
+        while (ptr < end) {
             pisSource->RBYTE(num);
             if (num > 128) {
-                int spacing = num - 128;
-                for (int iter = 0; iter < spacing; iter++) {
-                    m_iData[y * m_iW + x] = 0;
-                    x++;
-                    if (x == m_iW)
-                        break;
-                }
-                if (x == m_iW) {
-                    x = 0;
-                    y++;
-                }
-                if (y >= m_iH) break;
-                continue;
+                num -= 128;
+                ZeroMemory(ptr, num);
+                ptr += num;
+            } else {
+                pisSource->read(ptr, num);
+                ptr += num;
             }
-            for (int i = 0; i < num; i++) {
-                pisSource->RBYTE(pixel);
-                m_iData[y * m_iW + x] = pixel;
-                x++;
-                if (x == m_iW) {
-                    x = 0;
-                    y++;
-                }
-                if (y >= m_iH) break;
-            }
-            if (y >= m_iH) break;
         }
     } else {
-        while (1) {
-            byte num, pixel;
-            pisSource->RBYTE(pixel);
-            if (pixel > 192) {
-                num = pixel - 192;
+        while (ptr < end) {
+            pisSource->RBYTE(num);
+            if (num > 192) {
+                num -= 192;
+                byte pixel;
                 pisSource->RBYTE(pixel);
-                m_iData[y * m_iW + x] = pixel;
+                memset(ptr, pixel, num);
+                ptr += num;
             } else {
-                num = 1;
+                *ptr = num;
+                ++ptr;
             }
-            for (int i = 0; i < num; i++) {
-                m_iData[y * m_iW + x] = pixel;
-                x++;
-                if (x == m_iW) {
-                    x = 0;
-                    y++;
-                }
-                if (y >= m_iH) break;
-            }
-            if (y >= m_iH) break;
         }
     }
 }
@@ -291,13 +261,11 @@ PID::Image::~Image() {
 }
 
 void PID::Image::CleanUp() {
-    /*if( m_iPixels != NULL ){
-     delete [] m_iPixels;
-     m_iPixels = NULL;
-    }*/
-    delete[] m_iData;
+    if (m_iData) {
+        delete[] m_iData;
+    }
 
-    if (m_hPal != NULL && m_bDeletePal) {
+    if (m_hPal && m_bDeletePal) {
         delete m_hPal;
         m_hPal = NULL;
     }

@@ -158,7 +158,10 @@ public:
 
     virtual void DeleteAsset(cAsset *hAsset);
 
-    virtual std::string GetFolderName() { return "TILES"; };
+    const std::string& GetFolderName() override {
+        static const std::string name = "TILES";
+        return name;
+    };
 
     virtual void BatchProcessStart(cDataController *hDC);
 

@@ -10,9 +10,11 @@ extern HGE *hge;
 bool State::EditingWW::TileThink(bool pbConsumed) {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
-    if (iActiveTool == EWW_TOOL_WRITEID) {
+    if (iActiveTool == EWW_TOOL_WRITEID || iTilePicked == EWW_TILE_PIPETTE) {
         vTileGhosting.clear();
+    }
 
+    if (iActiveTool == EWW_TOOL_WRITEID) {
         if (conWriteID->isVisible() &&
             (hge->Input_KeyDown(HGEK_LBUTTON) || hge->Input_KeyDown(HGEK_RBUTTON)) &&
             conMain->getWidgetAt(mx, my) != conWriteID) {
@@ -123,18 +125,18 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                 if (vTileGhosting.size() == 0 ||
                     vTileGhosting.size() != 0 && (tx != vTileGhosting[0].x || ty != vTileGhosting[0].y)) {
                     vTileGhosting.clear();
-                    for (int y = 0; y < MDI->GetActiveDoc()->iTileCBh; y++)
-                        for (int x = 0; x < MDI->GetActiveDoc()->iTileCBw; x++) {
+                    for (int i = 0, y = 0; y < MDI->GetActiveDoc()->iTileCBh; ++y)
+                        for (int x = 0; x < MDI->GetActiveDoc()->iTileCBw; ++x, ++i) {
                             TileGhost tg;
                             tg.x = tx + x;
                             tg.y = ty + y;
                             tg.pl = GetActivePlane();
-                            if (MDI->GetActiveDoc()->hTileClipboard[x][y].IsFilled())
+                            if (MDI->GetActiveDoc()->hTileClipboard[i].IsFilled())
                                 tg.id = EWW_TILE_FILL;
-                            else if (MDI->GetActiveDoc()->hTileClipboard[x][y].IsInvisible())
+                            else if (MDI->GetActiveDoc()->hTileClipboard[i].IsInvisible())
                                 tg.id = EWW_TILE_NONE;
                             else
-                                tg.id = MDI->GetActiveDoc()->hTileClipboard[x][y].GetID();
+                                tg.id = MDI->GetActiveDoc()->hTileClipboard[i].GetID();
                             vTileGhosting.push_back(tg);
                         }
                     vPort->MarkToRedraw(1);
@@ -176,10 +178,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             //lastbrushy = hy;
             iPipetteTileHL = EWW_TILE_NONE;
             if (hx != -1 && hy != -1) {
-                if ((iActiveTool == EWW_TOOL_PENCIL &&
-                     (/*iTilePicked >= 0 || iTilePicked == EWW_TILE_ERASE || iTilePicked == EWW_TILE_FILL ||*/
-                             iTilePicked == EWW_TILE_PIPETTE))
-                    || iActiveTool == EWW_TOOL_WRITEID) {
+                if ((iActiveTool == EWW_TOOL_PENCIL && iTilePicked == EWW_TILE_PIPETTE) || iActiveTool == EWW_TOOL_WRITEID) {
                     TileGhost tg;
                     tg.x = hx;
                     tg.y = hy;
@@ -213,7 +212,9 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     }
                 }
 
-                if (iActiveTool == EWW_TOOL_PENCIL &&
+                if (lockDrawing) {
+                    lockDrawing = hge->Input_GetKeyState(HGEK_LBUTTON);
+                } else if (iActiveTool == EWW_TOOL_PENCIL &&
                     (iTilePicked >= 0 || iTilePicked == EWW_TILE_ERASE || iTilePicked == EWW_TILE_FILL)) {
                     bool bPlacing = 0;
                     if (iTileDrawMode == EWW_DRAW_RECT || iTileDrawMode == EWW_DRAW_LINE ||
@@ -484,33 +485,28 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         }
                     }
 
-                }
-
-                if (iActiveTool == EWW_TOOL_WRITEID && (hge->Input_KeyDown(HGEK_LBUTTON) ||
+                } else if (iActiveTool == EWW_TOOL_WRITEID && (hge->Input_KeyDown(HGEK_LBUTTON) ||
                                                         hge->Input_KeyDown(HGEK_ENTER) && !conWriteID->isVisible())) {
                     iTileWriteIDx = hx;
                     iTileWriteIDy = hy;
-                    int posx = hx * GetActivePlane()->GetTileWidth(),
-                            posy = hy * GetActivePlane()->GetTileHeight();
-                    posx = Wrd2ScrX(GetActivePlane(), posx);
-                    posy = Wrd2ScrY(GetActivePlane(), posy);
-                    int tileh = GetActivePlane()->GetTileHeight() * fZoom;
-                    int tilew = (GetActivePlane()->GetTileWidth() * fZoom - 48.0f) / 2.0f;
-                    char tmp[25];
-                    if (!GetActivePlane()->GetTile(hx, hy)->IsFilled() &&
-                        !GetActivePlane()->GetTile(hx, hy)->IsInvisible())
-                        sprintf(tmp, "%d", GetActivePlane()->GetTile(hx, hy)->GetID());
+                    int posX = hx * GetActivePlane()->GetTileWidth(),
+                        posY = hy * GetActivePlane()->GetTileHeight();
+                    posX = Wrd2ScrX(GetActivePlane(), posX);
+                    posY = Wrd2ScrY(GetActivePlane(), posY);
+                    int tileH = GetActivePlane()->GetTileHeight() * fZoom;
+                    int tileW = (GetActivePlane()->GetTileWidth() * fZoom - 48.0f) / 2.0f;
+                    WWD::Tile* tile = GetActivePlane()->GetTile(hx, hy);
+                    if (!tile->IsFilled() && !tile->IsInvisible())
+                        tfWriteID->setText(std::to_string(tile->GetID()));
                     else
-                        tmp[0] = '\0';
-                    tfWriteID->setText(std::string(tmp));
+                        tfWriteID->setText("0");
+
                     conWriteID->setVisible(0);
                     conWriteID->setShow(1);
                     tfWriteID->requestFocus();
                     tfWriteID->setCaretPosition(tfWriteID->getText().length());
-                    conWriteID->setPosition(posx + tilew, posy + tileh / 2 - 10);
-                }
-
-                if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
+                    conWriteID->setPosition(posX + tileW, posY + tileH / 2 - 10);
+                } else if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
                     if (iActiveTool == EWW_TOOL_PENCIL && iTilePicked == EWW_TILE_PIPETTE ||
                         iActiveTool == EWW_TOOL_FILL && iTilePicked == EWW_TILE_PIPETTE) {
                         if (GetActivePlane()->GetTile(hx, hy)->IsFilled())
@@ -525,29 +521,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                     break;
                                 }
                         }
+                        lockDrawing = true;
                         RebuildTilePicker();
-                        /*}else if( iActiveTool == EWW_TOOL_PENCIL ){
-                         WWD::Tile * t = GetActivePlane()->GetTile(hx, hy);
-                         if( iTilePicked >= 0 ){
-                          int toid = hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(iTilePicked)->m_iID;
-                          if( t->GetID() != toid ){
-                           t->SetID(hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(iTilePicked)->m_iID);
-                           MarkUnsaved();
-                           hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
-                          }
-                         }else if( iTilePicked == EWW_TILE_ERASE ){
-                          if( !t->IsInvisible() ){
-                           t->SetInvisible(1);
-                           MarkUnsaved();
-                           hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
-                          }
-                         }else if( iTilePicked == EWW_TILE_FILL ){
-                          if( !t->IsFilled() ){
-                           t->SetFilled(1);
-                           MarkUnsaved();
-                           hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
-                          }
-                         }*/
                     } else if (iActiveTool == EWW_TOOL_FILL) {
                         bFloodFillBuf = new bool *[GetActivePlane()->GetPlaneWidth()];
                         for (int x = 0; x < GetActivePlane()->GetPlaneWidth(); x++) {
@@ -614,30 +589,38 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
 
 void State::EditingWW::FloodFill(int base, int x, int y, int tile) {
     if (x < 0 || y < 0) return;
-    if (GetActivePlane()->GetTile(x, y) == NULL) return;
+    WWD::Tile* t = GetActivePlane()->GetTile(x, y);
+    if (!t) return;
     x = GetActivePlane()->ClampX(x);
     y = GetActivePlane()->ClampY(y);
     if (bFloodFillBuf[x][y]) return;
-
-    if (GetActivePlane()->GetTile(x, y)->IsInvisible() && base != EWW_TILE_ERASE ||
-        GetActivePlane()->GetTile(x, y)->IsFilled() && base != EWW_TILE_FILL ||
-        GetActivePlane()->GetTile(x, y)->GetID() != -1 &&
-        GetActivePlane()->GetTile(x, y)->GetID() != base)
-        return;
-
-    WWD::Tile *t = GetActivePlane()->GetTile(x, y);
-    if (tile == EWW_TILE_ERASE && !t->IsInvisible()) {
-        t->SetInvisible(1);
-        MarkUnsaved();
-    } else if (tile == EWW_TILE_FILL && !t->IsFilled()) {
-        t->SetFilled(1);
-        MarkUnsaved();
-    } else if (tile >= 0 &&
-               t->GetID() != hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(tile)->GetID()) {
-        t->SetID(hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(tile)->GetID());
-        MarkUnsaved();
+    switch (base) {
+    case EWW_TILE_ERASE:
+        if (!t->IsInvisible()) return;
+        break;
+    case EWW_TILE_FILL:
+        if (!t->IsFilled()) return;
+        break;
+    default:
+        if (t->GetID() != base) return;
+        break;
     }
-    bFloodFillBuf[x][y] = 1;
+
+    switch (tile) {
+    case EWW_TILE_ERASE:
+        t->SetInvisible(true);
+        break;
+    case EWW_TILE_FILL:
+        t->SetFilled(true);
+        break;
+    default:
+        //imgSet
+        t->SetID(hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(tile)->GetID());
+
+    }
+    
+    MarkUnsaved();
+    bFloodFillBuf[x][y] = true;
 
     FloodFill(base, x, y + 1, tile);
     FloodFill(base, x, y - 1, tile);

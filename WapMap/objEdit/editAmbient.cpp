@@ -78,13 +78,13 @@ namespace ObjEdit {
             win->add(cbArea[i], 5 + i * 177, 115 + 75);
 
             hPickArea[i] = new cProcPickRect(hTempObj);
-            hPickArea[i]->AddWidgets(win, 5 + i * 177 + 26, 115 + 100);
-            hPickArea[i]->SetActionListener(hAL);
-            hPickArea[i]->SetAllowEmpty(1);
-            hPickArea[i]->SetType(i ? PickRect_AttackRect : PickRect_MinMax);
+            hPickArea[i]->setActionListener(hAL);
+            hPickArea[i]->setAllowEmpty(1);
+            hPickArea[i]->setType(i ? PickRect_AttackRect : PickRect_MinMax);
+            win->add(hPickArea[i], 5 + i * 177 + 26, 115 + 100);
 
             cbArea[i]->setEnabled(rbAreaType[1]->isSelected());
-            hPickArea[i]->Enable(rbAreaType[1]->isSelected());
+            hPickArea[i]->setEnabled(rbAreaType[1]->isSelected());
         }
 
         cbArea[0]->setSelected(hTempObj->GetParam(WWD::Param_MinX) != 0 &&
@@ -125,7 +125,7 @@ namespace ObjEdit {
         win->add(labTurnOffTime, 182, 350 + 50);
 
         for (int i = 0; i < 2; i++) {
-            hPickArea[i]->Enable(cbArea[i]->isSelected());
+            hPickArea[i]->setEnabled(cbArea[i]->isSelected());
 
             labTimeMin[i] = new SHR::Lab(GETL2S("EditObj_Ambient", i ? "TimeMax" : "TimeMin"));
             labTimeMin[i]->adjustSize();
@@ -194,15 +194,16 @@ namespace ObjEdit {
         for (int i = 0; i < 2; i++) {
             tfTimeOff[i]->setEnabled(rbPlayPolicy[1]->isSelected());
             tfTimeOn[i]->setEnabled(rbPlayPolicy[1]->isSelected());
-            hPickArea[i]->Enable(rbAreaType[1]->isSelected() && cbArea[i]->isSelected() && cbArea[0]->isSelected() &&
-                                 !hPickArea[!i]->IsPicking());
-            hPickArea[i]->SetAllowEmpty(!hPickArea[i]->IsEnabled());
+            hPickArea[i]->setEnabled(
+                    rbAreaType[1]->isSelected() && cbArea[i]->isSelected() && cbArea[0]->isSelected() &&
+                    !hPickArea[!i]->IsPicking());
+            hPickArea[i]->setAllowEmpty(!hPickArea[i]->IsEnabled());
             rbAreaType[i]->setEnabled(!bRectPick);
         }
         cbArea[0]->setEnabled(rbAreaType[1]->isSelected() && !bRectPick);
         cbArea[1]->setEnabled(rbAreaType[1]->isSelected() && cbArea[0]->isSelected() && !bRectPick);
         _butSave->setEnabled(
-                !bRectPick && hPickArea[0]->IsValid() && hPickArea[1]->IsValid() && !tddSound->isMarkedInvalid());
+                !bRectPick && hPickArea[0]->isValid() && hPickArea[1]->isValid() && !tddSound->isMarkedInvalid());
         DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFF000000 : 0xFF222222);
         labTurnOnTime->setColor(dwCol);
         labTurnOffTime->setColor(dwCol);
@@ -240,15 +241,15 @@ namespace ObjEdit {
         } else if (actionEvent.getSource() == tfVolume) {
             hTempObj->SetParam(WWD::Param_Damage, atoi(tfVolume->getText().c_str()));
         } else if (actionEvent.getSource() == cbArea[0]) {
-            if (!cbArea[0]->isSelected() || !hPickArea[0]->IsValid()) {
+            if (!cbArea[0]->isSelected() || !hPickArea[0]->isValid()) {
                 hTempObj->SetLogic("SpotAmbientSound");
             } else
                 hTempObj->SetLogic("AmbientSound");
             if (cbArea[0]->isSelected() && cbArea[0]->isEnabled()) {
-                hTempObj->SetParam(WWD::Param_MinX, hPickArea[0]->GetValue(0));
-                hTempObj->SetParam(WWD::Param_MinY, hPickArea[0]->GetValue(1));
-                hTempObj->SetParam(WWD::Param_MaxX, hPickArea[0]->GetValue(2));
-                hTempObj->SetParam(WWD::Param_MaxY, hPickArea[0]->GetValue(3));
+                hTempObj->SetParam(WWD::Param_MinX, hPickArea[0]->getValue(0));
+                hTempObj->SetParam(WWD::Param_MinY, hPickArea[0]->getValue(1));
+                hTempObj->SetParam(WWD::Param_MaxX, hPickArea[0]->getValue(2));
+                hTempObj->SetParam(WWD::Param_MaxY, hPickArea[0]->getValue(3));
             } else {
                 hTempObj->SetParam(WWD::Param_MinX, 0);
                 hTempObj->SetParam(WWD::Param_MinY, 0);
@@ -259,22 +260,22 @@ namespace ObjEdit {
             Action(gcn::ActionEvent(cbArea[1], ""));
         } else if (actionEvent.getSource() == cbArea[1]) {
             if (cbArea[1]->isSelected() && cbArea[1]->isEnabled()) {
-                hTempObj->SetAttackRect(WWD::Rect(hPickArea[1]->GetValue(0),
-                                                  hPickArea[1]->GetValue(1),
-                                                  hPickArea[1]->GetValue(2),
-                                                  hPickArea[1]->GetValue(3)));
+                hTempObj->SetAttackRect(WWD::Rect(hPickArea[1]->getValue(0),
+                                                  hPickArea[1]->getValue(1),
+                                                  hPickArea[1]->getValue(2),
+                                                  hPickArea[1]->getValue(3)));
             } else {
                 hTempObj->SetAttackRect(WWD::Rect(0, 0, 0, 0));
             }
             EnableControlsSync();
-        } else if (actionEvent.getSource() == hPickArea[0]->GetPickButton()) {
-            if (!hPickArea[0]->IsValid() && !hPickArea[0]->IsPicking()) {
+        } else if (actionEvent.getSource() == hPickArea[0]->getPickButton()) {
+            if (!hPickArea[0]->isValid() && !hPickArea[0]->IsPicking()) {
                 hTempObj->SetLogic("SpotAmbientSound");
             } else
                 hTempObj->SetLogic("AmbientSound");
             EnableControlsSync();
             return;
-        } else if (actionEvent.getSource() == hPickArea[1]->GetPickButton()) {
+        } else if (actionEvent.getSource() == hPickArea[1]->getPickButton()) {
 
             EnableControlsSync();
             return;

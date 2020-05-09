@@ -177,7 +177,7 @@ namespace ObjEdit {
                                                                                                              dy + 155);
         hState->SprBank->GetAssetByID("GAME_BOSSWARP")->GetIMGByIterator(iScpAnimFrame)->GetSprite()->Render(dx + 100,
                                                                                                              dy + 240);
-        GV->fntMyriad13->SetColor(0xFF000000);
+        GV->fntMyriad13->SetColor(0xFFa1a1a1);
         GV->fntMyriad13->Render(dx + 5, dy + 295 - 25, HGETEXT_LEFT, GETL2S("EditObj_Warp", "TeleportDestination"), 0);
         GV->fntMyriad13->Render(dx + 5, dy + 318 - 25, HGETEXT_LEFT, "X:", 0);
         GV->fntMyriad13->Render(dx + 5, dy + 342 - 25, HGETEXT_LEFT, "Y:", 0);

@@ -161,15 +161,14 @@ void State::LoadMap::Init() {
     if (alt_ptr != 0) {
         hParser->SetName(alt_name);
         hParser->SetAuthor(alt_author);
-        WWD::Plane *mainpl;
-        for (int i = 0; i < hParser->GetPlanesCount(); i++) {
-            if (!(hParser->GetPlane(i)->GetFlags() & WWD::Flag_p_MainPlane)) {
-                if (!alt_planes) {
+        WWD::Plane *mainpl = hParser->GetMainPlane();
+        if (!alt_planes) {
+            for (int i = 0; i < hParser->GetPlanesCount(); i++) {
+                if (hParser->GetPlane(i) != mainpl) {
                     hParser->DeletePlane(i);
-                    i--;
+                    --i;
                 }
-            } else
-                mainpl = hParser->GetPlane(i);
+            }
         }
         hParser->SetStartX(alt_width * mainpl->GetTileWidth() / 2);
         hParser->SetStartY(alt_height * mainpl->GetTileHeight() / 2);
@@ -209,17 +208,17 @@ void State::LoadMap::Init() {
     _ghProgressInfo.strGlobalCaption = "Creating data banks...";
     ParallelTrigger();
 
-    dd->hTileset = new cBankTile(hParser);
+    dd->hTilesBank = new cBankTile(hParser);
     dd->hSprBank = new cBankImageSet();
     dd->hSprBank->SetGame(hParser->GetGame());
     dd->hSndBank = new cBankSound();
     dd->hAniBank = new cBankAni();
-    dd->hCustomLogics = new cBankLogic();
+    dd->hCustomLogicBank = new cBankLogic();
 
-    dd->hDataCtrl->RegisterAssetBank(dd->hTileset);
+    dd->hDataCtrl->RegisterAssetBank(dd->hTilesBank);
     dd->hDataCtrl->RegisterAssetBank(dd->hSprBank);
     dd->hDataCtrl->RegisterAssetBank(dd->hSndBank);
-    dd->hDataCtrl->RegisterAssetBank(dd->hCustomLogics);
+    dd->hDataCtrl->RegisterAssetBank(dd->hCustomLogicBank);
 
     _ghProgressInfo.iGlobalProgress = 3;
     _ghProgressInfo.strGlobalCaption = "Registering palette...";
@@ -263,7 +262,7 @@ void State::LoadMap::Init() {
     /*dd->hDataCtrl->RegisterAssetBank(dd->hSndBank);
     dd->hDataCtrl->RegisterAssetBank(dd->hAniBank);*/
 
-    for (int i = 0; i < dd->hSprBank->GetAssetsCount(); i++) {
+    /*for (int i = 0; i < dd->hSprBank->GetAssetsCount(); i++) {
         cSprBankAsset *as = dd->hSprBank->GetAssetByIterator(i);
         for (int x = 0; x < as->GetSpritesCount(); x++) {
             if (as->GetIMGByIterator(x)->GetSprite() == 0) {
@@ -271,7 +270,7 @@ void State::LoadMap::Init() {
                                     as->GetIMGByIterator(x)->GetFile().strPath.c_str());
             }
         }
-    }
+    }*/
 
     returnCode *rc = new returnCode;
     rc->Type = RC_LoadMap;

@@ -18,7 +18,8 @@ namespace SHR {
     InvTab::InvTab(guiParts *Parts)
             : mHasMouse(false),
               mKeyPressed(false),
-              mMousePressed(false) {
+              mMousePressed(false),
+              hasCrab(false) {
         setFocusable(true);
         adjustSize();
         setFrameSize(0);
@@ -56,6 +57,20 @@ namespace SHR {
             graphics->setColor(GV->colBaseGCN - 0x232323);
         graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
         graphics->popClipArea();
+
+        if (hasCrab) {
+            cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB");
+            hgeSprite *spr = asset->GetIMGByIterator(0)->GetSprite();
+            if (isEnabled())
+                spr->SetColor(0xFFFFFFFF);
+            else
+                spr->SetColor(0x77FFFFFF);
+            int grdim = spr->GetWidth();
+            if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
+            float fScale = 1.0f;
+            if (grdim > (getWidth() - 4)) fScale = float(getWidth() - 4) / float(grdim);
+            spr->RenderEx(x + getWidth() / 2, y + getHeight() / 2, 0, fScale);
+        }
 
         if (mItem.second != -1) {
             cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID(mItem.first.c_str());

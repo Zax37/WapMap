@@ -49,6 +49,7 @@ void State::EditingWW::SyncPlaneProperties() {
         tfpmName->setText("");
         labpmTileSet->setVisible(1);
         ddpmTileSet->setVisible(1);
+        ddpmTileSet->setListModel(hTileset);
         ddpmTileSet->setSelected(0);
         labpmPlaneSize->setVisible(1);
         tfpmPlaneSizeX->setVisible(1);
@@ -327,6 +328,7 @@ void State::EditingWW::SavePlaneProperties() {
         pd->ObjectData.bEmpty = 1;
         pd->hRB = NULL;
         hPlaneData.push_back(pd);
+        MDI->GetActiveDoc()->hPlaneData.push_back(pd);
     } else {
         if (strcmp(tfpmName->getText().c_str(), pl->GetName()) != 0) {
             bChange = 1;
@@ -514,6 +516,7 @@ void State::EditingWW::DeletePlaneProperties() {
     delete hPlaneData[is]->hRB;
     delete hPlaneData[is];
     hPlaneData.erase(hPlaneData.begin() + is);
+    MDI->GetActiveDoc()->hPlaneData.erase(MDI->GetActiveDoc()->hPlaneData.begin() + is);
     hParser->DeletePlane(is);
     MarkUnsaved();
     vPort->MarkToRedraw(1);

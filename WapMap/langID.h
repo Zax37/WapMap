@@ -347,7 +347,21 @@ enum LangTooltipID {
     Lang_TT_PlainObject,
 
     Lang_TT_Select,
-    Lang_TT_WriteID
+    Lang_TT_WriteID,
+
+    Lang_TT_NewCrumblingPeg,
+    Lang_TT_NewBreakPlank,
+    Lang_TT_NewTogglePeg,
+    Lang_TT_NewElevator,
+    Lang_TT_NewPathElevator,
+    Lang_TT_NewSpringBoard,
+    Lang_TT_NewRope,
+    Lang_TT_NewTreasure,
+    Lang_TT_NewPickup,
+    Lang_TT_NewPowerup,
+    Lang_TT_NewCurse,
+    Lang_TT_NewCrate,
+    Lang_TT_NewStatue,
 };
 
 enum LangWinDatabase {

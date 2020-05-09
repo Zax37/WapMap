@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "../shared/HashLib/hashlibpp.h"
 #include "cParallelLoop.h"
+#include "databanks/imageSets.h"
 #include <direct.h>
 
 extern HGE *hge;
@@ -64,8 +65,8 @@ cDataController::cDataController(std::string strCD, std::string strFD, std::stri
     if (strFileDir.length() > 0) {
         tmp = strFileDir;
         char *tmp2 = SHR::GetFileWithoutExt(strFilename.c_str());
-        tmp.append("/");
-        tmp.append(std::string(tmp2));
+        tmp.push_back('/');
+        tmp.append(tmp2);
         delete[] tmp2;
         hFind = FindFirstFile(tmp.c_str(), &fdata);
         if (hFind == INVALID_HANDLE_VALUE) {
@@ -177,33 +178,18 @@ bool cDataController::SetPalette(std::string strPath) {
     return 1;
 }
 
-PID::Palette *cAssetPackage::GetWorkingPalette() {
-    return hParent->GetPalette();
-};
-
 void cDataController::RegisterAssetBank(cAssetBank *hPtr) {
     vhBanks.push_back(hPtr);
     hPtr->_bModFlag = 0;
     hPtr->_iModNew = hPtr->_iModChange = hPtr->_iModDel = 0;
 }
 
-std::string cDataController::FilePathToIdentifier(std::string strPath) {
-    std::transform(strPath.begin(), strPath.end(), strPath.begin(), ::toupper);
-    char *tmp = SHR::Replace(strPath.c_str(), "/", "_");
-    char *tmp2 = SHR::Replace(tmp, "/", "_");
-    strPath = std::string(tmp2);
-    delete[] tmp2;
-    delete[] tmp;
-
-    return strPath;
-}
-
 byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH) {
     byte *ret = 0;
-    size_t dot = hFile.strPath.rfind('.');
-    if (dot == std::string::npos) return 0;
-    std::string strExt = hFile.strPath.substr(dot);
-    std::transform(strExt.begin(), strExt.end(), strExt.begin(), ::tolower);
+    const char* dot = strrchr(hFile.strPath.c_str(), '.');
+    if (!dot) return 0;
+
+    if (!cBankImageSet::canReadExtension(dot + 1)) return 0;
 
     unsigned int len;
     unsigned char *ptr = hFile.hFeed->GetFileContent(hFile.strPath.c_str(), len);
@@ -231,14 +217,14 @@ byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH) {
             }
             srcpos += padding;
         }
-    } else if (strExt.compare(".pcx") == 0) {
+    } else if (dot[2] == 'C' || dot[2] == 'c') {
         unsigned char *pixelptr = ptr + 128,
                 bitsPerPixel = *(unsigned char *) (ptr + 3),
                 colorPlanes = *(unsigned char *) (ptr + 65);
 
         if (bitsPerPixel != 8 || colorPlanes != 1) {
             delete[] ptr;
-            return ret; // unsupported
+            return 0; // unsupported
         }
 
         unsigned short xMin = *(unsigned short *) (ptr + 4),
@@ -268,14 +254,11 @@ byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH) {
             pixelptr++;
             destpos += repeat;
         }
-    } else if (strExt.compare(".pid") == 0) {
+    } else {
         PID::Image *pid = new PID::Image(ptr, len, GetPalette(), 0, 0, hge);
-        ret = new byte[pid->GetWidth() * pid->GetHeight()];
+        ret = pid->StealDataPtr();
         *pW = pid->GetWidth();
         *pH = pid->GetHeight();
-        for (int y = 0; y < pid->GetHeight(); y++)
-            for (int x = 0; x < pid->GetWidth(); x++)
-                ret[y * pid->GetWidth() + x] = pid->GetColorIdAt(x, y);
         delete pid;
     }
     delete[] ptr;
@@ -438,14 +421,6 @@ void cDataController::FixCustomDir() {
     hCustom = new cDiscFeed(strCustomPath);
 }
 
-std::string cDataController::CreateGlobalScriptFile() {
-    char *htmp = SHR::GetFileWithoutExt(strFilename.c_str());
-    std::string strGlobalScript = strFileDir + "/" + htmp + "/LOGICS/main.lua";
-    delete[] htmp;
-    std::ofstream file{strGlobalScript};
-    return strGlobalScript;
-}
-
 std::vector<cFile> cDataController::GetFilesList(std::string strPath, int iLoadPolicy) {
     cFileFeed *sourcefeed;
     std::vector<cFile> vR;
@@ -503,30 +478,26 @@ cAssetPackage::~cAssetPackage() {
 }
 
 void cDataController::UpdateAllPackages() {
-    for (size_t i = 0; i < vhBanks.size(); i++) {
-        vhBanks[i]->BatchProcessStart(this);
+    for (auto & vhBank : vhBanks) {
+        vhBank->BatchProcessStart(this);
         if (GetLooper() != 0)
             GetLooper()->Tick();
-        for (size_t y = 0; y < vhPackages.size(); y++) {
-            vhPackages[y]->Update(vhBanks[i]);
+        for (auto & vhPackage : vhPackages) {
+            vhPackage->Update(vhBank);
         }
-        for (size_t z = 0; z < vMountEntries.size(); z++) {
-            std::string folderName = vhBanks[i]->GetFolderName();
-            std::string mountPoint = vMountEntries[z].strMountPoint;
-            if (vhBanks[i]->GetFolderName().compare(0, std::string::npos, vMountEntries[z].strMountPoint, 1,
-                                                    vhBanks[i]->GetFolderName().length()) == 0 &&
-                vMountEntries[z].hAsset == 0) {
-                cAsset *as = vhBanks[i]->AllocateAssetForMountPoint(this, vMountEntries[z]);
+        for (auto & vMountEntry : vMountEntries) {
+            if (!vMountEntry.hAsset && !strncmp(vhBank->GetFolderName().c_str(), vMountEntry.strMountPoint.c_str() + 1, vhBank->GetFolderName().length())) {
+                cAsset *as = vhBank->AllocateAssetForMountPoint(this, vMountEntry);
                 if (!as)
                     GV->Console->Printf("~r~Error loading asset for mount point ~y~%s~r~!",
-                                        vMountEntries[z].strMountPoint.c_str());
+                                        vMountEntry.strMountPoint.c_str());
                 else {
                     GetAssetPackageByFile(as->GetFile())->RegisterAsset(as);
-                    vMountEntries[z].hAsset = as;
+                    vMountEntry.hAsset = as;
                 }
             }
         }
-        vhBanks[i]->BatchProcessEnd(this);
+        vhBank->BatchProcessEnd(this);
         if (GetLooper() != 0)
             GetLooper()->Tick();
     }
@@ -655,12 +626,10 @@ void cAssetPackage::UnregisterAsset(cAsset *hPtr) {
 cFile cDataController::AssignFileForLogic(std::string strLogicName) {
     cFile n;
     n.hFeed = hCustom;
-    n.strPath = "logics/" + strLogicName + ".lua";
+    n.strPath = "logics/";
+    n.strPath += strLogicName;
+    n.strPath += ".lua";
     return n;
-}
-
-void cDataController::ForceRefreshFeeds() {
-    fFeedRefreshTime = hge->Timer_GetTime() - 3;
 }
 
 int cDataController::GetFeedPriority(cFileFeed *hFeed) {
@@ -673,13 +642,12 @@ int cDataController::GetFeedPriority(cFileFeed *hFeed) {
     return -1;
 }
 
-cDC_MountEntry cDataController::GetMountEntry(std::string strMountPoint) {
-    for (size_t i = 0; i < vMountEntries.size(); i++)
-        if (strMountPoint.compare(vMountEntries[i].strMountPoint) == 0)
-            return vMountEntries[i];
-    cDC_MountEntry n;
-    n.hAsset = 0;
-    return n;
+cDC_MountEntry* cDataController::GetMountEntry(const std::string& strMountPoint) {
+    for (auto & vMountEntry : vMountEntries) {
+        if (strMountPoint == vMountEntry.strMountPoint)
+            return &vMountEntry;
+    }
+    return 0;
 }
 
 int cDataController::GetMountPointID(std::string strMountPoint) {
@@ -717,7 +685,7 @@ void cDataController::Think() {
     for (int i = vFeeds.size() - 1; i >= 0; i--) {
         vFeeds[i]->UpdateModificationFlag();
         if (vFeeds[i]->GetModificationFlag()) {
-            printf("feed modified\n");
+            //printf("feed modified\n");
             if (vFeeds[i]->NeedFullReload()) {
 
             } else {
@@ -759,7 +727,7 @@ void cDataController::Think() {
                 cAssetBank *bank = 0;
                 size_t bankid = 0;
                 for (size_t b = 0; b < vhBanks.size(); b++)
-                    if (vhBanks[b]->GetFolderName().compare(bankidstr) == 0) {
+                    if (bankidstr == vhBanks[b]->GetFolderName()) {
                         bank = vhBanks[b];
                         bankid = b;
                         break;

@@ -188,7 +188,7 @@ void cRulers::Render() {
                 sprintf(text, "%d", pos);
 
             int linex = drX + (rl ? 17 : (i * step - modx) * zoom + constoff),
-                    liney = drY + (rl ? (i * step - modx) * zoom + constoff : 17);
+                liney = drY + (rl ? (i * step - modx) * zoom + constoff : 17);
             if (type == 3) {
                 hge->Gfx_RenderLine(linex - 17 * rl, liney - 17 * (!rl), linex, liney, 0xFF717171);
                 hge->Gfx_RenderLine(linex - 17 * rl + 1 * (!rl), liney - 17 * (!rl) + 1 * rl, linex + 1 * (!rl),

@@ -167,7 +167,6 @@ namespace SHR {
                                                    getHeight() - mFoldedUpHeight));
             drawChildren(graphics);
         }
-        RenderTooltip();
     }
 
     void DropDown::mouseEntered(MouseEvent &mouseEvent) {

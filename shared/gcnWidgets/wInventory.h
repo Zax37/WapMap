@@ -47,6 +47,8 @@ namespace SHR {
 
         void SetItem(cInventoryItem it) { mItem = it; };
 
+        void SetCrab(bool on) { hasCrab = on; }
+
     protected:
         guiParts *hGfx;
 
@@ -54,6 +56,7 @@ namespace SHR {
         bool mKeyPressed;
         bool mMousePressed;
         cInventoryItem mItem;
+        bool hasCrab;
     };
 }
 

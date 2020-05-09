@@ -21,6 +21,7 @@
 #include "../databanks/tiles.h"
 #include "../databanks/imageSets.h"
 #include "../cBrush.h"
+#include <filesystem>
 
 extern HGE *hge;
 
@@ -97,7 +98,7 @@ void State::EditingWW::Init() {
     fDoubleClickTimer = -1;
     szObjSearchBuffer = NULL;
     btpDragDropMask = 0;
-    htpWorkingAtrib = 0;
+    hTempAttrib = nullptr;
     fObjContextX = fObjContextY = 0;
     lastbrushx = lastbrushy = 0;
     szHint[0] = '\0';
@@ -1490,10 +1491,10 @@ void State::EditingWW::Init() {
 
     conRecentFiles = new SHR::Container();
     conRecentFiles->setOpaque(0);
-    labloadLastOpened = new SHR::Lab(GETL2S("HomeScreen", "RecentDocs"));
-    labloadLastOpened->adjustSize();
+    labLoadLastOpened = new SHR::Lab(GETL2S("HomeScreen", "RecentDocs"));
+    labLoadLastOpened->adjustSize();
     conRecentFiles->setDimension(gcn::Rectangle(0, 0, 200, 20));
-    conRecentFiles->add(labloadLastOpened, 5, 5);
+    conRecentFiles->add(labLoadLastOpened, 5, 5);
 
     butCrashRetrieve = NULL;
     conCrashRetrieve = NULL;
@@ -1614,12 +1615,12 @@ void State::EditingWW::Init() {
     hAppMenu->SyncMRU();
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0 || conCrashRetrieve) {
-        SHR::Container *contenertoadd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
+        SHR::Container *conToAdd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
 
-        winWelcome->setHeight(winWelcome->getHeight() + contenertoadd->getHeight());
+        winWelcome->setHeight(winWelcome->getHeight() + conToAdd->getHeight());
         winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
-        winWelcome->add(contenertoadd, winWelcome->getWidth() / 2 - contenertoadd->getWidth() / 2,
-                        winWelcome->getHeight() - contenertoadd->getHeight());
+        winWelcome->add(conToAdd, winWelcome->getWidth() / 2 - conToAdd->getWidth() / 2,
+                        winWelcome->getHeight() - conToAdd->getHeight());
     }
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0) {
@@ -2151,13 +2152,7 @@ bool State::EditingWW::Think() {
 
 
     if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_O)) {
-        char szFileopen[512] = "\0";
-        if (GV->editState->PromptForDocument(szFileopen) != 0) {
-            char *path = SHR::GetDir(szFileopen);
-            GV->SetLastOpenPath(path);
-            delete[] path;
-            GV->StateMgr->Push(new State::LoadMap(szFileopen));
-        }
+        GV->editState->OpenDocuments();
     }
 
     /*if( iMode != EWW_MODE_SIMULATION && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_I) )
@@ -2448,11 +2443,11 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
             DocumentData *dd = (DocumentData *) ((returnCode *) iReturnCode)->Ptr;
             hParser = dd->hParser;
             SprBank = dd->hSprBank;
-            hTileset = dd->hTileset;
+            hTileset = dd->hTilesBank;
             hSndBank = dd->hSndBank;
             hAniBank = dd->hAniBank;
             hDataCtrl = dd->hDataCtrl;
-            hCustomLogics = dd->hCustomLogics;
+            hCustomLogics = dd->hCustomLogicBank;
             //delete md;
             if (MDI->GetActiveDoc() != NULL) {
                 PrepareForDocumentSwitch();
@@ -2549,7 +2544,7 @@ void State::EditingWW::SetIconBarVisible(bool b) {
     //ddActivePlane->setVisible(b);
     cbutActiveMode->setVisible(b);
     //if( hmbActive != 0 )
-    // hmbActive->SetVisible(b);
+    // hmbActive->setVisible(b);
 }
 
 void State::EditingWW::LockToolSpecificFunctions(bool bLock) {
@@ -2576,7 +2571,7 @@ void State::EditingWW::OpenTool(int iTool) {
         iActiveTool = iTool;
         iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker();
-        winTilePicker->setVisible(1);
+        winTilePicker->setVisible(true);
         /*vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH)-11, hge->System_GetState(HGE_SCREENHEIGHT)-225-25-24);
 		butTilePickerErase->setVisible(1);
 		butTilePickerFill->setVisible(1);
@@ -2622,7 +2617,7 @@ void State::EditingWW::OpenTool(int iTool) {
         toolsaAction = TOOL_OBJSA_NONE;
         LockToolSpecificFunctions(1);
     } else if (iTool == EWW_TOOL_EDITOBJ) {
-        MinimaliseWindows();
+        MinimizeWindows();
         LockToolSpecificFunctions(1);
         bEditObjDelete = 0;
     } else if (iTool == EWW_TOOL_ALIGNOBJ) {
@@ -2633,20 +2628,13 @@ void State::EditingWW::OpenTool(int iTool) {
 
 void State::EditingWW::CloseTool(int iTool) {
     if (iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL) {
-        if (iTool != EWW_TOOL_BRUSH)
-            winTilePicker->setVisible(0);
-        wintpFillColor->setVisible(0);
-        /*vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH)-11, hge->System_GetState(HGE_SCREENHEIGHT)-110-25-24);
-		butTilePickerErase->setVisible(0);
-		butTilePickerFill->setVisible(0);
-		butTilePickerPipette->setVisible(0);
-		sliTilePicker->setVisible(0);
-		butTilePickerRight->setVisible(0);
-		butTilePickerLeft->setVisible(0);
-		butTilePickerType->setVisible(0);
-		wintpFillColor->setVisible(0);*/
-
-        iTilePicked = EWW_TILE_NONE;
+        if (iTool != EWW_TOOL_PENCIL && iTool != EWW_TOOL_FILL) {
+            iTilePicked = EWW_TILE_NONE;
+            if (iTool != EWW_TOOL_BRUSH) {
+                winTilePicker->setVisible(false);
+            }
+        }
+        wintpFillColor->setVisible(false);
         vTileGhosting.clear();
         return;
     } else if (iActiveTool == EWW_TOOL_WRITEID) {
@@ -2654,15 +2642,11 @@ void State::EditingWW::CloseTool(int iTool) {
     } else if (iActiveTool == EWW_TOOL_SPACEOBJ) {
         winSpacing->setVisible(0);
     } else if (iActiveTool == EWW_TOOL_BRUSH) {
-        winTilePicker->setVisible(0);
-        /*vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH)-11, hge->System_GetState(HGE_SCREENHEIGHT)-110-25-24);
-		butTilePickerRight->setVisible(0);
-		butTilePickerLeft->setVisible(0);
-		butTilePickerType->setVisible(0);
-		butBrushOptions->setVisible(0);
-		butBrushMaker->setVisible(0);
-		butIconBrushReload->setVisible(0);*/
-        if (iTilePicked != -1 && MDI->GetActiveDoc() != NULL)
+        if (iTool != EWW_TOOL_PENCIL && iTool != EWW_TOOL_FILL) {
+            winTilePicker->setVisible(false);
+        }
+
+        if (iTilePicked >= 0 && MDI->GetActiveDoc() != NULL)
             hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(
                     iTilePicked)->RemoveSettingsFromContainer(winTilePicker);
         vTileGhosting.clear();
@@ -2678,13 +2662,13 @@ void State::EditingWW::CloseTool(int iTool) {
         LockToolSpecificFunctions(0);
         delete hEditObj;
         hEditObj = NULL;
-        MaximaliseWindows();
+        MaximizeWindows();
     } else if (iActiveTool == EWW_TOOL_ALIGNOBJ) {
 
     }
 }
 
-void State::EditingWW::MinimaliseWindows() {
+void State::EditingWW::MinimizeWindows() {
     for (int i = 0; i < vWidgetsToMinimalise.size(); i++) {
         if (vWidgetsToMinimalise[i]->isVisible()) {
             vWidgetsToMinimalise[i]->setVisible(0);
@@ -2695,13 +2679,16 @@ void State::EditingWW::MinimaliseWindows() {
         NewMap_data->bKill = 1;
 }
 
-void State::EditingWW::MaximaliseWindows() {
+void State::EditingWW::MaximizeWindows() {
     for (int i = 0; i < vMinimalisedWidgets.size(); i++)
         vMinimalisedWidgets[i]->setVisible(1);
     vMinimalisedWidgets.clear();
 }
 
 void State::EditingWW::FreeResources() {
+    for (auto object : vObjectClipboard) {
+        delete object;
+    }
     vObjectClipboard.clear();
     vObjectsBrushCB.clear();
     vObjectsHL.clear();
@@ -2727,7 +2714,7 @@ void State::EditingWW::UpdateScrollBars() {
         return;
     }
     bool condx = !(GetActivePlane()->GetFlags() & WWD::Flag_p_XWrapping) && iMode == EWW_MODE_TILE,
-            condy = !(GetActivePlane()->GetFlags() & WWD::Flag_p_YWrapping) && iMode == EWW_MODE_TILE;
+         condy = !(GetActivePlane()->GetFlags() & WWD::Flag_p_YWrapping) && iMode == EWW_MODE_TILE;
     if (condx)
         sliHor->setScaleStart(-40);
     else
@@ -2757,29 +2744,45 @@ void State::EditingWW::SwitchPlane() {
     if (iActiveTool == EWW_TOOL_BRUSH)
         vTileGhosting.clear();
     hAppMenu->SyncPlaneSwitched();
-    /*if( hTileClipboard != NULL && strcmp(hTileClipboardImageSet, GetActivePlane()->GetImageSet(0)) != 0 ){
-	 for(int i=0;i<iTileCBw;i++){
-	  delete [] hTileClipboard[i];
-	 }
-	 delete [] hTileClipboard;
-	 hTileClipboard = NULL;
-	 delete hTileClipboardImageSet;
-	 hTileClipboardImageSet = NULL;
-	}*/
 }
 
-int State::EditingWW::PromptForDocument(char *dest) {
+bool State::EditingWW::OpenDocuments() {
+    char szFileopen[1024] = "\0";
     OPENFILENAME ofn;
     ZeroMemory((&ofn), sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hge->System_GetState(HGE_HWND);
     ofn.lpstrFilter = "WapWorld Document (*.WWD)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
-    ofn.lpstrFile = dest;
-    ofn.nMaxFile = 512;
-    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+    ofn.lpstrFile = szFileopen;
+    ofn.nMaxFile = 1024;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_EXPLORER | OFN_ALLOWMULTISELECT;
     ofn.lpstrDefExt = "wwd";
     ofn.lpstrInitialDir = GV->szLastOpenPath;
-    return GetOpenFileName(&ofn);
+    if (GetOpenFileName(&ofn) && ofn.lpstrFile) {
+        char* str = ofn.lpstrFile;
+        std::string dir(str);
+
+        if (!std::filesystem::is_directory(dir)) {
+            const char* actualDir = SHR::GetDir(dir.c_str());
+            GV->StateMgr->Push(new State::LoadMap(dir.c_str()));
+            GV->SetLastOpenPath(actualDir);
+            delete[] actualDir;
+        }
+        else {
+            GV->SetLastOpenPath(str);
+            dir.push_back('\\');
+            str += dir.length();
+            while (*str) {
+                std::string filename(str);
+                str += (filename.length() + 1);
+                GV->StateMgr->Push(new State::LoadMap((dir + filename).c_str()));
+                GV->StateMgr->Think();
+            }
+        }
+        
+        return true;
+    }
+    return false;
 }
 
 void State::EditingWW::SetMode(int piMode) {
@@ -2792,13 +2795,10 @@ void State::EditingWW::SetMode(int piMode) {
 
 void State::EditingWW::EnterMode(int piMode) {
     if (piMode == EWW_MODE_TILE) {
-        hmbTile->ddActivePlane->setVisible(1);
         SwitchActiveModeMenuBar(hmbTile);
-        //butIconMode->setIcon(GV->sprIcons[Icon_Bricks]);
         cbutActiveMode->setSelectedEntryID(0);
         UpdateScrollBars();
     } else if (piMode == EWW_MODE_OBJECT) {
-        hmbTile->ddActivePlane->setVisible(0);
         bObjDragSelection = 0;
         SwitchActiveModeMenuBar(hmbObject);
         cbutActiveMode->setSelectedEntryID(1);
@@ -2818,16 +2818,6 @@ void State::EditingWW::ExitMode(int piMode) {
         winSearchObj->setVisible(0);
         SwitchActiveModeMenuBar(NULL);
         vObjectsPicked.clear();
-        /*butIconClaw->setVisible(0);
-		butIconTreasure->setVisible(0);
-		butIconCrate->setVisible(0);
-		butIconHealth->setVisible(0);
-		butIconCatnip->setVisible(0);
-		butIconCurse->setVisible(0);
-		butIconSound->setVisible(0);
-		butIconWarp->setVisible(0);
-		butIconFlag->setVisible(0);
-		butIconNPC->setVisible(0);*/
     }
 }
 
@@ -2891,23 +2881,26 @@ int State::EditingWW::Wrd2ScrYrb(WWD::Plane *pl, int y) {
 }
 
 
-void State::EditingWW::SyncAtribMenuWithTile() {
+void State::EditingWW::SyncAttribMenuWithTile() {
     if (itpSelectedTile == -1) return;
     int dx, dy;
     winTileProp->getAbsolutePosition(dx, dy);
-    delete htpWorkingAtrib;
-    WWD::TileAtrib *atrib = hParser->GetTileAtribs(itpSelectedTile);
-    if (!atrib) return;
-    htpWorkingAtrib = new WWD::TileAtrib(atrib);
+    delete hTempAttrib;
+    WWD::TileAttrib *attrib = hParser->GetTileAttribs(itpSelectedTile);
+    if (!attrib) {
+        hTempAttrib = nullptr;
+        return;
+    }
+    hTempAttrib = new WWD::TileAttrib(attrib);
     char tmp[64];
-    sprintf(tmp, "%d", atrib->GetW());
+    sprintf(tmp, "%d", attrib->GetW());
     tftpW->setText(tmp);
-    sprintf(tmp, "%d", atrib->GetH());
+    sprintf(tmp, "%d", attrib->GetH());
     tftpH->setText(tmp);
 
-    rbtpIn[atrib->GetAtribInside()]->setSelected(1);
+    rbtpIn[attrib->GetAtribInside()]->setSelected(1);
 
-    if (atrib->GetType() == WWD::AtribType_Single) {
+    if (attrib->GetType() == WWD::AttribType_Single) {
         rbtpSingle->setSelected(1);
         tftpX1->setVisible(0);
         tftpY1->setVisible(0);
@@ -2916,7 +2909,7 @@ void State::EditingWW::SyncAtribMenuWithTile() {
         for (int i = 0; i < 5; i++)
             rbtpOut[i]->setVisible(0);
         winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 260));
-    } else if (atrib->GetType() == WWD::AtribType_Double) {
+    } else if (attrib->GetType() == WWD::AttribType_Double) {
         rbtpDouble->setSelected(1);
         tftpX1->setVisible(1);
         tftpY1->setVisible(1);
@@ -2924,16 +2917,16 @@ void State::EditingWW::SyncAtribMenuWithTile() {
         tftpY2->setVisible(1);
         for (int i = 0; i < 5; i++)
             rbtpOut[i]->setVisible(1);
-        sprintf(tmp, "%d", atrib->GetMask().x1);
+        sprintf(tmp, "%d", attrib->GetMask().x1);
         tftpX1->setText(tmp);
-        sprintf(tmp, "%d", atrib->GetMask().y1);
+        sprintf(tmp, "%d", attrib->GetMask().y1);
         tftpY1->setText(tmp);
-        sprintf(tmp, "%d", atrib->GetMask().x2);
+        sprintf(tmp, "%d", attrib->GetMask().x2);
         tftpX2->setText(tmp);
-        sprintf(tmp, "%d", atrib->GetMask().y2);
+        sprintf(tmp, "%d", attrib->GetMask().y2);
         tftpY2->setText(tmp);
         winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 350));
-        rbtpOut[atrib->GetAtribOutside()]->setSelected(1);
+        rbtpOut[attrib->GetAtribOutside()]->setSelected(1);
     }
 }
 
@@ -3055,6 +3048,7 @@ void State::EditingWW::DocumentSwitched() {
         SetTool(EWW_TOOL_NONE);
         SwitchActiveModeMenuBar(NULL);
         hParser = NULL;
+        ddpmTileSet->setListModel(0);
         lbbrlLogicList->setListModel(0);
         InitEmpty();
         vPort->MarkToRedraw(1);
@@ -3064,17 +3058,17 @@ void State::EditingWW::DocumentSwitched() {
     cbutActiveMode->setVisible(1);
 
     if (iActiveTool == EWW_TOOL_BRUSH || iActiveTool == EWW_TOOL_FILL || iActiveTool == EWW_TOOL_PENCIL) {
-        if (iActiveTool == EWW_TOOL_BRUSH && MDI->GetActiveDoc() != NULL && iTilePicked != -1)
-            HandleBrushSwitch(iTilePicked, -1);
-        iTilePicked = -1;
+        if (iActiveTool == EWW_TOOL_BRUSH && MDI->GetActiveDoc() != NULL && iTilePicked != EWW_TILE_NONE)
+            HandleBrushSwitch(iTilePicked, EWW_TILE_NONE);
+        iTilePicked = EWW_TILE_NONE;
     }
 
     hParser = MDI->GetActiveDoc()->hParser;
     SprBank = MDI->GetActiveDoc()->hSprBank;
-    hTileset = MDI->GetActiveDoc()->hTileset;
+    hTileset = MDI->GetActiveDoc()->hTilesBank;
     hSndBank = MDI->GetActiveDoc()->hSndBank;
     hAniBank = MDI->GetActiveDoc()->hAniBank;
-    hCustomLogics = MDI->GetActiveDoc()->hCustomLogics;
+    hCustomLogics = MDI->GetActiveDoc()->hCustomLogicBank;
     hDataCtrl = MDI->GetActiveDoc()->hDataCtrl;
     hPlaneData = MDI->GetActiveDoc()->hPlaneData;
     fZoom = MDI->GetActiveDoc()->fZoom;
@@ -3145,7 +3139,7 @@ void State::EditingWW::DocumentSwitched() {
         itpSelectedTile = hTileset->GetSet("ACTION")->GetTileByIterator(0)->GetID();
     sprintf(tmp, "%d", itpSelectedTile);
     tftpTileID->setText(tmp);
-    SyncAtribMenuWithTile();
+    SyncAttribMenuWithTile();
 
     UpdateSearchResults();
 
@@ -3393,19 +3387,10 @@ void State::EditingWW::MruListUpdated() {
         }
     }
 
-    /*if( hMruList->IsValid() )
-	 winLoad->setDimension(gcn::Rectangle(hge->System_GetState(HGE_SCREENWIDTH)/2-200,
-										  hge->System_GetState(HGE_SCREENHEIGHT)/2-(185+hMruList->GetFilesCount()*20)/2,
-										  400,
-										  185+hMruList->GetFilesCount()*20));
-	else
-	 winLoad->setDimension(gcn::Rectangle(hge->System_GetState(HGE_SCREENWIDTH)/2-200, hge->System_GetState(HGE_SCREENHEIGHT)/2-70, 400, 140));
-*/
-
-    labloadLastOpened->setVisible(hMruList->IsValid());
+    labLoadLastOpened->setVisible(hMruList->IsValid());
 
     if (hMruList->IsValid()) {
-        int maxw = 0;
+        int maxW = 0;
         for (int i = 0; i < hMruList->GetFilesCount(); i++) {
             bool bAddSign = 1;
             int iSignStart = 0;
@@ -3449,13 +3434,12 @@ void State::EditingWW::MruListUpdated() {
             lnkLastOpened[i] = new SHR::Link(tmp, ico);
             lnkLastOpened[i]->adjustSize();
             lnkLastOpened[i]->setEnabled(gt != WWD::Game_Unknown);
-            printf("al %p\n", al);
             lnkLastOpened[i]->addActionListener(al);
             conRecentFiles->add(lnkLastOpened[i], 5, 25 + i * 20);
             int nw = lnkLastOpened[i]->getWidth() + 25;
-            if (nw > maxw) maxw = nw;
+            if (nw > maxW) maxW = nw;
         }
-        conRecentFiles->setWidth(maxw);
+        conRecentFiles->setWidth(maxW);
         conRecentFiles->setHeight(25 + hMruList->GetFilesCount() * 20);
     }
     GV->Console->Printf("Reloading main context...");

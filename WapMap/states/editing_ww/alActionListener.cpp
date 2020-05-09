@@ -20,11 +20,6 @@ extern HGE *hge;
 
 namespace State {
 	void EditingWWActionListener::action(const gcn::ActionEvent &actionEvent) {
-		for (int i = 0; i < 5; i++)
-			if (actionEvent.getSource() == m_hOwn->hmbObject->butIconEnemy[i]) {
-				m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
-				return;
-			}
 		if (actionEvent.getSource() == m_hOwn->winLogicBrowser) {
 			m_hOwn->SyncLogicBrowser();
 		} else if (actionEvent.getSource() == m_hOwn->tfbrlRename && actionEvent.getId() == "ENTER" ||
@@ -102,11 +97,14 @@ namespace State {
 			m_hOwn->SetTool(EWW_TOOL_WRITEID);
 		} else if (actionEvent.getSource() == m_hOwn->tfWriteID) {
 			if (m_hOwn->tfWriteID->getActionEventId() == "ENTER") {
+				WWD::Tile* tile = m_hOwn->GetActivePlane()->GetTile(m_hOwn->iTileWriteIDx, m_hOwn->iTileWriteIDy);
 				int tid = atoi(m_hOwn->tfWriteID->getText().c_str());
-				if (tid == 0) {
-					m_hOwn->GetActivePlane()->GetTile(m_hOwn->iTileWriteIDx, m_hOwn->iTileWriteIDy)->SetInvisible(1);
-				} else if (tid <= m_hOwn->hTileset->GetSet(m_hOwn->GetActivePlane()->GetImageSet(0))->GetMaxTileID()) {
-					m_hOwn->GetActivePlane()->GetTile(m_hOwn->iTileWriteIDx, m_hOwn->iTileWriteIDy)->SetID(tid);
+				if (tid == 0 && !tile->IsInvisible()) {
+					tile->SetInvisible(true);
+					m_hOwn->MarkUnsaved();
+				} else if (tile->GetID() != tid) {
+					tile->SetID(tid);
+					m_hOwn->MarkUnsaved();
 				}
 				m_hOwn->conWriteID->setShow(0);
 				m_hOwn->iTileWriteIDx = m_hOwn->iTileWriteIDy = -1;
@@ -195,10 +193,7 @@ namespace State {
 		} else if (actionEvent.getSource() == m_hOwn->butwsNew) {
 			GV->editState->NewMap_Open();
 		} else if (actionEvent.getSource() == m_hOwn->butwsOpen) {
-			char szFileopen[512] = "\0";
-			if (GV->editState->PromptForDocument(szFileopen) != 0) {
-				GV->StateMgr->Push(new State::LoadMap(szFileopen));
-			}
+			GV->editState->OpenDocuments();
 		} else if (actionEvent.getSource() == m_hOwn->butwsRecently) {
 			GV->StateMgr->Push(new State::LoadMap(m_hOwn->hMruList->GetRecentlyUsedFile(0)));
 		} else if (actionEvent.getSource() == m_hOwn->butwsWhatsnew) {
@@ -603,9 +598,6 @@ namespace State {
 				if (m_hOwn->tilContext->GetSelectedID() == TILMENU_COPY ||
 					m_hOwn->tilContext->GetSelectedID() == TILMENU_CUT) {
 					if (m_hOwn->MDI->GetActiveDoc()->hTileClipboard != NULL) {
-						for (int i = 0; i < m_hOwn->MDI->GetActiveDoc()->iTileCBw; i++) {
-							delete[] m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i];
-						}
 						delete[] m_hOwn->MDI->GetActiveDoc()->hTileClipboard;
 						delete[] m_hOwn->MDI->GetActiveDoc()->hTileClipboardImageSet;
 					}
@@ -618,24 +610,22 @@ namespace State {
 					m_hOwn->MDI->GetActiveDoc()->iTileCBw = m_hOwn->iTileSelectX2 - m_hOwn->iTileSelectX1 + 1;
 					m_hOwn->MDI->GetActiveDoc()->iTileCBh = m_hOwn->iTileSelectY2 - m_hOwn->iTileSelectY1 + 1;
 
-					m_hOwn->MDI->GetActiveDoc()->hTileClipboard = new WWD::Tile *[m_hOwn->MDI->GetActiveDoc()->iTileCBw];
-					for (int i = 0; i < m_hOwn->MDI->GetActiveDoc()->iTileCBw; i++)
-						m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i] = new WWD::Tile[m_hOwn->MDI->GetActiveDoc()->iTileCBh];
+					m_hOwn->MDI->GetActiveDoc()->hTileClipboard = new WWD::Tile[m_hOwn->MDI->GetActiveDoc()->iTileCBw * m_hOwn->MDI->GetActiveDoc()->iTileCBh];
 
-					for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
-						for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
-							m_hOwn->MDI->GetActiveDoc()->hTileClipboard[x - m_hOwn->iTileSelectX1][y -
-																								   m_hOwn->iTileSelectY1] = *(m_hOwn->GetActivePlane()->GetTile(
-									x, y));
-						}
+					for (int i = 0, y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++)
+						for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++, i++)
+							m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i] = *m_hOwn->GetActivePlane()->GetTile(x, y);
+
 					if (m_hOwn->tilContext->GetSelectedID() == TILMENU_CUT) {
 						bool bChanges = 0;
 						for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
-							for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++)
-								if (!m_hOwn->GetActivePlane()->GetTile(x, y)->IsInvisible()) {
+							for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
+								WWD::Tile* tile = m_hOwn->GetActivePlane()->GetTile(x, y);
+								if (!tile->IsInvisible()) {
 									bChanges = 1;
-									m_hOwn->GetActivePlane()->GetTile(x, y)->SetInvisible(1);
+									tile->SetInvisible(true);
 								}
+							}
 						if (bChanges) {
 							m_hOwn->vPort->MarkToRedraw(1);
 							m_hOwn->MarkUnsaved();
@@ -647,14 +637,14 @@ namespace State {
 					hge->Input_GetMousePos(&mx, &my);
 					int tx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx) / 64, ty =
 							m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my) / 64;
-					for (int x = tx; x < tx + m_hOwn->MDI->GetActiveDoc()->iTileCBw; x++)
-						for (int y = ty; y < ty + m_hOwn->MDI->GetActiveDoc()->iTileCBh; y++)
-							if (m_hOwn->GetActivePlane()->GetTile(x, y) != NULL) {
-								WWD::Tile *t = m_hOwn->GetActivePlane()->GetTile(x, y);
-								if (*t != m_hOwn->MDI->GetActiveDoc()->hTileClipboard[x - tx][y - ty])
-									bChanges = 1;
-								*t = m_hOwn->MDI->GetActiveDoc()->hTileClipboard[x - tx][y - ty];
+					for (int i = 0, y = ty; y < ty + m_hOwn->MDI->GetActiveDoc()->iTileCBh; ++y)
+						for (int x = tx; x < tx + m_hOwn->MDI->GetActiveDoc()->iTileCBw; ++x, ++i) {
+							WWD::Tile* tile = m_hOwn->GetActivePlane()->GetTile(x, y);
+							if (tile && *tile != m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i]) {
+								bChanges = 1;
+								*tile = m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i];
 							}
+						}
 					if (bChanges) {
 						m_hOwn->vPort->MarkToRedraw(1);
 						m_hOwn->MarkUnsaved();
@@ -662,11 +652,13 @@ namespace State {
 				} else if (m_hOwn->tilContext->GetSelectedID() == TILMENU_DELETE) {
 					bool bChanges = 0;
 					for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
-						for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++)
-							if (!m_hOwn->GetActivePlane()->GetTile(x, y)->IsInvisible()) {
+						for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
+							WWD::Tile* tile = m_hOwn->GetActivePlane()->GetTile(x, y);
+							if (tile && !tile->IsInvisible()) {
 								bChanges = 1;
-								m_hOwn->GetActivePlane()->GetTile(x, y)->SetInvisible(1);
+								tile->SetInvisible(true);
 							}
+						}
 					if (bChanges) {
 						m_hOwn->vPort->MarkToRedraw(1);
 						m_hOwn->MarkUnsaved();
@@ -736,33 +728,32 @@ namespace State {
 					for (int i = 0; i < tmp.size(); i++) {
 						m_hOwn->GetActivePlane()->DeleteObject(tmp[i]);
 					}
-					m_hOwn->vPort->MarkToRedraw(1);
+					m_hOwn->vPort->MarkToRedraw(true);
 					m_hOwn->MarkUnsaved();
-				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_COPY) {
-					for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
-						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
-							m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
-					m_hOwn->vObjectClipboard = m_hOwn->vObjectsPicked;
-					m_hOwn->bClipboardCopy = 1;
-				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_CUT) {
-					for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
-						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
-							m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
-					m_hOwn->vObjectClipboard.clear();
-					for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++) {
-						m_hOwn->vObjectClipboard.push_back(new WWD::Object(m_hOwn->vObjectsPicked[i]));
+				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_COPY
+				           || m_hOwn->objContext->GetSelectedID() == OBJMENU_CUT) {
+				    bool deleting = m_hOwn->objContext->GetSelectedID() == OBJMENU_CUT;
+				    for (auto object : m_hOwn->vObjectClipboard) {
+				        delete object;
+				    }
+                    m_hOwn->vObjectClipboard.clear();
+                    auto selectedObjects = m_hOwn->vObjectsPicked;
+					for (auto object : selectedObjects) {
+                        if (object != m_hOwn->hStartingPosObj) {
+                            auto nObject = new WWD::Object(object);
+                            if (deleting) {
+                                m_hOwn->GetActivePlane()->DeleteObject(object);
+                            }
+                            m_hOwn->vObjectClipboard.push_back(nObject);
+                        }
+                    }
+					if (deleting) {
+                        m_hOwn->vObjectsPicked.clear();
+                        m_hOwn->vPort->MarkToRedraw(true);
+                        m_hOwn->MarkUnsaved();
 					}
-					std::vector<WWD::Object *> tmp = m_hOwn->vObjectsPicked;
-					for (int i = 0; i < tmp.size(); i++) {
-						m_hOwn->GetActivePlane()->DeleteObject(tmp[i]);
-					}
-					m_hOwn->vObjectsPicked.clear();
-
-					m_hOwn->bClipboardCopy = 0;
-					m_hOwn->vPort->MarkToRedraw(1);
-					m_hOwn->MarkUnsaved();
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_PASTE) {
-					if (m_hOwn->vObjectClipboard.size() == NULL) return;
+					if (m_hOwn->vObjectClipboard.empty()) return;
 					m_hOwn->vObjectsPicked.clear();
 					float x = int(m_hOwn->fCamX * (m_hOwn->GetActivePlane()->GetMoveModX() / 100.0f) * m_hOwn->fZoom) +
 							  m_hOwn->objContext->getX();
@@ -772,15 +763,16 @@ namespace State {
 					x = x / m_hOwn->fZoom;
 					y = y / m_hOwn->fZoom;
 
-					float diffx = x - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationX),
-							diffy = y - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationY);
+					float diffX = x - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationX),
+						  diffY = y - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationY);
 
 					bool bRecalc = 0;
-					for (int i = 0; i < m_hOwn->vObjectClipboard.size(); i++) {
-						if (m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_MinX) != 0 ||
-							m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_MinY) != 0 ||
-							m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_MaxX) != 0 ||
-							m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_MaxY) != 0) {
+					for (auto & clipboardObject : m_hOwn->vObjectClipboard) {
+						if (!strstr(clipboardObject->GetLogic(), "Elevator")
+                            && (clipboardObject->GetParam(WWD::Param_MinX) != 0 ||
+                                clipboardObject->GetParam(WWD::Param_MinY) != 0 ||
+                                clipboardObject->GetParam(WWD::Param_MaxX) != 0 ||
+                                clipboardObject->GetParam(WWD::Param_MaxY) != 0)) {
 							if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "MsgRecalcMinMaxXY"),
 										   GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDYES) {
 								bRecalc = 1;
@@ -789,35 +781,28 @@ namespace State {
 						}
 					}
 
-					for (int i = 0; i < m_hOwn->vObjectClipboard.size(); i++) {
-						WWD::Object *objn = NULL;
-						if (m_hOwn->bClipboardCopy)
-							objn = new WWD::Object(m_hOwn->vObjectClipboard[i]);
-						else
-							objn = m_hOwn->vObjectClipboard[i];
-						if (bRecalc) {
-							if (objn->GetParam(WWD::Param_MinX) != 0)
-								objn->SetParam(WWD::Param_MinX, objn->GetParam(WWD::Param_MinX) + diffx);
-							if (objn->GetParam(WWD::Param_MinY) != 0)
-								objn->SetParam(WWD::Param_MinY, objn->GetParam(WWD::Param_MinY) + diffy);
-							if (objn->GetParam(WWD::Param_MaxX) != 0)
-								objn->SetParam(WWD::Param_MaxX, objn->GetParam(WWD::Param_MaxX) + diffx);
-							if (objn->GetParam(WWD::Param_MaxY) != 0)
-								objn->SetParam(WWD::Param_MaxY, objn->GetParam(WWD::Param_MaxY) + diffy);
+					for (auto & i : m_hOwn->vObjectClipboard) {
+						auto *object = new WWD::Object(i);
+
+						if (bRecalc || strstr(i->GetLogic(), "Elevator")) {
+							if (object->GetParam(WWD::Param_MinX) != 0)
+								object->SetParam(WWD::Param_MinX, object->GetParam(WWD::Param_MinX) + diffX);
+							if (object->GetParam(WWD::Param_MinY) != 0)
+								object->SetParam(WWD::Param_MinY, object->GetParam(WWD::Param_MinY) + diffY);
+							if (object->GetParam(WWD::Param_MaxX) != 0)
+								object->SetParam(WWD::Param_MaxX, object->GetParam(WWD::Param_MaxX) + diffX);
+							if (object->GetParam(WWD::Param_MaxY) != 0)
+								object->SetParam(WWD::Param_MaxY, object->GetParam(WWD::Param_MaxY) + diffY);
 						}
-						objn->SetParam(WWD::Param_LocationX,
-									   m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_LocationX) + diffx);
-						objn->SetParam(WWD::Param_LocationY,
-									   m_hOwn->vObjectClipboard[i]->GetParam(WWD::Param_LocationY) + diffy);
-						m_hOwn->GetActivePlane()->AddObjectAndCalcID(objn);
-						objn->SetUserData(new cObjUserData(objn));
-						m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(objn);
-						m_hOwn->vObjectsPicked.push_back(objn);
+						object->SetParam(WWD::Param_LocationX, object->GetParam(WWD::Param_LocationX) + diffX);
+						object->SetParam(WWD::Param_LocationY, object->GetParam(WWD::Param_LocationY) + diffY);
+						m_hOwn->GetActivePlane()->AddObjectAndCalcID(object);
+						object->SetUserData(new cObjUserData(object));
+						m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
+						m_hOwn->vObjectsPicked.push_back(object);
 					}
-					if (!m_hOwn->bClipboardCopy)
-						m_hOwn->vObjectClipboard.clear();
 					m_hOwn->MarkUnsaved();
-					m_hOwn->vPort->MarkToRedraw(1);
+					m_hOwn->vPort->MarkToRedraw(true);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_USEASBRUSH) {
 					for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
 						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
@@ -1022,7 +1007,7 @@ namespace State {
 				m_hOwn->m_vMeasurePoints.clear();
 			} else if (actionEvent.getSource() == m_hOwn->tftpTileID) {
 				m_hOwn->itpSelectedTile = atoi(m_hOwn->tftpTileID->getText().c_str());
-				m_hOwn->SyncAtribMenuWithTile();
+                m_hOwn->SyncAttribMenuWithTile();
 			} else if (actionEvent.getSource() == m_hOwn->buttpNext) {
 				cTileImageSet *is = m_hOwn->hTileset->GetSet("ACTION");
 				int actualiterator = 0;
@@ -1039,7 +1024,7 @@ namespace State {
 				char tmp[24];
 				sprintf(tmp, "%d", tile->GetID());
 				m_hOwn->tftpTileID->setText(tmp);
-				m_hOwn->SyncAtribMenuWithTile();
+                m_hOwn->SyncAttribMenuWithTile();
 			} else if (actionEvent.getSource() == m_hOwn->buttpPrev) {
 				cTileImageSet *is = m_hOwn->hTileset->GetSet("ACTION");
 				int actualiterator = 0;
@@ -1056,11 +1041,11 @@ namespace State {
 				char tmp[24];
 				sprintf(tmp, "%d", tile->GetID());
 				m_hOwn->tftpTileID->setText(tmp);
-				m_hOwn->SyncAtribMenuWithTile();
+                m_hOwn->SyncAttribMenuWithTile();
 			} else if (actionEvent.getSource() == m_hOwn->buttpZoom) {
 				m_hOwn->btpZoomTile = !m_hOwn->btpZoomTile;
 			} else if (actionEvent.getSource() == m_hOwn->rbtpSingle) {
-				m_hOwn->htpWorkingAtrib->SetType(WWD::AtribType_Single);
+				m_hOwn->hTempAttrib->SetType(WWD::AttribType_Single);
 				m_hOwn->tftpX1->setVisible(0);
 				m_hOwn->tftpY1->setVisible(0);
 				m_hOwn->tftpX2->setVisible(0);
@@ -1069,7 +1054,7 @@ namespace State {
 					m_hOwn->rbtpOut[i]->setVisible(0);
 				m_hOwn->winTileProp->setHeight(260);
 			} else if (actionEvent.getSource() == m_hOwn->rbtpDouble) {
-				m_hOwn->htpWorkingAtrib->SetType(WWD::AtribType_Double);
+				m_hOwn->hTempAttrib->SetType(WWD::AttribType_Double);
 				m_hOwn->tftpX1->setVisible(1);
 				m_hOwn->tftpY1->setVisible(1);
 				m_hOwn->tftpX2->setVisible(1);
@@ -1078,78 +1063,49 @@ namespace State {
 					m_hOwn->rbtpOut[i]->setVisible(1);
 				m_hOwn->winTileProp->setHeight(350);
 			} else if (actionEvent.getSource() == m_hOwn->buttpApply) {
-				m_hOwn->htpWorkingAtrib->SetMask(atoi(m_hOwn->tftpX1->getText().c_str()),
-												 atoi(m_hOwn->tftpY1->getText().c_str()),
-												 atoi(m_hOwn->tftpX2->getText().c_str()),
-												 atoi(m_hOwn->tftpY2->getText().c_str()));
-				m_hOwn->htpWorkingAtrib->SetW(atoi(m_hOwn->tftpW->getText().c_str()));
-				m_hOwn->htpWorkingAtrib->SetH(atoi(m_hOwn->tftpH->getText().c_str()));
+				m_hOwn->hTempAttrib->SetMask(atoi(m_hOwn->tftpX1->getText().c_str()),
+											 atoi(m_hOwn->tftpY1->getText().c_str()),
+											 atoi(m_hOwn->tftpX2->getText().c_str()),
+											 atoi(m_hOwn->tftpY2->getText().c_str()));
+				m_hOwn->hTempAttrib->SetW(atoi(m_hOwn->tftpW->getText().c_str()));
+				m_hOwn->hTempAttrib->SetH(atoi(m_hOwn->tftpH->getText().c_str()));
 
-				if (m_hOwn->hParser->GetTileAtribs(m_hOwn->itpSelectedTile)->GetType() !=
-					m_hOwn->htpWorkingAtrib->GetType() ||
-					m_hOwn->hParser->GetTileAtribs(m_hOwn->itpSelectedTile)->GetAtribInside() !=
-					m_hOwn->htpWorkingAtrib->GetAtribInside() ||
-					m_hOwn->hParser->GetTileAtribs(m_hOwn->itpSelectedTile)->GetType() == WWD::AtribType_Double &&
-					(m_hOwn->hParser->GetTileAtribs(m_hOwn->itpSelectedTile)->GetAtribOutside() !=
-					 m_hOwn->htpWorkingAtrib->GetAtribOutside() ||
-					 m_hOwn->hParser->GetTileAtribs(m_hOwn->itpSelectedTile)->GetMask() !=
-					 m_hOwn->htpWorkingAtrib->GetMask()))
+				if (m_hOwn->hParser->GetTileAttribs(m_hOwn->itpSelectedTile)->GetType() !=
+                    m_hOwn->hTempAttrib->GetType() ||
+                        m_hOwn->hParser->GetTileAttribs(m_hOwn->itpSelectedTile)->GetAtribInside() !=
+                    m_hOwn->hTempAttrib->GetAtribInside() ||
+                        m_hOwn->hParser->GetTileAttribs(m_hOwn->itpSelectedTile)->GetType() == WWD::AttribType_Double &&
+                    (m_hOwn->hParser->GetTileAttribs(m_hOwn->itpSelectedTile)->GetAtribOutside() !=
+                     m_hOwn->hTempAttrib->GetAtribOutside() ||
+                            m_hOwn->hParser->GetTileAttribs(m_hOwn->itpSelectedTile)->GetMask() !=
+                     m_hOwn->hTempAttrib->GetMask()))
 					m_hOwn->MarkUnsaved();
 
-				m_hOwn->hParser->SetTileAtribs(m_hOwn->itpSelectedTile, m_hOwn->htpWorkingAtrib);
+                m_hOwn->hParser->SetTileAttribs(m_hOwn->itpSelectedTile, m_hOwn->hTempAttrib);
 				if (m_hOwn->bDrawTileProperties) {
 					m_hOwn->vPort->MarkToRedraw(1);
 				}
 			} else if (actionEvent.getSource() == m_hOwn->tftpW) {
-				m_hOwn->htpWorkingAtrib->SetW(atoi(m_hOwn->tftpW->getText().c_str()));
+				m_hOwn->hTempAttrib->SetW(atoi(m_hOwn->tftpW->getText().c_str()));
 			} else if (actionEvent.getSource() == m_hOwn->lbbrlLogicList) {
 				if (!m_hOwn->bLogicBrowserExpanded) {
 					m_hOwn->ExpandLogicBrowser();
 				}
 				m_hOwn->SyncLogicBrowser();
 			} else if (actionEvent.getSource() == m_hOwn->tftpH) {
-				m_hOwn->htpWorkingAtrib->SetH(atoi(m_hOwn->tftpH->getText().c_str()));
+				m_hOwn->hTempAttrib->SetH(atoi(m_hOwn->tftpH->getText().c_str()));
 			} else if (actionEvent.getSource() == m_hOwn->tftpX1 ||
 					   actionEvent.getSource() == m_hOwn->tftpY1 ||
 					   actionEvent.getSource() == m_hOwn->tftpX2 ||
 					   actionEvent.getSource() == m_hOwn->tftpY2) {
-				m_hOwn->htpWorkingAtrib->SetMask(atoi(m_hOwn->tftpX1->getText().c_str()),
-												 atoi(m_hOwn->tftpY1->getText().c_str()),
-												 atoi(m_hOwn->tftpX2->getText().c_str()),
-												 atoi(m_hOwn->tftpY2->getText().c_str()));
+				m_hOwn->hTempAttrib->SetMask(atoi(m_hOwn->tftpX1->getText().c_str()),
+											 atoi(m_hOwn->tftpY1->getText().c_str()),
+											 atoi(m_hOwn->tftpX2->getText().c_str()),
+											 atoi(m_hOwn->tftpY2->getText().c_str()));
 			} else if (actionEvent.getSource() == m_hOwn->buttpShow) {
 				m_hOwn->hAppMenu->GetContext(AppMenu_View)->EmulateClickID(APPMEN_VIEW_TILEPROP);
 			} else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconSearchObject) {
 				m_hOwn->winSearchObj->setVisible(!m_hOwn->winSearchObj->isVisible());
-			} else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconCurse ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconPathElevator ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconMapPiece ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconPowderKeg ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCheckpoint ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconWarp ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconWallCannon ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCrumblinPeg ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconStatue ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconBreakPlank ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCrate ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconTreasure ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconRope ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconHealth ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCatnip ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconTogglePeg ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconEyeCandy ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconSpringBoard ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconProjectile ||
-					   //actionEvent.getSource() == m_hOwn->hmbObject->butIconElevator     ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCrabNest ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconShake ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconLaser ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconStalactite ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconCannon ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconSound ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconDialog ||
-					   actionEvent.getSource() == m_hOwn->hmbObject->butIconText) {
-				m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
 			} else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconNewObjEmpty) {
 				WWD::Object *obj = new WWD::Object();
 				bool bFromContext = 0;
@@ -1174,8 +1130,10 @@ namespace State {
 				m_hOwn->OpenObjectWindow(obj, !bFromContext);
 				m_hOwn->vObjectsPicked.clear();
 				m_hOwn->vObjectsPicked.push_back(obj);
-			} else if (actionEvent.getSource() == m_hOwn->butExtLayerUp) {
-				m_hOwn->GetActivePlane()->ResizeRelative(0, 1, 0, 0);
+			} else if (std::find(m_hOwn->hmbObject->vButtons.begin(), m_hOwn->hmbObject->vButtons.end(), actionEvent.getSource()) != m_hOwn->hmbObject->vButtons.end()) {
+                m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
+            } else if (actionEvent.getSource() == m_hOwn->butExtLayerUp) {
+                m_hOwn->GetActivePlane()->ResizeAddTiles(0, -1);
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
@@ -1188,12 +1146,12 @@ namespace State {
 					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
 				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDown) {
-				m_hOwn->GetActivePlane()->ResizeRelative(0, 1, 0, 1);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(0, 1);
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerLeft) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 0, 0, 0);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(-1, 0);
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
@@ -1205,12 +1163,12 @@ namespace State {
 					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
 				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerRight) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 0, 1, 0);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(1, 0);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerUL) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 1, 0, 0);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(-1, -1);
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
@@ -1225,7 +1183,7 @@ namespace State {
 					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
 				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerUR) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 1, 1, 0);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(1, -1);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
@@ -1239,12 +1197,12 @@ namespace State {
 					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
 				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDL) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 1, 0, 1);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(-1, 1);
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
 				m_hOwn->vPort->MarkToRedraw(1);
 				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDR) {
-				m_hOwn->GetActivePlane()->ResizeRelative(1, 1, 1, 1);
+                m_hOwn->GetActivePlane()->ResizeAddTiles(1, 1);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
 				m_hOwn->vPort->MarkToRedraw(1);
@@ -1305,9 +1263,9 @@ namespace State {
 
 			for (int i = 0; i < 5; i++) {
 				if (actionEvent.getSource() == m_hOwn->rbtpIn[i]) {
-					m_hOwn->htpWorkingAtrib->SetAtribInside((WWD::TILE_ATRIB) i);
+					m_hOwn->hTempAttrib->SetAtribInside((WWD::TILE_ATTRIB) i);
 				} else if (actionEvent.getSource() == m_hOwn->rbtpOut[i]) {
-					m_hOwn->htpWorkingAtrib->SetAtribOutside((WWD::TILE_ATRIB) i);
+					m_hOwn->hTempAttrib->SetAtribOutside((WWD::TILE_ATTRIB) i);
 				}
 			}
 		}

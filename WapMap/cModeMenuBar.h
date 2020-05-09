@@ -110,10 +110,10 @@ protected:
 public:
     SHR::But *butIconSearchObject, *butIconNewObjEmpty, *butIconCrumblinPeg, *butIconBreakPlank, *butIconTogglePeg, *butIconElevator,
             *butIconPathElevator, *butIconSpringBoard, *butIconTreasure, *butIconCurse, *butIconCrate, *butIconStatue,
-            *butIconPowderKeg, *butIconCannon, *butIconWallCannon, *butIconSpikes, *butIconEyeCandy,
+            *butIconPowderKeg, *butIconCannon, *butIconSpikes, *butIconEyeCandy,
             *butIconCheckpoint, *butIconText, *butIconWarp, *butIconDialog, *butIconSound, *butIconRope, *butIconMapPiece,
             *butIconHealth, *butIconCatnip, *butIconProjectile, *butIconCrabNest, *butIconShake, *butIconStalactite, *butIconLaser,
-            *butIconEnemy[5];
+            *butIconEnemy;
     std::vector<SHR::But *> vButtons;
 
     cmmbObject(int startX);

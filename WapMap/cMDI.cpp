@@ -48,7 +48,7 @@ cMDI::cMDI() {
     hContextClosed = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     hContextClosed->adjustSize();
     hContextClosed->addActionListener(this);
-    hContextClosed->setVisible(0);
+    hContextClosed->hide();
     GV->editState->conMain->add(hContextClosed, 400, 400);
 
     hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
@@ -100,9 +100,15 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
     bool justCreated = strlen(dd->hParser->GetFilePath()) == 0;
     if (justCreated) {
         const char *str = GETL2S("NewMap", "NewDoc");
-        dd->szFileName = new char[strlen(str) + 1];
-        strcpy(dd->szFileName, str);
-    } else dd->szFileName = SHR::GetFile(dd->hParser->GetFilePath());
+        int size = strlen(str) - 3;
+        dd->szFileName = new char[size];
+        strncpy(dd->szFileName, str, size - 1);
+        dd->szFileName[size - 1] = 0;
+    }
+    else {
+        dd->szFileName = SHR::GetFile(dd->hParser->GetFilePath());
+        strrchr(dd->szFileName, '.')[0] = 0;
+    }
 
     dd->bSaved = 1;
 
@@ -150,7 +156,7 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
             dd->hStartingPosObj->SetLogic("_WM_STARTPOS");
             if (dd->hParser->GetGame() == WWD::Game_Gruntz)
                 dd->hStartingPosObj->SetImageSet("GAME_GRUNTSELECTEDSPRITE");
-            else if (dd->hParser->GetGame() == WWD::Game_Claw) {
+            else if (dd->hParser->GetGame() == WWD::Game_Claw || dd->hParser->GetGame() == WWD::Game_Claw2) {
                 dd->hStartingPosObj->SetImageSet("CLAW");
                 dd->hStartingPosObj->SetParam(WWD::Param_LocationI, 13);
                 dd->hStartingPosObj->SetParam(WWD::Param_LocationZ, 4000);
@@ -261,16 +267,13 @@ void cMDI::DeleteDocByIt(int i) {
     cIO_WWDx *meta = (cIO_WWDx *) dd->hParser->GetCustomMetaSerializer();
     delete meta;
     delete dd->hTab;
-    delete dd->hTileset;
+    delete dd->hTilesBank;
     delete dd->hSprBank;
     delete dd->hSndBank;
     delete dd->hAniBank;
-    delete dd->hCustomLogics;
+    delete dd->hCustomLogicBank;
     delete dd->hDataCtrl;
     if (dd->hTileClipboard != NULL) {
-        for (int i = 0; i < dd->iTileCBw; i++) {
-            delete[] dd->hTileClipboard[i];
-        }
         delete[] dd->hTileClipboard;
         dd->hTileClipboard = NULL;
         delete dd->hTileClipboardImageSet;
@@ -322,7 +325,6 @@ void cMDI::Think(bool bConsumed) {
 
     if (my > m_iPosY && my < m_iPosY + 25 && !bConsumed) {
         int xoff = 0;
-        bool closedsth = 0;
         for (int i = -1; i < int(m_vhDoc.size()); i++) {
             cTabMDI *tab = (i == -1 ? hDefTab : m_vhDoc[i]->hTab);
             int w = tab->GetWidth();
@@ -347,12 +349,11 @@ void cMDI::Think(bool bConsumed) {
                     iFocus = i;
                 }
                 if (hge->Input_KeyDown(HGEK_LBUTTON) && i != -1) {
-                    if (mx - xoff > w - 19 && mx - xoff < w - 3 && !closedsth) {
+                    if (tab->bCloseFocused) {
                         CloseDocByIt(i);
-                        closedsth = 1;
                         if (iFocus == i)
                             iFocus = -2;
-                        i--;
+                        --i;
                         continue;
                     }
                 }
@@ -473,7 +474,7 @@ void cMDI::Render() {
     hge->Gfx_SetClipping();
     int xoffset = hDefTab->Render(0, m_iPosY, bBlock, m_iActiveDoc == -1, m_vhDoc.size() == 0) + 3;
     for (int i = 0; i < m_vhDoc.size(); i++)
-        xoffset += m_vhDoc[i]->hTab->Render(xoffset, m_iPosY, bBlock, m_iActiveDoc == i, (i == m_vhDoc.size() - 1)) + 3;
+        xoffset += m_vhDoc[i]->hTab->Render(xoffset, m_iPosY, bBlock, m_iActiveDoc == i, (i == m_vhDoc.size() - 1)) - 1;
 
     if (bMouseHand)
         GV->editState->bShowHand = 1;
@@ -526,14 +527,11 @@ void cTabMDI::Update() {
 
 int cTabMDI::GetWidth() {
     if (dd == 0)
-        return 36;
+        return 28;
 
-    char desc[128];
-    if (dd->bSaved)
-        sprintf(desc, "%s", dd->szFileName);
-    else
-        sprintf(desc, "%s*", dd->szFileName);
-    return GV->fntMyriad13->GetStringWidth(desc) + 50;
+    std::string desc(dd->szFileName);
+    if (!dd->bSaved) desc.push_back('*');
+    return GV->fntMyriad13->GetStringWidth(desc.c_str()) + 54;
 }
 
 int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
@@ -552,23 +550,20 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
                         *4.0f * 125.0f)));
             RenderBG(x, y, 36, 3, 1, blast);
         }
-        GV->sprIcons[Icon_Home]->RenderStretch(x + 4, y, x + 4 + 26, y + 26);
+        GV->sprIcons[Icon_Home]->RenderStretch(x + 6, y, x + 4 + 26, y + 26);
         if (fTimer > 0.0f) {
             GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
             GV->sprIcons[Icon_Home]->SetColor(SETA(0xFFFFFFFF, (unsigned char) (fTimer * 4.0f * 125.0f)));
-            GV->sprIcons[Icon_Home]->RenderStretch(x + 4, y, x + 4 + 26, y + 26);
+            GV->sprIcons[Icon_Home]->RenderStretch(x + 6, y, x + 4 + 26, y + 26);
             GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_DEFAULT);
             GV->sprIcons[Icon_Home]->SetColor(0xFFFFFFFF);
         }
 
-        return 36;
+        return 28;
     } else {
-        char desc[128];
-        if (dd->bSaved)
-            sprintf(desc, "%s", dd->szFileName);
-        else
-            sprintf(desc, "%s*", dd->szFileName);
-        int sw = GV->fntMyriad13->GetStringWidth(desc);
+        std::string desc(dd->szFileName);
+        if (!dd->bSaved) desc.push_back('*');
+        int sw = GV->fntMyriad13->GetStringWidth(desc.c_str());
         int tabw = GetWidth();
 
         for (int i = 0; i < 5; i++)
@@ -585,23 +580,23 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
 
-        bool closefocused = (!bdisabled && mx > x + sw + 31 && my > y + 4 && mx < x + sw + 31 + 16 && my < y + 20 &&
+        bCloseFocused = (!bdisabled && mx > x + sw + 31 && my > y + 4 && mx < x + sw + 31 + 16 && my < y + 20 &&
                              GV->editState->conMain->getWidgetAt(mx, my) == NULL);
 
-        if (closefocused && fCloseTimer < 0.2f) {
+        if (bCloseFocused && fCloseTimer < 0.2f) {
             fCloseTimer += hge->Timer_GetDelta();
             if (fCloseTimer > 0.2f) fCloseTimer = 0.2f;
-        } else if (!closefocused && fCloseTimer > 0.0f) {
+        } else if (!bCloseFocused && fCloseTimer > 0.0f) {
             fCloseTimer -= hge->Timer_GetDelta();
             if (fCloseTimer < 0.0f) fCloseTimer = 0.0f;
         }
 
         GV->sprIcons16[Icon16_X]->SetColor(0xFFFFFFFF);
-        GV->sprIcons16[Icon16_X]->Render(x + sw + 31, y + 4);
+        GV->sprIcons16[Icon16_X]->Render(x + sw + 34, y + 4);
         if (fCloseTimer > 0.0f) {
             GV->sprIcons16[Icon16_X]->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
             GV->sprIcons16[Icon16_X]->SetColor(SETA(0xFFFFFFFF, (unsigned char) (fCloseTimer * 5.0f * 255.0f)));
-            GV->sprIcons16[Icon16_X]->Render(x + sw + 31, y + 4);
+            GV->sprIcons16[Icon16_X]->Render(x + sw + 34, y + 4);
             GV->editState->bShowHand = 1;
             GV->sprIcons16[Icon16_X]->SetColor(0xFFFFFFFF);
             GV->sprIcons16[Icon16_X]->SetBlendMode(BLEND_DEFAULT);
@@ -612,7 +607,7 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
         else
             GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 13, y + 4);
         GV->fntMyriad13->SetColor(0xFF000000);
-        GV->fntMyriad13->Render(x + 31, y + 5, HGETEXT_LEFT, desc, 0);
+        GV->fntMyriad13->Render(x + 31, y + 5, HGETEXT_LEFT, desc.c_str(), 0);
         return tabw;
     }
 }
@@ -626,9 +621,9 @@ void cTabMDI::RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed) {
         GV->hGfxInterface->sprBreadcrumb[st][3]->Render(x, y);
         xoff = 14;
     }
-    GV->hGfxInterface->sprBreadcrumb[st][1]->RenderStretch(x + xoff, y, x + w - (bclosed * 8), y + 26);
+    GV->hGfxInterface->sprBreadcrumb[st][1]->RenderStretch(x + xoff, y, x + w - (bclosed || bfirst) * 4 - 4, y + 26);
     if (bclosed)
         GV->hGfxInterface->sprBreadcrumb[st][4]->Render(x + w - 8, y);
     else
-        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w, y);
+        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w - (bfirst * 4) - 4, y);
 }

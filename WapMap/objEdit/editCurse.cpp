@@ -23,8 +23,8 @@ namespace ObjEdit {
         win->add(vpAdv);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
 
-        win->add(_butAddNext, 800 - 11 - 215, 106);
-        win->add(_butSave, 800 - 11 - 115, 106);
+        win->add(_butAddNext, 810 - 11 - 215, 108);
+        win->add(_butSave, 810 - 11 - 115, 108);
         fCurseAnim = 0.0f;
         iFrame = 0;
 
@@ -98,20 +98,18 @@ namespace ObjEdit {
                     Action(gcn::ActionEvent(rbCurses[i], ""));
                 }
             }
-            hge->Gfx_RenderLine(dx + i * 131, dy + 24, dx + i * 131, i < 5 ? dy + 120 : dy + win->getHeight(),
-                                0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + i * 131 + 1, dy + 24, dx + i * 131 + 1, i < 5 ? dy + 120 : dy + win->getHeight(),
-                                0xFF5c5c5c);
+            hge->Gfx_RenderLine(dx + i * 131, dy + 24, dx + i * 131, dy + 120,0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + i * 131 + 1, dy + 24, dx + i * 131 + 1, dy + 120, 0xFF5c5c5c);
         }
         hge->Gfx_RenderLine(dx, dy + 121, dx + win->getWidth(), dy + 121, 0xFF1f1f1f);
-        GV->fntMyriad13->SetColor(0xFF000000);
+        GV->fntMyriad13->SetColor(0xFFa1a1a1);
         char tmp[64];
         for (int i = 0; i < 6; i++)
             if (rbCurses[i]->isSelected()) {
                 sprintf(tmp, "CurseDesc%d", i);
                 break;
             }
-        GV->fntMyriad13->printf(dx + 15, dy + 130, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+        GV->fntMyriad13->printf(dx + 15, dy + 132, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
                                 GETL2S("EditObj_Curse", "CurseEffect"), GETL2S("EditObj_Curse", tmp), 0);
     }
 }

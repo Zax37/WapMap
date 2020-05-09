@@ -22,7 +22,6 @@ cAppMenu_Entry::cAppMenu_Entry(std::string lab, Gfx16Icons ico) {
     hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     hContext->hide();
     GV->editState->conMain->add(hContext, 400, 400);
-    bFocused = 0;
     fTimer = 0;
 }
 
@@ -347,11 +346,6 @@ void cAppMenu::Think(bool bConsumed) {
 }
 
 void cAppMenu::Render() {
-    /*hgeQuad q;
-    q.tex = 0;
-    q.blend = BLEND_DEFAULT;
-    SHR::SetQuad(&q, 0xFF3e3e3e, 0, 24, hge->System_GetState(HGE_SCREENWIDTH), 24+28);
-    hge->Gfx_RenderQuad(&q);*/
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     int xoff = 0;
@@ -431,19 +425,14 @@ void cAppMenu::valueChanged(const SelectionEvent &event) {
 }
 
 void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
+    iOpened = -1;
     if (actionEvent.getSource() == hEntries[AppMenu_File]->GetContext()) {
         int id = hEntries[AppMenu_File]->GetContext()->GetSelectedID();
         if (id == APPMEN_FILE_NEW) {
             if (GV->editState->NewMap_data == 0)
                 GV->editState->NewMap_Open();
         } else if (id == APPMEN_FILE_OPEN) {
-            char szFileopen[512] = "\0";
-            if (GV->editState->PromptForDocument(szFileopen) != 0) {
-                char *path = SHR::GetDir(szFileopen);
-                GV->SetLastOpenPath(path);
-                delete[] path;
-                GV->StateMgr->Push(new State::LoadMap(szFileopen));
-            }
+            GV->editState->OpenDocuments();
         } else if (id == APPMEN_FILE_SAVEAS ||
                    (id == APPMEN_FILE_SAVE && strlen(GV->editState->hParser->GetFilePath()) == 0)) {
             OPENFILENAME ofn;
@@ -454,7 +443,6 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             ofn.lpstrFilter = "WapWorld Document (*.wwd)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
             ofn.lpstrFile = szFileopen;
             ofn.nMaxFile = sizeof(szFileopen);
-            //((Menu*)Herculo.GameState)->ofn->Flags = OFN_FILEMUSTEXIST; // | OFN_NOCHANGEDIR
             ofn.lpstrDefExt = "wwd";
             ofn.lpstrInitialDir = GV->szLastSavePath;
             if (GetSaveFileName(&ofn)) {
@@ -476,8 +464,10 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
                 if (ok) {
                     char *fl = SHR::GetFile(GV->editState->hParser->GetFilePath());
                     delete[] GV->editState->MDI->GetActiveDoc()->szFileName;
-                    GV->editState->MDI->GetActiveDoc()->szFileName = new char[strlen(fl) + 1];
-                    strcpy(GV->editState->MDI->GetActiveDoc()->szFileName, fl);
+                    int size = strlen(fl) - 3;
+                    GV->editState->MDI->GetActiveDoc()->szFileName = new char[size];
+                    strncpy(GV->editState->MDI->GetActiveDoc()->szFileName, fl, size - 1);
+                    GV->editState->MDI->GetActiveDoc()->szFileName[size - 1] = 0;
                     GV->editState->MDI->GetActiveDoc()->bSaved = 1;
                     GV->editState->SetHint("%s: %s", GETL2S("Hints", "FileSavedAs"), fl);
                     delete[] fl;
@@ -487,8 +477,6 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
                 GV->SetLastSavePath(lastsave);
                 delete[] lastsave;
             }
-            //}else if( actionEvent.getSource() == m_hOwn->cbOptionsAlfaHigherPlanes ){
-            // GV->bAlphaHigherPlanes = GV->cbOptionsAlfaHigherPlanes->isSelected();
         } else if (id == APPMEN_FILE_SAVE) {
             if (!GV->editState->MDI->GetActiveDoc()->bSaved) {
                 try {

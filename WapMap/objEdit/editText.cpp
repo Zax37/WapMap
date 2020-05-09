@@ -1,97 +1,3 @@
-/*
-
-		  char text[strlen(m_hOwn->tbtextText->getText().c_str())+1];
-		  strcpy(text, m_hOwn->tbtextText->getText().c_str());
-		  if( strlen(text) == 0 ) return;
-
-		  int beginx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->vPort->GetX()+m_hOwn->vPort->GetWidth()/2),
-			  beginy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->vPort->GetY()+m_hOwn->vPort->GetHeight()/2);
-
-		  int offsetx = 0, offsety = 0;
-		  m_hOwn->vObjectsPicked.clear();
-		  printf("%s (%d)\n", text, strlen(text));
-		  for(int i=0;i<strlen(text);i++){
-		   printf("doing '%c'\n", text[i]);
-		   int frame = -1, yoffset = 0;
-		   if( text[i] > 64 && text[i] < 91 )
-			frame = text[i]-64;
-		   else if( text[i] > 96 && text[i] < 123 )
-			frame = text[i]-96;
-		   else if( text[i] > 47 && text[i] < 58 )
-			frame = text[i]-21;
-		   else if( text[i] == 44 ){
-			frame = 37;
-			yoffset = 6;
-		   }else if( text[i] == 96 || text[i] == 39 )
-			frame = 37;
-		   else if( text[i] == 46 ){
-			frame = 38;
-			yoffset = 6;
-		   }else if( text[i] == 33 )
-			frame = 39;
-		   else if( text[i] == 63 )
-			frame = 40;
-		   else if( text[i] == 61 )
-			frame = 41;
-		   else if( text[i] == 60 )
-			frame = 42;
-		   else if( text[i] == 62 )
-			frame = 43;
-		   else if( text[i] == 40 )
-			frame = 44;
-		   else if( text[i] == 41 )
-			frame = 45;
-		   else if( text[i] == 91 )
-			frame = 46;
-		   else if( text[i] == 93 )
-			frame = 47;
-		   else if( text[i] == 64 )
-			frame = 48;
-		   else if( text[i] == '#' )
-			frame = 49;
-		   else if( text[i] == '$' )
-			frame = 50;
-		   else if( text[i] == '%' )
-			frame = 51;
-		   else if( text[i] == '^' )
-			frame = 52;
-		   else if( text[i] == '&' )
-			frame = 53;
-		   else if( text[i] == '*' )
-			frame = 54;
-
-		   if( text[i] == ' ' ){
-			offsetx += 5;
-			continue;
-		   }else if( text[i] == '\n' ){
-			offsetx = 0;
-			offsety += 10;
-			continue;
-		   }else if( frame == -1 )
-			continue;
-
-		   WWD::Object * obj = new WWD::Object();
-		   obj->SetLogic("DoNothing");
-		   obj->SetImageSet("GAME_FONT");
-
-		   obj->SetParam(WWD::Param_LocationI, frame);
-		   obj->SetParam(WWD::Param_LocationX, beginx+offsetx);
-		   obj->SetParam(WWD::Param_LocationY, beginy+offsety+yoffset);
-		   m_hOwn->GetActivePlane()->AddObjectAndCalcID(obj);
-		   obj->SetUserData(new cObjUserData(obj));
-		   m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-
-		   offsetx += m_hOwn->SprBank->GetAssetByID("GAME_FONT")->GetIMGByID(frame)->GetSprite()->GetWidth();
-
-		   m_hOwn->vObjectsPicked.push_back(obj);
-		  }
-
-		  m_hOwn->objContext->EmulateClickID(OBJMENU_MOVE);
-		  m_hOwn->tbtextText->setText("");
-		  m_hOwn->winAddText->setVisible(0);
-
-	 */
-
 #include "editText.h"
 #include "../globals.h"
 #include "../langID.h"
@@ -270,12 +176,12 @@ namespace ObjEdit {
                 hTempObj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset);
                 GetUserDataFromObj(hTempObj)->SyncToObj();
             } else {
-                WWD::Object *obj = new WWD::Object();
+                auto obj = new WWD::Object();
                 obj->SetLogic("DoNothing");
                 obj->SetImageSet("GAME_FONT");
                 obj->SetParam(WWD::Param_LocationI, frame);
                 obj->SetParam(WWD::Param_LocationX, areaX + offsetx);
-                obj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset);
+                obj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset - (frame == 38) * 3);
                 GV->editState->GetActivePlane()->AddObjectAndCalcID(obj);
                 obj->SetUserData(new cObjUserData(obj));
                 GV->editState->hPlaneData[GV->editState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);

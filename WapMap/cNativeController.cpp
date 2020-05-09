@@ -127,7 +127,7 @@ void cNativeController::SetDebugInfo(bool b) {
 void cNativeController::RunGame(std::string strMap, int iPosX, int iPosY) {
     if (!bValid) return;
     GV->Console->Printf("Running map '~y~%s~w~'.", strMap.c_str());
-    std::string strParams, strExe = strNativePath + "/" + "claw.exe";
+    std::string strParams, strExe = strNativePath + "/claw.exe";
     if (IsCrazyHookAvailable()) {
         strParams += "CL:\"" + strMap + "\"";
         char tmp[64];
