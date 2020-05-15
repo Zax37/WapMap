@@ -279,72 +279,41 @@ void cGlobals::Init() {
         szSerial = "";
     }
 
-    HKEY verkey;
-    DWORD dwMajorVersion, dwMinorVersion, dwBuild;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_QUERY_VALUE,
-                     &verkey) == ERROR_SUCCESS) {
-        int major, minor;
-        char tmp[256];
-        DWORD size = 256;
-        RegQueryValueEx(verkey, "CurrentVersion", 0, 0, (BYTE *) (&tmp), &size);
-        sscanf(tmp, "%d.%d", &major, &minor);
-        size = 256;
-        dwMajorVersion = major;
-        dwMinorVersion = minor;
-        RegQueryValueEx(verkey, "CurrentBuildNumber", 0, 0, (BYTE *) (&tmp), &size);
-        sscanf(tmp, "%d", &dwBuild);
-        size = 256;
-        RegQueryValueEx(verkey, "ProductName", 0, 0, (BYTE *) (&szNameOS), &size);
-        /*char serial[256];
-        size = 256;
-        RegQueryValueEx(verkey, "ProductId", 0, 0, (BYTE*)(&serial), &size);
-        Console->Printf("%s", serial);*/
-        RegCloseKey(verkey);
-        if (major == 5 && minor == 0)
-            iOS = OS_2000;
-        else if (major == 5 && minor == 1)
-            iOS = OS_XP;
-        else if (major == 5 && minor == 2)
-            iOS = OS_SERVER2003;
-        else if (major == 6 && minor == 0)
-            iOS = OS_VISTA;
-        else if (major == 6 && minor == 1)
-            iOS = OS_7;
-        else
-            iOS = OS_UNKNOWN;
-        Console->Print("~g~System info acquired from registry.");
+    DWORD dwMajorVersion, dwMinorVersion, dwBuild, dwVersion;
+    dwVersion = ::GetVersion();
+    dwMajorVersion = (DWORD) (LOBYTE(LOWORD(dwVersion)));
+    dwMinorVersion = (DWORD) (HIBYTE(LOWORD(dwVersion)));
+    if (dwVersion < 0x80000000)
+        dwBuild = (DWORD) (HIWORD(dwVersion));
+    else
+        dwBuild = 0;
+    if (dwMajorVersion < 5) {
+        iOS = OS_OLD;
+        sprintf(szNameOS, "95/98");
+    } else if (dwMajorVersion == 5 && dwMinorVersion == 0) {
+        iOS = OS_2000;
+        sprintf(szNameOS, "2000");
+    } else if (dwMajorVersion == 5 && dwMinorVersion == 1) {
+        iOS = OS_XP;
+        sprintf(szNameOS, "XP");
+    } else if (dwMajorVersion == 5 && dwMinorVersion == 2) {
+        iOS = OS_SERVER2003;
+        sprintf(szNameOS, "Server2003");
+    } else if (dwMajorVersion == 6 && dwMinorVersion == 0) {
+        iOS = OS_VISTA;
+        sprintf(szNameOS, "Vista");
+    } else if (dwMajorVersion == 6 && dwMinorVersion == 1) {
+        iOS = OS_7;
+        sprintf(szNameOS, "Win7");
+    } else if (dwMajorVersion == 6 && dwMinorVersion >= 2) {
+        iOS = OS_8;
+        sprintf(szNameOS, "Win8");
+    } else if (dwMajorVersion == 10) {
+        iOS = OS_10;
+        sprintf(szNameOS, "Win10");
     } else {
-        DWORD dwVersion;
-        dwVersion = ::GetVersion();
-        dwMajorVersion = (DWORD) (LOBYTE(LOWORD(dwVersion)));
-        dwMinorVersion = (DWORD) (HIBYTE(LOWORD(dwVersion)));
-        if (dwVersion < 0x80000000)
-            dwBuild = (DWORD) (HIWORD(dwVersion));
-        else
-            dwBuild = 0;
-        if (dwMajorVersion < 5) {
-            iOS = OS_OLD;
-            sprintf(szNameOS, "95/98");
-        } else if (dwMajorVersion == 5 && dwMinorVersion == 0) {
-            iOS = OS_2000;
-            sprintf(szNameOS, "2000");
-        } else if (dwMajorVersion == 5 && dwMinorVersion == 1) {
-            iOS = OS_XP;
-            sprintf(szNameOS, "XP");
-        } else if (dwMajorVersion == 5 && dwMinorVersion == 2) {
-            iOS = OS_SERVER2003;
-            sprintf(szNameOS, "Server2003");
-        } else if (dwMajorVersion == 6 && dwMinorVersion == 0) {
-            iOS = OS_VISTA;
-            sprintf(szNameOS, "Vista");
-        } else if (dwMajorVersion == 6 && dwMinorVersion == 1) {
-            iOS = OS_7;
-            sprintf(szNameOS, "Win7");
-        } else {
-            iOS = OS_UNKNOWN;
-            sprintf(szNameOS, "???");
-        }
-        Console->Print("~r~Unable to acquire system info from registry. Trying hard way...");
+        iOS = OS_UNKNOWN;
+        sprintf(szNameOS, "???");
     }
 
     Console->Printf("OS: ~y~%d~w~.~y~%d ~w~(b~y~%d~w~), recognised as: ~y~%s~w~.", dwMajorVersion, dwMinorVersion,
@@ -762,7 +731,10 @@ void cGlobals::Init() {
 
     IF = new SHR::Interface(&gcnParts);
 
-    szClawPath = NULL;
+    for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
+        gamePaths[i] = ini->GetValue("Paths", WWD::GAME_NAMES[i], gamePaths[i].c_str());
+    }
+
     const char *pVal = NULL;
     pVal = ini->GetValue("Paths", "Claw", "");
 
@@ -780,8 +752,6 @@ void cGlobals::Init() {
         HKEY key;
         if (RegOpenKey(HKEY_LOCAL_MACHINE, "SOFTWARE\\Classes\\Software\\RealNetworks\\Games", &key) != ERROR_SUCCESS) {
             Console->Printf("~r~Unable to find default Claw installation path.~w~\n");
-            szClawPath = new char[1];
-            szClawPath[0] = '\0';
         } else {
             DWORD keysnum = 0;
             RegQueryInfoKey(key, 0, 0, 0, &keysnum, 0, 0, 0, 0, 0, 0, 0);
@@ -802,26 +772,26 @@ void cGlobals::Init() {
             if (clawkey != NULL) {
                 HKEY clawkeyh;
                 if (RegOpenKey(key, clawkey, &clawkeyh) == ERROR_SUCCESS) {
-                    szClawPath = new char[MAX_PATH];
+                    char tmp[MAX_PATH];
                     DWORD size = MAX_PATH;
-                    RegQueryValueEx(clawkeyh, "InstallPath", 0, 0, (BYTE *) szClawPath, &size);
+                    RegQueryValueEx(clawkeyh, "InstallPath", 0, 0, (BYTE *) tmp, &size);
                     RegCloseKey(clawkeyh);
-                    if (szClawPath[strlen(szClawPath) - 1] == '/' || szClawPath[strlen(szClawPath) - 1] == '\\')
-                        szClawPath[strlen(szClawPath) - 1] = '\0';
-                    Console->Printf("~g~Found install path (by RealNetworks): %s~w~", szClawPath);
-                    ini->SetValue("Paths", "Claw", szClawPath);
+                    if (tmp[strlen(tmp) - 1] == '/' || tmp[strlen(tmp) - 1] == '\\')
+                        tmp[strlen(tmp) - 1] = '\0';
+                    Console->Printf("~g~Found install path (by RealNetworks): %s~w~", tmp);
+                    ini->SetValue("Paths", "Claw", tmp);
                     ini->SaveFile("settings.cfg");
+                    gamePaths[WWD::Game_Claw] = tmp;
                 }
                 delete[] clawkey;
             }
             RegCloseKey(key);
         }
     } else {
-        szClawPath = new char[strlen(pVal) + 1];
-        strcpy(szClawPath, pVal);
+        gamePaths[WWD::Game_Claw] = pVal;
     }
 
-    if (szClawPath == NULL) {
+    if (gamePaths[WWD::Game_Claw].empty()) {
         char tmp[768];
         bool fail = 0;
 
@@ -832,8 +802,7 @@ void cGlobals::Init() {
         if (f) fclose(f);
         else fail = 1;
         if (!fail) {
-            szClawPath = new char[strlen(myDIR) + 1];
-            strcpy(szClawPath, myDIR);
+            gamePaths[WWD::Game_Claw] = myDIR;
         } else {
             char *npath = SHR::GetDir(myDIR);
             Console->Printf("~w~Checking in parent directory...");
@@ -842,17 +811,15 @@ void cGlobals::Init() {
             if (f) fclose(f);
             else fail = 1;
             if (!fail) {
-                szClawPath = new char[strlen(npath) + 1];
-                strcpy(szClawPath, npath);
+                gamePaths[WWD::Game_Claw] = npath;
             }
             delete[] npath;
         }
 
-        if (szClawPath != NULL) {
+        if (!gamePaths[WWD::Game_Claw].empty()) {
             Console->Printf("~g~Found in ~y~%s~g~.", myDIR);
-            ini->SetValue("Paths", "Claw", szClawPath);
+            ini->SetValue("Paths", "Claw", myDIR);
             ini->SaveFile("settings.cfg");
-            delete[] szClawPath;
         } else {
             Console->Printf("~r~Unable to find Claw installation.");
         }

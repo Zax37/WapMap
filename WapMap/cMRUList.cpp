@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "states/editing_ww.h"
 #include <Shlobj.h>
+#include "cAppMenu.h"
 
 inline LPITEMIDLIST PIDLGetNextItem(LPITEMIDLIST pidl) {
     return pidl ? reinterpret_cast<LPITEMIDLIST>(reinterpret_cast<BYTE *>(pidl) + pidl->mkid.cb) : NULL;
@@ -18,7 +19,7 @@ cMruList::~cMruList() {
 void cMruList::Reload() {
     GV->Console->Print("~w~Reloading MRU list...");
     HKEY key;
-    if (GV->iOS == OS_VISTA || GV->iOS == OS_7) {
+    if (GV->iOS == OS_VISTA || GV->iOS == OS_7 || GV->iOS == OS_8 || GV->iOS == OS_10) {
         RegOpenKeyEx(HKEY_CURRENT_USER,
                      "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ComDlg32\\OpenSavePidlMRU\\WWD", 0,
                      KEY_QUERY_VALUE, &key);
@@ -105,7 +106,7 @@ void cMruList::PushNewFile(const char *path, bool bSaveToRegistry) {
     bool added = false;
     for (int i = 0; i < iFilesCount; i++) {
         if (sRecentlyUsed[i] == path) {
-            const std::string& pathStr = sRecentlyUsed[i];
+            std::string pathStr = sRecentlyUsed[i];
             for (int y = i; y > 0; --y)
                 sRecentlyUsed[y] = sRecentlyUsed[y - 1];
             sRecentlyUsed[0] = pathStr;

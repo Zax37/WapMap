@@ -1,6 +1,9 @@
 #ifndef H_WIN_OPTIONS
 #define H_WIN_OPTIONS
 
+#include "../../shared/gcnWidgets/wIconListbox.h"
+#include "../../shared/gcnWidgets/wScrollArea.h"
+#include "../shared/cWWD.h"
 #include "window.h"
 
 namespace SHR {
@@ -30,17 +33,20 @@ public:
     int getNumberOfElements();
 };
 
-class winOptions : public cWindow {
+class winOptions : public cWindow, SHR::IconListModel {
 private:
-    SHR::Lab *laboptChangesRes, *laboptChangesLang, *laboptRes, *laboptLang, *laboptGameRes,
-            *laboptEditorSettings, *laboptCrazyHookSettings, *labscpDesc, *labscpVersion;
-    SHR::But *butscpPath, *butoptSave;
+    std::vector<gcn::Widget*> widgetsToDelete;
+    std::vector<SHR::Container*> optionsForCategory;
+    std::vector<SHR::TextField*> pathTextFields;
+    SHR::Lab *labChangesRes, *labChangesLang, *labRes, *labLang, *labGameRes, *labCrazyHookSettings, *labVersion;
+    SHR::But *butPath[WWD::Games_Count], *butSave;
     SHR::DropDown *ddoptLang, *ddoptRes, *ddoptGameRes;
     SHR::CBox *cbOptionsAlfaHigherPlanes, *cboptCrazyHookGodMode, *cboptCrazyHookArmor, *cboptCrazyHookDebugInfo,
             *cboptAutoUpdate, *cboptSmoothZooming;
-    SHR::TextField *tfscpPath;
     WIDG::Viewport *vp;
     cDynamicListModel *lmLang;
+    SHR::ScrollArea *scrollAreaCategories;
+    SHR::ListBox *settingsCategoriesList;
 public:
     winOptions();
 
@@ -50,7 +56,7 @@ public:
 
     virtual void Think();
 
-    virtual void Open();
+    virtual void Open(WWD::GAME game = WWD::Game_Unknown);
 
     virtual void Close();
 
@@ -58,7 +64,13 @@ public:
 
     void SyncWithExe();
 
-    void PickAndSetClawLocation();
+    void PickAndSetGameLocation(WWD::GAME);
+
+    std::string getElementAt(int i) override;
+
+    hgeSprite* getIcon(int i) override;
+
+    int getNumberOfElements() override { return WWD::Games_Count + 1; }
 };
 
 #endif // H_WIN_TILEBROWSER

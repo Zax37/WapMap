@@ -21,7 +21,8 @@ namespace State {
             else
                 return "---";
         } else if (m_iType == LMODEL_PLANESPROP) {
-            if (m_hOwn->hParser != NULL && i >= 0 && i < m_hOwn->hParser->GetPlanesCount())
+            if (m_hOwn->hParser == NULL) return "---";
+            else if (i >= 0 && i < m_hOwn->hParser->GetPlanesCount())
                 return m_hOwn->hParser->GetPlane(i)->GetName();
             else if (i == m_hOwn->hParser->GetPlanesCount())
                 return GETL2S("PlaneProperties", "NewPlane");

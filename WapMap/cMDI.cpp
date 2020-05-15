@@ -183,18 +183,22 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
     UpdateCrashList();
     GV->anyMapLoaded = true;
     if (!justCreated) {
-        bool bRebuild = 0;
+        bool bRebuild = false;
         for (int i = 0; i < vstrRecentlyClosed.size(); i++) {
             if (!strcmp(dd->hParser->GetFilePath(), vstrRecentlyClosed[i].c_str())) {
+                hContextClosed->RemoveElement(i);
                 vstrRecentlyClosed.erase(vstrRecentlyClosed.begin() + i);
-                bRebuild = 1;
+                bRebuild = true;
             }
         }
-        if (bRebuild)
+        if (bRebuild) {
             RebuildContext(0);
+            GV->editState->hAppMenu->SyncRecentlyClosedRebuild();
+        }
     }
     hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(1);
     hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
+
     return dd;
 }
 
@@ -251,10 +255,19 @@ void cMDI::DeleteDocByIt(int i) {
     if (i < 0 || i >= m_vhDoc.size()) return;
 
     if (strlen(m_vhDoc[i]->hParser->GetFilePath()) > 0) {
-        if (vstrRecentlyClosed.size() == 5) {
-            vstrRecentlyClosed.pop_back();
+        bool alreadyThere = false;
+        for (auto& closed : vstrRecentlyClosed) {
+            if (closed == m_vhDoc[i]->hParser->GetFilePath()) {
+                alreadyThere = true;
+                break;
+            }
         }
-        vstrRecentlyClosed.insert(vstrRecentlyClosed.begin(), m_vhDoc[i]->hParser->GetFilePath());
+        if (!alreadyThere) {
+            if (vstrRecentlyClosed.size() == 5) {
+                vstrRecentlyClosed.pop_back();
+            }
+            vstrRecentlyClosed.insert(vstrRecentlyClosed.begin(), m_vhDoc[i]->hParser->GetFilePath());
+        }
     }
 
     DocumentData *dd = m_vhDoc[i];
@@ -371,9 +384,10 @@ void cMDI::Think(bool bConsumed) {
           my > hContextClosed->getY() && my < hContextClosed->getY() + hContextClosed->getHeight()))
         hContext->setVisible(0);
 
-    if (!mout && iFocus >= 0 && hge->Input_KeyUp(HGEK_RBUTTON)) {
+    if (!mout && hge->Input_KeyUp(HGEK_RBUTTON)) {
         m_iContextMenuFocusedDoc = iFocus;
-        hContext->GetElementByID(MDI_CONTEXT_RELOAD)->SetEnabled(strlen(m_vhDoc[iFocus]->hParser->GetFilePath()) > 0);
+        hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(iFocus >= 0 && m_vhDoc.size() > 1);
+        hContext->GetElementByID(MDI_CONTEXT_RELOAD)->SetEnabled(iFocus >= 0 && strlen(m_vhDoc[iFocus]->hParser->GetFilePath()) > 0);
         hContext->setPosition(mx, my);
         GV->editState->conMain->moveToTop(hContext);
         hContext->setVisible(1);
@@ -493,6 +507,31 @@ void cMDI::SetActiveDoc(DocumentData *doc) {
 void cMDI::SetActiveDocIt(int it) {
     m_iActiveDoc = it;
     GV->editState->DocumentSwitched();
+}
+
+void cMDI::SaveCurrent() {
+    if (!GetActiveDoc()->bSaved) {
+        try {
+            PrepareDocToSave(GetActiveDocIt());
+            GV->editState->hParser->CompileToFile(GV->editState->hParser->GetFilePath());
+            GetActiveDoc()->bSaved = 1;
+
+            char tmp[128];
+            char *filename = SHR::GetFile(GV->editState->hParser->GetFilePath());
+            sprintf(tmp, "%s - %s", filename, WA_TITLEBAR);
+            delete[] filename;
+            hge->System_SetState(HGE_TITLE, tmp);
+        }
+        catch (WWD::Exception &exc) {
+#ifdef BUILD_DEBUG
+            GV->Console->Printf("~r~WWD exception: ~y~%d ~w~(~y~%s~w~:~y~%d~w~)", exc.iErrorCode, exc.szFile, exc.iLine);
+#else
+            GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
+#endif
+        }
+    } else {
+        GV->editState->SetHint(GETL2S("Hints", "NothingToSave"));
+    }
 };
 
 cTabMDI::cTabMDI() {

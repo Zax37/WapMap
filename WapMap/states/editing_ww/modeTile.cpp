@@ -8,18 +8,29 @@
 extern HGE *hge;
 
 bool State::EditingWW::TileThink(bool pbConsumed) {
+    if (hge->Input_KeyDown(HGEK_ESCAPE)) {
+        if (conWriteID->isVisible()) {
+            conWriteID->setShow(false);
+            iTileWriteIDx = iTileWriteIDy = -1;
+            vPort->MarkToRedraw(true);
+        }
+        SetTool(EWW_TOOL_NONE);
+        vTileGhosting.clear();
+        return false;
+    }
+
+    if (!hge->Input_IsMouseOver())
+        return false;
+
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
+
     if (iActiveTool == EWW_TOOL_WRITEID || iTilePicked == EWW_TILE_PIPETTE) {
         vTileGhosting.clear();
     }
 
     if (iActiveTool == EWW_TOOL_WRITEID) {
-        if (conWriteID->isVisible() &&
-            (hge->Input_KeyDown(HGEK_LBUTTON) || hge->Input_KeyDown(HGEK_RBUTTON)) &&
-            conMain->getWidgetAt(mx, my) != conWriteID) {
-            conWriteID->setShow(0);
-        } else if (iTileWriteIDx != -1 && iTileWriteIDy != -1) {
+        if (iTileWriteIDx != -1 && iTileWriteIDy != -1) {
             TileGhost tg;
             tg.x = iTileWriteIDx;
             tg.y = iTileWriteIDy;
@@ -27,7 +38,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             tg.id = EWW_TILE_PIPETTE;
             vTileGhosting.push_back(tg);
             int posx = iTileWriteIDx * GetActivePlane()->GetTileWidth(),
-                    posy = iTileWriteIDy * GetActivePlane()->GetTileHeight();
+                posy = iTileWriteIDy * GetActivePlane()->GetTileHeight();
             posx = Wrd2ScrX(GetActivePlane(), posx);
             posy = Wrd2ScrY(GetActivePlane(), posy);
             int tileh = GetActivePlane()->GetTileHeight() * fZoom;
@@ -44,12 +55,6 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
             iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
         } else if (hge->Input_GetKeyState(HGEK_LBUTTON) && vPort->GetWidget()->isMouseOver() && !pbConsumed) {
-            /*int actx = Scr2WrdX(GetActivePlane(), mx),
-                acty = Scr2WrdY(GetActivePlane(), my);
-            int x = std::min(iObjDragOrigX, actx),
-                y = std::min(iObjDragOrigY, acty),
-                w = std::max(iObjDragOrigX, actx)-x,
-                h = std::max(iObjDragOrigY, acty)-y;*/
             vPort->MarkToRedraw(1);
         } else if (bObjDragSelection) {
             bObjDragSelection = 0;
@@ -73,7 +78,6 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                   my < tilContext->getY() + tilContext->getHeight())) {
                 tilContext->setVisible(0);
                 return 0;
-                //printf("close\n");
             }
         }
 
@@ -174,11 +178,10 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             if (iActiveTool == EWW_TOOL_BRUSH && (hx != lastbrushx || hy != lastbrushy))
                 vTileGhosting.clear();
 
-            //lastbrushx = hx;
-            //lastbrushy = hy;
             iPipetteTileHL = EWW_TILE_NONE;
             if (hx != -1 && hy != -1) {
-                if ((iActiveTool == EWW_TOOL_PENCIL && iTilePicked == EWW_TILE_PIPETTE) || iActiveTool == EWW_TOOL_WRITEID) {
+                if ((iActiveTool == EWW_TOOL_PENCIL && iTilePicked == EWW_TILE_PIPETTE) ||
+                    iActiveTool == EWW_TOOL_WRITEID) {
                     TileGhost tg;
                     tg.x = hx;
                     tg.y = hy;
@@ -215,7 +218,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                 if (lockDrawing) {
                     lockDrawing = hge->Input_GetKeyState(HGEK_LBUTTON);
                 } else if (iActiveTool == EWW_TOOL_PENCIL &&
-                    (iTilePicked >= 0 || iTilePicked == EWW_TILE_ERASE || iTilePicked == EWW_TILE_FILL)) {
+                           (iTilePicked >= 0 || iTilePicked == EWW_TILE_ERASE || iTilePicked == EWW_TILE_FILL)) {
                     bool bPlacing = 0;
                     if (iTileDrawMode == EWW_DRAW_RECT || iTileDrawMode == EWW_DRAW_LINE ||
                         iTileDrawMode == EWW_DRAW_ELLIPSE) {
@@ -303,8 +306,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                     longD = dx;
                                     shortD = dy;
                                     incYL = 0;
-                                }
-                                else {
+                                } else {
                                     longD = dy;
                                     shortD = dx;
                                     incXL = 0;
@@ -325,8 +327,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                         x1 += incXH;
                                         y1 += incYH;
                                         d += incDH;
-                                    }
-                                    else {
+                                    } else {
                                         x1 += incXL;
                                         y1 += incYL;
                                         d += incDL;
@@ -486,7 +487,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     }
 
                 } else if (iActiveTool == EWW_TOOL_WRITEID && (hge->Input_KeyDown(HGEK_LBUTTON) ||
-                                                        hge->Input_KeyDown(HGEK_ENTER) && !conWriteID->isVisible())) {
+                                                               hge->Input_KeyDown(HGEK_ENTER) &&
+                                                               !conWriteID->isVisible())) {
                     iTileWriteIDx = hx;
                     iTileWriteIDy = hy;
                     int posX = hx * GetActivePlane()->GetTileWidth(),
@@ -495,14 +497,17 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     posY = Wrd2ScrY(GetActivePlane(), posY);
                     int tileH = GetActivePlane()->GetTileHeight() * fZoom;
                     int tileW = (GetActivePlane()->GetTileWidth() * fZoom - 48.0f) / 2.0f;
-                    WWD::Tile* tile = GetActivePlane()->GetTile(hx, hy);
-                    if (!tile->IsFilled() && !tile->IsInvisible())
-                        tfWriteID->setText(std::to_string(tile->GetID()));
-                    else
+                    WWD::Tile *tile = GetActivePlane()->GetTile(hx, hy);
+                    if (tile->IsFilled()) {
+                        tfWriteID->setText("FILL");
+                    } else if (tile->IsInvisible()) {
                         tfWriteID->setText("0");
+                    } else {
+                        tfWriteID->setText(std::to_string(tile->GetID()));
+                    }
 
-                    conWriteID->setVisible(0);
-                    conWriteID->setShow(1);
+                    conWriteID->setVisible(false);
+                    conWriteID->setShow(true);
                     tfWriteID->requestFocus();
                     tfWriteID->setCaretPosition(tfWriteID->getText().length());
                     conWriteID->setPosition(posX + tileW, posY + tileH / 2 - 10);
@@ -524,29 +529,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         lockDrawing = true;
                         RebuildTilePicker();
                     } else if (iActiveTool == EWW_TOOL_FILL) {
-                        bFloodFillBuf = new bool *[GetActivePlane()->GetPlaneWidth()];
-                        for (int x = 0; x < GetActivePlane()->GetPlaneWidth(); x++) {
-                            bFloodFillBuf[x] = new bool[GetActivePlane()->GetPlaneHeight()];
-                            for (int y = 0; y < GetActivePlane()->GetPlaneHeight(); y++)
-                                bFloodFillBuf[x][y] = 0;
-                        }
-
-                        int base = 0;
-                        if (GetActivePlane()->GetTile(hx, hy)->IsInvisible())
-                            base = EWW_TILE_ERASE;
-                        else if (GetActivePlane()->GetTile(hx, hy)->IsFilled())
-                            base = EWW_TILE_FILL;
-                        else
-                            base = GetActivePlane()->GetTile(hx, hy)->GetID();
-
-                        FloodFill(base, hx, hy, iTilePicked);
+                        FloodFill(hx, hy, iTilePicked);
                         hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
-
-                        for (int x = 0; x < GetActivePlane()->GetPlaneWidth(); x++) {
-                            delete[] bFloodFillBuf[x];
-                            bFloodFillBuf[x] = 0;
-                        }
-                        delete[] bFloodFillBuf;
                         vPort->MarkToRedraw(1);
                     } else if (iActiveTool == EWW_TOOL_BRUSH && iTilePicked != EWW_TILE_NONE) {
                         if (iLastBrushPlacedX != hx || iLastBrushPlacedY != hy) {
@@ -584,51 +568,94 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             vPort->MarkToRedraw(1);
         }
     }
-    return 0;
+    return false;
 }
 
-void State::EditingWW::FloodFill(int base, int x, int y, int tile) {
+void State::EditingWW::FloodFill(int x, int y, int tile) {
     if (x < 0 || y < 0) return;
-    WWD::Tile* t = GetActivePlane()->GetTile(x, y);
-    if (!t) return;
     x = GetActivePlane()->ClampX(x);
     y = GetActivePlane()->ClampY(y);
-    if (bFloodFillBuf[x][y]) return;
-    switch (base) {
-    case EWW_TILE_ERASE:
-        if (!t->IsInvisible()) return;
-        break;
-    case EWW_TILE_FILL:
-        if (!t->IsFilled()) return;
-        break;
-    default:
-        if (t->GetID() != base) return;
-        break;
+    WWD::Tile *t = GetActivePlane()->GetTile(x, y);
+    if (!t) return;
+
+    int base = 0;
+    if (t->IsInvisible())
+        base = EWW_TILE_ERASE;
+    else if (t->IsFilled())
+        base = EWW_TILE_FILL;
+    else
+        base = t->GetID();
+
+    if (tile == base) return;
+
+    int width = GetActivePlane()->GetPlaneWidth(),
+        height = GetActivePlane()->GetPlaneHeight(),
+        size = width * height,
+        it = y * width + x;
+
+    bool* bFloodFillBuf = new bool [size] {};
+
+    std::function < bool() > checkTile;
+    if (base == EWW_TILE_ERASE) {
+        checkTile = [&t]() { return t->IsInvisible(); };
+    } else if (base == EWW_TILE_FILL) {
+        checkTile = [&t]() { return t->IsFilled(); };
+    } else {
+        checkTile = [&t, base]() { return t->GetID() == base; };
     }
 
-    switch (tile) {
-    case EWW_TILE_ERASE:
-        t->SetInvisible(true);
-        break;
-    case EWW_TILE_FILL:
-        t->SetFilled(true);
-        break;
-    default:
-        //imgSet
-        t->SetID(hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(tile)->GetID());
-
+    std::function < void() > fillTile;
+    if (tile == EWW_TILE_ERASE) {
+        fillTile = [&t]() { t->SetInvisible(true); };
+    } else if (tile == EWW_TILE_FILL) {
+        fillTile = [&t]() { t->SetFilled(true); };
+    } else {
+        // imgSet
+        int id = hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTileByIterator(tile)->GetID();
+        fillTile = [&t, id]() { t->SetID(id); };
     }
-    
+
+    struct Placement { int x; int it; };
+    std::stack<Placement> queue;
+    queue.push({x, it});
+
+    bFloodFillBuf[it] = true;
     MarkUnsaved();
-    bFloodFillBuf[x][y] = true;
 
-    FloodFill(base, x, y + 1, tile);
-    FloodFill(base, x, y - 1, tile);
-    FloodFill(base, x + 1, y, tile);
-    FloodFill(base, x - 1, y, tile);
+    while (!queue.empty()) {
+        Placement p = queue.top();
+        queue.pop();
+
+        t = GetActivePlane()->GetTile(p.it);
+        if (!t || !checkTile()) continue;
+
+        fillTile();
+
+        if (p.x + 1 < width && !bFloodFillBuf[p.it + 1]) {
+            bFloodFillBuf[p.it + 1] = true;
+            queue.push({p.x + 1, p.it + 1});
+        }
+
+        if (p.x > 0 && !bFloodFillBuf[p.it - 1]) {
+            bFloodFillBuf[p.it - 1] = true;
+            queue.push({p.x - 1, p.it - 1});
+        }
+
+        if (p.it + width < size && !bFloodFillBuf[p.it + width]) {
+            bFloodFillBuf[p.it + width] = true;
+            queue.push({p.x, p.it + width});
+        }
+
+        if (p.it - width > 0 && !bFloodFillBuf[p.it - width]) {
+            bFloodFillBuf[p.it - width] = true;
+            queue.push({p.x, p.it - width});
+        }
+    }
+
+    delete[] bFloodFillBuf;
 }
 
-void State::EditingWW::RebuildTilePicker() {
+void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
     if (!btpiFixedPos) {
         winTilePicker->setY(vPort->GetY());
         winTilePicker->setHeight(vPort->GetHeight());
@@ -688,10 +715,10 @@ void State::EditingWW::RebuildTilePicker() {
     cbtpiShowProperties->setVisible(iActiveTool != EWW_TOOL_BRUSH);
     slitpiPicker->setY(iTilePickerOffUp);
     slitpiPicker->setHeight(winTilePicker->getHeight() - iTilePickerOffUp - iTilePickerOffDown);
-    RefreshTilePickerSlider();
+    RefreshTilePickerSlider(forceSliderRefresh);
 }
 
-void State::EditingWW::RefreshTilePickerSlider() {
+void State::EditingWW::RefreshTilePickerSlider(bool forceSliderRefresh) {
     cTileImageSet *set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
     int scale = 0;
     if (!set) scale = 0;
@@ -706,7 +733,7 @@ void State::EditingWW::RefreshTilePickerSlider() {
     if (scale > 0)
         slitpiPicker->setScaleEnd(scale);
 
-    if (!winTilePicker->isVisible()) {
+    if (!winTilePicker->isVisible() || forceSliderRefresh) {
         slitpiPicker->setValue(slitpiPicker->getScaleEnd());
     }
 }

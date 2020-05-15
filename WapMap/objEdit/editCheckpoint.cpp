@@ -11,14 +11,14 @@ namespace ObjEdit {
     cEditObjCheckpoint::cEditObjCheckpoint(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         iType = ObjEdit::enCheckpoint;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Checkpoint", "WinCaption"));
-        win->setDimension(gcn::Rectangle(0, 0, 214, 361));
+        win->setDimension(gcn::Rectangle(0, 0, 214, 400));
         win->setClose(1);
         win->addActionListener(hAL);
         win->add(vpAdv);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
 
-        win->add(_butAddNext, 5, 305);
-        win->add(_butSave, 105, 305);
+        win->add(_butAddNext, 5, 345);
+        win->add(_butSave, 105, 345);
 
         fCpAnimTimer = fScpAnimTimer = 0;
         iCpAnimFrame = 8;
@@ -28,27 +28,25 @@ namespace ObjEdit {
         sprintf(tmp, "%p", this);
 
         rbType[0] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Checkpoint", "Checkpoint"), tmp,
-                                    !strcmp(hTempObj->GetImageSet(), "GAME_CHECKPOINTFLAG"));
+                                    !strcmp(hTempObj->GetLogic(), "Checkpoint"));
         rbType[0]->adjustSize();
         rbType[0]->addActionListener(hAL);
-        win->add(rbType[0], 5, 10);
-        rbType[1] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Checkpoint", "SuperCheckpoint"), tmp,
-                                    !strcmp(hTempObj->GetImageSet(), "GAME_SUPERCHECKPOINT"));
+        win->add(rbType[0], 5, 15);
+        rbType[1] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Checkpoint", "SuperCheckpoint1"), tmp,
+                                    !strcmp(hTempObj->GetLogic(), "FirstSuperCheckpoint"));
         rbType[1]->adjustSize();
         rbType[1]->addActionListener(hAL);
-        win->add(rbType[1], 5, 150);
-
-        bool bOrient = 1;
-        if (hTempObj->GetDrawFlags() & WWD::Flag_dr_Mirror && !(hTempObj->GetDrawFlags() & WWD::Flag_dr_Invert) ||
-            !(hTempObj->GetDrawFlags() & WWD::Flag_dr_Mirror) && hTempObj->GetDrawFlags() & WWD::Flag_dr_Invert)
-            bOrient = 0;
-
-        if (!rbType[0]->isSelected() && !rbType[1]->isSelected()) {
-            rbType[0]->setSelected(1);
-            hTempObj->SetLogic("Checkpoint");
-            hTempObj->SetImageSet("GAME_CHECKPOINTFLAG");
-            hState->vPort->MarkToRedraw(1);
-        }
+        win->add(rbType[1], 5, 155);
+        rbType[2] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Checkpoint", "SuperCheckpoint2"), tmp,
+                                    !strcmp(hTempObj->GetLogic(), "SecondSuperCheckpoint"));
+        rbType[2]->adjustSize();
+        rbType[2]->addActionListener(hAL);
+        win->add(rbType[2], 5, 175);
+        rbType[3] = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Checkpoint", "BossStager"), tmp,
+                                    !strcmp(hTempObj->GetLogic(), "BossStager"));
+        rbType[3]->adjustSize();
+        rbType[3]->addActionListener(hAL);
+        win->add(rbType[3], 5, 325);
     }
 
     cEditObjCheckpoint::~cEditObjCheckpoint() {
@@ -71,7 +69,16 @@ namespace ObjEdit {
             hTempObj->SetImageSet("GAME_SUPERCHECKPOINT");
             hTempObj->SetLogic("FirstSuperCheckpoint");
             hState->vPort->MarkToRedraw(1);
+        } else if (actionEvent.getSource() == rbType[2]) {
+            hTempObj->SetImageSet("GAME_SUPERCHECKPOINT");
+            hTempObj->SetLogic("SecondSuperCheckpoint");
+            hState->vPort->MarkToRedraw(1);
+        } else if (actionEvent.getSource() == rbType[3]) {
+            hTempObj->SetImageSet("GAME_SOUNDICON");
+            hTempObj->SetLogic("BossStager");
+            hState->vPort->MarkToRedraw(1);
         }
+        hTempObj->SetDrawFlags(actionEvent.getSource() == rbType[3] ? WWD::Flag_dr_NoDraw : WWD::Flag_dr_Nothing);
     }
 
     void cEditObjCheckpoint::Draw() {
@@ -95,6 +102,6 @@ namespace ObjEdit {
         hState->SprBank->GetAssetByID("GAME_CHECKPOINTFLAG")->GetIMGByID(iCpAnimFrame)->GetSprite()->Render(dx + 124,
                                                                                                             dy + 100);
         hState->SprBank->GetAssetByID("GAME_SUPERCHECKPOINT")->GetIMGByID(iScpAnimFrame)->GetSprite()->Render(dx + 124,
-                                                                                                              dy + 250);
+                                                                                                              dy + 270);
     }
 }

@@ -20,7 +20,7 @@ bool FrameFunc() {
         }
     }
 
-    if (GV->anyMapLoaded) {
+    if (GV->anyMapLoaded && GV->editState->hDataCtrl) {
         GV->editState->hDataCtrl->Think();
     }
 

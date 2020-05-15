@@ -36,8 +36,9 @@ class cBankLogic : public gcn::ListModel, public cAssetBank {
 private:
     std::vector<cCustomLogic *> m_vAssets;
     cCustomLogic *hGlobalScript;
+
 public:
-    cBankLogic();
+    cBankLogic(WWD::Parser *hParser);
 
     ~cBankLogic();
 
@@ -69,7 +70,8 @@ public:
 
     const std::string& GetFolderName() override {
         static const std::string name = "LOGICS";
-        return name;
+        static const std::string namez = "LOGICZ";
+        return hParser->GetGame() == WWD::Game_Gruntz ? namez : name;
     };
 
     virtual void BatchProcessStart(cDataController *hDC);

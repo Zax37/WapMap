@@ -11,8 +11,7 @@ bool cSndBank_SortAssets(cSndBankAsset *a, cSndBankAsset *b) {
     return (std::string(a->GetName()) < std::string(b->GetName()));
 }
 
-cBankSound::cBankSound() {
-    hREZ = 0;
+cBankSound::cBankSound(WWD::Parser *hParser) : cAssetBank(hParser) {
     bBatchProcessing = 0;
 }
 

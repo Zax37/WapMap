@@ -1,6 +1,7 @@
 #ifndef H_C_DATACTRL
 #define H_C_DATACTRL
 
+#include "../shared/cWWD.h"
 #include "../shared/cPID.h"
 #include "cFileSystem.h"
 #include <hge.h>
@@ -91,7 +92,12 @@ private:
 
     friend class cDataController;
 
+protected:
+    WWD::Parser *hParser;
+
 public:
+    cAssetBank(WWD::Parser * hParser) : hParser(hParser) {};
+
     virtual void DeleteAsset(cAsset *hAsset) {};
 
     virtual const std::string& GetFolderName() {
@@ -183,13 +189,14 @@ class cDataController {
 private:
     std::vector<cAssetPackage *> vhPackages;
     std::vector<cAsset *> vhAllAssets;
-    std::string strClawDir, strFileDir, strFilename;
+    std::string strGameDir, strFileDir, strFilename;
     cRezFeed *hREZ;
     cDiscFeed *hDisc, *hCustom;
     std::vector<cAssetBank *> vhBanks;
     PID::Palette *hPalette;
     cParallelLoop *hLooper;
     float fFeedRefreshTime;
+    WWD::GAME game;
 
     std::vector<cDC_MountEntry> vMountEntries;
 
@@ -198,7 +205,7 @@ private:
     void _SortMountEntry(size_t id);
 
 public:
-    cDataController(std::string strCD, std::string strFD, std::string strFN);
+    cDataController(WWD::GAME game, std::string strGD, std::string strFD, std::string strFN);
 
     ~cDataController();
 
@@ -228,7 +235,7 @@ public:
 
     bool IsLoadableImage(cFile hFile, cImageInfo *inf = 0, cImageInfo::Level iInfoLevel = cImageInfo::Full);
 
-    byte *GetImageRaw(cFile hFile, int *w, int *h);
+    byte *GetImageRaw(cFile hFile, int *w, int *h, PID::Palette** pal);
 
     bool
     RenderImageRaw(byte *hData, HTEXTURE texDest, int iRx, int iRy, int iRowSpan, int w, int h, PID::Palette *pal = 0);

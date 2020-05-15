@@ -19,7 +19,7 @@ class cProcPickXYLockable : public gcn::ActionListener, public SHR::Container {
 
 public:
     cProcPickXYLockable(const char *textMain, const char *textX, int valueX,
-                        const char *textY, int valueY, bool lock, const char *lockButTooltip);
+                        const char *textY, int valueY, bool lock, const char *lockButTooltip, bool allowNegative = false);
 
     ~cProcPickXYLockable();
 
@@ -50,6 +50,8 @@ public:
     bool isEnabledY() { return yEnabled; }
 
     void setEnabledY(bool enabled) { yEnabled = enabled; tfY->setEnabled(enabledMaster && yEnabled); }
+
+    void setAllowNegative(bool allowNegative) { tfX->SetNumerical(true, allowNegative); tfY->SetNumerical(true, allowNegative); }
 };
 
 

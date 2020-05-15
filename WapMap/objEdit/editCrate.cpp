@@ -175,10 +175,6 @@ namespace ObjEdit {
                 invTabs[iCratesCount]->setVisible(1);
                 iCratesCount++;
             }
-
-            if (iCratesCount == 2 && invTabs[0]->GetItem().second == -1) {
-                invTabs[0]->SetItem(hState->hInvCtrl->GetItemByID(33));
-            }
         }
         if (iCratesCount > 2) {
             if (!strcmp(hTempObj->GetLogic(), "FrontCrate"))
@@ -248,9 +244,6 @@ namespace ObjEdit {
                 hTempObj->SetParam(WWD::Param_Health, 2);
             else if (ddDurability->getSelected() == 2)
                 hTempObj->SetParam(WWD::Param_Health, 999);
-        } else if (!bStackable && actionEvent.getSource() == invTabs[0]) {
-            if (invTabs[0]->GetItem().second == -1)
-                invTabs[0]->SetItem(hState->hInvCtrl->GetItemByID(33));
         } else if (actionEvent.getSource() == tfWarpX) {
             hTempObj->SetParam(WWD::Param_SpeedX, atoi(tfWarpX->getText().c_str()));
             hState->vPort->MarkToRedraw(1);
@@ -313,33 +306,24 @@ namespace ObjEdit {
                             SetLogic(1, bAlign);
                         }
                     } else if (invTabs[i]->GetItem().second == -1 && i < 8) {
-                        if (i == 0 && iCratesCount == 2) {
-                            invTabs[0]->SetItem(hState->hInvCtrl->GetItemByID(33));
-                        } else {
-                            if (i + 2 == iCratesCount) {
-                                for (int x = 8; x > 1; x--) {
-                                    if (invTabs[x]->isVisible()) {
-                                        if (invTabs[x]->GetItem().second == -1 &&
-                                            invTabs[x - 1]->GetItem().second == -1) {
-                                            invTabs[x]->setVisible(0);
-                                            iCratesCount--;
-                                        } else
-                                            break;
-                                    }
+                        if (i + 2 == iCratesCount) {
+                            for (int x = 8; x > 1; x--) {
+                                if (invTabs[x]->isVisible()) {
+                                    if (invTabs[x]->GetItem().second == -1 &&
+                                        invTabs[x - 1]->GetItem().second == -1) {
+                                        invTabs[x]->setVisible(0);
+                                        iCratesCount--;
+                                    } else
+                                        break;
                                 }
                             }
-                            for (int x = 1; x < iCratesCount - 1; x++) {
-                                if (invTabs[x]->GetItem().second == -1) {
-                                    for (int y = x; y < iCratesCount - 1; y++)
-                                        invTabs[y]->SetItem(invTabs[y + 1]->GetItem());
-                                    invTabs[iCratesCount - 1]->setVisible(0);
-                                    iCratesCount--;
-                                }
-                            }
-                            if (iCratesCount == 2) {
-                                SetLogic(0, bAlign);
-                                if (invTabs[0]->GetItem().second == -1)
-                                    invTabs[0]->SetItem(hState->hInvCtrl->GetItemByID(33));
+                        }
+                        for (int x = 1; x < iCratesCount - 1; x++) {
+                            if (invTabs[x]->GetItem().second == -1) {
+                                for (int y = x; y < iCratesCount - 1; y++)
+                                    invTabs[y]->SetItem(invTabs[y + 1]->GetItem());
+                                invTabs[iCratesCount - 1]->setVisible(0);
+                                iCratesCount--;
                             }
                         }
                     }
@@ -399,8 +383,12 @@ namespace ObjEdit {
     }
 
     void cEditObjCrate::SetLogic(bool bStacked, bool bf) {
-        if (!bStacked && invTabs[0]->GetItem().second == 32)
-            bStacked = 1;
+        if (!bStacked) {
+            if (invTabs[0]->GetItem().second == -1 || invTabs[0]->GetItem().second == 32) {
+                bStacked = 1;
+            }
+        }
+
         if (!bStacked && !bf) {
             hTempObj->SetLogic("BehindCrate");
             ddDurability->setEnabled(!bPick);

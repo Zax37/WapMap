@@ -412,7 +412,7 @@ namespace ObjEdit {
         tfRespawnTimes->setDimension(gcn::Rectangle(0, 0, 50, 20));
         tfRespawnTimes->setEnabled(0);
         tfRespawnTimes->addActionListener(hAL);
-        win->add(tfRespawnTimes, 5 + 22 + rbActivate[2]->getWidth() + 15, 315);
+        win->add(tfRespawnTimes, 5 + 22 + rbActivate[2]->getWidth() + 15, 313);
 
         labActivationArea = new SHR::Lab(GETL2S("EditObj_Dialog", "FR_Size"));
         labActivationArea->adjustSize();

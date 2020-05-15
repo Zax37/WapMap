@@ -14,13 +14,6 @@ typedef unsigned char byte;
 #define RBYTE(b) read((char*)(&b), 1)
 #define RLEN(data, len) read((char*)(data), len)
 
-struct membuf : std::streambuf
-{
-    membuf(char* begin, char* end) {
-        this->setg(begin, begin, end);
-    }
-};
-
 namespace PID {
 
     enum FLAGS {
@@ -42,7 +35,7 @@ namespace PID {
 
     class Palette {
     private:
-        byte m_iColors[256][3];
+        byte m_iColors[256 * 3];
 
         void Load(std::istream *pisSource);
 
@@ -57,13 +50,13 @@ namespace PID {
 
         Palette(const void *phMem, int iLen);
 
-        DWORD GetColor(int piID) { return ARGB(255, m_iColors[piID][0], m_iColors[piID][1], m_iColors[piID][2]); };
+        DWORD GetColor(int piID) { return ARGB(255, m_iColors[piID * 3 + 0], m_iColors[piID * 3 + 1], m_iColors[piID * 3 + 2]); };
 
-        byte GetColorR(int piID) { return m_iColors[piID][0]; };
+        byte GetColorR(int piID) { return m_iColors[piID * 3 + 0]; };
 
-        byte GetColorG(int piID) { return m_iColors[piID][1]; };
+        byte GetColorG(int piID) { return m_iColors[piID * 3 + 1]; };
 
-        byte GetColorB(int piID) { return m_iColors[piID][2]; };
+        byte GetColorB(int piID) { return m_iColors[piID * 3 + 2]; };
 
         void SetColorRGB(int i, byte r, byte g, byte b);
     };
@@ -111,10 +104,7 @@ namespace PID {
         bool m_bInited, m_bDeletePal, m_bForceFlare;
 
         byte *m_iData;
-
         Palette *m_hPal;
-        std::istream *isSource;
-
         COLORKEY iColorKeyType;
         DWORD dwColorKey;
 
@@ -172,6 +162,15 @@ namespace PID {
             byte* data = m_iData;
             m_iData = NULL;
             return data;
+        }
+
+        Palette* StealPalettePtr() {
+            if (m_bDeletePal) {
+                Palette* ret = m_hPal;
+                m_bDeletePal = false;
+                return ret;
+            }
+            return NULL;
         }
     };
 };

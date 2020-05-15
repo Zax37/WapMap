@@ -32,16 +32,12 @@ public:
 
 class cBankSound : public gcn::ListModel, public cAssetBank {
 private:
-
     std::vector<cSndBankAsset *> m_vAssets;
-
     bool bBatchProcessing;
-    char *szPath;
-    REZ::Parser *hREZ;
-    bool bUseREZ;
     int iBatchPackageCount;
+
 public:
-    cBankSound();
+    cBankSound(WWD::Parser *hParser);
 
     ~cBankSound();
 
@@ -69,7 +65,8 @@ public:
 
     const std::string& GetFolderName() override {
         static const std::string name = "SOUNDS";
-        return name;
+        static const std::string namez = "SOUNDZ";
+        return hParser->GetGame() == WWD::Game_Gruntz ? namez : name;
     };
 };
 

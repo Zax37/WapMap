@@ -192,7 +192,7 @@ void State::LoadMap::Init() {
     dd->hParser = hParser;
 
     GV->Console->Printf("~w~Mounting VFS...");
-    dd->hDataCtrl = new cDataController(std::string(GV->szClawPath ? GV->szClawPath : ""),
+    dd->hDataCtrl = new cDataController(hParser->GetGame(), GV->gamePaths[hParser->GetGame()],
                                         std::string(szDir ? szDir : ""), std::string(szFilename));
     GV->Console->Printf(" ~y~REZ file:       ~g~%s", dd->hDataCtrl->GetFeed(DB_FEED_REZ) == 0 ? "~r~[not mounted]"
                                                                                               : dd->hDataCtrl->GetFeed(
@@ -209,11 +209,10 @@ void State::LoadMap::Init() {
     ParallelTrigger();
 
     dd->hTilesBank = new cBankTile(hParser);
-    dd->hSprBank = new cBankImageSet();
-    dd->hSprBank->SetGame(hParser->GetGame());
-    dd->hSndBank = new cBankSound();
+    dd->hSprBank = new cBankImageSet(hParser);
+    dd->hSndBank = new cBankSound(hParser);
     dd->hAniBank = new cBankAni();
-    dd->hCustomLogicBank = new cBankLogic();
+    dd->hCustomLogicBank = new cBankLogic(hParser);
 
     dd->hDataCtrl->RegisterAssetBank(dd->hTilesBank);
     dd->hDataCtrl->RegisterAssetBank(dd->hSprBank);
@@ -244,10 +243,26 @@ void State::LoadMap::Init() {
     if (dd->hDataCtrl->GetFeed(DB_FEED_REZ) != 0)
         dd->hDataCtrl->GetFeed(DB_FEED_REZ)->ReadingStart();
     dd->hDataCtrl->CreatePackage("GAME", "GAME", cDC_STANDARD);
-    dd->hDataCtrl->CreatePackage("CLAW", "CLAW", cDC_STANDARD);
     char pathstr[64];
-    sprintf(pathstr, "LEVEL%d", hParser->GetBaseLevel());
-    dd->hDataCtrl->CreatePackage(pathstr, "LEVEL", cDC_STANDARD);
+    switch (hParser->GetGame()) {
+    case WWD::Game_Claw:
+    case WWD::Game_Claw2:
+        dd->hDataCtrl->CreatePackage("CLAW", "CLAW", cDC_STANDARD);
+        sprintf(pathstr, "LEVEL%d", hParser->GetBaseLevel());
+        dd->hDataCtrl->CreatePackage(pathstr, "LEVEL", cDC_STANDARD);
+        break;
+    case WWD::Game_GetMedieval:
+        dd->hDataCtrl->CreatePackage("ENEMIES", "ENEMIES", cDC_STANDARD);
+        dd->hDataCtrl->CreatePackage("PLAYERS", "PLAYERS", cDC_STANDARD);
+        sprintf(pathstr, "DUNGEON%d", hParser->GetBaseLevel());
+        dd->hDataCtrl->CreatePackage(pathstr, "DUNGEON", cDC_STANDARD);
+        break;
+    case WWD::Game_Gruntz:
+        dd->hDataCtrl->CreatePackage("GRUNTZ", "GRUNTZ", cDC_STANDARD);
+        sprintf(pathstr, "AREA%d", hParser->GetBaseLevel());
+        dd->hDataCtrl->CreatePackage(pathstr, "LEVEL", cDC_STANDARD);
+        break;
+    }
     dd->hDataCtrl->CreatePackage("", "CUSTOM", cDC_CUSTOM);
     ParallelTrigger();
 

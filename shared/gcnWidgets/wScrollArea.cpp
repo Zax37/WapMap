@@ -80,7 +80,7 @@ namespace SHR {
     void ScrollArea::setContent(Widget *widget) {
         if (widget != NULL) {
             clear();
-            add(widget);
+            add(widget, false);
             widget->setPosition(0, 0);
         } else {
             clear();

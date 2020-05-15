@@ -47,7 +47,7 @@ protected:
 
     virtual void _setEnabled(bool bEn) {};
 public:
-    cModeMenuBar();
+    cModeMenuBar(int startX);
 
     virtual ~cModeMenuBar();
 

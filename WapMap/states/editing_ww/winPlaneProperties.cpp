@@ -13,20 +13,20 @@ void State::EditingWW::DrawPlaneProperties() {
     winpmMain->getAbsolutePosition(dx, dy);
 
     if (lbpmPlanes->getSelected() != -1) {
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 106, dx + winpmMain->getWidth(), dy + 106, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 107, dx + winpmMain->getWidth(), dy + 107, 0xFF5c5c5c);
+        hge->Gfx_RenderLine(dx + 254 - 35, dy + 126, dx + winpmMain->getWidth(), dy + 126, 0xFF1f1f1f);
+        hge->Gfx_RenderLine(dx + 254 - 35, dy + 127, dx + winpmMain->getWidth(), dy + 127, 0xFF5c5c5c);
 
         //hge->Gfx_RenderLine(dx+254-35, dy+163, dx+254+276-35, dy+163, 0xFF1f1f1f);
         //hge->Gfx_RenderLine(dx+254-35, dy+164, dx+254+276-35, dy+164, 0xFF5c5c5c);
 
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 235, dx + winpmMain->getWidth(), dy + 235, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 236, dx + winpmMain->getWidth(), dy + 236, 0xFF5c5c5c);
+        hge->Gfx_RenderLine(dx + 254 - 35, dy + 255, dx + winpmMain->getWidth(), dy + 255, 0xFF1f1f1f);
+        hge->Gfx_RenderLine(dx + 254 - 35, dy + 256, dx + winpmMain->getWidth(), dy + 256, 0xFF5c5c5c);
 
         hge->Gfx_RenderLine(dx + 254 - 35, dy + 24, dx + 254 - 35, dy + winpmMain->getHeight(), 0xFF1f1f1f);
         hge->Gfx_RenderLine(dx + 255 - 35, dy + 24, dx + 255 - 35, dy + winpmMain->getHeight(), 0xFF5c5c5c);
 
-        hge->Gfx_RenderLine(dx + 253 + 277 - 35, dy + 24, dx + 253 + 277 - 35, dy + 235, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 + 277 - 35, dy + 24, dx + 254 + 277 - 35, dy + 235, 0xFF5c5c5c);
+        hge->Gfx_RenderLine(dx + 253 + 277 - 35, dy + 24, dx + 253 + 277 - 35, dy + 255, 0xFF1f1f1f);
+        hge->Gfx_RenderLine(dx + 254 + 277 - 35, dy + 24, dx + 254 + 277 - 35, dy + 255, 0xFF5c5c5c);
 
         if (atoi(tfpmPlaneSizeX->getText().c_str()) != ipmSizeX ||
             atoi(tfpmPlaneSizeY->getText().c_str()) != ipmSizeY) {
@@ -96,6 +96,8 @@ void State::EditingWW::SyncPlaneProperties() {
         tfpmMovX->setText("100");
         tfpmMovY->setText("100");
         tfpmMovY->setVisible(1);
+        tfpmOffX->setText("0");
+        tfpmOffY->setText("0");
         labpmFlags->setVisible(1);
         cbpmFlagMainPlane->setVisible(1);
         cbpmFlagMainPlane->setSelected(0);
@@ -188,6 +190,10 @@ void State::EditingWW::SyncPlaneProperties() {
         sprintf(tmp, "%d", pl->GetMoveModY());
         tfpmMovY->setText(tmp);
         tfpmMovY->setVisible(1);
+        sprintf(tmp, "%d", pl->GetOffsetX());
+        tfpmOffX->setText(tmp);
+        sprintf(tmp, "%d", pl->GetOffsetY());
+        tfpmOffY->setText(tmp);
         labpmFlags->setVisible(1);
         cbpmFlagMainPlane->setVisible(1);
         cbpmFlagMainPlane->setSelected(pl->GetFlags() & WWD::Flag_p_MainPlane);
@@ -304,6 +310,8 @@ void State::EditingWW::SavePlaneProperties() {
         pl->SetName(tfpmName->getText().c_str());
         pl->SetMoveModX(atoi(tfpmMovX->getText().c_str()));
         pl->SetMoveModY(atoi(tfpmMovY->getText().c_str()));
+        pl->SetOffsetX(atoi(tfpmOffX->getText().c_str()));
+        pl->SetOffsetY(atoi(tfpmOffY->getText().c_str()));
         pl->SetTileWidth(atoi(tfpmTileSizeX->getText().c_str()));
         pl->SetTileHeight(atoi(tfpmTileSizeY->getText().c_str()));
         pl->SetZCoord(atoi(tfpmZCoord->getText().c_str()));
@@ -358,6 +366,14 @@ void State::EditingWW::SavePlaneProperties() {
         if (atoi(tfpmMovY->getText().c_str()) != pl->GetMoveModY()) {
             bChange = 1;
             pl->SetMoveModY(atoi(tfpmMovY->getText().c_str()));
+        }
+        if (atoi(tfpmOffX->getText().c_str()) != pl->GetOffsetX()) {
+            bChange = 1;
+            pl->SetOffsetX(atoi(tfpmOffX->getText().c_str()));
+        }
+        if (atoi(tfpmOffY->getText().c_str()) != pl->GetOffsetY()) {
+            bChange = 1;
+            pl->SetOffsetY(atoi(tfpmOffY->getText().c_str()));
         }
         if (atoi(tfpmTileSizeX->getText().c_str()) != pl->GetTileWidth()) {
             bChange = 1;

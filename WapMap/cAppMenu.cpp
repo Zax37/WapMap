@@ -154,8 +154,8 @@ cAppMenu::cAppMenu() {
     workcon->adjustSize();
 
     iOverallWidth = 0;
-    for (int i = 0; i < AppMenu_EntryCount; i++)
-        iOverallWidth += GV->fntMyriad13->GetStringWidth(hEntries[i]->GetLabel().c_str()) + 26;
+    for (auto & hEntry : hEntries)
+        iOverallWidth += GV->fntMyriad13->GetStringWidth(hEntry->GetLabel().c_str()) + 26;
 }
 
 cAppMenu::~cAppMenu() {
@@ -163,10 +163,23 @@ cAppMenu::~cAppMenu() {
 }
 
 void cAppMenu::SyncDocumentSwitched() {
-    if (GV->editState->hParser == NULL) return;
-    SyncPlanes();
-    hEntries[AppMenu_Tools]->GetContext()->GetElementByID(APPMEN_TOOLS_PLAY)->SetEnabled(
-            strlen(GV->editState->hParser->GetFilePath()) > 0);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVE)->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSE)->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSEALL)->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_Edit]->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_Plane]->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_View]->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_Tools]->SetEnabled(GV->editState->hParser != NULL);
+    hEntries[AppMenu_Assets]->SetEnabled(GV->editState->hParser != NULL);
+    if (GV->editState->hParser == NULL) {
+        GV->editState->winpmMain->setVisible(false);
+        GV->editState->winWorld->setVisible(false);
+    } else {
+        SyncPlanes();
+        hEntries[AppMenu_Tools]->GetContext()->GetElementByID(APPMEN_TOOLS_PLAY)->SetEnabled(
+                strlen(GV->editState->hParser->GetFilePath()) > 0);
+    }
 }
 
 void cAppMenu::SyncDocumentClosed() {
@@ -210,8 +223,20 @@ void cAppMenu::SyncDocumentOpened() {
     hEntries[AppMenu_Assets]->SetEnabled(1);
 }
 
+void cAppMenu::SyncRecentlyClosedRebuild() {
+    if (GV->editState->MDI->GetCachedClosedDocsCount() == 0) {
+        conOpen->GetElementByID(APPMEN_FILE_CLOSED)->SetEnabled(false);
+        conOpen->GetElementByID(APPMEN_FILE_CLOSED)->SetCascade(NULL);
+
+        if (!conOpen->GetElementByID(APPMEN_FILE_MRU)->IsEnabled()) {
+            hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_OPEN)->SetCascade(NULL);
+        }
+    }
+}
+
 void cAppMenu::SyncMRU() {
     if (GV->editState->hMruList->IsValid() && GV->editState->hMruList->GetFilesCount() > 0) {
+        hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_OPEN)->SetCascade(conOpen);
         conOpen->GetElementByID(APPMEN_FILE_MRU)->SetEnabled(1);
         conOpen->GetElementByID(APPMEN_FILE_MRU)->SetCascade(conOpenMRU);
         conOpenMRU->ClearElements();
@@ -435,104 +460,47 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             GV->editState->OpenDocuments();
         } else if (id == APPMEN_FILE_SAVEAS ||
                    (id == APPMEN_FILE_SAVE && strlen(GV->editState->hParser->GetFilePath()) == 0)) {
-            OPENFILENAME ofn;
-            char szFileopen[512] = "\0";
-            ZeroMemory((&ofn), sizeof(OPENFILENAME));
-            ofn.lStructSize = sizeof(OPENFILENAME);
-            ofn.hwndOwner = hge->System_GetState(HGE_HWND);
-            ofn.lpstrFilter = "WapWorld Document (*.wwd)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
-            ofn.lpstrFile = szFileopen;
-            ofn.nMaxFile = sizeof(szFileopen);
-            ofn.lpstrDefExt = "wwd";
-            ofn.lpstrInitialDir = GV->szLastSavePath;
-            if (GetSaveFileName(&ofn)) {
-                GV->editState->hParser->SetFilePath((const char *) szFileopen);
-                bool ok = 0;
-                try {
-                    GV->editState->MDI->PrepareDocToSave(GV->editState->MDI->GetActiveDocIt());
-                    GV->editState->hParser->CompileToFile(szFileopen, 1);
-                    GV->editState->hDataCtrl->RelocateDocument(szFileopen);
-                    ok = 1;
-                }
-                catch (WWD::Exception &exc) {
-#ifdef BUILD_DEBUG
-                    GV->Console->Printf("~r~WWD exception: ~y~%d ~w~(~y~%s~w~:~y~%d~w~)", exc.iErrorCode, exc.szFile, exc.iLine);
-#else
-                    GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
-#endif
-                }
-                if (ok) {
-                    char *fl = SHR::GetFile(GV->editState->hParser->GetFilePath());
-                    delete[] GV->editState->MDI->GetActiveDoc()->szFileName;
-                    int size = strlen(fl) - 3;
-                    GV->editState->MDI->GetActiveDoc()->szFileName = new char[size];
-                    strncpy(GV->editState->MDI->GetActiveDoc()->szFileName, fl, size - 1);
-                    GV->editState->MDI->GetActiveDoc()->szFileName[size - 1] = 0;
-                    GV->editState->MDI->GetActiveDoc()->bSaved = 1;
-                    GV->editState->SetHint("%s: %s", GETL2S("Hints", "FileSavedAs"), fl);
-                    delete[] fl;
-                    GV->editState->MDI->UpdateCrashList();
-                }
-                char *lastsave = SHR::GetDir(szFileopen);
-                GV->SetLastSavePath(lastsave);
-                delete[] lastsave;
-            }
+            GV->editState->SaveAs();
         } else if (id == APPMEN_FILE_SAVE) {
-            if (!GV->editState->MDI->GetActiveDoc()->bSaved) {
-                try {
-                    GV->editState->MDI->PrepareDocToSave(GV->editState->MDI->GetActiveDocIt());
-                    GV->editState->hParser->CompileToFile(GV->editState->hParser->GetFilePath());
-                    GV->editState->MDI->GetActiveDoc()->bSaved = 1;
-                }
-                catch (WWD::Exception &exc) {
-#ifdef BUILD_DEBUG
-                    GV->Console->Printf("~r~WWD exception: ~y~%d ~w~(~y~%s~w~:~y~%d~w~)", exc.iErrorCode, exc.szFile, exc.iLine);
-#else
-                    GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
-#endif
-                }
-                //char * fl = SHR::GetFile(GV->editState->hParser->GetFilePath());
-                //GV->editState->SetHint("%s: %s", GETL2S("Hints", "FileSaved"), fl);
-                //delete [] fl;
-            } else {
-                GV->editState->SetHint(GETL2S("Hints", "NothingToSave"));
-            }
+            GV->editState->MDI->SaveCurrent();
         } else if (id == APPMEN_FILE_CLOSE) {
             GV->editState->MDI->CloseDocByIt(GV->editState->MDI->GetActiveDocIt());
         } else if (id == APPMEN_FILE_CLOSEALL) {
             GV->editState->MDI->CloseAllDocs();
         }
-        hEntries[AppMenu_File]->GetContext()->setVisible(0);
+        hEntries[AppMenu_File]->GetContext()->setVisible(false);
     } else if (actionEvent.getSource() == hEntries[AppMenu_Edit]->GetContext()) {
         int id = hEntries[AppMenu_Edit]->GetContext()->GetSelectedID();
         if (id == APPMEN_EDIT_WORLD) {
             if (GV->editState->winWorld->isVisible()) GV->editState->SyncWorldOptionsWithParser();
-            GV->editState->winWorld->setVisible(1);
+            GV->editState->winWorld->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winWorld);
         } else if (id == APPMEN_EDIT_TILEPROP) {
-            GV->editState->winTileProp->setVisible(1);
+            GV->editState->winTileProp->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winTileProp);
         } else if (id == APPMEN_EDIT_WORLDSCRIPT) {
             if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
                 MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "GlobalScriptDocumentSave"),
                            "WapMap", MB_OK | MB_ICONERROR);
-                return;
-            }
-            if (GV->editState->hCustomLogics->GetGlobalScript() == 0) {
-                if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"), "WapMap",
-                               MB_YESNO | MB_ICONWARNING) == IDYES) {
-                    GV->editState->hDataCtrl->FixCustomDir();
-                    GV->editState->hDataCtrl->OpenCodeEditor("main", true);
-                }
             } else {
-                GV->editState->hDataCtrl->OpenCodeEditor("main");
+                if (GV->editState->hCustomLogics->GetGlobalScript() == 0) {
+                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"), "WapMap",
+                                   MB_YESNO | MB_ICONWARNING) == IDYES) {
+                        GV->editState->hDataCtrl->FixCustomDir();
+                        GV->editState->hDataCtrl->OpenCodeEditor("main", true);
+                    }
+                } else {
+                    GV->editState->hDataCtrl->OpenCodeEditor("main");
+                }
             }
         }
-        //}else if( actionEvent.getSource() == conOpen ){
+        hEntries[AppMenu_Edit]->GetContext()->setVisible(0);
     } else if (actionEvent.getSource() == conActivePlane) {
         GV->editState->hmbTile->ddActivePlane->setSelected(conActivePlane->GetSelectedID());
         GV->editState->SwitchPlane();
         hEntries[AppMenu_Plane]->GetContext()->setVisible(0);
+    } else if (actionEvent.getSource() == conOpen) {
+        iOpened = AppMenu_File;
     } else if (actionEvent.getSource() == conOpenMRU) {
         hEntries[AppMenu_File]->GetContext()->setVisible(0);
         conOpenMRU->setVisible(0);
@@ -566,21 +534,31 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             hEntries[AppMenu_View]->GetContext()->GetElementByID(APPMEN_VIEW_TILEPROP)->SetIcon(
                     GV->editState->bDrawTileProperties ? GV->sprIcons16[Icon16_Applied] : NULL, 1);
         }
+        iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == hEntries[AppMenu_Plane]->GetContext()) {
         int id = hEntries[AppMenu_Plane]->GetContext()->GetSelectedID();
         if (id == APPMEN_PLANE_MGR) {
-            GV->editState->winpmMain->setVisible(1);
+            GV->editState->winpmMain->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winpmMain->getWidth() / 2,
+                                                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winpmMain->getHeight() / 2);
             GV->editState->conMain->moveToTop(GV->editState->winpmMain);
+            GV->editState->winpmMain->setVisible(true);
             GV->editState->SyncPlaneProperties();
+            hEntries[AppMenu_Plane]->GetContext()->setVisible(0);
+        } else {
+            iOpened = AppMenu_Plane;
         }
     } else if (actionEvent.getSource() == conPlanesVisibilityList) {
         int id = conPlanesVisibilityList->GetSelectedID();
         GV->editState->hPlaneData[id]->bDraw = !GV->editState->hPlaneData[id]->bDraw;
         GV->editState->vPort->MarkToRedraw(1);
         SyncPlaneVisibility();
+        if (GV->editState->hPlaneData[id]->bDraw) {
+            conPlaneVisibility->setVisible(1);
+        }
+        iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == conPlaneVisibility) {
         int id = conPlaneVisibility->GetSelectedID(),
-                pl = conPlanesVisibilityList->GetSelectedID();
+            pl = conPlanesVisibilityList->GetSelectedID();
         if (id == APPMEN_PLANEVIS_BORDER) {
             GV->editState->hPlaneData[pl]->bDrawBoundary = !GV->editState->hPlaneData[pl]->bDrawBoundary;
         } else if (id == APPMEN_PLANEVIS_GRID) {
@@ -592,6 +570,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             GV->editState->hPlaneData[pl]->hRB->Redraw();
         GV->editState->vPort->MarkToRedraw(1);
         SyncPlaneSelectedVisibility();
+        iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == hEntries[AppMenu_Tools]->GetContext()) {
         int id = hEntries[AppMenu_Tools]->GetContext()->GetSelectedID();
         if (id == APPMEN_TOOLS_PLAY) {
@@ -618,6 +597,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             GV->editState->winDB->setVisible(1);
             GV->editState->conMain->moveToTop(GV->editState->winDB);
         }
+        hEntries[AppMenu_Assets]->GetContext()->setVisible(0);
     }
 }
 

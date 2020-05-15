@@ -155,6 +155,8 @@ namespace ObjEdit {
 
         win->add(_butAddNext, 157, 500 - 19);
         win->add(_butSave, 257, 500 - 19);
+
+        EnableControlsSync();
     }
 
     cEditObjAmbient::~cEditObjAmbient() {
@@ -204,7 +206,7 @@ namespace ObjEdit {
         cbArea[1]->setEnabled(rbAreaType[1]->isSelected() && cbArea[0]->isSelected() && !bRectPick);
         _butSave->setEnabled(
                 !bRectPick && hPickArea[0]->isValid() && hPickArea[1]->isValid() && !tddSound->isMarkedInvalid());
-        DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFF000000 : 0xFF222222);
+        DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFFa1a1a1 : 0xFF000000);
         labTurnOnTime->setColor(dwCol);
         labTurnOffTime->setColor(dwCol);
         labTimeMin[0]->setColor(dwCol);
@@ -325,14 +327,6 @@ namespace ObjEdit {
 
         hge->Gfx_RenderLine(dx + 178, dy + 24 + 389, dx + 178, dy + 24 + 485 - 19, GV->colLineDark);
         hge->Gfx_RenderLine(dx + 179, dy + 24 + 389, dx + 179, dy + 24 + 485 - 19, GV->colLineBright);
-
-        /*for(int i=0;i<2;i++){
-         GV->fntMyriad13->SetColor(0xFF000000);
-         GV->fntMyriad13->Render(dx+754+137*i, dy+73, HGETEXT_LEFT, "X 1:");
-         GV->fntMyriad13->Render(dx+754+137*i, dy+73+21, HGETEXT_LEFT, "Y 1:");
-         GV->fntMyriad13->Render(dx+754+137*i, dy+73+42, HGETEXT_LEFT, "X 2:");
-         GV->fntMyriad13->Render(dx+754+137*i, dy+73+63, HGETEXT_LEFT, "Y 2:");
-        }*/
     }
 
     void cEditObjAmbient::_Think(bool bMouseConsumed) {

@@ -9,6 +9,7 @@
 #include "../../shared/gcnWidgets/wSlider.h"
 #include "../../shared/gcnWidgets/wScrollArea.h"
 #include "../../shared/gcnWidgets/wDropDown.h"
+#include "../../shared/gcnWidgets/wIconListbox.h"
 #include "../cNativeController.h"
 
 extern HGE *hge;
@@ -53,127 +54,170 @@ int cListModelDisplay::getNumberOfElements() {
 
 winOptions::winOptions() {
     myWin = new SHR::Win(&GV->gcnParts, GETL(Lang_Options));
-    myWin->setDimension(gcn::Rectangle(0, 0, 600, 320));
-    myWin->setClose(1);
-    myWin->setVisible(0);
+    myWin->setClose(true);
+    myWin->setVisible(false);
     myWin->addActionListener(this);
 
     vp = new WIDG::Viewport(this, 0);
     myWin->add(vp, 0, 0);
 
-    labscpDesc = new SHR::Lab(GETL2S("Options", "ClawInstallDir"));
-    labscpDesc->adjustSize();
-    myWin->add(labscpDesc, 5, 22);
-    tfscpPath = new SHR::TextField(GV->szClawPath == 0 ? "" : GV->szClawPath);
-    tfscpPath->adjustSize();
-    tfscpPath->addActionListener(this);
-    tfscpPath->setWidth(600 - 50 - labscpDesc->getWidth());
-    myWin->add(tfscpPath, labscpDesc->getWidth() + 10, 22);
-    butscpPath = GV->editState->MakeButton(600 - 40, 17, Icon_Open, myWin, true, true, this);
+    settingsCategoriesList = new SHR::IconListBox(this);
+    settingsCategoriesList->adjustSize();
+    settingsCategoriesList->setWidth(140);
+    settingsCategoriesList->addActionListener(this);
+    scrollAreaCategories = new SHR::ScrollArea(settingsCategoriesList, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_NEVER);
+    scrollAreaCategories->setDimension(settingsCategoriesList->getDimension());
+    myWin->add(scrollAreaCategories, 0, 8);
+    myWin->setHeight(24 + settingsCategoriesList->getHeight());
 
-    labscpVersion = new SHR::Lab("");
-    labscpVersion->adjustSize();
-    myWin->add(labscpVersion, tfscpPath->getX(), 45);
-
-    //editor options
-
-    laboptEditorSettings = new SHR::Lab(GETL2S("Options", "Editor"));
-    laboptEditorSettings->adjustSize();
-    myWin->add(laboptEditorSettings, 35, 80);
-
-    laboptLang = new SHR::Lab(GETL(Lang_Language));
-    laboptLang->adjustSize();
-    myWin->add(laboptLang, 5, 115);
-
-    lmLang = new cDynamicListModel();
-
-    ddoptLang = new SHR::DropDown();
-    ddoptLang->setListModel(lmLang);
-    ddoptLang->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    ddoptLang->addActionListener(this);
-    ddoptLang->SetGfx(&GV->gcnParts);
-    ddoptLang->adjustHeight();
-    myWin->add(ddoptLang, 140, 115);
-
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-    WIN32_FIND_DATA fdata;
-    hFind = FindFirstFile("lang/*", &fdata);
-    if (hFind != INVALID_HANDLE_VALUE) {
-        do {
-            if (fdata.cFileName[0] != '.') {
-                std::string filen = fdata.cFileName;
-                filen = filen.substr(0, filen.rfind('.'));
-                lmLang->Add(filen);
-            }
-        } while (FindNextFile(hFind, &fdata) != 0);
-    }
-
-    for (int i = 0; i < lmLang->getNumberOfElements(); i++) {
-        if (!strcmp(lmLang->getElementAt(i).c_str(), GV->Lang->GetName())) {
-            ddoptLang->setSelected(i);
-            break;
-        }
-    }
-
-    laboptChangesLang = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
-    laboptChangesLang->adjustSize();
-    laboptChangesLang->setColor(0x5e5e5e);
-    laboptChangesLang->setVisible(0);
-    myWin->add(laboptChangesLang, 5, 135);
-
-    laboptRes = new SHR::Lab(GETL(Lang_DisplayResolution));
-    laboptRes->adjustSize();
-    myWin->add(laboptRes, 5, 155);
-
-    ddoptRes = new SHR::DropDown();
-    ddoptRes->setListModel(new cListModelDisplay());
-    ddoptRes->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    ddoptRes->addActionListener(this);
-    ddoptRes->SetGfx(&GV->gcnParts);
-    ddoptRes->adjustHeight();
-    myWin->add(ddoptRes, 140, 155);
-
+    auto* conWapMap = new SHR::Container();
+    conWapMap->setOpaque(false);
     {
-        char actres[64];
-        sprintf(actres, "%dx%d", GV->iScreenW, GV->iScreenH);
-        for (int i = 0; i < ddoptRes->getListModel()->getNumberOfElements(); i++) {
-            if (!strcmp(ddoptRes->getListModel()->getElementAt(i).c_str(), actres)) {
-                ddoptRes->setSelected(i);
+        int xOffset = 8, yOffset = 10;
+        labLang = new SHR::Lab(GETL(Lang_Language));
+        labLang->adjustSize();
+        conWapMap->add(labLang, xOffset, yOffset);
+
+        lmLang = new cDynamicListModel();
+
+        ddoptLang = new SHR::DropDown();
+        ddoptLang->setListModel(lmLang);
+        ddoptLang->setDimension(gcn::Rectangle(0, 0, 150, 20));
+        ddoptLang->addActionListener(this);
+        ddoptLang->SetGfx(&GV->gcnParts);
+        ddoptLang->adjustHeight();
+        conWapMap->add(ddoptLang, xOffset + 130, yOffset - 1);
+
+        HANDLE hFind = INVALID_HANDLE_VALUE;
+        WIN32_FIND_DATA fdata;
+        hFind = FindFirstFile("lang/*", &fdata);
+        if (hFind != INVALID_HANDLE_VALUE) {
+            do {
+                if (fdata.cFileName[0] != '.') {
+                    std::string filen = fdata.cFileName;
+                    filen = filen.substr(0, filen.rfind('.'));
+                    lmLang->Add(filen);
+                }
+            } while (FindNextFile(hFind, &fdata) != 0);
+        }
+
+        for (int i = 0; i < lmLang->getNumberOfElements(); i++) {
+            if (!strcmp(lmLang->getElementAt(i).c_str(), GV->Lang->GetName())) {
+                ddoptLang->setSelected(i);
                 break;
             }
         }
+
+        yOffset += 22;
+
+        labChangesLang = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
+        labChangesLang->adjustSize();
+        labChangesLang->setColor(0x5e5e5e);
+        labChangesLang->setVisible(false);
+        conWapMap->add(labChangesLang, xOffset, yOffset);
+
+        yOffset += 25;
+
+        labRes = new SHR::Lab(GETL(Lang_DisplayResolution));
+        labRes->adjustSize();
+        conWapMap->add(labRes, xOffset, yOffset);
+
+        ddoptRes = new SHR::DropDown();
+        ddoptRes->setListModel(new cListModelDisplay());
+        ddoptRes->setDimension(gcn::Rectangle(0, 0, 150, 20));
+        ddoptRes->addActionListener(this);
+        ddoptRes->SetGfx(&GV->gcnParts);
+        ddoptRes->adjustHeight();
+        conWapMap->add(ddoptRes, xOffset + 130, yOffset - 1);
+
+        {
+            char actres[64];
+            sprintf(actres, "%dx%d", GV->iScreenW, GV->iScreenH);
+            for (int i = 0; i < ddoptRes->getListModel()->getNumberOfElements(); i++) {
+                if (!strcmp(ddoptRes->getListModel()->getElementAt(i).c_str(), actres)) {
+                    ddoptRes->setSelected(i);
+                    break;
+                }
+            }
+        }
+
+        yOffset += 22;
+
+        labChangesRes = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
+        labChangesRes->adjustSize();
+        labChangesRes->setVisible(0);
+        labChangesRes->setColor(0x5e5e5e);
+        conWapMap->add(labChangesRes, xOffset, yOffset);
+
+        yOffset += 30;
+
+        cbOptionsAlfaHigherPlanes = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AlphaOverlapping));
+        cbOptionsAlfaHigherPlanes->adjustSize();
+        cbOptionsAlfaHigherPlanes->addActionListener(this);
+        cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
+        conWapMap->add(cbOptionsAlfaHigherPlanes, xOffset, yOffset);
+
+        yOffset += 25;
+
+        cboptSmoothZooming = new SHR::CBox(GV->hGfxInterface, GETL(Lang_UseSmoothZooming));
+        cboptSmoothZooming->adjustSize();
+        cboptSmoothZooming->setSelected(GV->bSmoothZoom);
+        conWapMap->add(cboptSmoothZooming, xOffset, yOffset);
+
+        yOffset += 25;
+
+        cboptAutoUpdate = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AutoUpdate));
+        cboptAutoUpdate->adjustSize();
+        cboptAutoUpdate->setSelected(GV->bAutoUpdate);
+        conWapMap->add(cboptAutoUpdate, xOffset, yOffset);
+    }
+    optionsForCategory.push_back(conWapMap);
+    myWin->add(conWapMap, scrollAreaCategories->getWidth(), 8);
+
+    for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
+        int xOffset = 8, yOffset = 10;
+        auto* conGame = new SHR::Container();
+        conGame->setOpaque(false);
+
+        auto labDesc = new SHR::Lab(GETL2S("Options", "GameInstallDir"));
+        labDesc->adjustSize();
+        conGame->add(labDesc, xOffset, yOffset);
+        widgetsToDelete.push_back(labDesc);
+
+        xOffset += 5 + labDesc->getWidth();
+
+        auto tfPath = new SHR::TextField(GV->gamePaths[i].c_str());
+        tfPath->adjustSize();
+        tfPath->addActionListener(this);
+        tfPath->setWidth(250);
+        conGame->add(tfPath, xOffset, yOffset);
+        widgetsToDelete.push_back(tfPath);
+        pathTextFields.push_back(tfPath);
+
+        xOffset += 5 + tfPath->getWidth();
+
+        widgetsToDelete.push_back(butPath[i - WWD::Games_First] = GV->editState->MakeButton(xOffset, yOffset - 6, Icon_Open, conGame, true, true, this));
+
+        optionsForCategory.push_back(conGame);
+        myWin->add(conGame, scrollAreaCategories->getWidth(), 8);
     }
 
-    laboptChangesRes = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
-    laboptChangesRes->adjustSize();
-    laboptChangesRes->setVisible(0);
-    laboptChangesRes->setColor(0x5e5e5e);
-    myWin->add(laboptChangesRes, 5, 175);
 
-    cbOptionsAlfaHigherPlanes = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AlphaOverlapping));
-    cbOptionsAlfaHigherPlanes->adjustSize();
-    //cbOptionsAlfaHigherPlanes->addActionListener(al);
-    cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
-    myWin->add(cbOptionsAlfaHigherPlanes, 5, 235);
 
-    cboptSmoothZooming = new SHR::CBox(GV->hGfxInterface, GETL(Lang_UseSmoothZooming));
-    cboptSmoothZooming->adjustSize();
-    cboptSmoothZooming->setSelected(GV->bSmoothZoom);
-    myWin->add(cboptSmoothZooming, 5, 195);
-    cboptAutoUpdate = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AutoUpdate));
-    cboptAutoUpdate->adjustSize();
-    cboptAutoUpdate->setSelected(GV->bAutoUpdate);
-    myWin->add(cboptAutoUpdate, 5, 215);
+    labVersion = new SHR::Lab("");
+    labVersion->adjustSize();
+    //myWin->add(labscpVersion, tfscpPath->getX(), 45);
+
 
     //crazyhook options
 
-    laboptCrazyHookSettings = new SHR::Lab("");
-    laboptCrazyHookSettings->adjustSize();
-    myWin->add(laboptCrazyHookSettings, 335, 80);
+    labCrazyHookSettings = new SHR::Lab("");
+    labCrazyHookSettings->adjustSize();
+    //myWin->add(laboptCrazyHookSettings, 335, 80);
 
-    laboptGameRes = new SHR::Lab(GETL2S("Options", "GameRes"));
-    laboptGameRes->adjustSize();
-    myWin->add(laboptGameRes, 300, 115);
+    labGameRes = new SHR::Lab(GETL2S("Options", "GameRes"));
+    labGameRes->adjustSize();
+    //myWin->add(laboptGameRes, 300, 115);
 
     ddoptGameRes = new SHR::DropDown();
     ddoptGameRes->setListModel(new cListModelDisplay(1));
@@ -181,7 +225,7 @@ winOptions::winOptions() {
     ddoptGameRes->addActionListener(this);
     ddoptGameRes->SetGfx(&GV->gcnParts);
     ddoptGameRes->adjustHeight();
-    myWin->add(ddoptGameRes, 440, 115);
+    //myWin->add(ddoptGameRes, 440, 115);
 
     {
         char actres[64];
@@ -203,34 +247,32 @@ winOptions::winOptions() {
     cboptCrazyHookDebugInfo = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "DebugInf"));
     cboptCrazyHookDebugInfo->adjustSize();
     cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
-    myWin->add(cboptCrazyHookDebugInfo, 300, 170);
+    //myWin->add(cboptCrazyHookDebugInfo, 300, 170);
     cboptCrazyHookGodMode = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "GodMode"));
     cboptCrazyHookGodMode->adjustSize();
     cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
-    myWin->add(cboptCrazyHookGodMode, 300, 190);
+    //myWin->add(cboptCrazyHookGodMode, 300, 190);
     cboptCrazyHookArmor = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "ArmorMode"));
     cboptCrazyHookArmor->adjustSize();
     cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
-    myWin->add(cboptCrazyHookArmor, 300, 210);
+    //myWin->add(cboptCrazyHookArmor, 300, 210);
 
-    butoptSave = new SHR::But(GV->hGfxInterface, GETL(Lang_Save));
-    butoptSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
-    butoptSave->addActionListener(this);
-    myWin->add(butoptSave, 15, 260);
+    butSave = new SHR::But(GV->hGfxInterface, GETL(Lang_Save));
+    butSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
+    butSave->addActionListener(this);
+    myWin->add(butSave, myWin->getWidth() - 90, myWin->getHeight() - 55);
+    butSave->setX(butSave->getX() - 10);
 }
 
 winOptions::~winOptions() {
-    delete laboptChangesRes;
-    delete laboptChangesLang;
-    delete laboptRes;
-    delete laboptLang;
-    delete laboptGameRes;
-    delete laboptEditorSettings;
-    delete laboptCrazyHookSettings;
-    delete labscpDesc;
-    delete labscpVersion;
-    delete butscpPath;
-    delete butoptSave;
+    delete labChangesRes;
+    delete labChangesLang;
+    delete labRes;
+    delete labLang;
+    delete labGameRes;
+    delete labCrazyHookSettings;
+    delete labVersion;
+    delete butSave;
     delete ddoptLang;
     delete ddoptRes;
     delete ddoptGameRes;
@@ -241,7 +283,15 @@ winOptions::~winOptions() {
     delete cboptCrazyHookDebugInfo;
     delete cboptAutoUpdate;
     delete cboptSmoothZooming;
-    delete tfscpPath;
+
+    for (auto widget : widgetsToDelete) {
+        delete widget;
+    }
+
+    for (auto option : optionsForCategory) {
+        delete option;
+    }
+
     delete vp;
     delete myWin;
 }
@@ -251,7 +301,7 @@ void winOptions::Think() {
 }
 
 void winOptions::Draw(int piCode) {
-    int dx, dy;
+    /*int dx, dy;
     myWin->getAbsolutePosition(dx, dy);
 
     unsigned char alpha = myWin->getAlpha();
@@ -274,29 +324,53 @@ void winOptions::Draw(int piCode) {
 
     //middle
     hge->Gfx_RenderLine(dx + 296, dy + 81, dx + 296, dy + 270, GV->colLineDark);
-    hge->Gfx_RenderLine(dx + 297, dy + 81, dx + 297, dy + 270, GV->colLineBright);
+    hge->Gfx_RenderLine(dx + 297, dy + 81, dx + 297, dy + 270, GV->colLineBright);*/
 }
 
-void winOptions::Open() {
-    myWin->setVisible(1);
+void winOptions::Open(WWD::GAME game) {
+    myWin->setVisible(true);
     myWin->getParent()->moveToTop(myWin);
+
+    settingsCategoriesList->setSelected(game);
+    optionsForCategory[0]->setVisible(game == WWD::Game_Unknown);
+    for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
+        optionsForCategory[i]->setVisible(game == i);
+    }
 }
 
 void winOptions::Close() {
-    myWin->setVisible(0);
+    myWin->setVisible(false);
 }
 
 void winOptions::SyncWithExe() {
-    action(gcn::ActionEvent(tfscpPath, ""));
+    action(gcn::ActionEvent(pathTextFields[WWD::Game_Claw - WWD::Games_First], ""));
 }
 
-void winOptions::PickAndSetClawLocation() {
+void winOptions::PickAndSetGameLocation(WWD::GAME game) {
     OPENFILENAME ofn;
     char szFileopen[512] = "\0";
     ZeroMemory((&ofn), sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hge->System_GetState(HGE_HWND);
-    ofn.lpstrFilter = "Kapitan Pazur (CLAW.EXE)\0claw.exe\0Wszystkie pliki (*.*)\0*.*\0\0";
+    const char* filter;
+    switch (game) {
+    case WWD::Game_Claw:
+        filter = "CLAW.EXE\0claw.exe\0\0";
+        break;
+    case WWD::Game_GetMedieval:
+        filter = "MEDIEVAL.EXE\0medieval.exe\0\0";
+        break;
+    case WWD::Game_Gruntz:
+        filter = "GRUNTZ.EXE\0gruntz.exe\0\0";
+        break;
+    case WWD::Game_Claw2:
+        filter = "CLAW2.EXE\0claw2.exe\0\0";
+        break;
+    default:
+        return;
+    }
+    ofn.lpstrFilter = filter;
+
     ofn.lpstrFile = szFileopen;
     ofn.nMaxFile = sizeof(szFileopen);
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
@@ -304,52 +378,32 @@ void winOptions::PickAndSetClawLocation() {
     ofn.lpstrInitialDir = GV->szLastOpenPath;
     if (GetOpenFileName(&ofn) != 0) {
         char *path = SHR::GetDir(szFileopen);
-        tfscpPath->setText(std::string(path), 1);
+        GV->gamePaths[game] = path;
+        pathTextFields[game - WWD::Games_First]->setText(path);
         GV->SetLastOpenPath(path);
         delete[] path;
     }
 }
 
 void winOptions::action(const ActionEvent &actionEvent) {
-    if (actionEvent.getSource() == ddoptLang) {
-        laboptChangesLang->setVisible(
+    if (actionEvent.getSource() == settingsCategoriesList) {
+        for (int i = 0; i < optionsForCategory.size(); ++i) {
+            optionsForCategory[i]->setVisible(settingsCategoriesList->getSelected() == i);
+        }
+    } else if (actionEvent.getSource() == ddoptLang) {
+        labChangesLang->setVisible(
                 !(!strcmp(ddoptLang->getListModel()->getElementAt(ddoptLang->getSelected()).c_str(),
                           GV->Lang->GetName())));
     } else if (actionEvent.getSource() == ddoptRes) {
         int x, y;
         sscanf(ddoptRes->getListModel()->getElementAt(ddoptRes->getSelected()).c_str(), "%dx%d", &x, &y);
-        laboptChangesRes->setVisible(
+        labChangesRes->setVisible(
                 (x != hge->System_GetState(HGE_SCREENWIDTH) || y != hge->System_GetState(HGE_SCREENHEIGHT)));
-    } else if (actionEvent.getSource() == butscpPath) {
-        PickAndSetClawLocation();
-    } else if (actionEvent.getSource() == tfscpPath) {
-        if (!GV->editState->hNativeController->IsValid() ||
-            GV->editState->hNativeController->GetPath() != tfscpPath->getText())
-            GV->editState->hNativeController->SetPath(tfscpPath->getText());
-        bool b =
-                GV->editState->hNativeController->IsValid() && GV->editState->hNativeController->IsCrazyHookAvailable();
-        cboptCrazyHookDebugInfo->setEnabled(b);
-        cboptCrazyHookGodMode->setEnabled(b);
-        cboptCrazyHookArmor->setEnabled(b);
-        laboptCrazyHookSettings->setCaption(GETL2S("Options", (b ? "CrazyHook" : "CrazyHookNotFound")));
-        laboptCrazyHookSettings->adjustSize();
-        ddoptGameRes->setEnabled(b);
-
-        laboptGameRes->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
-        laboptCrazyHookSettings->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
-
-        if (GV->editState->hNativeController->IsValid()) {
-            labscpVersion->setCaption(std::string(GETL2S("Options", "DetectedVer")) + " " +
-                                      GV->editState->hNativeController->GetVersionStr());
-            labscpVersion->adjustSize();
+    } else if (actionEvent.getSource() == butSave) {
+        for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
+            GV->gamePaths[(WWD::GAME)i] = pathTextFields[i - WWD::Games_First]->getText();
+            GV->ini->SetValue("Paths", WWD::GAME_NAMES[i], GV->gamePaths[i].c_str());
         }
-        labscpVersion->setVisible(GV->editState->hNativeController->IsValid());
-    } else if (actionEvent.getSource() == butoptSave) {
-
-        delete[] GV->szClawPath;
-        GV->szClawPath = new char[strlen(tfscpPath->getText().c_str()) + 1];
-        strcpy(GV->szClawPath, tfscpPath->getText().c_str());
-        GV->ini->SetValue("Paths", "Claw", GV->szClawPath);
 
         GV->ini->SetValue("WapMap", "Language",
                           ddoptLang->getListModel()->getElementAt(ddoptLang->getSelected()).c_str());
@@ -405,5 +459,47 @@ void winOptions::action(const ActionEvent &actionEvent) {
 
         GV->ini->SaveFile("settings.cfg");
         Close();
+    } else if (actionEvent.getSource() == pathTextFields[WWD::Game_Claw - WWD::Games_First]) {
+        if (!GV->editState->hNativeController->IsValid() ||
+            GV->editState->hNativeController->GetPath() != pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText())
+            GV->editState->hNativeController->SetPath(pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText());
+        bool b = GV->editState->hNativeController->IsValid() && GV->editState->hNativeController->IsCrazyHookAvailable();
+        cboptCrazyHookDebugInfo->setEnabled(b);
+        cboptCrazyHookGodMode->setEnabled(b);
+        cboptCrazyHookArmor->setEnabled(b);
+        labCrazyHookSettings->setCaption(GETL2S("Options", (b ? "CrazyHook" : "CrazyHookNotFound")));
+        labCrazyHookSettings->adjustSize();
+        ddoptGameRes->setEnabled(b);
+
+        labGameRes->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
+        labCrazyHookSettings->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
+
+        if (GV->editState->hNativeController->IsValid()) {
+            labVersion->setCaption(std::string(GETL2S("Options", "DetectedVer")) + " " +
+                                   GV->editState->hNativeController->GetVersionStr());
+            labVersion->adjustSize();
+        }
+        labVersion->setVisible(GV->editState->hNativeController->IsValid());
+    } else for (int i = 0; i < WWD::Games_Count; ++i) {
+        if (actionEvent.getSource() == butPath[i]) {
+            PickAndSetGameLocation((WWD::GAME)(i + WWD::Games_First));
+            return;
+        }
+    }
+}
+
+std::string winOptions::getElementAt(int i) {
+    if (i >= WWD::Games_First && i <= WWD::Games_Last) {
+        return WWD::GAME_NAMES[(WWD::GAME)i];
+    }
+
+    return "WapMap";
+}
+
+hgeSprite *winOptions::getIcon(int i) {
+    if (i == 0) {
+        return GV->sprIcons[Icon_WapMap];
+    } else {
+        return GV->sprGamesBig[i];
     }
 }

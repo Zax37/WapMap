@@ -148,7 +148,11 @@ void State::EditingWW::Init() {
     conMain->add(vPort->GetWidget(), vPort->GetX(), vPort->GetY());
 
     al = new EditingWWActionListener(this);
+    fl = new EditingWWFocusListener(this);
+    kl = new EditingWWKeyListener(this);
     vp = new EditingWWvpCallback(this);
+
+    gui->addGlobalKeyListener(kl);
 
     MDI = new cMDI();
 
@@ -166,7 +170,7 @@ void State::EditingWW::Init() {
     tfWriteID = new SHR::TextField();
     tfWriteID->setDimension(gcn::Rectangle(0, 0, 48, 20));
     tfWriteID->addActionListener(al);
-    tfWriteID->SetNumerical(1, 0);
+    tfWriteID->addFocusListener(fl);
     conWriteID->add(tfWriteID, 0, 0);
 
 
@@ -212,7 +216,7 @@ void State::EditingWW::Init() {
 
     int xoff = 0;
 #ifdef WM_ADD_LUA_EXECUTER
-                                                                                                                            butIconLua = MakeButton(555, 5 + yoff, Icon_Lua, conMain);
+    butIconLua = MakeButton(555, 5 + yoff, Icon_Lua, conMain);
 	butIconLua->SetTooltip(GETL2("Tooltip", Lang_TT_Lua));
 #else
     xoff -= 32;
@@ -221,8 +225,8 @@ void State::EditingWW::Init() {
     //butIconShot->SetTooltip(GETL2("Tooltip", Lang_TT_Mapshot));
 
     cbutActiveMode = new SHR::ComboBut(GV->hGfxInterface);
-    cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeTile], "Tile"));
-    cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeObject], "Object"));
+    cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeTile], GETL(Lang_ModeTile)));
+    cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeObject], GETL(Lang_ModeObject)));
     cbutActiveMode->addActionListener(al);
     cbutActiveMode->adjustSize();
     conMain->add(cbutActiveMode, 5, LAY_MODEBAR_Y + 4);
@@ -270,23 +274,27 @@ void State::EditingWW::Init() {
     butExtLayerRight = MakeButton(4, vPort->GetHeight() / 2 - 40 - 16, Icon_AddRight, conResizeRight);
 
     hNativeController = new cNativeController();
-    if (GV->szClawPath != 0)
-        hNativeController->SetPath(GV->szClawPath);
+    hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
 
     {
         int w = atoi(GV->ini->GetValue("CrazyHook", "DisplayWidth", "1024")),
-                h = atoi(GV->ini->GetValue("CrazyHook", "DisplayHeight", "768"));
-        std::vector<SHR::DisplayMode> modes = SHR::GetDisplayModes();
-        bool bfound = 0;
-        for (size_t i = 0; i < modes.size(); i++)
-            if (modes[i].iWidth == w && modes[i].iHeight == h) {
-                bfound = 1;
-                break;
+            h = atoi(GV->ini->GetValue("CrazyHook", "DisplayHeight", "768"));
+        if (w == -1 && h == -1) {
+
+        } else {
+            std::vector<SHR::DisplayMode> modes = SHR::GetDisplayModes();
+            bool bfound = 0;
+            for (size_t i = 0; i < modes.size(); i++)
+                if (modes[i].iWidth == w && modes[i].iHeight == h) {
+                    bfound = 1;
+                    break;
+                }
+            if (!bfound) {
+                w = 1024;
+                h = 768;
             }
-        if (!bfound) {
-            w = 1024;
-            h = 768;
         }
+
         hNativeController->SetDisplayResolution(w, h);
         hNativeController->SetDebugInfo(atoi(GV->ini->GetValue("CrazyHook", "DebugInfo", "0")) != 0);
         hNativeController->SetGodMode(atoi(GV->ini->GetValue("CrazyHook", "GodMode", "0")) != 0);
@@ -1110,21 +1118,20 @@ void State::EditingWW::Init() {
     winMapShot->add(labmsDimensions, 5, 97);
 
     winpmMain = new SHR::Win(&GV->gcnParts, GETL2S("PlaneProperties", "Caption"));
-    winpmMain->setDimension(gcn::Rectangle(0, 0, 225, 275));
-    winpmMain->setVisible(0);
-    winpmMain->setClose(1);
+    winpmMain->setDimension(gcn::Rectangle(0, 0, 225, 300));
+    winpmMain->setVisible(false);
+    winpmMain->setClose(true);
     conMain->add(winpmMain, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 112,
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 162);
 
     lbpmPlanes = new SHR::ListBox(new EditingWWlModel(this, LMODEL_PLANESPROP));
     lbpmPlanes->setDimension(gcn::Rectangle(0, 0, 210, 300));
     lbpmPlanes->addActionListener(al);
-    //conpmPlanes->add(lbpmPlanes, 0, 0);
 
     sapmPlanes = new SHR::ScrollArea();
     sapmPlanes->setVerticalScrollPolicy(SHR::ScrollArea::SHOW_AUTO);
     sapmPlanes->setHorizontalScrollPolicy(SHR::ScrollArea::SHOW_NEVER);
-    sapmPlanes->setDimension(gcn::Rectangle(0, 0, 210, 227));
+    sapmPlanes->setDimension(gcn::Rectangle(0, 0, 210, 245));
     sapmPlanes->setContent(lbpmPlanes);
     sapmPlanes->setOpaque(0);
     winpmMain->add(sapmPlanes, 5, 35);
@@ -1152,6 +1159,27 @@ void State::EditingWW::Init() {
 
     winpmMain->add(ddpmTileSet, 230 + labpmTileSet->getWidth(), 45);
 
+    labpmOffset = new SHR::Lab(GETL2S("PlaneProperties", "Offset"));
+    labpmOffset->adjustSize();
+    //winpmMain->add(labpmOffset, 220, 75);
+
+    labpmOffX = new SHR::Lab("X:");
+    labpmOffX->adjustSize();
+    //winpmMain->add(labpmOffX, 325, 75);
+    labpmOffY = new SHR::Lab("Y:");
+    labpmOffY->adjustSize();
+    //winpmMain->add(labpmOffY, 410, 75);
+
+    tfpmOffX = new SHR::TextField("");
+    tfpmOffX->SetNumerical(1);
+    tfpmOffX->setDimension(gcn::Rectangle(0, 0, 60, 20));
+    //winpmMain->add(tfpmOffX, 345, 73);
+
+    tfpmOffY = new SHR::TextField("");
+    tfpmOffY->SetNumerical(1);
+    tfpmOffY->setDimension(gcn::Rectangle(0, 0, 60, 20));
+    //winpmMain->add(tfpmOffY, 430, 73);
+
     /*tbpmImagesets = new SHR::TextBox();
 	tbpmImagesets->setFont(GV->gcnParts.gcnfntMyriad13);
 	tbpmImagesets->setMinimalSize((525-(230+labpmImagesets->getWidth())-15)+3-35, 100);
@@ -1166,43 +1194,43 @@ void State::EditingWW::Init() {
 
     labpmPlaneSize = new SHR::Lab(GETL2S("PlaneProperties", "Size"));
     labpmPlaneSize->adjustSize();
-    winpmMain->add(labpmPlaneSize, 220, 102);
+    winpmMain->add(labpmPlaneSize, 220, 115);
     labpmAnchor = new SHR::Lab(GETL2S("PlaneProperties", "Anchor"));
     labpmAnchor->adjustSize();
-    winpmMain->add(labpmAnchor, 525 - 96 - 35, 102);
+    winpmMain->add(labpmAnchor, 525 - 96 - 35, 115);
 
     labpmWidth = new SHR::Lab(GETL2S("PlaneProperties", "Width"));
     labpmWidth->adjustSize();
-    winpmMain->add(labpmWidth, 220, 127);
+    winpmMain->add(labpmWidth, 220, 140);
     labpmHeight = new SHR::Lab(GETL2S("PlaneProperties", "Height"));
     labpmHeight->adjustSize();
-    winpmMain->add(labpmHeight, 220, 157);
+    winpmMain->add(labpmHeight, 220, 170);
 
     tfpmPlaneSizeX = new SHR::TextField("");
     tfpmPlaneSizeX->SetNumerical(1);
     tfpmPlaneSizeX->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfpmPlaneSizeX->addActionListener(al);
-    winpmMain->add(tfpmPlaneSizeX, 301, 127);
+    winpmMain->add(tfpmPlaneSizeX, 301, 140);
     tfpmPlaneSizeY = new SHR::TextField("");
     tfpmPlaneSizeY->SetNumerical(1);
     tfpmPlaneSizeY->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfpmPlaneSizeY->addActionListener(al);
-    winpmMain->add(tfpmPlaneSizeY, 301, 157);
+    winpmMain->add(tfpmPlaneSizeY, 301, 170);
 
     ipmAnchor = 5;
     ipmSizeX = ipmSizeY = -1;
 
-    butpmResUL = MakeButton(525 - 96 - 35, 120, Icon_UpLeft, winpmMain, 1, 1);
-    butpmResU = MakeButton(525 - 64 - 35, 120, Icon_Up, winpmMain, 1, 1);
-    butpmResUR = MakeButton(525 - 32 - 35, 120, Icon_UpRight, winpmMain, 1, 1);
+    butpmResUL = MakeButton(525 - 96 - 35, 140, Icon_UpLeft, winpmMain, 1, 1);
+    butpmResU = MakeButton(525 - 64 - 35, 140, Icon_Up, winpmMain, 1, 1);
+    butpmResUR = MakeButton(525 - 32 - 35, 140, Icon_UpRight, winpmMain, 1, 1);
 
-    butpmResL = MakeButton(525 - 96 - 35, 120 + 32, Icon_Left, winpmMain, 1, 1);
-    butpmResC = MakeButton(525 - 64 - 35, 120 + 32, Icon_Anchor, winpmMain, 1, 1);
-    butpmResR = MakeButton(525 - 32 - 35, 120 + 32, Icon_Right, winpmMain, 1, 1);
+    butpmResL = MakeButton(525 - 96 - 35, 140 + 32, Icon_Left, winpmMain, 1, 1);
+    butpmResC = MakeButton(525 - 64 - 35, 140 + 32, Icon_Anchor, winpmMain, 1, 1);
+    butpmResR = MakeButton(525 - 32 - 35, 140 + 32, Icon_Right, winpmMain, 1, 1);
 
-    butpmResDL = MakeButton(525 - 96 - 35, 120 + 64, Icon_DownLeft, winpmMain, 1, 1);
-    butpmResD = MakeButton(525 - 64 - 35, 120 + 64, Icon_Down, winpmMain, 1, 1);
-    butpmResDR = MakeButton(525 - 32 - 35, 120 + 64, Icon_DownRight, winpmMain, 1, 1);
+    butpmResDL = MakeButton(525 - 96 - 35, 140 + 64, Icon_DownLeft, winpmMain, 1, 1);
+    butpmResD = MakeButton(525 - 64 - 35, 140 + 64, Icon_Down, winpmMain, 1, 1);
+    butpmResDR = MakeButton(525 - 32 - 35, 140 + 64, Icon_DownRight, winpmMain, 1, 1);
 
     labpmTileSize = new SHR::Lab(GETL2S("PlaneProperties", "TileDim"));
     labpmTileSize->adjustSize();
@@ -1254,117 +1282,117 @@ void State::EditingWW::Init() {
 
     labpmFlags = new SHR::Lab(GETL2S("PlaneProperties", "Flags"));
     labpmFlags->adjustSize();
-    winpmMain->add(labpmFlags, 532 - 35, 95);
+    winpmMain->add(labpmFlags, 532 - 35, 115);
 
     cbpmFlagMainPlane = new SHR::CBox(GV->hGfxInterface, GETL2S("PlaneProperties", "FlagMainPlane"));
     cbpmFlagMainPlane->adjustSize();
-    winpmMain->add(cbpmFlagMainPlane, 532 - 35, 115);
+    winpmMain->add(cbpmFlagMainPlane, 532 - 35, 135);
 
     cbpmFlagNoDraw = new SHR::CBox(GV->hGfxInterface, GETL2S("PlaneProperties", "FlagNoDraw"));
     cbpmFlagNoDraw->adjustSize();
-    winpmMain->add(cbpmFlagNoDraw, 532 - 35, 135);
+    winpmMain->add(cbpmFlagNoDraw, 532 - 35, 155);
 
     cbpmFlagWrapX = new SHR::CBox(GV->hGfxInterface, GETL2S("PlaneProperties", "FlagWrapX"));
     cbpmFlagWrapX->adjustSize();
-    winpmMain->add(cbpmFlagWrapX, 532 - 35, 155);
+    winpmMain->add(cbpmFlagWrapX, 532 - 35, 175);
 
     cbpmFlagWrapY = new SHR::CBox(GV->hGfxInterface, GETL2S("PlaneProperties", "FlagWrapY"));
     cbpmFlagWrapY->adjustSize();
-    winpmMain->add(cbpmFlagWrapY, 532 - 35, 175);
+    winpmMain->add(cbpmFlagWrapY, 532 - 35, 195);
 
     cbpmAutoTileSize = new SHR::CBox(GV->hGfxInterface, GETL2S("PlaneProperties", "FlagAutoTileSize"));
     cbpmAutoTileSize->adjustSize();
-    winpmMain->add(cbpmAutoTileSize, 532 - 35, 195);
+    winpmMain->add(cbpmAutoTileSize, 532 - 35, 215);
 
     butpmSave = new SHR::But(GV->hGfxInterface, GETL(Lang_Save));
     butpmSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
     butpmSave->addActionListener(al);
-    winpmMain->add(butpmSave, 258 - 35, 225);
+    winpmMain->add(butpmSave, 258 - 35, 245);
 
     butpmDelete = new SHR::But(GV->hGfxInterface, GETL(Lang_Delete));
     butpmDelete->setDimension(gcn::Rectangle(0, 0, 100, 33));
     butpmDelete->addActionListener(al);
-    winpmMain->add(butpmDelete, 358 - 25, 225);
+    winpmMain->add(butpmDelete, 358 - 25, 245);
 
     vppm = new WIDG::Viewport(vp, VP_PLANEPROPERTIES);
     winpmMain->add(vppm, 0, 0);
 
     winWorld = new SHR::Win(&GV->gcnParts, GETL(Lang_MapProperties));
-    winWorld->setDimension(gcn::Rectangle(0, 0, 800, 280));
-    winWorld->setVisible(0);
-    winWorld->setClose(1);
+    winWorld->setDimension(gcn::Rectangle(0, 0, 400, 290));
+    winWorld->setVisible(false);
+    winWorld->setClose(true);
     conMain->add(winWorld, hge->System_GetState(HGE_SCREENWIDTH) / 2 - winWorld->getWidth() / 2,
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - winWorld->getHeight() / 2);
 
     labwpName = new SHR::Lab(GETL(Lang_Name));
     labwpName->adjustSize();
-    winWorld->add(labwpName, 5, 10);
+    winWorld->add(labwpName, 5, 15);
 
     labwpAuthor = new SHR::Lab(GETL(Lang_Author));
     labwpAuthor->adjustSize();
-    winWorld->add(labwpAuthor, 5, 35);
+    winWorld->add(labwpAuthor, 5, 40);
 
     labwpDate = new SHR::Lab(GETL(Lang_Date));
     labwpDate->adjustSize();
-    winWorld->add(labwpDate, 5, 60);
+    winWorld->add(labwpDate, 5, 65);
 
     labwpREZ = new SHR::Lab(GETL(Lang_PathREZ));
     labwpREZ->adjustSize();
-    winWorld->add(labwpREZ, 5, 95);
+    winWorld->add(labwpREZ, 5, 100);
 
     labwpTiles = new SHR::Lab(GETL(Lang_PathTiles));
     labwpTiles->adjustSize();
-    winWorld->add(labwpTiles, 5, 120);
+    winWorld->add(labwpTiles, 5, 125);
 
     labwpPalette = new SHR::Lab(GETL(Lang_PathPAL));
     labwpPalette->adjustSize();
-    winWorld->add(labwpPalette, 5, 145);
+    winWorld->add(labwpPalette, 5, 150);
 
     labwpExe = new SHR::Lab(GETL(Lang_Exe));
     labwpExe->adjustSize();
-    winWorld->add(labwpExe, 5, 170);
+    winWorld->add(labwpExe, 5, 175);
 
     tfwpName = new SHR::TextField("");
     tfwpName->setDimension(gcn::Rectangle(0, 0, 240, 20));
     tfwpName->setMaxLength(58);
-    winWorld->add(tfwpName, 150, 10);
+    winWorld->add(tfwpName, 150, 15);
 
     tfwpAuthor = new SHR::TextField("");
     tfwpAuthor->setDimension(gcn::Rectangle(0, 0, 240, 20));
-    winWorld->add(tfwpAuthor, 150, 35);
+    winWorld->add(tfwpAuthor, 150, 40);
 
     tfwpDate = new SHR::TextField("");
     tfwpDate->setDimension(gcn::Rectangle(0, 0, 240, 20));
     tfwpDate->setEnabled(0);
-    winWorld->add(tfwpDate, 150, 60);
+    winWorld->add(tfwpDate, 150, 65);
 
     tfwpREZ = new SHR::TextField("");
     tfwpREZ->setDimension(gcn::Rectangle(0, 0, 240, 20));
-    winWorld->add(tfwpREZ, 150, 95);
+    winWorld->add(tfwpREZ, 150, 100);
 
     tfwpTiles = new SHR::TextField("");
     tfwpTiles->setDimension(gcn::Rectangle(0, 0, 240, 20));
-    winWorld->add(tfwpTiles, 150, 120);
+    winWorld->add(tfwpTiles, 150, 125);
 
     tfwpPalette = new SHR::TextField("");
     tfwpPalette->setDimension(gcn::Rectangle(0, 0, 240, 20));
-    winWorld->add(tfwpPalette, 150, 145);
+    winWorld->add(tfwpPalette, 150, 150);
 
     tfwpExe = new SHR::TextField("");
     tfwpExe->setDimension(gcn::Rectangle(0, 0, 240, 20));
-    winWorld->add(tfwpExe, 150, 170);
+    winWorld->add(tfwpExe, 150, 175);
 
     cbwpCompress = new SHR::CBox(GV->hGfxInterface, GETL(Lang_Compress));
     cbwpCompress->adjustSize();
     cbwpCompress->addActionListener(al);
-    winWorld->add(cbwpCompress, 5, 215);
+    winWorld->add(cbwpCompress, 5, 210);
 
     cbwpZCoord = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ZCoord));
     cbwpZCoord->adjustSize();
     cbwpZCoord->addActionListener(al);
-    winWorld->add(cbwpZCoord, 200, 215);
+    winWorld->add(cbwpZCoord, 200, 210);
 
-    labwpMapBuild = new SHR::Lab(GETL2S("Win_MapProperties", "MapBuild"));
+    /*labwpMapBuild = new SHR::Lab(GETL2S("Win_MapProperties", "MapBuild"));
     labwpMapBuild->adjustSize();
     winWorld->add(labwpMapBuild, 400, 10);
 
@@ -1403,7 +1431,7 @@ void State::EditingWW::Init() {
     sawpMapDescription->setContent(tbwpMapDescription);
     sawpMapDescription->setBackgroundColor(0x3c3c3c);
     sawpMapDescription->setDimension(gcn::Rectangle(0, 0, 240, 100));
-    winWorld->add(sawpMapDescription, 400 + 150, 95);
+    winWorld->add(sawpMapDescription, 400 + 150, 95);*/
 
     butwpSave = new SHR::But(GV->hGfxInterface, GETL(Lang_OK));
     butwpSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
@@ -1413,8 +1441,8 @@ void State::EditingWW::Init() {
     butwpCancel->setDimension(gcn::Rectangle(0, 0, 100, 33));
     butwpCancel->addActionListener(al);
 
-    winWorld->add(butwpSave, 410, 210);
-    winWorld->add(butwpCancel, 520, 210);
+    winWorld->add(butwpSave, 180, 235);
+    winWorld->add(butwpCancel, 290, 235);
 
     vpWorld = new WIDG::Viewport(vp, VP_WORLD);
     winWorld->add(vpWorld, 0, 0);
@@ -1606,21 +1634,20 @@ void State::EditingWW::Init() {
 
     winWelcome->setVisible(GV->szCmdLine.empty());
 
-    for (int i = 0; i < 10; i++) {
-        lnkLastOpened[i] = NULL;
+    for (auto & link : lnkLastOpened) {
+        link = NULL;
     }
     hMruList = new cMruList();
     MruListUpdated();
 
     hAppMenu->SyncMRU();
 
-    if (hMruList->IsValid() && hMruList->GetFilesCount() > 0 || conCrashRetrieve) {
+    if ((hMruList->IsValid() && hMruList->GetFilesCount() > 0) || conCrashRetrieve) {
         SHR::Container *conToAdd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
 
-        winWelcome->setHeight(winWelcome->getHeight() + conToAdd->getHeight());
-        winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
         winWelcome->add(conToAdd, winWelcome->getWidth() / 2 - conToAdd->getWidth() / 2,
-                        winWelcome->getHeight() - conToAdd->getHeight());
+                        winWelcome->getHeight() + 10);
+        winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
     }
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0) {
@@ -1879,11 +1906,6 @@ void State::EditingWW::Init() {
     hAppMenu->FixInterfacePositions();
 
     GV->Console->Print("~g~Everything OK.");
-
-    /*if( GV->szClawPath == 0 ){
-	 winOptions->setVisible(1);
-	 conMain->moveToTop(winOptions);
-	}*/
 }
 
 void State::EditingWW::InitEmpty() {
@@ -1954,6 +1976,8 @@ void State::EditingWW::Destroy() {
     GV->Console->DeleteModifiableVar("camy");
     GV->Console->DeleteModifiableVar("zoom");
     delete al;
+    delete fl;
+    delete kl;
     delete vp;
     //if( szHint != 0 )
     // delete [] szHint;
@@ -2106,7 +2130,6 @@ bool State::EditingWW::Think() {
 
             SetWindowPos(hge->System_GetState(HGE_HWND), NULL, windowDragStartRect.left + dmx,
                          windowDragStartRect.top + dmy, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-            //hge->Input_SetMousePos(iWindowDragX, iWindowDragY);
         }
     }
 
@@ -2133,26 +2156,11 @@ bool State::EditingWW::Think() {
     hAppMenu->Think(conMain->getWidgetAt(mx, my) != NULL);
     MDI->Think(conMain->getWidgetAt(mx, my) != NULL);
 
-    //fCamX = sliHor->getValue();
-    //fCamY = GetActivePlane()->GetPlaneHeightPx()-sliVer->getValue();
     GV->Console->Think();
     if (hge->Input_KeyDown(HGEK_MBUTTON)) {
         cScrollOrientation++;
         if (cScrollOrientation > 2)
             cScrollOrientation = 0;
-    }
-
-    /*for(int i=0;i<vObjectWins.size();i++){
-	 if( vObjectWins[i]->Kill() ){
-	  delete vObjectWins[i];
-	  vObjectWins.erase(vObjectWins.begin()+i);
-	  i--;
-	 }
-	}*/
-
-
-    if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_O)) {
-        GV->editState->OpenDocuments();
     }
 
     /*if( iMode != EWW_MODE_SIMULATION && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_I) )
@@ -2224,8 +2232,8 @@ bool State::EditingWW::Think() {
         }
     }
 
-    for (size_t i = 0; i < hWindows.size(); i++)
-        hWindows[i]->Think();
+    for (auto & hWindow : hWindows)
+        hWindow->Think();
 
     if (iMode == EWW_MODE_OBJECT) {
         bMouseConsumed = ObjectThink(bMouseConsumed);
@@ -2234,40 +2242,39 @@ bool State::EditingWW::Think() {
     }
     if (iActiveTool == EWW_TOOL_MEASURE && !bMouseConsumed) {
         if (hge->Input_KeyDown(HGEK_LBUTTON)) {
-            int scrx = mx, scry = my;
-            if (hge->Input_GetKeyState(HGEK_SHIFT) && m_vMeasurePoints.size() != 0) {
+            int scrX = mx, scrY = my;
+            if (hge->Input_GetKeyState(HGEK_SHIFT) && !m_vMeasurePoints.empty()) {
                 int x1 = Wrd2ScrX(GetActivePlane(), m_vMeasurePoints[m_vMeasurePoints.size() - 1].first),
-                        y1 = Wrd2ScrY(GetActivePlane(), m_vMeasurePoints[m_vMeasurePoints.size() - 1].second);
+                    y1 = Wrd2ScrY(GetActivePlane(), m_vMeasurePoints[m_vMeasurePoints.size() - 1].second);
                 int lenx = mx - x1, leny = my - y1;
                 float ratio = float(lenx) / float(leny);
                 if (ratio >= -0.50f && ratio <= 0.50) { //straight up
-                    scrx = x1;
+                    scrX = x1;
                 } else if (ratio > 1.5f || ratio < -1.5f) {
-                    scry = y1;
+                    scrY = y1;
                 } else if (ratio >= 0.50f && ratio <= 1.50f) {
                     if (lenx < 0 && leny < 0) {
                         int dist = std::min(abs(lenx), abs(leny));
-                        scrx = x1 - dist;
-                        scry = y1 - dist;
+                        scrX = x1 - dist;
+                        scrY = y1 - dist;
                     } else {
                         int dist = std::min(abs(lenx), abs(leny));
-                        scrx = x1 + dist;
-                        scry = y1 + dist;
+                        scrX = x1 + dist;
+                        scrY = y1 + dist;
                     }
                 } else if (ratio <= -0.5 && ratio >= -1.5) {
                     if (lenx < 0) {
                         int dist = std::min(lenx, leny);
-                        scrx = x1 + dist;
-                        scry = y1 - dist;
+                        scrX = x1 + dist;
+                        scrY = y1 - dist;
                     } else {
                         int dist = std::min(lenx, leny);
-                        scrx = x1 - dist;
-                        scry = y1 + dist;
+                        scrX = x1 - dist;
+                        scrY = y1 + dist;
                     }
                 }
             }
-            m_vMeasurePoints.push_back(
-                    std::make_pair(Scr2WrdX(GetActivePlane(), scrx), Scr2WrdY(GetActivePlane(), scry)));
+            m_vMeasurePoints.emplace_back(Scr2WrdX(GetActivePlane(), scrX), Scr2WrdY(GetActivePlane(), scrY));
         }
     }
 
@@ -2570,23 +2577,8 @@ void State::EditingWW::OpenTool(int iTool) {
     if (iTool == EWW_TOOL_PENCIL || iTool == EWW_TOOL_FILL) {
         iActiveTool = iTool;
         iTileDrawMode = EWW_DRAW_POINT;
-        RebuildTilePicker();
+        RebuildTilePicker(true);
         winTilePicker->setVisible(true);
-        /*vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH)-11, hge->System_GetState(HGE_SCREENHEIGHT)-225-25-24);
-		butTilePickerErase->setVisible(1);
-		butTilePickerFill->setVisible(1);
-		butTilePickerPipette->setVisible(1);
-		sliTilePicker->setVisible(1);
-		butTilePickerRight->setVisible(1);
-		butTilePickerLeft->setVisible(1);
-		butTilePickerType->setVisible(1);
-		sliTilePicker->setValue(0);
-		if( butTilePickerType->getIcon() == GV->sprIcons[Icon_Row] )
-		 sliTilePicker->setScaleEnd(std::max(0, hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTilesCount()*80-hge->System_GetState(HGE_SCREENWIDTH)+91));
-		else if( butTilePickerType->getIcon() == GV->sprIcons[Icon_Grid] )
-		 sliTilePicker->setScaleEnd(std::max(0, (hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetTilesCount()/3+1)*32-hge->System_GetState(HGE_SCREENWIDTH)+91));
-		return;*/
-
         return;
     } else if (iTool == EWW_TOOL_WRITEID) {
         hmbTile->butIconWriteID->setHighlight(1);
@@ -2596,10 +2588,10 @@ void State::EditingWW::OpenTool(int iTool) {
         winSpacing->requestMoveToTop();
     } else if (iTool == EWW_TOOL_BRUSH) {
         iActiveTool = iTool;
-        iTileDrawMode == EWW_DRAW_POINT;
-        RebuildTilePicker();
+        iTileDrawMode = EWW_DRAW_POINT;
+        RebuildTilePicker(true);
         if (!winTilePicker->isVisible())
-            winTilePicker->setVisible(1);
+            winTilePicker->setVisible(true);
         iLastBrushPlacedX = iLastBrushPlacedY = -1;
         return;
     } else if (iTool == EWW_TOOL_BRUSHOBJECT) {
@@ -2639,6 +2631,7 @@ void State::EditingWW::CloseTool(int iTool) {
         return;
     } else if (iActiveTool == EWW_TOOL_WRITEID) {
         hmbTile->butIconWriteID->setHighlight(0);
+        vTileGhosting.clear();
     } else if (iActiveTool == EWW_TOOL_SPACEOBJ) {
         winSpacing->setVisible(0);
     } else if (iActiveTool == EWW_TOOL_BRUSH) {
@@ -2764,7 +2757,7 @@ bool State::EditingWW::OpenDocuments() {
 
         if (!std::filesystem::is_directory(dir)) {
             const char* actualDir = SHR::GetDir(dir.c_str());
-            GV->StateMgr->Push(new State::LoadMap(dir.c_str()));
+            vstrMapsToLoad = { dir };
             GV->SetLastOpenPath(actualDir);
             delete[] actualDir;
         }
@@ -2775,14 +2768,58 @@ bool State::EditingWW::OpenDocuments() {
             while (*str) {
                 std::string filename(str);
                 str += (filename.length() + 1);
-                GV->StateMgr->Push(new State::LoadMap((dir + filename).c_str()));
-                GV->StateMgr->Think();
+                vstrMapsToLoad.push_back(dir + filename);
             }
         }
         
         return true;
     }
     return false;
+}
+
+void State::EditingWW::SaveAs() {
+    OPENFILENAME ofn;
+    char szFileopen[512] = "\0";
+    ZeroMemory((&ofn), sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hge->System_GetState(HGE_HWND);
+    ofn.lpstrFilter = "WapWorld Document (*.wwd)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
+    ofn.lpstrFile = szFileopen;
+    ofn.nMaxFile = sizeof(szFileopen);
+    ofn.lpstrDefExt = "wwd";
+    ofn.lpstrInitialDir = GV->szLastSavePath;
+    if (GetSaveFileName(&ofn)) {
+        hParser->SetFilePath((const char *) szFileopen);
+        bool ok = 0;
+        try {
+            MDI->PrepareDocToSave(MDI->GetActiveDocIt());
+            hParser->CompileToFile(szFileopen, 1);
+            hDataCtrl->RelocateDocument(szFileopen);
+            ok = 1;
+        }
+        catch (WWD::Exception &exc) {
+#ifdef BUILD_DEBUG
+            GV->Console->Printf("~r~WWD exception: ~y~%d ~w~(~y~%s~w~:~y~%d~w~)", exc.iErrorCode, exc.szFile, exc.iLine);
+#else
+            GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
+#endif
+        }
+        if (ok) {
+            char *fl = SHR::GetFile(hParser->GetFilePath());
+            delete[] MDI->GetActiveDoc()->szFileName;
+            int size = strlen(fl) - 3;
+            MDI->GetActiveDoc()->szFileName = new char[size];
+            strncpy(MDI->GetActiveDoc()->szFileName, fl, size - 1);
+            MDI->GetActiveDoc()->szFileName[size - 1] = 0;
+            MDI->GetActiveDoc()->bSaved = 1;
+            SetHint("%s: %s", GETL2S("Hints", "FileSavedAs"), fl);
+            delete[] fl;
+            MDI->UpdateCrashList();
+        }
+        char *lastSave = SHR::GetDir(szFileopen);
+        GV->SetLastSavePath(lastSave);
+        delete[] lastSave;
+    }
 }
 
 void State::EditingWW::SetMode(int piMode) {
@@ -2898,7 +2935,10 @@ void State::EditingWW::SyncAttribMenuWithTile() {
     sprintf(tmp, "%d", attrib->GetH());
     tftpH->setText(tmp);
 
-    rbtpIn[attrib->GetAtribInside()]->setSelected(1);
+    int inside = attrib->GetAtribInside();
+    if (inside < 5) {
+        rbtpIn[inside]->setSelected(1);
+    }
 
     if (attrib->GetType() == WWD::AttribType_Single) {
         rbtpSingle->setSelected(1);
@@ -3052,6 +3092,8 @@ void State::EditingWW::DocumentSwitched() {
         lbbrlLogicList->setListModel(0);
         InitEmpty();
         vPort->MarkToRedraw(1);
+        hAppMenu->SyncDocumentSwitched();
+        hDataCtrl = NULL;
         return;
     }
 
@@ -3238,7 +3280,7 @@ void State::EditingWW::SyncWorldOptionsWithParser() {
     tfwpPalette->setText(hParser->GetPalettePath());
     tfwpExe->setText(hParser->GetExePath());
 
-    char tmp[256];
+    /*char tmp[256];
     sprintf(tmp, "%d", MDI->GetActiveDoc()->iMapBuild);
     tfwpMapBuild->setText(tmp);
 
@@ -3251,7 +3293,7 @@ void State::EditingWW::SyncWorldOptionsWithParser() {
     tfwpWapVersion->setText(tmp);
 
     tfwpMapVersion->setText(MDI->GetActiveDoc()->strMapVersion);
-    tbwpMapDescription->setText(MDI->GetActiveDoc()->strMapDescription);
+    tbwpMapDescription->setText(MDI->GetActiveDoc()->strMapDescription);*/
 
     cbwpCompress->setSelected(hParser->GetFlag(WWD::Flag_w_Compress));
     cbwpZCoord->setSelected(hParser->GetFlag(WWD::Flag_w_UseZCoords));
@@ -3320,7 +3362,7 @@ void State::EditingWW::SaveWorldOptions() {
                                             ST_ER_BUT_OK, 0));
         return;
     }
-    winWorld->setVisible(0);
+    winWorld->setVisible(false);
     bool bchange = 0;
     if (strcmp(hParser->GetName(), tfwpName->getText().c_str()) != 0) {
         bchange = 1;
@@ -3358,7 +3400,7 @@ void State::EditingWW::SaveWorldOptions() {
         hParser->SetFlag(WWD::Flag_w_UseZCoords, cbwpZCoord->isSelected());
     }
 
-    if (MDI->GetActiveDoc()->strMapDescription.compare(tbwpMapDescription->getText()) != 0) {
+    /*if (MDI->GetActiveDoc()->strMapDescription.compare(tbwpMapDescription->getText()) != 0) {
         bchange = 1;
         MDI->GetActiveDoc()->strMapDescription = tbwpMapDescription->getText();
     }
@@ -3369,7 +3411,7 @@ void State::EditingWW::SaveWorldOptions() {
     if (MDI->GetActiveDoc()->iMapBuild != atoi(tfwpMapBuild->getText().c_str())) {
         bchange = 1;
         MDI->GetActiveDoc()->iMapBuild = atoi(tfwpMapBuild->getText().c_str());
-    }
+    }*/
     if (bchange)
         MarkUnsaved();
 }
@@ -3488,4 +3530,54 @@ char *State::EditingWW::FixLevelName(int iBaseLvl, const char *name) {
 
 void State::EditingWW::AppFocus(bool bGain) {
     bWindowFocused = bGain;
+}
+
+void State::EditingWW::TextEditMoveToNextTile(bool saving) {
+    WWD::Tile* tile = GetActivePlane()->GetTile(iTileWriteIDx, iTileWriteIDy);
+    if (!tile) return;
+    if (saving) {
+        const char* text = tfWriteID->getText().c_str();
+        if (text[0] == 'f' || text[0] == 'F') {
+            if (!tile->IsFilled()) {
+                tile->SetFilled(true);
+                MarkUnsaved();
+            }
+        } else {
+            int tid = atoi(text);
+            if (tid == 0) {
+                if (!tile->IsInvisible()) {
+                    tile->SetInvisible(true);
+                    MarkUnsaved();
+                }
+            } else if (tile->GetID() != tid) {
+                tile->SetID(tid);
+                MarkUnsaved();
+            }
+        }
+    }
+    ++tile;
+    if (++iTileWriteIDx == GetActivePlane()->GetPlaneWidth()) {
+        fCamX = 0;
+        iTileWriteIDx = 0;
+        if (iTileWriteIDy == GetActivePlane()->GetPlaneHeight()) {
+            iTileWriteIDy = 0;
+            tile = GetActivePlane()->GetTile(0);
+            fCamY = 0;
+        } else {
+            ++iTileWriteIDy;
+            fCamY += GetActivePlane()->GetTileHeight() / fZoom;
+        }
+    } else {
+        fCamX += GetActivePlane()->GetTileWidth() / fZoom;
+    }
+
+    if (tile->IsFilled()) {
+        tfWriteID->setText("FILL");
+    } else if (tile->IsInvisible()) {
+        tfWriteID->setText("0");
+    } else {
+        tfWriteID->setText(std::to_string(tile->GetID()));
+    }
+
+    vPort->MarkToRedraw(true);
 }

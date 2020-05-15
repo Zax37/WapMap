@@ -6,6 +6,7 @@
 #include "../shared/cLang.h"
 #include "../shared/cGUIparts.h"
 #include "../shared/cInterface.h"
+#include "../shared/cWWD.h"
 #include "../shared/cPID.h"
 #include "../shared/SimpleIni.h"
 
@@ -41,7 +42,9 @@ enum WindowsVer {
     OS_XP,
     OS_SERVER2003,
     OS_VISTA,
-    OS_7
+    OS_7,
+    OS_8,
+    OS_10,
 };
 
 enum EnumGfxIcons {
@@ -368,7 +371,7 @@ public:
     hgeSprite *sprShadeBar;
     hgeSprite *sprIconGoodSmall, *sprIconBadSmall, *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count], *sprIcons128[Gfx128IconsCnt];
     hgeSprite *sprMicroVert, *sprMicroHor, *sprMicroZoom, *sprSmiley;
-    hgeSprite *sprGamesBig[5], *sprGamesSmall[5], *sprBlank;
+    hgeSprite *sprGamesBig[WWD::Games_Last], *sprGamesSmall[WWD::Games_Last], *sprBlank;
     hgeSprite *sprMicroIcons[2];
 
     hgeSprite *sprCaptionMinimalize[2], *sprCaptionClose[2];
@@ -402,8 +405,9 @@ public:
     hgeSprite *sprKijan, *sprNapo;
 
     char *szLastOpenPath, *szLastSavePath;
-    char *szClawPath;
     char *szUrlTCR;
+
+    std::map<WWD::GAME, std::string> gamePaths;
 
     bool bFirstRun;
 

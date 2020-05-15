@@ -163,7 +163,7 @@ namespace ObjEdit {
 		animation->setEnabled(animated->isSelected());
 		animation->setText(anim);
 		animation->addActionListener(hAL);
-		win->add(animation, 16 + animated->getWidth(), CONTAINER_HEIGHT + 161);
+		win->add(animation, 16 + animated->getWidth(), CONTAINER_HEIGHT + 162);
     }
 
     cEditObjCandy::~cEditObjCandy() {

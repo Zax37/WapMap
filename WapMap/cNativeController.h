@@ -59,12 +59,6 @@ public:
     bool IsArmorModeOn() { return bArmor; };
 
     bool IsDebugInfoOn() { return bDebug; };
-
-    enum {
-        MAJOR = 0,
-        MINOR,
-        BUILD
-    };
 };
 
 #endif // H_C_NATIVECTRL

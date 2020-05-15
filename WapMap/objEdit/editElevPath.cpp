@@ -125,35 +125,42 @@ namespace ObjEdit {
         butInvX = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_ElevPath", "InvertChainX"));
         butInvX->setDimension(gcn::Rectangle(0, 0, 115, 33));
         butInvX->addActionListener(hAL);
-        win->add(butInvX, 5, 505 - 26);
+        win->add(butInvX, 5, 505 - 24);
 
         butInvY = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_ElevPath", "InvertChainY"));
         butInvY->setDimension(gcn::Rectangle(0, 0, 115, 33));
         butInvY->addActionListener(hAL);
-        win->add(butInvY, 120, 505 - 26);
+        win->add(butInvY, 120, 505 - 24);
 
         butInvertPath = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_ElevPath", "InvertChain"));
         butInvertPath->setDimension(gcn::Rectangle(0, 0, 115, 33));
         butInvertPath->addActionListener(hAL);
-        win->add(butInvertPath, 5, 505 - 26 + 35);
+        win->add(butInvertPath, 5, 505 - 24 + 35);
 
         butCloseChain = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_ElevPath", "CloseChain"));
         butCloseChain->setDimension(gcn::Rectangle(0, 0, 115, 33));
         butCloseChain->addActionListener(hAL);
-        win->add(butCloseChain, 120, 505 - 26 + 35);
+        win->add(butCloseChain, 120, 505 - 24 + 35);
 
         butGenChain = new SHR::But(GV->hGfxInterface, GETL2S("EditObj_ElevPath", "GenerateChain"));
         butGenChain->setDimension(gcn::Rectangle(0, 0, 115, 33));
         butGenChain->addActionListener(hAL);
-        win->add(butGenChain, 5, 505 - 23 + 36 + 35);
+        win->add(butGenChain, 5, 505 - 23 + 40 + 35);
 
-        win->add(_butSave, 120, 505 - 23 + 36 + 35);
+        _butSave->setDimension(gcn::Rectangle(0, 0, 115, 33));
+        win->add(_butSave, 120, 505 - 23 + 40 + 35);
 
         int iOrigX = hTempObj->GetParam(WWD::Param_LocationX), iOrigY = hTempObj->GetParam(WWD::Param_LocationY);
         int iModX = iOrigX, iModY = iOrigY;
         for (int i = 0; i < vSteps.size(); i++) {
             iModX += GetMoveX(i);
             iModY += GetMoveY(i);
+        }
+
+        if (iModX != iOrigX || iModY != iOrigY) {
+            butInvX->setEnabled(false);
+            butInvY->setEnabled(false);
+            butInvertPath->setEnabled(false);
         }
 
         butGenChain->setEnabled(iModX == iOrigX && iModY == iOrigY);
@@ -512,7 +519,7 @@ namespace ObjEdit {
                    actionEvent.getSource() == butInvX ||
                    actionEvent.getSource() == butInvY) {
             bool bX = actionEvent.getSource() == butInvertPath || actionEvent.getSource() == butInvY,
-                    bY = actionEvent.getSource() == butInvertPath || actionEvent.getSource() == butInvX;
+                 bY = actionEvent.getSource() == butInvertPath || actionEvent.getSource() == butInvX;
             std::vector<std::pair<int, int> > vOrigSteps = vSteps;
             vSteps.clear();
             for (int i = vOrigSteps.size() - 1; i >= 0; i--) {
@@ -540,9 +547,9 @@ namespace ObjEdit {
                     else if (bY) nstep.first = 9;
                 }
                 vSteps.push_back(nstep);
-                SynchronizeObj();
-                ChangeActiveStep();
             }
+            SynchronizeObj();
+            ChangeActiveStep();
         }
         for (int i = 0; i < 8; i++)
             if (actionEvent.getSource() == butMoveDir[i]) {
@@ -613,6 +620,8 @@ namespace ObjEdit {
         }
         butGenChain->setEnabled(iModX == iOrigX && iModY == iOrigY);
         butCloseChain->setEnabled(iModX != iOrigX || iModY != iOrigY);
+        butInvX->setEnabled(!butCloseChain->isEnabled());
+        butInvY->setEnabled(!butCloseChain->isEnabled());
         butInvertPath->setEnabled(!butCloseChain->isEnabled());
     }
 

@@ -130,9 +130,6 @@ class cBankTile : public cAssetBank, public gcn::ListModel {
 private:
     std::vector<cTilesetTexture *> vTexes;
     std::vector<cTileImageSet *> m_vhSets;
-    WWD::Parser *m_hParser;
-    bool bBatching;
-    int iBatchPackageCount;
     bool bReloadBrushes;
 
     void SortTilesets();
@@ -160,7 +157,8 @@ public:
 
     const std::string& GetFolderName() override {
         static const std::string name = "TILES";
-        return name;
+        static const std::string namez = "TILEZ";
+        return hParser->GetGame() == WWD::Game_Gruntz ? namez : name;
     };
 
     virtual void BatchProcessStart(cDataController *hDC);
@@ -175,7 +173,5 @@ public:
 
     virtual int getNumberOfElements();
 };
-
-void Tileset_FlushBlacklist();
 
 #endif

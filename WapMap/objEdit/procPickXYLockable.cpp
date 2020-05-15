@@ -5,7 +5,7 @@
 extern HGE *hge;
 
 cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX, int valueX, const char *textY,
-                                         int valueY, bool lock, const char *lockButTooltip) {
+                                         int valueY, bool lock, const char *lockButTooltip, bool allowNegative) {
     setOpaque(false);
 
     labMain = new SHR::Lab(textMain);
@@ -24,14 +24,14 @@ cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX
 
     tfX = new SHR::TextField();
     tfX->setDimension(gcn::Rectangle(0, 0, 75, 20));
-    tfX->SetNumerical(1, 0);
+    tfX->SetNumerical(true, allowNegative);
     tfX->addActionListener(this);
     tfX->setText(std::to_string(valueX));
     SHR::Container::add(tfX, fieldsX, 30);
 
     tfY = new SHR::TextField();
     tfY->setDimension(gcn::Rectangle(0, 0, 75, 20));
-    tfY->SetNumerical(1, 0);
+    tfY->SetNumerical(true, allowNegative);
     tfY->addActionListener(this);
     tfY->setText(std::to_string(valueY));
     SHR::Container::add(tfY, fieldsX, 60);

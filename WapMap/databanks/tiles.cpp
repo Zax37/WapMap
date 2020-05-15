@@ -23,9 +23,7 @@ bool cTileBank_SortTiles(cTile *a, cTile *b) {
     return (a->GetID() < b->GetID());
 }
 
-cBankTile::cBankTile(WWD::Parser *pr) {
-    m_hParser = pr;
-    bBatching = 0;
+cBankTile::cBankTile(WWD::Parser *pr) : cAssetBank(pr) {
     bReloadBrushes = 0;
 }
 
@@ -54,16 +52,13 @@ void cTilesetTexture::CalculateDimension(int iTileNum, int &iTexW, int &iTexH) {
 
 void cBankTile::BatchProcessStart(cDataController *hDC) {
     GV->Console->Printf("Loading tiles...");
-    bBatching = 1;
     _ghProgressInfo.iGlobalProgress = 5;
     _ghProgressInfo.strGlobalCaption = "Loading tiles...";
     _ghProgressInfo.iDetailedEnd = 100000;
-    iBatchPackageCount = 0;
     bReloadBrushes = 0;
 }
 
 void cBankTile::BatchProcessEnd(cDataController *hDC) {
-    bBatching = 0;
     for (int i = 0; i < m_vhSets.size(); i++) {
         m_vhSets[i]->Sort();
     }
@@ -207,11 +202,11 @@ void cBankTile::ReloadBrushes() {
     }
 
     char sign;
-    if (m_hParser->GetGame() == WWD::Game_Claw)
+    if (hParser->GetGame() == WWD::Game_Claw)
         sign = 'c';
-    else if (m_hParser->GetGame() == WWD::Game_GetMedieval)
+    else if (hParser->GetGame() == WWD::Game_GetMedieval)
         sign = 'm';
-    else if (m_hParser->GetGame() == WWD::Game_Gruntz)
+    else if (hParser->GetGame() == WWD::Game_Gruntz)
         sign = 'g';
     else
         sign = 'x';
@@ -235,7 +230,7 @@ void cBankTile::ReloadBrushes() {
                 cBrush *tmp = NULL;
                 if (!strcmp("lua", lext))
                     while (1) {
-                        tmp = new cBrush(fdata.cFileName, m_hParser, vszLayers);
+                        tmp = new cBrush(fdata.cFileName, hParser, vszLayers);
                         if (tmp->GetStatus() == BrushLuaError || tmp->GetStatus() == BrushOtherError) {
                             char caption[256];
                             sprintf(caption, "%s: %s", GETL(Lang_BrushErrorCaption), fdata.cFileName);
@@ -291,7 +286,7 @@ void cBankTile::ReloadBrushes() {
                         fseek(f, actpos, SEEK_SET);
                         buf[len] = '\0';
 
-                        tmp = new cBrush(tmpch, m_hParser, vszLayers, buf);
+                        tmp = new cBrush(tmpch, hParser, vszLayers, buf);
                         delete[] buf;
                         if (tmp->GetStatus() == BrushLuaError || tmp->GetStatus() == BrushOtherError) {
                             GV->Console->Printf("~r~Error loading brush; forced skipping~w~ (~y~%s~w~)", tmpch);
@@ -463,7 +458,7 @@ cTile::~cTile() {
 std::string cTile::GetMountPoint() {
     char tmp[16];
     sprintf(tmp, "%d", iID);
-    return std::string("/TILES/") + hTS->GetName() + "/" + tmp;
+    return std::string("/") + _hBank->GetFolderName() + '/' + hTS->GetName() + "/" + tmp;
 }
 
 cAsset *cBankTile::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {
@@ -492,7 +487,7 @@ cAsset *cBankTile::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEnt
 
     size_t lslash = mountEntry.strMountPoint.rfind('/');
     std::string imgset = mountEntry.strMountPoint.substr(7, lslash - 7),
-            strid = mountEntry.strMountPoint.substr(lslash + 1);
+                strid = mountEntry.strMountPoint.substr(lslash + 1);
 
     int id;
     sscanf(strid.c_str(), "%d", &id);
@@ -579,5 +574,5 @@ std::string cBankTile::GetMountPointForFile(std::string strFilePath, std::string
     }
     char buf[16];
     sprintf(buf, "%d", tid);
-    return std::string("/TILES/") + strTileSet + "/" + buf;
+    return std::string("/") + GetFolderName() + '/' + strTileSet + "/" + buf;
 }

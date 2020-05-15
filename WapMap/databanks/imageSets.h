@@ -95,21 +95,12 @@ public:
 
 class cBankImageSet : public gcn::ListModel, public cAssetBank {
 private:
-
     cTextureAtlaser *myAtlaser;
-
     std::vector<cSprBankAsset *> m_vAssets;
-
-    REZ::Parser *hREZ;
-    PID::Palette *hPAL;
-    WWD::GAME iGame;
-
     int m_iAssetsSize;
 
-    bool bBatchProcess;
-    int iBatchPackageCount;
 public:
-    cBankImageSet();
+    cBankImageSet(WWD::Parser *hParser);
 
     ~cBankImageSet();
 
@@ -133,8 +124,6 @@ public:
 
     WWD::Rect GetSpriteRenderRect(hgeSprite *spr);
 
-    void SetGame(WWD::GAME g) { iGame = g; };
-
     //inherited from listmodel
     std::string getElementAt(int i);
 
@@ -148,7 +137,8 @@ public:
 
     const std::string& GetFolderName() override {
         static const std::string name = "IMAGES";
-        return name;
+        static const std::string namez = "IMAGEZ";
+        return hParser->GetGame() == WWD::Game_Gruntz ? namez : name;
     };
 
     virtual std::string GetMountPointForFile(std::string strFilePath, std::string strPrefix);

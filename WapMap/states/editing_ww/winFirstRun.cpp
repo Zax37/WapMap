@@ -58,8 +58,8 @@ void State::EditingWW::FirstRun_Think() {
 void State::EditingWW::FirstRun_Action(bool but) {
     if (!but) {
         FirstRun_data->bKill = true;
-        GV->editState->hwinOptions->Open();
-        GV->editState->hwinOptions->PickAndSetClawLocation();
+        GV->editState->hwinOptions->Open(WWD::Game_Claw);
+        GV->editState->hwinOptions->PickAndSetGameLocation(WWD::Game_Claw);
     } else {
         ShellExecute(hge->System_GetState(HGE_HWND), "open", "http://captainclaw.net", NULL, NULL, SW_SHOWNORMAL);
     }

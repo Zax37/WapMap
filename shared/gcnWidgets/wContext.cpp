@@ -31,7 +31,7 @@ namespace SHR {
             : mHasMouse(false),
               mKeyPressed(false),
               mMousePressed(false) {
-        setFocusable(true);
+        //setFocusable(false);
         adjustSize();
         setFrameSize(0);
 
@@ -248,8 +248,6 @@ namespace SHR {
                 w += 20;
         setWidth(w);
         setHeight(vElements.size() * iRowHeight + 4);
-        //setWidth(getFont()->getWidth(mCaption) + 2*mSpacing);
-        //setHeight(getFont()->getHeight() + 2*mSpacing);
     }
 
     void Context::mousePressed(MouseEvent &mouseEvent) {
@@ -263,6 +261,7 @@ namespace SHR {
         int n = mouseEvent.getY() / iRowHeight;
         if (n >= vElements.size()) n = vElements.size() - 1;
         if (n == iSelectedIt) return;
+        if (iSelectedIt >= vElements.size()) iSelectedIt = -1;
         bool switchcascade = !(iSelectedIt != -1 && vElements[iSelectedIt]->GetCascade() == vElements[n]->GetCascade());
         if (iSelectedIt != -1) vElements[iSelectedIt]->SetFocused(0, switchcascade);
         vElements[n]->SetFocused(1, switchcascade);
@@ -284,19 +283,21 @@ namespace SHR {
 
     void Context::mouseExited(MouseEvent &mouseEvent) {
         mHasMouse = false;
-        if (iSelectedIt != -1 && vElements[iSelectedIt]->GetCascade() != 0) {
-            int dx, dy, dw, dh;
-            float mx, my;
-            vElements[iSelectedIt]->GetCascade()->getAbsolutePosition(dx, dy);
-            dw = vElements[iSelectedIt]->GetCascade()->getWidth();
-            dh = vElements[iSelectedIt]->GetCascade()->getHeight();
-            hge->Input_GetMousePos(&mx, &my);
-            if (mx >= dx && mx < dx + dw && my >= dy && my < dy + dh)
-                return;
-        }
-        if (iSelectedIt != -1) {
-            vElements[iSelectedIt]->SetFocused(0);
-            distributeValueChangedEvent();
+        if (vElements.size() > iSelectedIt) {
+            if (iSelectedIt != -1 && vElements[iSelectedIt]->GetCascade() != 0) {
+                int dx, dy, dw, dh;
+                float mx, my;
+                vElements[iSelectedIt]->GetCascade()->getAbsolutePosition(dx, dy);
+                dw = vElements[iSelectedIt]->GetCascade()->getWidth();
+                dh = vElements[iSelectedIt]->GetCascade()->getHeight();
+                hge->Input_GetMousePos(&mx, &my);
+                if (mx >= dx && mx < dx + dw && my >= dy && my < dy + dh)
+                    return;
+            }
+            if (iSelectedIt != -1) {
+                vElements[iSelectedIt]->SetFocused(0);
+                distributeValueChangedEvent();
+            }
         }
         iSelected = -1;
         iSelectedIt = -1;
@@ -308,7 +309,7 @@ namespace SHR {
 
     bool Context::showHand() {
         bool enabled = 1;
-        if (iSelectedIt != -1 && !vElements[iSelectedIt]->IsEnabled())
+        if (iSelectedIt != -1 && vElements.size() > iSelectedIt && !vElements[iSelectedIt]->IsEnabled())
             enabled = 0;
         return mHasMouse && enabled;
     }
@@ -350,6 +351,11 @@ namespace SHR {
         }
         vElements.push_back(new ContextEl(id, cap, spr));
         vElements.back()->SetParent(this);
+    }
+
+    void Context::RemoveElement(int i) {
+        delete vElements[i];
+        vElements.erase(vElements.begin() + i);
     }
 
     void Context::ClearElements() {

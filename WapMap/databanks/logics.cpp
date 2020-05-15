@@ -58,7 +58,7 @@ void cCustomLogic::DeleteFile() {
     remove(strAbsPath.c_str());
 }
 
-cBankLogic::cBankLogic() {
+cBankLogic::cBankLogic(WWD::Parser *hParser) : cAssetBank(hParser) {
     hGlobalScript = 0;
 }
 

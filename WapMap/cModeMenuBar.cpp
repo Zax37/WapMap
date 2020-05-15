@@ -5,11 +5,11 @@
 #include "cAppMenu.h"
 #include "../shared/gcnWidgets/wComboButton.h"
 
-cModeMenuBar::cModeMenuBar() {
+cModeMenuBar::cModeMenuBar(int startX) {
     bEnabled = 1;
     bVisible = 1;
 
-    vSeparators.push_back(127 - 3);
+    vSeparators.push_back(startX);
 }
 
 cModeMenuBar::~cModeMenuBar() {
@@ -28,7 +28,7 @@ void cModeMenuBar::SetEnabled(bool bEn) {
     _setEnabled(bEn);
 }
 
-cmmbTile::cmmbTile(int startX) {
+cmmbTile::cmmbTile(int startX) : cModeMenuBar(startX) {
     ddActivePlane = new SHR::DropDown();
     ddActivePlane->setListModel(new State::EditingWWlModel(GV->editState, LMODEL_PLANES));
     ddActivePlane->setDimension(gcn::Rectangle(0, 0, 150, 20));
@@ -36,25 +36,31 @@ cmmbTile::cmmbTile(int startX) {
     ddActivePlane->SetGfx(&GV->gcnParts);
     ddActivePlane->adjustHeight();
     ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
-    GV->editState->conMain->add(ddActivePlane, 127, LAY_MODEBAR_Y + 3);
+    GV->editState->conMain->add(ddActivePlane, startX + 5, LAY_MODEBAR_Y + 3);
 
-    butIconSelect = GV->editState->MakeButton(320 - 32, LAY_MODEBAR_Y - 3, Icon_Select, GV->editState->conMain);
+    startX += 160;
+    vSeparators.push_back(startX);
+
+    butIconSelect = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Select, GV->editState->conMain);
     butIconSelect->setRenderBG(0);
     butIconSelect->SetTooltip(GETL2("Tooltip", Lang_TT_Select));
-    butIconPencil = GV->editState->MakeButton(320, LAY_MODEBAR_Y - 3, Icon_Pencil, GV->editState->conMain);
+    startX += 32;
+    butIconPencil = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Pencil, GV->editState->conMain);
     butIconPencil->setRenderBG(0);
     butIconPencil->SetTooltip(GETL2("Tooltip", Lang_TT_Pencil));
-    butIconBrush = GV->editState->MakeButton(320 + 32, LAY_MODEBAR_Y - 3, Icon_Brush, GV->editState->conMain);
+    startX += 32;
+    butIconBrush = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Brush, GV->editState->conMain);
     butIconBrush->setRenderBG(0);
     butIconBrush->SetTooltip(GETL2("Tooltip", Lang_TT_Brush));
-    butIconFill = GV->editState->MakeButton(320 + 64, LAY_MODEBAR_Y - 3, Icon_Fill, GV->editState->conMain);
+    startX += 32;
+    butIconFill = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Fill, GV->editState->conMain);
     butIconFill->setRenderBG(0);
     butIconFill->SetTooltip(GETL2("Tooltip", Lang_TT_Fill));
-    butIconWriteID = GV->editState->MakeButton(320 + 96, LAY_MODEBAR_Y - 3, Icon_WriteID, GV->editState->conMain);
+    startX += 32;
+    butIconWriteID = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_WriteID, GV->editState->conMain);
     butIconWriteID->setRenderBG(0);
     butIconWriteID->SetTooltip(GETL2("Tooltip", Lang_TT_WriteID));
-
-    vSeparators.push_back(320 - 32 - 2);
+    startX += 32;
 }
 
 cmmbTile::~cmmbTile() {
@@ -84,7 +90,7 @@ void cmmbTile::_setEnabled(bool bEn) {
     butIconWriteID->setEnabled(bEn);
 }
 
-cmmbObject::cmmbObject(int startX) {
+cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     conNewObject = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     conNewObject->hide();
     conNewObject->addActionListener(this);
@@ -98,6 +104,7 @@ cmmbObject::cmmbObject(int startX) {
 
     butIconNewObjEmpty = GV->editState->MakeButton(xOff, yOff, Icon_Star, GV->editState->conMain, 1, 0);
     butIconNewObjEmpty->SetTooltip(GETL2("Tooltip", Lang_TT_NewObject));
+
     butIconCrumblinPeg = GV->editState->MakeButton(xOff, yOff, Icon_CrumblinPeg, GV->editState->conMain, 1, 0);
     butIconCrumblinPeg->SetTooltip(GETL2("Tooltip", Lang_TT_NewCrumblingPeg));
     butIconBreakPlank = GV->editState->MakeButton(xOff, yOff, Icon_BreakPlank, GV->editState->conMain, 1, 0);
@@ -127,27 +134,38 @@ cmmbObject::cmmbObject(int startX) {
     butIconStatue->SetTooltip(GETL2("Tooltip", Lang_TT_NewStatue));
 
     butIconEnemy = GV->editState->MakeButton(xOff, yOff, Icon_NPC_Rat, GV->editState->conMain, 1, 0);
-
+    butIconEnemy->SetTooltip(GETL2("Tooltip", Lang_TT_Enemy));
     butIconPowderKeg = GV->editState->MakeButton(xOff, yOff, Icon_PowderKeg, GV->editState->conMain, 1, 0);
+    butIconPowderKeg->SetTooltip(GETL2("Tooltip", Lang_TT_PowderKeg));
     butIconCannon = GV->editState->MakeButton(xOff, yOff, Icon_CannonWall, GV->editState->conMain, 1, 0);
+    butIconCannon->SetTooltip(GETL2("Tooltip", Lang_TT_Cannon));
     butIconSpikes = GV->editState->MakeButton(xOff, yOff, Icon_Spikes, GV->editState->conMain, 1, 0);
+    butIconSpikes->SetTooltip(GETL2("Tooltip", Lang_TT_FloorSpike));
     butIconProjectile = GV->editState->MakeButton(xOff, yOff, Icon_Projectile, GV->editState->conMain, 1, 0);
+    butIconProjectile->SetTooltip(GETL2("Tooltip", Lang_TT_Shooter));
     butIconCrabNest = GV->editState->MakeButton(xOff, yOff, Icon_CrabNest, GV->editState->conMain, 1, 0);
+    butIconCrabNest->SetTooltip(GETL2("Tooltip", Lang_TT_CrabNest));
     butIconStalactite = GV->editState->MakeButton(xOff, yOff, Icon_Stalactite, GV->editState->conMain, 1, 0);
+    butIconStalactite->SetTooltip(GETL2("Tooltip", Lang_TT_Stalactite));
     butIconLaser = GV->editState->MakeButton(xOff, yOff, Icon_Laser, GV->editState->conMain, 1, 0);
+    butIconLaser->SetTooltip(GETL2("Tooltip", Lang_TT_Laser));
 
     butIconEyeCandy = GV->editState->MakeButton(xOff, yOff, Icon_Animated, GV->editState->conMain, 1, 0);
+    butIconEyeCandy->SetTooltip(GETL2("Tooltip", Lang_TT_Decor));
     butIconText = GV->editState->MakeButton(xOff, yOff, Icon_Text, GV->editState->conMain, 1, 0);
     butIconText->SetTooltip(GETL2("Tooltip", Lang_TT_AddText));
     butIconShake = GV->editState->MakeButton(xOff, yOff, Icon_Shake, GV->editState->conMain, 1, 0);
-
+    butIconShake->SetTooltip(GETL2("Tooltip", Lang_TT_Shake));
     butIconCheckpoint = GV->editState->MakeButton(xOff, yOff, Icon_Flag, GV->editState->conMain, 1, 0);
+    butIconCheckpoint->SetTooltip(GETL2("Tooltip", Lang_TT_Checkpoint));
     butIconWarp = GV->editState->MakeButton(xOff, yOff, Icon_Warp, GV->editState->conMain, 1, 0);
-
+    butIconWarp->SetTooltip(GETL2("Tooltip", Lang_TT_Warp));
     butIconDialog = GV->editState->MakeButton(xOff, yOff, Icon_Exclamation, GV->editState->conMain, 1, 0);
+    butIconDialog->SetTooltip(GETL2("Tooltip", Lang_TT_DialogTrigger));
     butIconSound = GV->editState->MakeButton(xOff, yOff, Icon_Music, GV->editState->conMain, 1, 0);
-
+    butIconSound->SetTooltip(GETL2("Tooltip", Lang_TT_AmbientSound));
     butIconMapPiece = GV->editState->MakeButton(xOff, yOff, Icon_Map, GV->editState->conMain, 1, 0);
+    butIconMapPiece->SetTooltip(GETL2("Tooltip", Lang_TT_EndOfLevel));
 
     vButtons.push_back(butIconSearchObject);
     vButtons.push_back(butIconNewObjEmpty);
@@ -267,35 +285,39 @@ cmmbObject::cmmbObject(int startX) {
 }
 
 void cmmbObject::DocumentSwitched() {
+    WWD::GAME game = GV->editState->hParser->GetGame();
     int base = GV->editState->hParser->GetBaseLevel();
 
-    butIconCrumblinPeg->setId(base == 2 || base == 5 || base == 8 || base == 9 || base == 11 ? "OFF" : "");
-    butIconCannon->setId(base == 2 || base == 9 ? "" : "OFF");
-    butIconStatue->setId(base == 5 ? "" :"OFF");
-    butIconBreakPlank->setId(base == 5 || base == 11 ? "" : "OFF");
-    butIconTogglePeg->setId(base == 3 || base == 4 || base == 6 || base == 7 || base == 9 ? "OFF" : "");
-    butIconStalactite->setId(base == 12 ? "" : "OFF");
-    butIconLaser->setId(base == 11 ? "" : "OFF");
-    butIconMapPiece->setId(base % 2 == 1 && base != 13 ? "" : "OFF");
-    butIconCrate->setId(base == 12 ? "OFF" :"");
-    butIconSpikes->setId(base == 3 || base == 4 || base == 10 || base >= 12 ? "" :"OFF");
+    butIconCrumblinPeg->setId(game == WWD::Game_Claw && !(base == 2 || base == 5 || base == 8 || base == 9 || base == 11) ? "" : "OFF");
+    butIconElevator->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconPathElevator->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconTreasure->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconHealth->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconCatnip->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconCurse->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconEnemy->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconEyeCandy->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconText->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconShake->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconCheckpoint->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconWarp->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconDialog->setId(game == WWD::Game_Claw ? "" : "OFF");
+    butIconSound->setId(game == WWD::Game_Claw ? "" : "OFF");
 
-    if (base == 5 || base == 7 || base == 10 || base == 11 || base == 12 || base == 14)
-        butIconPowderKeg->setId("OFF");
-    else
-        butIconPowderKeg->setId("");
-
-    if (base == 9 || base == 10 || base == 13 || base == 14)
-        butIconProjectile->setId("");
-    else
-        butIconProjectile->setId("OFF");
-
-    butIconCrabNest->setId(base == 7 ? "" : "OFF");
-
-    butIconRope->setId(
-            base == 3 || base == 6 || base == 8 || base == 9 || base == 10 || base == 13 || base == 14 ? "" : "OFF");
-    butIconSpringBoard->setId(
-            base == 4 || base == 6 || base == 7 || base == 9 || base == 12 || base == 13 ? "" : "OFF");
+    butIconCannon->setId(game == WWD::Game_Claw && (base == 2 || base == 9) ? "" : "OFF");
+    butIconStatue->setId(game == WWD::Game_Claw && base == 5 ? "" :"OFF");
+    butIconBreakPlank->setId(game == WWD::Game_Claw && (base == 5 || base == 11) ? "" : "OFF");
+    butIconTogglePeg->setId(game == WWD::Game_Claw && !(base == 3 || base == 4 || base == 6 || base == 7 || base == 9) ? "" : "OFF");
+    butIconStalactite->setId(game == WWD::Game_Claw && base == 12 ? "" : "OFF");
+    butIconLaser->setId(game == WWD::Game_Claw && base == 11 ? "" : "OFF");
+    butIconMapPiece->setId(game == WWD::Game_Claw && base % 2 == 1 && base != 13 ? "" : "OFF");
+    butIconCrate->setId(game == WWD::Game_Claw && base != 12 ? "" :"OFF");
+    butIconSpikes->setId(game == WWD::Game_Claw && (base == 3 || base == 4 || base == 9 || base == 10 || base >= 12) ? "" :"OFF");
+    butIconPowderKeg->setId(game == WWD::Game_Claw && !(base == 5 || base == 7 || base == 10 || base == 11 || base == 12 || base == 14) ? "" : "OFF");
+    butIconProjectile->setId(game == WWD::Game_Claw && (base == 9 || base == 10 || base == 13 || base == 14) ? "" : "OFF");
+    butIconCrabNest->setId(game == WWD::Game_Claw && base == 7 ? "" : "OFF");
+    butIconRope->setId(game == WWD::Game_Claw && (base == 3 || base == 6 || base == 8 || base == 9 || base == 10 || base == 13 || base == 14) ? "" : "OFF");
+    butIconSpringBoard->setId(game == WWD::Game_Claw && (base == 4 || base == 6 || base == 7 || base == 9 || base == 12 || base == 13) ? "" : "OFF");
 
     _setVisible(bVisible);
 
@@ -335,15 +357,20 @@ void cmmbObject::RebuildContext() {
 
     conNewObject->AddElement(NOBJCON_NEXT, GETL2S("ContextNewObj", "Next"), GV->sprIcons16[Icon16_Down]);
 
-    int passn = 0;
-    for (int acc = 0; acc < 10; passn++) {
-        if (vContextElements.size() - 1 - passn < 0) break;
-        if (vContextElements[vContextElements.size() - 1 - passn].hButton->getId() != "OFF") acc++;
-    }
-    if (iContextOffset == vContextElements.size() - passn)
-        conNewObject->GetElementByID(NOBJCON_NEXT)->SetEnabled(0);
+    GV->editState->conmodAtEmpty->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 3 ? conNewObject : NULL);
+    GV->editState->conmodPaste->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 3 ? conNewObject : NULL);
 
-    conNewObject->adjustSize();
+    if (conNewObject->GetElementsCount() > 3) {
+        int passn = 0;
+        for (int acc = 0; acc < 10; passn++) {
+            if (vContextElements.size() - 1 - passn < 0) break;
+            if (vContextElements[vContextElements.size() - 1 - passn].hButton->getId() != "OFF") acc++;
+        }
+        if (iContextOffset == vContextElements.size() - passn)
+            conNewObject->GetElementByID(NOBJCON_NEXT)->SetEnabled(0);
+
+        conNewObject->adjustSize();
+    }
 }
 
 void cmmbObject::action(const gcn::ActionEvent &actionEvent) {

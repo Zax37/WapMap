@@ -15,6 +15,7 @@
 #include "../../databanks/sounds.h"
 #include "../../databanks/anims.h"
 #include "../../databanks/imageSets.h"
+#include "../../windows/window.h"
 
 extern HGE *hge;
 
@@ -97,17 +98,7 @@ namespace State {
 			m_hOwn->SetTool(EWW_TOOL_WRITEID);
 		} else if (actionEvent.getSource() == m_hOwn->tfWriteID) {
 			if (m_hOwn->tfWriteID->getActionEventId() == "ENTER") {
-				WWD::Tile* tile = m_hOwn->GetActivePlane()->GetTile(m_hOwn->iTileWriteIDx, m_hOwn->iTileWriteIDy);
-				int tid = atoi(m_hOwn->tfWriteID->getText().c_str());
-				if (tid == 0 && !tile->IsInvisible()) {
-					tile->SetInvisible(true);
-					m_hOwn->MarkUnsaved();
-				} else if (tile->GetID() != tid) {
-					tile->SetID(tid);
-					m_hOwn->MarkUnsaved();
-				}
-				m_hOwn->conWriteID->setShow(0);
-				m_hOwn->iTileWriteIDx = m_hOwn->iTileWriteIDy = -1;
+                m_hOwn->TextEditMoveToNextTile(true);
 			}
 		} else if (actionEvent.getSource() == m_hOwn->hmbTile->butIconPencil ||
 				   actionEvent.getSource() == m_hOwn->buttpiModePencil) {
@@ -121,29 +112,29 @@ namespace State {
 		} else if (actionEvent.getSource() == m_hOwn->buttpiPoint) {
 			m_hOwn->iTileDrawMode = EWW_DRAW_POINT;
 			if (m_hOwn->iActiveTool == EWW_TOOL_FILL)
-				m_hOwn->iActiveTool = EWW_TOOL_PENCIL;
+                m_hOwn->SetTool(EWW_TOOL_PENCIL);
 			m_hOwn->RebuildTilePicker();
 		} else if (actionEvent.getSource() == m_hOwn->winTilePicker) {
 			m_hOwn->SetTool(EWW_TOOL_NONE);
 		} else if (actionEvent.getSource() == m_hOwn->buttpiLine) {
 			m_hOwn->iTileDrawMode = EWW_DRAW_LINE;
 			if (m_hOwn->iActiveTool == EWW_TOOL_FILL)
-				m_hOwn->iActiveTool = EWW_TOOL_PENCIL;
+                m_hOwn->SetTool(EWW_TOOL_PENCIL);
 			m_hOwn->RebuildTilePicker();
 		} else if (actionEvent.getSource() == m_hOwn->buttpiRect) {
 			m_hOwn->iTileDrawMode = EWW_DRAW_RECT;
 			if (m_hOwn->iActiveTool == EWW_TOOL_FILL)
-				m_hOwn->iActiveTool = EWW_TOOL_PENCIL;
+                m_hOwn->SetTool(EWW_TOOL_PENCIL);
 			m_hOwn->RebuildTilePicker();
 		} else if (actionEvent.getSource() == m_hOwn->buttpiEllipse) {
 			m_hOwn->iTileDrawMode = EWW_DRAW_ELLIPSE;
 			if (m_hOwn->iActiveTool == EWW_TOOL_FILL)
-				m_hOwn->iActiveTool = EWW_TOOL_PENCIL;
+                m_hOwn->SetTool(EWW_TOOL_PENCIL);
 			m_hOwn->RebuildTilePicker();
 		} else if (actionEvent.getSource() == m_hOwn->buttpiSpray) {
 			m_hOwn->iTileDrawMode = EWW_DRAW_SPRAY;
 			if (m_hOwn->iActiveTool == EWW_TOOL_FILL)
-				m_hOwn->iActiveTool = EWW_TOOL_PENCIL;
+                m_hOwn->SetTool(EWW_TOOL_PENCIL);
 			m_hOwn->RebuildTilePicker();
 		} else if (actionEvent.getSource() == m_hOwn->slitpiPointSize) {
 			char tmp[128];
@@ -249,12 +240,11 @@ namespace State {
 			m_hOwn->SetAnchorPlaneProperties(m_hOwn->ipmAnchor);
 		} else if (m_hOwn->butCrashRetrieve != NULL && actionEvent.getSource() == m_hOwn->butCrashRetrieve) {
 			m_hOwn->conCrashRetrieve->setVisible(0);
-			m_hOwn->winWelcome->setHeight(m_hOwn->winWelcome->getHeight() - m_hOwn->conCrashRetrieve->getHeight());
+            m_hOwn->winWelcome->remove(m_hOwn->conCrashRetrieve);
 			m_hOwn->conRecentFiles->setVisible(1);
 			m_hOwn->winWelcome->add(m_hOwn->conRecentFiles,
 									m_hOwn->winWelcome->getWidth() / 2 - m_hOwn->conRecentFiles->getWidth() / 2,
-									m_hOwn->winWelcome->getHeight());
-			m_hOwn->winWelcome->setHeight(m_hOwn->winWelcome->getHeight() + m_hOwn->conRecentFiles->getHeight());
+									m_hOwn->winWelcome->getHeight() + 20);
 			m_hOwn->winWelcome->setY(
 					m_hOwn->vPort->GetY() + m_hOwn->vPort->GetHeight() / 2 - m_hOwn->winWelcome->getHeight() / 2);
 			std::ifstream ifs("runtime.tmp");
@@ -549,7 +539,8 @@ namespace State {
 			} else if (actionEvent.getSource() == m_hOwn->butwpSave) {
 				m_hOwn->SaveWorldOptions();
 			} else if (actionEvent.getSource() == m_hOwn->butwpCancel) {
-				m_hOwn->winWorld->setVisible(0);
+				m_hOwn->winWorld->setVisible(false);
+				m_hOwn->SyncWorldOptionsWithParser();
 			} else if (actionEvent.getSource() == m_hOwn->butdOK ||
 					   actionEvent.getSource()->getActionEventId() == "ENTER" &&
 					   (actionEvent.getSource() == m_hOwn->tfdTimes ||
@@ -725,8 +716,8 @@ namespace State {
 						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
 							m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
 					std::vector<WWD::Object *> tmp = m_hOwn->vObjectsPicked;
-					for (int i = 0; i < tmp.size(); i++) {
-						m_hOwn->GetActivePlane()->DeleteObject(tmp[i]);
+					for (auto & i : tmp) {
+						m_hOwn->GetActivePlane()->DeleteObject(i);
 					}
 					m_hOwn->vPort->MarkToRedraw(true);
 					m_hOwn->MarkUnsaved();
@@ -818,7 +809,8 @@ namespace State {
 					m_hOwn->labobrSource->adjustSize();
 					m_hOwn->SetTool(EWW_TOOL_BRUSHOBJECT);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_NEWOBJ) {
-					return;
+					if (m_hOwn->objContext->GetElementByID(OBJMENU_NEWOBJ)->GetCascade()) return;
+					m_hOwn->hmbObject->butIconNewObjEmpty->simulatePress();
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_EDIT) {
 					m_hOwn->OpenObjectEdit(m_hOwn->vObjectsPicked[0]);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_FLAGS ||
@@ -1108,14 +1100,14 @@ namespace State {
 				m_hOwn->winSearchObj->setVisible(!m_hOwn->winSearchObj->isVisible());
 			} else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconNewObjEmpty) {
 				WWD::Object *obj = new WWD::Object();
-				bool bFromContext = 0;
+				bool bFromContext = false;
 				if (GV->editState->hmbObject->GetContext()->isVisible() &&
 					GV->editState->hmbObject->GetContext()->GetSelectedID() != -1) {
 					obj->SetParam(WWD::Param_LocationX,
 								  m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->objContext->getX()));
 					obj->SetParam(WWD::Param_LocationY,
 								  m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->objContext->getY()));
-					bFromContext = 1;
+					bFromContext = true;
 				} else {
 					obj->SetParam(WWD::Param_LocationX, m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(),
 																		 m_hOwn->vPort->GetX() +
@@ -1130,6 +1122,7 @@ namespace State {
 				m_hOwn->OpenObjectWindow(obj, !bFromContext);
 				m_hOwn->vObjectsPicked.clear();
 				m_hOwn->vObjectsPicked.push_back(obj);
+				m_hOwn->bEditObjDelete = 1;
 			} else if (std::find(m_hOwn->hmbObject->vButtons.begin(), m_hOwn->hmbObject->vButtons.end(), actionEvent.getSource()) != m_hOwn->hmbObject->vButtons.end()) {
                 m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
             } else if (actionEvent.getSource() == m_hOwn->butExtLayerUp) {
@@ -1273,5 +1266,79 @@ namespace State {
 
 	EditingWWActionListener::EditingWWActionListener(EditingWW *owner) {
 		m_hOwn = owner;
+	}
+
+	EditingWWFocusListener::EditingWWFocusListener(EditingWW *owner) {
+		m_hOwn = owner;
+	}
+
+	void EditingWWFocusListener::focusLost(const Event &event) {
+	    if (hge->Input_GetKeyState(HGEK_TAB)) {
+            m_hOwn->TextEditMoveToNextTile();
+            m_hOwn->tfWriteID->requestFocus();
+	    } else {
+            m_hOwn->conWriteID->setShow(false);
+            m_hOwn->iTileWriteIDx = m_hOwn->iTileWriteIDy = -1;
+	    }
+        m_hOwn->vPort->MarkToRedraw(true);
+	}
+
+	EditingWWKeyListener::EditingWWKeyListener(EditingWW *owner) {
+		m_hOwn = owner;
+	}
+
+	void EditingWWKeyListener::keyPressed(KeyEvent& keyEvent) {
+	    if (keyEvent.getKey() == Key::ESCAPE) {
+            if (keyEvent.getType() == KeyEvent::PRESSED) {
+                if (m_hOwn->NewMap_data) {
+                    m_hOwn->NewMap_Close();
+                }
+                if (m_hOwn->winWorld->isVisible()) {
+                    m_hOwn->winWorld->setVisible(false);
+                }
+                if (m_hOwn->winpmMain->isVisible()) {
+                    m_hOwn->winpmMain->setVisible(false);
+                }
+                if (m_hOwn->winTileProp->isVisible()) {
+                    m_hOwn->winTileProp->setVisible(false);
+                }
+                if (m_hOwn->winLogicBrowser->isVisible()) {
+                    m_hOwn->winLogicBrowser->setVisible(false);
+                }
+                for (cWindow* win : m_hOwn->hWindows) {
+                    win->Close();
+                }
+            }
+	        return;
+	    }
+		if (keyEvent.getType() != KeyEvent::PRESSED || !keyEvent.isControlPressed()) return;
+		switch (keyEvent.getKey().getValue()) {
+			case 'n':
+				m_hOwn->NewMap_Open();
+				break;
+			case 'o':
+				m_hOwn->OpenDocuments();
+				break;
+			case 's':
+				if (!m_hOwn->MDI->GetActiveDoc()) return;
+				if (keyEvent.isShiftPressed()) {
+					m_hOwn->SaveAs();
+				} else {
+					m_hOwn->MDI->SaveCurrent();
+				}
+				break;
+			case 'w':
+				if (m_hOwn->MDI->GetActiveDoc()) {
+					m_hOwn->MDI->CloseDocByIt(m_hOwn->MDI->GetActiveDocIt());
+				}
+				break;
+			case 't':
+				if (keyEvent.isShiftPressed()) {
+					if (m_hOwn->MDI->GetCachedClosedDocsCount() > 0) {
+						GV->StateMgr->Push(new State::LoadMap(m_hOwn->MDI->GetMostRecentlyClosedDoc().c_str()));
+					}
+				}
+				break;
+		}
 	}
 }

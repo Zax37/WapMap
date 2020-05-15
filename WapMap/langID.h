@@ -284,16 +284,9 @@ enum LangID {
     Lang_Clipboard,
     Lang_SimExit,
     Lang_SelFromList,
-    Lang_NewObjectCtx
-};
-
-enum LangBrushMakerID {
-    Lang_BM_BrushMaker = 1,
-    Lang_BM_PleaseWait,
-    Lang_BM_NoREZ,
-    Lang_BM_WrongREZ,
-    Lang_BM_PaletteFail,
-    Lang_BM_Running
+    Lang_NewObjectCtx,
+    Lang_ModeTile,
+    Lang_ModeObject
 };
 
 enum LangTooltipID {
@@ -343,9 +336,6 @@ enum LangTooltipID {
     Lang_TT_Brush_Options,
     Lang_TT_Tile_Pipette,
 
-    Lang_TT_AddText,
-    Lang_TT_PlainObject,
-
     Lang_TT_Select,
     Lang_TT_WriteID,
 
@@ -362,6 +352,22 @@ enum LangTooltipID {
     Lang_TT_NewCurse,
     Lang_TT_NewCrate,
     Lang_TT_NewStatue,
+    Lang_TT_Enemy,
+    Lang_TT_PowderKeg,
+    Lang_TT_Cannon,
+    Lang_TT_FloorSpike,
+    Lang_TT_Shooter,
+    Lang_TT_CrabNest,
+    Lang_TT_Laser,
+    Lang_TT_Stalactite,
+    Lang_TT_Decor,
+    Lang_TT_AddText,
+    Lang_TT_Shake,
+    Lang_TT_Checkpoint,
+    Lang_TT_Warp,
+    Lang_TT_DialogTrigger,
+    Lang_TT_AmbientSound,
+    Lang_TT_EndOfLevel,
 };
 
 enum LangWinDatabase {

@@ -12,6 +12,8 @@ namespace ObjEdit {
         SHR::Win *winSeries;
         std::vector<std::string> vszDefaultImgsets;
 
+        bool isSaw = false;
+
         friend class cObjPropVP;
 
     public:

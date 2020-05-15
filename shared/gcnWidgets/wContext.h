@@ -106,17 +106,17 @@ namespace SHR {
 
         virtual void focusLost(const Event &event);
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void mouseExited(MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        void mouseDragged(MouseEvent &mouseEvent) override;
 
-        virtual void mouseMoved(MouseEvent &mouseEvent);
+        void mouseMoved(MouseEvent &mouseEvent) override;
 
         void AddElement(ContextEl *el);
 
@@ -127,6 +127,8 @@ namespace SHR {
         int GetElementsCount() { return vElements.size(); };
 
         void SetSelectedID(int i) { iSelected = i; };
+
+        void RemoveElement(int i);
 
         void ClearElements();
 

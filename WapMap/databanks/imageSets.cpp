@@ -23,11 +23,8 @@ bool cSprBank_SortAssetImages(cSprBankAssetIMG *a, cSprBankAssetIMG *b) {
     return (a->GetID() < b->GetID());
 }
 
-cBankImageSet::cBankImageSet() {
-    iGame = WWD::Game_Unknown;
-    hREZ = 0;
+cBankImageSet::cBankImageSet(WWD::Parser *hParser) : cAssetBank(hParser) {
     m_iAssetsSize = 0;
-    bBatchProcess = 0;
     myAtlaser = new cTextureAtlaser();
 }
 
@@ -137,7 +134,9 @@ cSprBankAssetIMG::~cSprBankAssetIMG() {
 }
 
 std::string cSprBankAssetIMG::GetMountPoint() {
-    std::string ret("/IMAGES/");
+    std::string ret("/");
+    ret += _hBank->GetFolderName();
+    ret += '/';
     ret += hIS->GetID();
     ret += '/';
     ret += std::to_string(m_iID);
@@ -323,13 +322,11 @@ void cBankImageSet::SortAssets() {
 }
 
 void cBankImageSet::BatchProcessStart(cDataController *hDC) {
-    bBatchProcess = 1;
     GV->Console->Printf("Scanning image sets...");
     _ghProgressInfo.iGlobalProgress = 6;
     _ghProgressInfo.strGlobalCaption = "Scanning image sets...";
     _ghProgressInfo.iDetailedProgress = 0;
     _ghProgressInfo.iDetailedEnd = 100000;
-    iBatchPackageCount = 0;
 }
 
 void cBankImageSet::BatchProcessEnd(cDataController *hDC) {
@@ -365,62 +362,7 @@ void cBankImageSet::BatchProcessEnd(cDataController *hDC) {
         if (bAffected)
             m_vAssets[i]->UpdateHash();
     }
-    bBatchProcess = 0;
 }
-
-/*
-void cBankImageSet::ProcessAssets(cAssetPackage * hClientAP, std::vector<cFile> vFiles)
-{
-	float progperproces = 50000.0f/float(hClientAP->GetParent()->GetPackages().size());
-	for(size_t i=0;i<vFiles.size();i++){
-	 int cut = GetFolderName().length()+1;
-	 if( hClientAP->GetPath().length() > 0 )
-	  cut += hClientAP->GetPath().length()+1;
-	 std::string assetid = vFiles[i].strPath.substr(cut);
-	 _ghProgressInfo.iDetailedProgress = iBatchPackageCount*progperproces+(progperproces)*(float(i)/float(vFiles.size()));
-	 _ghProgressInfo.strDetailedCaption = "File: " + assetid;
-	 if( hClientAP->GetParent()->GetLooper() != 0 )
-	  hClientAP->GetParent()->GetLooper()->Tick();
-	 std::transform(vFiles[i].strPath.begin(), vFiles[i].strPath.end(), vFiles[i].strPath.begin(), ::tolower);
-	 cImageInfo inf;
-	 //printf("feed 0x%p path %s\n", vFiles[i].hFeed, vFiles[i].strPath.c_str());
-	 if( hClientAP->GetParent()->IsLoadableImage(vFiles[i], &inf, cImageInfo::Full) ){
-	  size_t lp = assetid.rfind('/');
-	  if( lp != std::string::npos ){
-	   assetid = assetid.substr(0, lp);
-	   assetid = hClientAP->GetPrefix() + "_" + assetid;
-	  }else{
-	   assetid = hClientAP->GetPrefix();
-	  }
-	  while(1){
-	   size_t p = assetid.find_first_of("/\\");
-	   if( p == std::string::npos ) break;
-	   assetid[p] = '_';
-	  }
-	  std::transform(assetid.begin(), assetid.end(), assetid.begin(), ::toupper);
-	  cSprBankAsset * as = GetAssetByID(assetid.c_str());
-	  if( !as ){
-	   as = new cSprBankAsset(assetid);
-	   m_vAssets.push_back(as);
-	  }
-	  cSprBankAssetIMG * img = new cSprBankAssetIMG(vFiles[i], inf, as->m_vSprites.size(), this, as);
-	  as->m_vSprites.push_back(img);
-	  hClientAP->RegisterAsset(img);
-	 }else{
-
-	 }
-	 //printf("    %s\n", vFiles[i].strPath.c_str());
-	}
-	if( !bBatchProcess ){
-	 SortAssets();
-	 myAtlaser->Pack();
-	 for(size_t i=0;i<m_vAssets.size();i++){
-	  for(size_t x=0;x<m_vAssets[i]->m_vSprites.size();x++)
-	   m_vAssets[i]->m_vSprites[x]->Load();
-	 }
-	}
-	iBatchPackageCount++;
-}*/
 
 std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::string strPrefix) {
     size_t lslash = strFilePath.rfind('/');
@@ -431,10 +373,7 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
         strSet.push_back('_');
         strSet.append(strFilePath.c_str(), lslash);
     }
-    std::string strFile(strFilePath);
-    if (lslash != std::string::npos) {
-        strFile.append(strFilePath.c_str() + lslash);
-    }
+    std::string strFile(lslash == std::string::npos ? strFilePath : strFilePath.c_str() + lslash);
     const char* fileDot = strrchr(strFile.c_str(), '.');
     if (!fileDot || !canReadExtension(fileDot + 1))
         return "";
@@ -456,7 +395,7 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
         }
     }
 
-    return "/IMAGES/" + strSet + '/' + std::to_string(tid);
+    return "/" + GetFolderName() + '/' + strSet + '/' + std::to_string(tid);
 }
 
 cAsset *cBankImageSet::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {

@@ -19,8 +19,10 @@ namespace ObjEdit {
 
         int yoffset = 10;
 
-        win->add(_butAddNext, 20, win->getHeight() - 60);
-        win->add(_butSave, 130, win->getHeight() - 60);
+        _butAddNext->setWidth(115);
+        win->add(_butAddNext, 5, win->getHeight() - 60);
+        _butSave->setWidth(115);
+        win->add(_butSave, 125, win->getHeight() - 60);
 
         labTimeOff = new SHR::Lab(GETL2S("EditObj_Laser", "TimeOff"));
         labTimeOff->adjustSize();
@@ -29,10 +31,10 @@ namespace ObjEdit {
         char tmp[50];
         sprintf(tmp, "%d", hTempObj->GetParam(WWD::Param_Counter));
         tfTimeOff = new SHR::TextField(tmp);
-        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfTimeOff->SetNumerical(1, 0);
         tfTimeOff->addActionListener(hAL);
-        win->add(tfTimeOff, 140, 5 + yoffset);
+        win->add(tfTimeOff, 165, 5 + yoffset);
         tfTimeOff->setMarkedInvalid(hTempObj->GetParam(WWD::Param_Counter) < 0);
 
         labDmg = new SHR::Lab(GETL2S("EditObj_Laser", "Damage"));
@@ -43,11 +45,11 @@ namespace ObjEdit {
         if (!dmg) dmg = 1;
         sprintf(tmp, "%d", dmg);
         tfDmg = new SHR::TextField(tmp);
-        tfDmg->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfDmg->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfDmg->SetNumerical(1, 0);
         tfDmg->addActionListener(hAL);
         tfDmg->setMarkedInvalid(dmg < 0);
-        win->add(tfDmg, 140, 30 + yoffset);
+        win->add(tfDmg, 165, 30 + yoffset);
 
         _butSave->setEnabled(!tfDmg->isMarkedInvalid() && !tfTimeOff->isMarkedInvalid());
     }

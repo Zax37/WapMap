@@ -221,8 +221,11 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             bEditObjDelete = 1;
             hEditObj->SetWindowPosition(winX, winY);
         } else if (bEditObjDelete) {
-            objContext->EmulateClickID(OBJMENU_DELETE);
-            bEditObjDelete = 0;
+            std::vector<WWD::Object*> tmp = vObjectsPicked;
+            for (auto& object : tmp) {
+                GetActivePlane()->DeleteObject(object);
+            }
+            bEditObjDelete = false;
         }
         vPort->MarkToRedraw(1);
     }
@@ -786,17 +789,23 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             SetTool(EWW_TOOL_NONE);
             MarkUnsaved();
         } else if (hge->Input_KeyDown(HGEK_ESCAPE)) {
-            if (bEditObjDelete)
-                objContext->EmulateClickID(OBJMENU_DELETE);
-            else
-                for (int i = 0; i < vObjectsPicked.size(); i++)
-                    GetUserDataFromObj(vObjectsPicked[i])->SyncToObj();
+            if (bEditObjDelete) {
+                std::vector<WWD::Object *> tmp = vObjectsPicked;
+                for (auto & object : tmp) {
+                    GetActivePlane()->DeleteObject(object);
+                }
+            }
+            else {
+                for (auto &object : vObjectsPicked) {
+                    GetUserDataFromObj(object)->SyncToObj();
+                }
+            }
             SetTool(EWW_TOOL_NONE);
-            vPort->MarkToRedraw(1);
-            bEditObjDelete = 0;
+            vPort->MarkToRedraw(true);
+            bEditObjDelete = false;
         }
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
-        if (vObjectsBrushCB.size() == 0) {
+        if (vObjectsBrushCB.empty()) {
             SetTool(EWW_TOOL_NONE);
         } else {
             if (bObjBrushDrawing) {
@@ -919,7 +928,8 @@ bool State::EditingWW::IsEditableObject(WWD::Object* obj, ObjEdit::cObjEdit** hE
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjElevPath(obj, this);
     } else if (!strcmp(obj->GetLogic(), "Checkpoint") ||
         !strcmp(obj->GetLogic(), "FirstSuperCheckpoint") ||
-        !strcmp(obj->GetLogic(), "SecondSuperCheckpoint")) {
+        !strcmp(obj->GetLogic(), "SecondSuperCheckpoint") ||
+        !strcmp(obj->GetLogic(), "BossStager")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCheckpoint(obj, this);
     } else if (!strcmp(obj->GetLogic(), "SpecialPowerup") &&
         (!strcmp(obj->GetImageSet(), "GAME_WARP") || !strcmp(obj->GetImageSet(), "GAME_VERTWARP")) ||
@@ -954,14 +964,16 @@ bool State::EditingWW::IsEditableObject(WWD::Object* obj, ObjEdit::cObjEdit** hE
         !strcmp(obj->GetLogic(), "TogglePeg3") || !strcmp(obj->GetLogic(), "TogglePeg4") || !strcmp(obj->GetLogic(), "SlidingElevator")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjTogglePeg(obj, this);
     } else if (!strcmp(obj->GetLogic(), "FloorSpike") || !strcmp(obj->GetLogic(), "FloorSpike2") ||
-        !strcmp(obj->GetLogic(), "FloorSpike3") || !strcmp(obj->GetLogic(), "FloorSpike4")) {
+        !strcmp(obj->GetLogic(), "FloorSpike3") || !strcmp(obj->GetLogic(), "FloorSpike4") ||
+        !strcmp(obj->GetLogic(), "SawBlade") || !strcmp(obj->GetLogic(), "SawBlade2") ||
+        !strcmp(obj->GetLogic(), "SawBlade3") || !strcmp(obj->GetLogic(), "SawBlade4")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjFloorSpike(obj, this);
     } else if (!strcmp(obj->GetLogic(), "FrontAniCandy") || !strcmp(obj->GetLogic(), "BehindAniCandy") ||
         !strcmp(obj->GetLogic(), "FrontCandy") || !strcmp(obj->GetLogic(), "BehindCandy") ||
         !strcmp(obj->GetLogic(), "DoNothing") || !strcmp(obj->GetLogic(), "DoNothingNormal") ||
         !strcmp(obj->GetLogic(), "AniCycle") || !strcmp(obj->GetLogic(), "AniCycleNormal") || !strcmp(obj->GetLogic(), "SimpleAnimation")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCandy(obj, this);
-    } else if (!strcmp(obj->GetLogic(), "SpringBoard") || !strcmp(obj->GetLogic(), "GroundBlower")) {
+    } else if (!strcmp(obj->GetLogic(), "SpringBoard") || !strcmp(obj->GetLogic(), "GroundBlower") || !strcmp(obj->GetLogic(), "WaterRock")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSpringboard(obj, this);
     } else if (strstr(obj->GetLogic(), "SoundTrigger")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjSoundTrigger(obj, this);
@@ -1033,8 +1045,13 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         obj->SetLogic("CursePowerup");
         obj->SetImageSet("GAME_CURSES_FREEZE");
     } else if (widg == hmbObject->butIconSpikes) {
-        obj->SetLogic("FloorSpike");
-        obj->SetImageSet(hParser->GetBaseLevel() == 3 || hParser->GetBaseLevel() == 10 || hParser->GetBaseLevel() == 13 ? "LEVEL_FLOORSPIKES1" : "LEVEL_FLOORSPIKES");
+        if (hParser->GetBaseLevel() == 9) {
+            obj->SetLogic("SawBlade");
+            obj->SetImageSet("LEVEL_FLOORSAW");
+        } else {
+            obj->SetLogic("FloorSpike");
+            obj->SetImageSet(hParser->GetBaseLevel() == 3 || hParser->GetBaseLevel() == 10 || hParser->GetBaseLevel() == 13 ? "LEVEL_FLOORSPIKES1" : "LEVEL_FLOORSPIKES");
+        }
     } else if (widg == hmbObject->butIconElevator) {
         obj->SetLogic("Elevator");
         obj->SetImageSet(GetDefaultElevatorImageSet());

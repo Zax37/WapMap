@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <vector>
 #include <ostream>
+#include <map>
 
 #ifndef byte
 typedef unsigned char byte;
@@ -183,7 +184,20 @@ namespace WWD {
         Game_GetMedieval = 2,
         Game_Gruntz = 3,
         Game_Claw2 = 4,
+
+        Games_First = Game_Claw,
+        Games_Last = Game_Claw2,
+        Games_Count = Games_Last,
     };
+
+    void operator++ (GAME& game);
+
+    static std::map<WWD::GAME, const char*> GAME_NAMES({
+        {Game_Claw, "Claw"},
+        {Game_GetMedieval, "Get Medieval"},
+        {Game_Gruntz, "Gruntz"},
+        {Game_Claw2, "Claw 2"}
+    });
 
     class CustomMetaSerializer {
     protected:
@@ -536,6 +550,14 @@ namespace WWD {
 
         int GetMoveModY() { return m_Header.m_iMoveY; };
 
+        void SetOffsetX(int n) { m_Header.m_iOffsetX = n; };
+
+        int GetOffsetX() { return m_Header.m_iOffsetX; };
+
+        void SetOffsetY(int n) { m_Header.m_iOffsetY = n; };
+
+        int GetOffsetY() { return m_Header.m_iOffsetY; };
+
         int GetObjectsCount() { return m_vObjects.size(); };
 
         int ClampX(int x) { return x % (m_Header.m_iW); };
@@ -577,6 +599,7 @@ namespace WWD {
         void SetFillColor(int iColor) { if (iColor >= 0 && iColor < 256) m_Header.m_iFillColor = iColor; };
 
         Tile* GetTile(int piX, int piY);
+        Tile* GetTile(int it);
 
         void Resize(int nw, int nh, int ox = 0, int oy = 0);
 

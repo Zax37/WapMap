@@ -6,6 +6,7 @@
 #include "cParallelLoop.h"
 #include "databanks/imageSets.h"
 #include <direct.h>
+#include <filesystem>
 
 extern HGE *hge;
 cDataController *_ghDataController = 0;
@@ -22,9 +23,9 @@ bool _cDC_SortMountEntries(cDC_MountEntry a, cDC_MountEntry b) {
     return (a.strMountPoint < b.strMountPoint);
 }
 
-cDataController::cDataController(std::string strCD, std::string strFD, std::string strFN) {
+cDataController::cDataController(WWD::GAME game, std::string strGD, std::string strFD, std::string strFN) : game(game) {
     hLooper = 0;
-    strClawDir = strCD;
+    strGameDir = strGD;
     strFileDir = strFD;
     strFilename = strFN;
 
@@ -36,10 +37,22 @@ cDataController::cDataController(std::string strCD, std::string strFD, std::stri
         pos = strFileDir.find('\\');
     }
 
-    //printf("filedir '%s' filename '%s'\n", strFD.c_str(), strFN.c_str());
-
-    std::string tmp = strClawDir;
-    tmp.append("/CLAW.REZ");
+    std::string tmp = strGameDir;
+    switch (game) {
+        case WWD::Game_Claw:
+        case WWD::Game_Claw2:
+            tmp.append("/CLAW.REZ");
+            break;
+        case WWD::Game_Gruntz:
+            tmp.append("/GRUNTZ.REZ");
+            break;
+        case WWD::Game_GetMedieval:
+            tmp.append("/MEDIEVAL.REZ");
+            break;
+        default:
+            tmp.append("/_UNKNOWN_GAME");
+            break;
+    }
     FILE *f = fopen(tmp.c_str(), "rb");
     if (!f) {
         hREZ = 0;
@@ -49,7 +62,7 @@ cDataController::cDataController(std::string strCD, std::string strFD, std::stri
         hREZ = new cRezFeed(tmp);
     }
 
-    tmp = strClawDir;
+    tmp = strGameDir;
     tmp.append("/Assets");
     HANDLE hFind = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA fdata;
@@ -184,7 +197,7 @@ void cDataController::RegisterAssetBank(cAssetBank *hPtr) {
     hPtr->_iModNew = hPtr->_iModChange = hPtr->_iModDel = 0;
 }
 
-byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH) {
+byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH, PID::Palette** pal) {
     byte *ret = 0;
     const char* dot = strrchr(hFile.strPath.c_str(), '.');
     if (!dot) return 0;
@@ -259,6 +272,7 @@ byte *cDataController::GetImageRaw(cFile hFile, int *pW, int *pH) {
         ret = pid->StealDataPtr();
         *pW = pid->GetWidth();
         *pH = pid->GetHeight();
+        *pal = pid->StealPalettePtr();
         delete pid;
     }
     delete[] ptr;
@@ -272,10 +286,19 @@ bool cDataController::RenderImageRaw(byte *hData, HTEXTURE texDest, int iRx, int
         return 0;
     PID::Palette *palptr = (pal == 0 ? hPalette
                                      : pal);
-    for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++) {
-            td[y * iRowSpan + x] = (hData[y * w + x] == 0 ? 0x00FFFFFF : palptr->GetColor(hData[y * w + x]));
-        }
+    bool useColorKey = game != WWD::Game_Claw;
+    if (useColorKey) {
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                DWORD color = palptr->GetColor(hData[y * w + x]);
+                td[y * iRowSpan + x] = (color == 0xFFFF0084 ? 0x00FFFFFF : color);
+            }
+    } else {
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                td[y * iRowSpan + x] = (hData[y * w + x] == 0 ? 0x00FFFFFF : palptr->GetColor(hData[y * w + x]));
+            }
+    }
     hge->Texture_Unlock(texDest);
     return 1;
 }
@@ -359,9 +382,13 @@ bool cDataController::IsLoadableImage(cFile hFile, cImageInfo *inf, cImageInfo::
 
 bool cDataController::RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iRy, int iRowSpan) {
     int w, h;
-    byte *data = GetImageRaw(hFile, &w, &h);
+    PID::Palette* palette;
+    byte *data = GetImageRaw(hFile, &w, &h, &palette);
     if (!data) return 0;
-    bool ret = RenderImageRaw(data, texDest, iRx, iRy, iRowSpan, w, h);
+    bool ret = RenderImageRaw(data, texDest, iRx, iRy, iRowSpan, w, h, palette);
+    if (palette) {
+        delete palette;
+    }
     delete[] data;
     return ret;
 }
@@ -803,9 +830,17 @@ void cDataController::Think() {
 }
 
 void cDataController::OpenCodeEditor(std::string logicName, bool nonExisting) {
-    std::string path = GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/" + logicName + ".lua";
+    std::string path = GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/";
+    std::string filepath = path + logicName + ".lua";
     if (nonExisting) {
-        std::ofstream file{path};
+        std::filesystem::create_directories(path);
+        std::ofstream file(filepath);
+        if (logicName == "main") {
+            file << "function OnMapLoad()\n\nend\n";
+        }
+        else {
+            file << "function main(self)\n\nend\n";
+        }
     }
-    ShellExecute(hge->System_GetState(HGE_HWND), "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
+    ShellExecute(hge->System_GetState(HGE_HWND), "open", filepath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }

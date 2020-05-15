@@ -12,7 +12,7 @@ namespace ObjEdit {
     cEditObjWallCannon::cEditObjWallCannon(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         iType = ObjEdit::enWallCannon;
         bSkullCannon = (GV->editState->hParser->GetBaseLevel() == 9);
-        win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_WallCannon", bSkullCannon ? "WinCaption2" : "WinCaption"));
+        win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_WallCannon", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 310, 135 + 15));
         win->setClose(1);
         win->addActionListener(hAL);

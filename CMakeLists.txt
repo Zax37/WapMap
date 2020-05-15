@@ -100,6 +100,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wContainer.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wContext.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wDropDown.cpp
+	${PROJECT_SOURCE_DIR}/shared/gcnWidgets/wIconListbox.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wInventory.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wLabel.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wLink.cpp
@@ -211,6 +212,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevator.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevPath.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editEnemy.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objEdit/editFloorSpike.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editHealth.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editLaser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editProjectile.cpp
@@ -227,6 +229,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editWallCannon.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editWarp.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/procPickRect.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objEdit/procPickXYLockable.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/winInventoryPickbox.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objQuadTree.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/rendering/cRenderableItem.cpp
@@ -259,7 +262,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/windows/tileBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/wViewport.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/res.rc
-        WapMap/objEdit/procPickXYLockable.cpp WapMap/objEdit/procPickXYLockable.h WapMap/objEdit/editFloorSpike.cpp WapMap/objEdit/editFloorSpike.h)
+	${PROJECT_SOURCE_DIR}/WapMap/app.manifest)
 
 target_link_libraries(WapMap
     ${HGE_LIBS}

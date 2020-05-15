@@ -147,6 +147,8 @@ public:
 
     void SyncDocumentOpened();
 
+    void SyncRecentlyClosedRebuild();
+
     void SyncPlaneSwitched();
 
     void SyncModeSwitched();

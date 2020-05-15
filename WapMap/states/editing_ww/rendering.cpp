@@ -535,13 +535,13 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
         }
     }
     bool ghosting = 0;
-    for (size_t i = 0; i < vTileGhosting.size(); i++)
-        if (vTileGhosting[i].pl == plane) {
+    for (auto & i : vTileGhosting)
+        if (i.pl == plane) {
             ghosting = 1;
             break;
         }
 
-    TileGhost* highlight = NULL;
+    bool pickerHighlight = false;
     if (!bUsingBuffer || ghosting)
         for (int y = sy; y < ey; y++) {
             float posy = y * plane->GetTileHeight() * fZoom - cammy;
@@ -587,7 +587,7 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                                 ghosted = 1;
                                 break;
                             } else if (vTileGhosting[i].id == EWW_TILE_PIPETTE) {
-                                highlight = &vTileGhosting[i];
+                                pickerHighlight = true;
                                 if (tile->IsInvisible()) {
                                     vTileGhosting[i].id = EWW_TILE_ERASE;
                                 } else if (tile->IsFilled()) {
@@ -680,34 +680,35 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                                     int(posy + plane->GetTileHeight() * fZoom), ARGB(GETA(col), 255, 255, 255));
         }
 
-    if (highlight) {
+    if (pickerHighlight) {
         float tw = plane->GetTileWidth() * fZoom,
-            th = plane->GetTileHeight() * fZoom;
-        float posx = highlight->x * tw - cammx, posy = highlight->y * th - cammy;
+              th = plane->GetTileHeight() * fZoom;
+        for (auto & highlight : vTileGhosting) {
+            float posX = highlight.x * tw - cammx, posY = highlight.y * th - cammy;
 
-        hge->Gfx_RenderLine(posx, posy, posx + tw, posy, GV->colLineDark);
-        hge->Gfx_RenderLine(posx, posy + th, posx + tw, posy + th, GV->colLineDark);
-        hge->Gfx_RenderLine(posx, posy - 1, posx - 1, posy + th, GV->colLineDark);
-        hge->Gfx_RenderLine(posx + tw, posy - 1, posx + tw, posy + th, GV->colLineDark);
+            hge->Gfx_RenderLine(posX, posY, posX + tw, posY, GV->colLineDark);
+            hge->Gfx_RenderLine(posX, posY + th, posX + tw, posY + th, GV->colLineDark);
+            hge->Gfx_RenderLine(posX, posY - 1, posX - 1, posY + th, GV->colLineDark);
+            hge->Gfx_RenderLine(posX + tw, posY - 1, posX + tw, posY + th, GV->colLineDark);
 
-        hge->Gfx_RenderLine(posx, posy + 1, posx + tw - 1, posy, TILE_HIGHLIGHT_COLOR_SOLID);
-        hge->Gfx_RenderLine(posx + 1, posy + th - 1, posx + tw - 1, posy + th - 1,
-                            TILE_HIGHLIGHT_COLOR_SOLID);
-        hge->Gfx_RenderLine(posx + 1, posy + 1, posx + 1, posy + th - 1, TILE_HIGHLIGHT_COLOR_SOLID);
-        hge->Gfx_RenderLine(posx + tw - 1, posy + 1, posx + tw - 1, posy + th - 1,
-                            TILE_HIGHLIGHT_COLOR_SOLID);
+            int color = (highlight.x == iTileWriteIDx && highlight.y == iTileWriteIDy) ? TILE_PICK_COLOR_SOLID : TILE_HIGHLIGHT_COLOR_SOLID;
+            hge->Gfx_RenderLine(posX, posY + 1, posX + tw - 1, posY, color);
+            hge->Gfx_RenderLine(posX + 1, posY + th - 1, posX + tw - 1, posY + th - 1, color);
+            hge->Gfx_RenderLine(posX + 1, posY + 1, posX + 1, posY + th - 1, color);
+            hge->Gfx_RenderLine(posX + tw - 1, posY + 1, posX + tw - 1, posY + th - 1, color);
 
-        char text[32];
-        if (highlight->id == EWW_TILE_ERASE)
-            sprintf(text, "ID: -");
-        else if (highlight->id == EWW_TILE_FILL)
-            sprintf(text, "ID: FILL");
-        else
-            sprintf(text, "ID: %d", highlight->id);
-        GV->fntMyriad13->SetColor(0xFF000000);
-        GV->fntMyriad13->Render(posx + tw / 2 + 1, posy + th / 2 + 1 - 8, HGETEXT_CENTER, text, 0);
-        GV->fntMyriad13->SetColor(0xFFFFFFFF);
-        GV->fntMyriad13->Render(posx + tw / 2, posy + th / 2 - 8, HGETEXT_CENTER, text, 0);
+            char text[32];
+            if (highlight.id == EWW_TILE_ERASE)
+                sprintf(text, "ID: -");
+            else if (highlight.id == EWW_TILE_FILL)
+                sprintf(text, "ID: FILL");
+            else
+                sprintf(text, "ID: %d", highlight.id);
+            GV->fntMyriad13->SetColor(0xFF000000);
+            GV->fntMyriad13->Render(posX + tw / 2 + 1, posY + th / 2 + 1 - 8, HGETEXT_CENTER, text, 0);
+            GV->fntMyriad13->SetColor(0xFFFFFFFF);
+            GV->fntMyriad13->Render(posX + tw / 2, posY + th / 2 - 8, HGETEXT_CENTER, text, 0);
+        }
     }
 
     DrawPlaneOverlay(plane);
@@ -744,9 +745,9 @@ void State::EditingWW::RenderToViewportBuffer() {
                     Scr2WrdY(hParser->GetPlane(i), vPort->GetY()),
                     vPort->GetWidth() / fZoom,
                     vPort->GetHeight() / fZoom);
-            for (size_t y = 0; y < list.size(); y++) {
-                if (iActiveTool == EWW_TOOL_EDITOBJ && list[y] == hEditObj->GetOrigObj()) continue;
-                vRenderOrders.push_back(new cObjectRenderWrapper(list[y]));
+            for (auto & item : list) {
+                if (iActiveTool == EWW_TOOL_EDITOBJ && item == hEditObj->GetOrigObj()) continue;
+                vRenderOrders.push_back(new cObjectRenderWrapper(item));
             }
         }
     }
@@ -776,14 +777,14 @@ void State::EditingWW::DrawWorldP() {
     int dx, dy;
     byte alpha = winWorld->getAlpha();
     winWorld->getAbsolutePosition(dx, dy);
-    hge->Gfx_RenderLine(dx, dy + 105, dx + winWorld->getWidth(), dy + 105, SETA(GV->colLineBright, alpha));
-    hge->Gfx_RenderLine(dx, dy + 104, dx + winWorld->getWidth(), dy + 104, SETA(GV->colLineDark, alpha));
+    hge->Gfx_RenderLine(dx, dy + 110, dx + winWorld->getWidth(), dy + 110, SETA(GV->colLineBright, alpha));
+    hge->Gfx_RenderLine(dx, dy + 109, dx + winWorld->getWidth(), dy + 109, SETA(GV->colLineDark, alpha));
 
-    hge->Gfx_RenderLine(dx, dy + 215, dx + winWorld->getWidth(), dy + 215, SETA(GV->colLineBright, alpha));
-    hge->Gfx_RenderLine(dx, dy + 214, dx + winWorld->getWidth(), dy + 214, SETA(GV->colLineDark, alpha));
+    hge->Gfx_RenderLine(dx, dy + 220, dx + winWorld->getWidth(), dy + 220, SETA(GV->colLineBright, alpha));
+    hge->Gfx_RenderLine(dx, dy + 219, dx + winWorld->getWidth(), dy + 219, SETA(GV->colLineDark, alpha));
 
-    hge->Gfx_RenderLine(dx + 400, dy + 20, dx + 400, dy + winWorld->getHeight(), SETA(GV->colLineDark, alpha));
-    hge->Gfx_RenderLine(dx + 401, dy + 20, dx + 401, dy + winWorld->getHeight(), SETA(GV->colLineBright, alpha));
+    /*hge->Gfx_RenderLine(dx + 400, dy + 20, dx + 400, dy + winWorld->getHeight(), SETA(GV->colLineDark, alpha));
+    hge->Gfx_RenderLine(dx + 401, dy + 20, dx + 401, dy + winWorld->getHeight(), SETA(GV->colLineBright, alpha));*/
 }
 
 void State::EditingWW::DrawViewport() {
@@ -1118,7 +1119,8 @@ void State::EditingWW::DrawViewport() {
                     int iSpringboardValue = 0;
                     bool bFill = 1;
                     if (!strcmp(vObjectsPicked[0]->GetLogic(), "SpringBoard") ||
-                        !strcmp(vObjectsPicked[0]->GetLogic(), "GroundBlower")) {
+                        !strcmp(vObjectsPicked[0]->GetLogic(), "GroundBlower") ||
+                        !strcmp(vObjectsPicked[0]->GetLogic(), "WaterRock")) {
                         if (iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->iType == ObjEdit::enSpringboard &&
                             ((ObjEdit::cEditObjSpringboard *) hEditObj)->bPicking) {
                             minY = ((ObjEdit::cEditObjSpringboard *) hEditObj)->iPickY;
@@ -1220,10 +1222,10 @@ void State::EditingWW::DrawViewport() {
                     if ((minX != 0 || minY != 0 || maxX != 0 || maxY != 0) &&
                         !(minX == maxX && minY == maxY) && strstr(obj->GetLogic(), "OneWay") != obj->GetLogic()) {
 
-                        int relMinX = minX ? minX * fZoom - cammx : 0,
-                            relMinY = minY ? minY * fZoom - cammy : 0,
-                            relMaxX = maxX ? maxX * fZoom - cammx : 0,
-                            relMaxY = maxY ? maxY * fZoom - cammy : 0;
+                        int relMinX = minX && minX != maxX ? minX * fZoom - cammx : 0,
+                            relMinY = minY && minY != maxY ? minY * fZoom - cammy : 0,
+                            relMaxX = maxX && minX != maxX ? maxX * fZoom - cammx : 0,
+                            relMaxY = maxY && minY != maxY ? maxY * fZoom - cammy : 0;
 
                         if (relMinX < vPort->GetX() + vPort->GetWidth() ||
                             relMinY < vPort->GetY() + vPort->GetHeight() ||
@@ -1329,8 +1331,6 @@ void State::EditingWW::DrawViewport() {
                         stepx += stepxvec;
                         stepy += stepyvec;
 
-                        hgeSprite *spr = SprBank->GetObjectSprite(obj);
-
                         if (bEditMode && (((ObjEdit::cEditObjElevPath *) hEditObj)->GetActualStep() == s ||
                                           ((ObjEdit::cEditObjElevPath *) hEditObj)->GetActualStep() == s + 1 ||
                                           (mx > origx + stepx - spr->GetWidth() / 2 &&
@@ -1381,12 +1381,65 @@ void State::EditingWW::DrawViewport() {
                     }
                 } else if (strstr(obj->GetLogic(), "Elevator") && strcmp(obj->GetLogic(), "SlidingElevator") != 0) {
 
+                    if (strcmp(obj->GetLogic(), "Elevator") != 0) { // Elevator_
+                        int startX = Wrd2ScrY(GetActivePlane(), obj->GetX()),
+                            startY = Wrd2ScrY(GetActivePlane(), obj->GetY());
 
-                    if ((minX != 0 && maxX != 0 && minX <= maxX) || (minY != 0 && maxY != 0 && minY <= maxY)) {
-                        hgeSprite *spr = SprBank->GetObjectSprite(obj);
+                        int dir = obj->GetParam(WWD::Param_Direction),
+                            speedX = obj->GetParam(WWD::Param_SpeedX),
+                            speedY = obj->GetParam(WWD::Param_SpeedY);
+
+                        bool flip = false;
+
+                        if (!speedX) speedX = 125;
+                        if (dir == 8 || dir == 2) speedX = 0;
+
+                        if (!speedY) speedY = 125;
+                        if (dir == 6 || dir == 4) speedY = 0;
+
+                        if (dir == 6 || dir == 2 || dir == 3) {
+                            flip = !(startX >= maxX && startY >= maxY);
+                        } else {
+                            flip = !(startX <= minX && startY <= minY);
+                        }
+
+                        int x = startX, y = startY,
+                            targetX = flip ? minX : maxX,
+                            targetY = flip ? minY : maxY;
+
+                        spr->SetColor(0x77FFFFFF);
+                        if (!speedY) {
+                            if (!speedX) return;
+
+                            spr->RenderEx(targetX, y, 0, fZoom);
+                            RenderArrow(x, y, targetX, y, true);
+                        } else if (!speedX) {
+                            spr->RenderEx(x, targetY, 0, fZoom);
+                        }
+
+                            /*    for (int i = 0; i < 2; i++) {
+                            if (speedX <= 0) {
+                                if (speedY <= 0) return;
+                                tweakY += height - tweakY % height;
+                            } else if (speedY <= 0) {
+                                if (speedX <= 0) return;
+                                tweakX += width - tweakX % width;
+                            } else {
+                                int distX = width - tweakX % width;
+                                int distY = height - tweakY % height;
+
+                                if (distX * 1000 / speedX < distY * 1000 / speedY) {
+                                    tweakX += distX;
+                                    tweakY += distX * speedY / speedX;
+                                } else {
+                                    tweakX += distY * speedX / speedY;
+                                    tweakY += distY;
+                                }
+                            }*/
+                    } else if ((minX != 0 && maxX != 0 && minX <= maxX) || (minY != 0 && maxY != 0 && minY <= maxY)) {
                         if (minX == maxX) { //vertical
                             int starty = Wrd2ScrY(GetActivePlane(), minY),
-                                    endy = Wrd2ScrY(GetActivePlane(), maxY);
+                                endy = Wrd2ScrY(GetActivePlane(), maxY);
                             float xpad = 22 * fZoom;
                             int x = Wrd2ScrX(GetActivePlane(), GetUserDataFromObj(obj)->GetX());
                             spr->SetColor(0x77FFFFFF);
@@ -1404,7 +1457,7 @@ void State::EditingWW::DrawViewport() {
                             GV->sprArrowVerticalD->RenderEx(x - xpad, endy - rpad, 0, fZoom);
                         } else if (minY == maxY) { //horizontal
                             int startx = Wrd2ScrX(GetActivePlane(), minX),
-                                    endx = Wrd2ScrX(GetActivePlane(), maxX);
+                                endx = Wrd2ScrX(GetActivePlane(), maxX);
                             float ypad = 22 * fZoom;
                             int y = Wrd2ScrY(GetActivePlane(), GetUserDataFromObj(obj)->GetY()) - ypad;
                             spr->SetColor(0x77FFFFFF);
@@ -1501,21 +1554,20 @@ void State::EditingWW::DrawViewport() {
 
                                     updateXY();
                                     int scrX = Wrd2ScrX(GetActivePlane(), x), scrY = Wrd2ScrY(GetActivePlane(), y);
-                                    for (const auto& p : travelPoints) {
+                                    /*for (const auto& p : travelPoints) {
                                         if (p.x == scrX && p.y == scrY) {
                                             closed = true;
                                             i = 666;
                                             break;
                                         }
-                                    }
+                                    }*/
                                     travelPoints.emplace_back(POINT{scrX, scrY});
                                 }
                             }
 
                             const POINT* pp = NULL;
+                            spr->SetColor(0x77FFFFFF);
                             for (const auto& p : travelPoints) {
-                                hgeSprite *spr = SprBank->GetObjectSprite(obj);
-                                spr->SetColor(0x77FFFFFF);
                                 spr->RenderEx(p.x, p.y, 0, fZoom);
 
                                 if (pp) {
@@ -1783,14 +1835,14 @@ void State::EditingWW::DrawViewport() {
                             for (int x = 0; x < 3; x++) {
                                 int i = y * 3 + x;
                                 if (i < crabsNum) {
-                                    hgeSprite *spr = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB")->GetIMGByIterator(0)->GetSprite();
-                                    spr->SetColor(0xBBFFFFFF);
-                                    spr->SetFlip(0, 0, true);
-                                    int grdim = spr->GetWidth();
-                                    if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
+                                    hgeSprite *crabSpr = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB")->GetIMGByIterator(0)->GetSprite();
+                                    crabSpr->SetColor(0xBBFFFFFF);
+                                    crabSpr->SetFlip(0, 0, true);
+                                    int grdim = crabSpr->GetWidth();
+                                    if (crabSpr->GetHeight() > grdim) grdim = crabSpr->GetHeight();
                                     float fScale = 1.0f;
                                     if (grdim > 48) fScale = 48.0f / float(grdim);
-                                    spr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
+                                    crabSpr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
                                                   posy + vPort->GetY() - cammy + ioff - sprh + y * 54 + 24, 0, fScale);
                                 }
                                 if (i > 9 || GetInventoryItemID(items[i]) == -1) {
@@ -1803,14 +1855,14 @@ void State::EditingWW::DrawViewport() {
                                 cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID(
                                         GetInventoryItemImageSet(items[i]));
                                 int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-                                hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
-                                spr->SetColor(0xBBFFFFFF);
-                                spr->SetFlip(0, 0, true);
-                                int grdim = spr->GetWidth();
-                                if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
+                                hgeSprite *treasureSpr = asset->GetIMGByIterator(iframe)->GetSprite();
+                                treasureSpr->SetColor(0xBBFFFFFF);
+                                treasureSpr->SetFlip(0, 0, true);
+                                int grdim = treasureSpr->GetWidth();
+                                if (treasureSpr->GetHeight() > grdim) grdim = treasureSpr->GetHeight();
                                 float fScale = 1.0f;
                                 if (grdim > 48) fScale = 48.0f / float(grdim);
-                                spr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
+                                treasureSpr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
                                               posy + vPort->GetY() - cammy + ioff - sprh + y * 54 + 24, 0, fScale);
                             }
 
@@ -2679,7 +2731,7 @@ void State::EditingWW::DrawSelectFillColor() {
 
 void State::EditingWW::DrawPlaneOverlay(WWD::Plane *hPl) {
     if (hPl == GetActivePlane() && iMode == EWW_MODE_TILE &&
-        (bObjDragSelection || iTileSelectX1 != -1 && iTileSelectY1 != -1)) {
+        (bObjDragSelection || (iTileSelectX1 != -1 && iTileSelectY1 != -1))) {
         int x1, y1, x2, y2;
         if (bObjDragSelection) {
             float mx, my;
@@ -2881,20 +2933,10 @@ void State::EditingWW::DrawWelcomeScreen() {
 
     for (int i = 0; i < 4; i++) {
         GV->sprIcons128[i]->Render(dx + i * 150 + 11, dy);
-        /*if( i != 0 ){
-		 hge->Gfx_RenderLine(dx+i*150, dy+24, dx+i*150, dy+219, GV->colLineDark);
-		 hge->Gfx_RenderLine(dx+i*150+1, dy+24, dx+i*150+1, dy+219, GV->colLineBright);
-		}*/
     }
 
     hge->Gfx_RenderLine(dx + 1, dy + 180, dx + winWelcome->getWidth() - 1, dy + 180, GV->colLineDark);
     hge->Gfx_RenderLine(dx + 1, dy + 181, dx + winWelcome->getWidth() - 1, dy + 181, GV->colLineBright);
-
-    /*if( conRecentFiles->isVisible() ){
-	 int rfx, rfy;
-	 conRecentFiles->getAbsolutePosition(rfx, rfy);
-
-	}*/
 }
 
 void State::EditingWW::RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill, DWORD hwFillCol) {
@@ -2977,11 +3019,6 @@ void State::EditingWW::DrawTilePicker() {
         }
 
         int itpx = dx + 4, itpy = dy + iTilePickerOffUp + 16;
-        /*hgeQuad q;
-		q.blend = BLEND_DEFAULT;
-		q.tex = 0;
-		SHR::SetQuad(&q, 0xFF3e3e3e, itpx, itpy, itpx+230, itpy+slitpiPicker->getHeight());
-		hge->Gfx_RenderQuad(&q);*/
         hge->Gfx_SetClipping(itpx, itpy, 230, slitpiPicker->getHeight());
 
         if (mx > itpx && mx < itpx + 230 && my > itpy && my < itpy + slitpiPicker->getHeight()) {
@@ -2993,7 +3030,7 @@ void State::EditingWW::DrawTilePicker() {
             int ioldsel = iTilePicked;
             int loopst = scroll / 57, loopen = slitpiPicker->getHeight() / 57 + 2;
             if (set->GetBrushesCount() == 0) {
-                GV->fntMyriad13->SetColor(0xFF000000);
+                GV->fntMyriad13->SetColor(0xFFa1a1a1);
                 GV->fntMyriad13->printf(itpx + 115, itpy + slitpiPicker->getHeight() / 2, HGETEXT_CENTER,
                                         GETL(Lang_NoBrushes), 0);
             }
@@ -3037,7 +3074,7 @@ void State::EditingWW::DrawTilePicker() {
                 hge->Gfx_RenderLine(drx, dry, drx, dry + 49, colBorder);
                 hge->Gfx_RenderLine(drx + 49, dry, drx + 49, dry + 49, colBorder);
 
-                GV->fntMyriad13->SetColor(colBorder == GV->colLineBright ? 0xFF000000 : colBorder);
+                GV->fntMyriad13->SetColor(colBorder == GV->colLineBright ? 0xFFa1a1a1 : colBorder);
                 GV->fntMyriad13->Render(drx + 55, dry + 14, HGETEXT_LEFT, brush->GetName(), 0);
             }
             if (ioldsel != iTilePicked) {

@@ -85,7 +85,7 @@ public:
     bool IsEnemy() {
         if (enemy == NOT_TESTED) {
             if (!strcmp(logic, "Rat") || !strcmp(logic, "PunkRat") || !strcmp(logic, "HermitCrab")
-            || !strcmp(logic, "Chameleon") || !strcmp(logic, "Seagull")) {
+            || !strcmp(logic, "Chameleon") || !strcmp(logic, "Seagull") || !strcmp(logic, "Fish")) {
                 boss = NO;
                 enemy = YES;
                 humanEnemy = NO;

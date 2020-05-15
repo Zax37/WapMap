@@ -227,7 +227,8 @@ namespace ObjEdit {
         bool bHaveTreasures = 1;
         if (!strcmp(hTempObj->GetLogic(), "Fish") || !strcmp(hTempObj->GetLogic(), "Gabriel") ||
             !strcmp(hTempObj->GetLogic(), "Aquatis") || !strcmp(hTempObj->GetLogic(), "RedTail") ||
-            !strcmp(hTempObj->GetLogic(), "Omar") || !strcmp(hTempObj->GetLogic(), "Rat"))
+            !strcmp(hTempObj->GetLogic(), "Omar") || !strcmp(hTempObj->GetLogic(), "Rat") ||
+            !strcmp(hTempObj->GetLogic(), "PunkRat"))
             bHaveTreasures = 0;
 
         hInventory->SetVisible(bHaveTreasures);
@@ -318,7 +319,13 @@ namespace ObjEdit {
                 cbPatrol->setSelected(1);
                 cbPatrol->setEnabled(0);
             } else {
-                cbPatrol->setEnabled(1);
+                if (!strcmp(hTempObj->GetLogic(), "PunkRat")) {
+                    cbPatrol->setSelected(0);
+                    cbPatrol->setEnabled(0);
+                } else {
+                    cbPatrol->setSelected(1);
+                    cbPatrol->setEnabled(1);
+                }
             }
         }
 

@@ -53,7 +53,7 @@ namespace SHR {
         // Check the current clip area so we don't draw unnecessary items
         // that are not visible.
         const ClipRectangle currentClipArea = graphics->getCurrentClipArea();
-        int rowHeight = getRowHeight();
+        unsigned rowHeight = getRowHeight();
 
         // Calculate the number of rows to draw by checking the clip area.
         // The addition of two makes covers a partial visible row at the top
@@ -79,30 +79,30 @@ namespace SHR {
 			endRow = mListModel->getNumberOfElements();
 		}
 
-        int i;
-        // The y coordinate where we start to draw the text is
-        // simply the y coordinate multiplied with the font height.
-        int y = rowHeight * startRow;
-        for (i = startRow; i < endRow; ++i) {
-            if (i == mSelected || i == mHighlighted) {
-                graphics->setColor(i == mSelected ? 0x1585e2 : 0x454545);
-                graphics->fillRectangle(Rectangle(0, y, getWidth(), rowHeight));
-            }
+        for (int i = startRow; i < endRow; ++i) {
+            drawRow(graphics, i);
+        }
+    }
 
-            if (i == mSelected)
-                graphics->setColor(0xffffff);
-            else
-                graphics->setColor(i == mHighlighted ? 0xdcdcdc : 0xbababa);
+    void ListBox::drawRow(Graphics *graphics, int i) {
+        unsigned rowHeight = getRowHeight();
+        int y = i * rowHeight;
+        if (i == mSelected || i == mHighlighted) {
+            graphics->setColor(i == mSelected ? 0x1585e2 : 0x454545);
+            graphics->fillRectangle(Rectangle(0, y, getWidth(), rowHeight));
+        }
 
-            // If the row height is greater than the font height we
-            // draw the text with a center vertical alignment.
-            if (rowHeight > getFont()->getHeight()) {
-                graphics->drawText(mListModel->getElementAt(i), 1, y + rowHeight / 2 - getFont()->getHeight() / 2);
-            } else {
-                graphics->drawText(mListModel->getElementAt(i), 1, y);
-            }
+        if (i == mSelected)
+            graphics->setColor(0xffffff);
+        else
+            graphics->setColor(i == mHighlighted ? 0xdcdcdc : 0xbababa);
 
-            y += rowHeight;
+        // If the row height is greater than the font height we
+        // draw the text with a center vertical alignment.
+        if (rowHeight > getFont()->getHeight()) {
+            graphics->drawText(mListModel->getElementAt(i), getTextXOffset(), y + rowHeight / 2 - getFont()->getHeight() / 2);
+        } else {
+            graphics->drawText(mListModel->getElementAt(i), getTextXOffset(), y);
         }
     }
 

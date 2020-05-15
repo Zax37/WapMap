@@ -48,7 +48,7 @@ namespace SHR {
     void cTooltip::_RenderTooltip() {
         if (!HasTooltip() || !IsTooltipVisible()) return;
         int w = GV->fntMyriad13->GetStringWidth(m_szTooltip),
-                h = GV->fntMyriad13->GetHeight() * m_iTooltipLC;
+            h = GV->fntMyriad13->GetHeight() * m_iTooltipLC;
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
@@ -59,7 +59,7 @@ namespace SHR {
         w += 6;
         h += 6;
         if (rx + w > hge->System_GetState(HGE_SCREENWIDTH)) {
-            rx -= w;
+            rx -= w + 12;
             rx -= GV->IF->GetCursor()->GetWidth();
         }
         if (ry + h > hge->System_GetState(HGE_SCREENHEIGHT))

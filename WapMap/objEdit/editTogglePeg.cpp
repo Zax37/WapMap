@@ -77,9 +77,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", timeon);
         tfTimeOn = new SHR::TextField(tmp);
-        tfTimeOn->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfTimeOn->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfTimeOn->SetNumerical(1, 0);
-        win->add(tfTimeOn, 140, 5 + yoffset);
+        win->add(tfTimeOn, 165, 5 + yoffset);
 
         labTimeOff = new SHR::Lab(GETL2S("EditObj_TogglePeg", "TimeOff"));
         labTimeOff->adjustSize();
@@ -87,9 +87,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", timeoff);
         tfTimeOff = new SHR::TextField(tmp);
-        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfTimeOff->SetNumerical(1, 0);
-        win->add(tfTimeOff, 140, 30 + yoffset);
+        win->add(tfTimeOff, 165, 30 + yoffset);
 
         labOffset = new SHR::Lab(GETL2S("EditObj_TogglePeg", "Delay"));
         labOffset->adjustSize();
@@ -97,9 +97,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", delay);
         tfOffset = new SHR::TextField(tmp);
-        tfOffset->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfOffset->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfOffset->SetNumerical(1, 0);
-        win->add(tfOffset, 140, 55 + yoffset);
+        win->add(tfOffset, 165, 55 + yoffset);
 
         cbAlwaysOn = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_TogglePeg", "AlwaysOn"));
         cbAlwaysOn->adjustSize();
@@ -107,7 +107,7 @@ namespace ObjEdit {
         win->add(cbAlwaysOn, 5, 80 + yoffset);
 
         winSeries = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_TogglePeg", "Win2Caption"));
-        winSeries->setDimension(gcn::Rectangle(0, 0, 210, 100));
+        winSeries->setDimension(gcn::Rectangle(0, 0, 240, 100));
         winSeries->setClose(0);
         winSeries->addActionListener(hAL);
         winSeries->setMovable(0);
@@ -121,9 +121,9 @@ namespace ObjEdit {
         winSeries->add(labnobjDelay, 5, 30);
 
         tfnobjDelay = new SHR::TextField("250");
-        tfnobjDelay->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfnobjDelay->setDimension(gcn::Rectangle(0, 0, 70, 20));
         tfnobjDelay->SetNumerical(1, 0);
-        winSeries->add(tfnobjDelay, 100, 30);
+        winSeries->add(tfnobjDelay, 162, 30);
 
         winSeries->add(_butAddNext, 55, 50);
         st->conMain->add(winSeries, st->vPort->GetX() + win->getWidth(),

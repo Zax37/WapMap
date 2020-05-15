@@ -559,49 +559,59 @@ void winImageSetBrowser::Open() {
 }
 
 void winImageSetBrowser::Close() {
-
+    myWin->setVisible(0);
 }
 
 void winImageSetBrowser::action(const ActionEvent &actionEvent) {
     if (actionEvent.getSource() == butBrowseFolder) {
-        cFile f = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
+        if (iSelectedImageSet) {
+            cFile f = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
                 iSelectedFrame)->GetFile();
-        std::string filepath = f.hFeed->GetAbsoluteLocation() + "/" + f.strPath;
-        size_t pos = filepath.find('/');
-        while (pos != std::string::npos) {
-            filepath[pos] = '\\';
-            pos = filepath.find('/');
+            std::string filepath = f.hFeed->GetAbsoluteLocation() + "/" + f.strPath;
+            size_t pos = filepath.find('/');
+            while (pos != std::string::npos) {
+                filepath[pos] = '\\';
+                pos = filepath.find('/');
+            }
+            char buf[1024];
+            sprintf(buf, "Explorer.exe /select,%s", filepath.c_str());
+            system(buf);
         }
-        char buf[1024];
-        sprintf(buf, "Explorer.exe /select,%s", filepath.c_str());
-        system(buf);
     } else if (actionEvent.getSource() == butAddFrames) {
-        GV->StateMgr->Push(new State::ImageImport(State::ImageImportObject,
-                                                  GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)));
+        if (iSelectedImageSet) {
+            GV->StateMgr->Push(new State::ImageImport(State::ImageImportObject,
+                GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)));
+        }
     } else if (actionEvent.getSource() == butImportImageSet) {
         GV->StateMgr->Push(new State::ImageImport(State::ImageImportObject, 0));
     } else if (actionEvent.getSource() == butDeleteFrame) {
-        cSprBankAssetIMG *t = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
+        if (iSelectedImageSet && iSelectedFrame) {
+            cSprBankAssetIMG* t = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
                 iSelectedFrame);
-        if (iSelectedFrame == GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetSpritesCount() - 1)
-            iSelectedFrame--;
+            if (iSelectedFrame == GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetSpritesCount() - 1)
+                iSelectedFrame--;
 
-        std::string strPath = t->GetFile().hFeed->GetAbsoluteLocation() + "/" + t->GetFile().strPath;
-        if (remove(strPath.c_str()) != 0) {
-            GV->Console->Printf("~r~Failed to remove: ~w~%s", strPath.c_str());
+            std::string strPath = t->GetFile().hFeed->GetAbsoluteLocation() + "/" + t->GetFile().strPath;
+            if (remove(strPath.c_str()) != 0) {
+                GV->Console->Printf("~r~Failed to remove: ~w~%s", strPath.c_str());
+            }
         }
     } else if (actionEvent.getSource() == butDeleteImageSet) {
-        cSprBankAsset *ts = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet);
-        cSprBankAssetIMG *fimg = ts->GetIMGByIterator(0);
+        if (iSelectedImageSet) {
+            cSprBankAsset* ts = GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet);
+            cSprBankAssetIMG* fimg = ts->GetIMGByIterator(0);
 
-        std::string strPath = GV->editState->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/" +
-                              fimg->GetFile().strPath;
-        strPath = strPath.substr(0, strPath.rfind('/'));
-        SHR::RemoveDirR(strPath.c_str());
+            std::string strPath = GV->editState->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/" +
+                fimg->GetFile().strPath;
+            strPath = strPath.substr(0, strPath.rfind('/'));
+            SHR::RemoveDirR(strPath.c_str());
+        }
     } else if (actionEvent.getSource() == butImageDetails) {
-        GV->StateMgr->Push(new State::ImageDetails(
-                (cImage *) (GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
-                        iSelectedFrame))));
+        if (iSelectedImageSet) {
+            GV->StateMgr->Push(new State::ImageDetails(
+                (cImage*)(GV->editState->SprBank->GetAssetByIterator(iSelectedImageSet)->GetIMGByIterator(
+                    iSelectedFrame))));
+        }
     }
 }
 

@@ -93,15 +93,23 @@ void cObjectQuadTree::GetObjectCells(WWD::Object *obj, cObjectQuadTree *cells[4]
         int sprcount = asset->GetSpritesCount();
         int maxw = 0, maxh = 0;
         for (int z = 0; z < sprcount; z++) {
-            if (asset->GetIMGByIterator(z)->GetSprite()->GetWidth() > maxw) {
-                maxw = asset->GetIMGByIterator(z)->GetSprite()->GetWidth();
-                float tmp;
-                asset->GetIMGByIterator(z)->GetSprite()->GetHotSpot(&ihx, &tmp);
+            hgeSprite* spr = asset->GetIMGByIterator(z)->GetSprite();
+            if (spr) {
+                if (spr->GetWidth() > maxw) {
+                    maxw = spr->GetWidth();
+                    float tmp;
+                    spr->GetHotSpot(&ihx, &tmp);
+                }
+                if (spr->GetHeight() > maxh) {
+                    maxh = spr->GetHeight();
+                    float tmp;
+                    spr->GetHotSpot(&tmp, &ihy);
+                }
             }
-            if (asset->GetIMGByIterator(z)->GetSprite()->GetHeight() > maxh) {
-                maxh = asset->GetIMGByIterator(z)->GetSprite()->GetHeight();
-                float tmp;
-                asset->GetIMGByIterator(z)->GetSprite()->GetHotSpot(&tmp, &ihy);
+            else {
+                iw = GV->sprSmiley->GetWidth();
+                ih = GV->sprSmiley->GetHeight();
+                GV->sprSmiley->GetHotSpot(&ihx, &ihy);
             }
         }
         iw = maxw;

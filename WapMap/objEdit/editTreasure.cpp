@@ -80,12 +80,20 @@ namespace ObjEdit {
             } else {
                 hTempObj->SetLogic("GlitterlessPowerup");
             }
+        } else {
+            for (int i = 0; i < 31; i++)
+                if (actionEvent.getSource() == rbType[i]) {
+                    cbAddGlitter->setSelected(i);
+                    if (i) {
+                        hTempObj->SetLogic("TreasurePowerup");
+                    } else {
+                        hTempObj->SetLogic("GlitterlessPowerup");
+                    }
+                    hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iTreasuresID[i]).first.c_str());
+                    hState->vPort->MarkToRedraw(1);
+                    break;
+                }
         }
-        for (int i = 0; i < 31; i++)
-            if (actionEvent.getSource() == rbType[i]) {
-                hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iTreasuresID[i]).first.c_str());
-                hState->vPort->MarkToRedraw(1);
-            }
     }
 
     void cEditObjTreasure::Draw() {

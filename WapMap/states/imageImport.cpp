@@ -218,7 +218,7 @@ namespace State {
         if (actionEvent.getSource() == myWin || actionEvent.getSource() == butCancel) {
             _popMe(0);
             return;
-        } else if (actionEvent.getSource() == butSave) {
+        } /*else if (actionEvent.getSource() == butSave) {
             if (vImages.size() > 0) {
                 GV->editState->hDataCtrl->FixCustomDir();
                 std::string strDestDir = GV->editState->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation();
@@ -297,7 +297,7 @@ namespace State {
             }
             _popMe(0);
             return;
-        } else if (tfDestName != 0 && actionEvent.getSource() == tfDestName) {
+        }*/ else if (tfDestName != 0 && actionEvent.getSource() == tfDestName) {
             if (tfDestName->getText().length() == 0) {
                 labWarnDestName->setCaption(GETL2S("Win_ImageImport",
                                                    iImportType == ImageImportTile ? "WarnSpecifyTileset"
@@ -541,7 +541,8 @@ namespace State {
                 return;
             }
             int w, h;
-            byteData = GV->editState->hDataCtrl->GetImageRaw(dcFile, &w, &h);
+            PID::Palette* pal;
+            byteData = GV->editState->hDataCtrl->GetImageRaw(dcFile, &w, &h, &pal);
         }/*else if( !strExtension.compare("bmp") || !strExtension.compare("jpg") || !strExtension.compare("jpeg") || !strExtension.compare("png") ){
 		 GV->Console->Printf("Importing: '~y~%s~w~' through HGE.", strFilePath.c_str());
 		 HTEXTURE tex = hge->Texture_Load(strFilePath.c_str());

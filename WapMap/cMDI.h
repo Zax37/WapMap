@@ -125,6 +125,8 @@ public:
 
     bool IsAnyDocUnsaved();
 
+    void SaveCurrent();
+
     bool CloseDocByIt(int i);
 
     void DeleteDocByIt(int i);
@@ -148,6 +150,8 @@ public:
     void SetY(int y) { m_iPosY = y; };
 
     SHR::Context *GetClosedContext() { return hContextClosed; };
+
+    std::string& GetMostRecentlyClosedDoc() { return vstrRecentlyClosed[0]; }
 
     int GetCachedClosedDocsCount() { return vstrRecentlyClosed.size(); };
 

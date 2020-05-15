@@ -3,18 +3,31 @@
 <h2>v0.4.0 (b33)</h2>
 
 <ol>
-<li>Full polish translation(thanks to Pejti).</li>
+<li>Full polish translation(thanks Pejti, SchwarzerHund).</li>
+<li>Brought back basic support of Gruntz and GetMedieval.</li>
+<li>New settings window, allowing configuring WapMap for different games.</li>
 <li>New easy editor for decoration elements.</li>
 <li>New easy editor for elevators.</li>
-<li>New easy editor for floor spikes.</li>
+<li>New easy editor for floor spikes / saw blade.</li>
+<li>Enhanced easy editor for checkpoints.</li>
 <li>Enhanced easy editor for crab nests.</li>
+<li>Allowed editing WaterRock logic with spring boards easy editor.</li>
+<li>Allowed creating empty crates in crate easy editor.</li>
+<li>Allowed closing current tool in tile mode / other open windows with escape key.</li>
+<li>Allowed opening MDI context menu at any position, not just on the tabs (so you can reopen closed tab even if you closed last one).</li>
 <li>Added hotkey for toggling invert flag(I). Allowed using M/I keys while easy editor is open.</li>
+<li>Added hotkeys for saving (CTRL + S), saving as (CTRL + SHIFT + S) and closing (CTRL + W) current document tab.</li>
+<li>Added hotkey for reopening last closed (CTRL + SHIFT + T) document tab and creating new one (CTRL + N).</li>
 <li>Added possibility to select multiple documents to open at once.</li>
 <li>Added tooltips to most of the interface elements.</li>
-<li>Grouped enemies into one button.</li>
+<li>Added support of recently opened documents for Windows 8 and 10.</li>
+<li>Grouped enemies into one button. Added PunkRat to enemies list.</li>
+<li>Treasure easy editor will automatically update "Add glitter" option to selected treasure's default value.</li>
 <li>Easy editor window positions no longer reset when "Add next" button is used.</li>
 <li>The editor will no longer prompt question if it should recalculate rects when moving elevators.</li>
 <li>Minor visual tweaks ("New Map" menu, mode menu, easy editors, document tabs).</li>
+<li>Removed unused fields from map settings window.</li>
+<li>Fixes and improvements to tiles text edit(auto selecting next tile, F for filled tile...).</li>
 <li>Fixed bug with command menu "Z coordinate" option opening logic editor / crashing.</li>
 <li>Fixed "Show tile properties" option crashing when tile picker is open.</li>
 <li>Fixed object added with "Add next" button not getting destroyed upon cancel.</li>
@@ -30,6 +43,16 @@
 <li>Fixed treasure randomizer crashing on containers that can contain only one item.</li>
 <li>Fixed warp / gem destination preview for selected enemy.</li>
 <li>Fixed mirrored treasure flickering when preview / treaser picker is visible.</li>
+<li>Fixed some menu options staying enabled after switching from open document to home screen, causing crash when clicked.</li>
+<li>Fixed path elevators crashing when inverting unsaved path. Disabled x/y inverting unclosed paths, which doesn't work correctly right now.</li>
+<li>Fixed application / context menu not closing when it should be (and closing when it shouldn't).</li>
+<li>Fixed scripts creation not working when LOGICS folder does not exist.</li>
+<li>Fixed tile mode tools placing tiles even when you click outside of WapMap's window.</li>
+<li>Fixed fill tool crashing when used on big areas, like new blank document.</li>
+<li>Fixed values shown in map settings window not resetting after cancel.</li>
+<li>Fixed map being marked as changed even when placing new object was cancelled.</li>
+<li>Fixed map not being marked as changed when object is moved with keyboard input.</li>
+<li>Fixed multiple problems with recently used / closed documents (some of which were crashfixes).</li>
 </ol>
 
 <h2>v0.3.3 (b32)</h2>

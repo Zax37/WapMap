@@ -195,7 +195,7 @@ namespace gcn {
         }
     }
 
-    void BasicContainer::add(Widget *widget) {
+    void BasicContainer::add(Widget *widget, bool resizing) {
         mWidgets.push_back(widget);
 
         if (mInternalFocusHandler == NULL) {
@@ -207,14 +207,16 @@ namespace gcn {
         widget->_setParent(this);
         widget->addDeathListener(this);
 
-        int endX = widget->getX() + widget->getWidth();
-        int endY = widget->getY() + widget->getHeight();
+        if (resizing) {
+            int endX = widget->getX() + widget->getWidth();
+            int endY = widget->getY() + widget->getHeight();
 
-        if (mDimension.width < endX) {
-            setWidth(endX);
-        }
-        if (mDimension.height < endY) {
-            setHeight(endY);
+            if (mDimension.width < endX) {
+                setWidth(endX);
+            }
+            if (mDimension.height < endY) {
+                setHeight(endY);
+            }
         }
     }
 

@@ -24,7 +24,7 @@ namespace ObjEdit {
 
         labType = new SHR::Lab(GETL2S("EditObj_Elevator", "Type"));
         labType->adjustSize();
-        win->add(labType, 12, 20);
+        win->add(labType, 10, 20);
 
         type = new SHR::ComboBut(GV->hGfxInterface);
         type->addEntry(SHR::ComboButEntry(0, "Standard", GETL2S("EditObj_Elevator", "Standard_TT")));
@@ -33,7 +33,7 @@ namespace ObjEdit {
         type->addEntry(SHR::ComboButEntry(0, "Trigger", GETL2S("EditObj_Elevator", "Trigger_TT")));
         type->addActionListener(hAL);
         type->adjustSize();
-        win->add(type, 20 + labType->getWidth(), 20);
+        win->add(type, 16 + labType->getWidth(), 20);
 
         cbOneWay = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_Elevator", "OneWay"));
         cbOneWay->adjustSize();
@@ -139,15 +139,19 @@ namespace ObjEdit {
 
 #define SPEED_SECTION_Y 260
 
+        bool regularElevator = !strcmp(obj->GetLogic(), "Elevator");
+
         int speedX = hTempObj->GetParam(WWD::Param_SpeedX);
         int speedY = hTempObj->GetParam(WWD::Param_SpeedY);
         if (!speedX) speedX = DEFAULT_ELEVATOR_SPEED;
+        else if (regularElevator && speedX < 0) speedX = 0;
         if (!speedY) speedY = DEFAULT_ELEVATOR_SPEED;
+        else if (regularElevator && speedY < 0) speedY = 0;
 
         hSpeedPick = new cProcPickXYLockable(GETL2S("EditObj_Elevator", "Speed"),
                 GETL2S("EditObj_Elevator", "Horizontal"), speedX,
                 GETL2S("EditObj_Elevator", "Vertical"), speedY,
-                speedX != 0 && speedX == speedY, GETL2S("EditObj_Elevator", "LockAspect_TT"));
+                speedX != 0 && speedX == speedY, GETL2S("EditObj_Elevator", "LockAspect_TT"), !regularElevator);
         hSpeedPick->addActionListener(hAL);
         win->add(hSpeedPick, 10, SPEED_SECTION_Y + 10);
 
@@ -168,9 +172,9 @@ namespace ObjEdit {
         butDirection[5] = hState->MakeButton(xOffset, yOffset + 64, Icon_DownLeft, win);
         butDirection[6] = hState->MakeButton(xOffset + 32, yOffset + 64, Icon_Down, win);
         butDirection[7] = hState->MakeButton(xOffset + 64, yOffset + 64, Icon_DownRight, win);
-        for (int i = 0; i < 8; i++) {
-            butDirection[i]->removeActionListener(GV->editState->al);
-            butDirection[i]->addActionListener(hAL);
+        for (auto & i : butDirection) {
+            i->removeActionListener(GV->editState->al);
+            i->addActionListener(hAL);
         }
 
         hTempObj->SetParam(WWD::Param_Width, 0);
@@ -209,11 +213,11 @@ namespace ObjEdit {
         delete hSpeedPick;
         delete labDirection;
 
-        for (int i = 0; i < 8; i++)
-            delete butDirection[i];
+        for (auto & i : butDirection)
+            delete i;
 
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw(true);
     }
 
     void cEditObjElevator::Save() {
@@ -222,7 +226,7 @@ namespace ObjEdit {
 
     void cEditObjElevator::Action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == win) {
-            bKill = 1;
+            bKill = true;
             return;
         } else if (actionEvent.getSource() == cbOneWay) {
             UpdateLogic();
@@ -234,22 +238,26 @@ namespace ObjEdit {
             hRectPick->setEnabled(manual->isSelected());
 
             if (automatic->isSelected()) {
-                for (int i = 0; i < 8; i++)
-                    butDirection[i]->setEnabled(true);
+                for (auto & i : butDirection)
+                    i->setEnabled(true);
                 UpdateDirection();
             }
         } else if (actionEvent.getSource() == hTravelDistPick) {
             if (actionEvent.getId() == "CHANGE_X" && hTravelDistPick->isEnabledX()) {
                 if (iDirection == 1 || iDirection == 4 || iDirection == 7) { // goes left
+                    if (!rArea.x2) rArea.x2 = hTempObj->GetX();
                     rArea.x1 = rArea.x2 - hTravelDistPick->getValueX();
                 } else {
+                    if (!rArea.x1) rArea.x2 = hTempObj->GetX();
                     rArea.x2 = rArea.x1 + hTravelDistPick->getValueX();
                 }
                 hRectPick->setValues(rArea.x1, -1, rArea.x2, -1);
             } else if (actionEvent.getId() == "CHANGE_Y" && hTravelDistPick->isEnabledY()) {
                 if (iDirection < 4) { // goes up
+                    if (!rArea.y2) rArea.y2 = hTempObj->GetY();
                     rArea.y1 = rArea.y2 - hTravelDistPick->getValueY();
                 } else {
+                    if (!rArea.y1) rArea.y1 = hTempObj->GetY();
                     rArea.y2 = rArea.y1 + hTravelDistPick->getValueY();
                 }
                 hRectPick->setValues(-1, rArea.y1, -1, rArea.y2);
@@ -263,8 +271,8 @@ namespace ObjEdit {
         } else {
             for (int i = 0; i < 8; i++) {
                 if (actionEvent.getSource() == butDirection[i]) {
-                    for (int i = 0; i < 8; i++)
-                        butDirection[i]->setEnabled(true);
+                    for (auto & pBut : butDirection)
+                        pBut->setEnabled(true);
                     hTempObj->SetParam(WWD::Param_Direction, i < 4 ? i + 1 : i + 2);
                     UpdateDirection();
                 }
@@ -273,13 +281,8 @@ namespace ObjEdit {
     }
 
     void cEditObjElevator::_Think(bool bMouseConsumed) {
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-        bool bMouseIn = 1;
-        if (mx < hState->vPort->GetX() || my < hState->vPort->GetY() ||
-            mx > hState->vPort->GetX() + hState->vPort->GetWidth() ||
-            my > hState->vPort->GetY() + hState->vPort->GetHeight())
-            bMouseIn = 0;
+        if (!bMouseConsumed)
+            hRectPick->Think();
     }
 
     void cEditObjElevator::Draw() {
@@ -315,14 +318,14 @@ namespace ObjEdit {
 #define GET_X_MINMAX() int tX = hTravelDistPick->getValueX(); \
     if (!tX) { tX = hTravelDistPick->getValueY(); if (!tX) tX = 150; hTravelDistPick->setValueX(tX); hSpeedPick->setValueX(hSpeedPick->getValueY()); } \
     int x = hTempObj->GetParam(WWD::Param_LocationX); \
-    int minX = left ? x - tX : x; \
-    int maxX = left ? x : x + tX;
+    rArea.x1 = left ? x - tX : x; \
+    rArea.x2 = left ? x : x + tX;
 
 #define GET_Y_MINMAX() int tY = hTravelDistPick->getValueY(); \
     if (!tY) { tY = hTravelDistPick->getValueX(); if (!tY) tY = 150; hTravelDistPick->setValueY(tY); hSpeedPick->setValueY(hSpeedPick->getValueX()); } \
     int y = hTempObj->GetParam(WWD::Param_LocationY); \
-    int minY = top ? y - tY : y; \
-    int maxY = top ? y : y + tY;
+    rArea.y1 = top ? y - tY : y; \
+    rArea.y2 = top ? y : y + tY;
 
     void cEditObjElevator::UpdateDirection(bool init) {
         iDirection = hTempObj->GetParam(WWD::Param_Direction);
@@ -359,26 +362,26 @@ namespace ObjEdit {
             bool left = iDirection % 3 == 1;
             if (horizontal) {
                 GET_X_MINMAX();
-                hTempObj->SetParam(WWD::Param_MinX, minX);
-                hTempObj->SetParam(WWD::Param_MaxX, maxX);
+                hTempObj->SetParam(WWD::Param_MinX, rArea.x1);
+                hTempObj->SetParam(WWD::Param_MaxX, rArea.x2);
                 hTempObj->SetParam(WWD::Param_MinY, 0);
                 hTempObj->SetParam(WWD::Param_MaxY, 0);
-                hRectPick->setValues(minX, 0, maxX, 0);
+                hRectPick->setValues(rArea.x1, 0, rArea.x2, 0);
             } else if (vertical) {
                 GET_Y_MINMAX();
-                hTempObj->SetParam(WWD::Param_MinY, minY);
-                hTempObj->SetParam(WWD::Param_MaxY, maxY);
+                hTempObj->SetParam(WWD::Param_MinY, rArea.y1);
+                hTempObj->SetParam(WWD::Param_MaxY, rArea.y2);
                 hTempObj->SetParam(WWD::Param_MinX, 0);
                 hTempObj->SetParam(WWD::Param_MaxX, 0);
-                hRectPick->setValues(0, minY, 0, maxY);
+                hRectPick->setValues(0, rArea.y1, 0, rArea.y2);
             } else {
                 GET_X_MINMAX();
                 GET_Y_MINMAX();
-                hTempObj->SetParam(WWD::Param_MinX, minX);
-                hTempObj->SetParam(WWD::Param_MaxX, maxX);
-                hTempObj->SetParam(WWD::Param_MinY, minY);
-                hTempObj->SetParam(WWD::Param_MaxY, maxY);
-                hRectPick->setValues(minX, minY, maxX, maxY);
+                hTempObj->SetParam(WWD::Param_MinX, rArea.x1);
+                hTempObj->SetParam(WWD::Param_MaxX, rArea.x2);
+                hTempObj->SetParam(WWD::Param_MinY, rArea.y1);
+                hTempObj->SetParam(WWD::Param_MaxY, rArea.y2);
+                hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
 
                 if (iDirection == 1 || iDirection == 7 || iDirection == 9) {
                     hTempObj->SetParam(WWD::Param_Direction, 3);

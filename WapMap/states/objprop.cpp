@@ -50,6 +50,7 @@ namespace State {
             GetUserDataFromObj(m_hOwn->hObj)->SyncToObj();
             m_hOwn->hState->vPort->MarkToRedraw(1);
             m_hOwn->bKill = 1;
+            m_hOwn->hState->bEditObjDelete = false;
         } else if (actionEvent.getSource() == m_hOwn->butCustomLogicEdit) {
             cCustomLogic *handle = GV->editState->hCustomLogics->GetLogicByName(
                     m_hOwn->tddadvCustomLogic->getText().c_str());
@@ -343,6 +344,7 @@ namespace State {
                     hgeSprite *spr = (z ? m_hOwn->asImageSetPick->GetIMGByIterator(i)->GetSprite()
                                         : GV->editState->SprBank->GetAssetByIterator(i)->GetIMGByIterator(
                                     0)->GetSprite());
+                    if (!spr) spr = GV->sprSmiley;
                     spr->SetColor(0xFFFFFFFF);
                     int x = dx + 5 + i * 138 - move + 2;
                     int y = (z ? dy + 238
@@ -1578,8 +1580,10 @@ bool State::ObjProp::Think() {
     if (hProp->Kill() || hge->Input_KeyDown(HGEK_ESCAPE)) {
         returnCode *rc = new returnCode;
         rc->Ptr = bMoveObject;
-        if (bMoveObject && hProp->Canceled())
+        if ((bMoveObject || mainSt->bEditObjDelete) && (hProp->Canceled() || hge->Input_KeyDown(HGEK_ESCAPE))) {
             rc->Ptr = 2;
+            mainSt->bEditObjDelete = false;
+        }
         rc->Type = RC_ObjectProp;
         _popMe((int) rc);
     } else if (hProp->Swap()) {

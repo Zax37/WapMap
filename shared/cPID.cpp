@@ -10,9 +10,9 @@
 
 PID::Palette::Palette() {
     for (int i = 0; i < 256; i++) {
-        m_iColors[i][0] = i;
-        m_iColors[i][1] = i;
-        m_iColors[i][2] = i;
+        m_iColors[i * 3] = i;
+        m_iColors[i * 3 + 1] = i;
+        m_iColors[i * 3 + 2] = i;
     }
 }
 
@@ -27,19 +27,19 @@ PID::Palette::Palette(std::istream *pisSource) {
 }
 
 PID::Palette::Palette(const void *phMem, int iLen) {
-    membuf buf((char*)phMem, (char*)phMem + iLen);
-    std::istream in(&buf);
-    Load(&in);
+    std::istringstream isSource(std::string((char*)phMem, iLen), std::ios_base::binary | std::ios_base::in);
+    Load(&isSource);
 }
 
 void PID::Palette::Load(std::istream *pisSource) {
-    pisSource->RLEN(&m_iColors, 768);
+    pisSource->RLEN(m_iColors, 768);
 }
 
 void PID::Palette::SetColorRGB(int i, byte r, byte g, byte b) {
-    m_iColors[i][0] = r;
-    m_iColors[i][1] = g;
-    m_iColors[i][2] = b;
+    i *= 3;
+    m_iColors[i++] = r;
+    m_iColors[i++] = g;
+    m_iColors[i] = b;
 }
 
 PID::HeaderInfo::HeaderInfo() {
@@ -108,9 +108,8 @@ void PID::Image::LoadMemory(const void *phMem, int iLen, Palette *phPal, bool pb
                             bool pbForceTransparency) {
     m_hPal = phPal;
     m_bDeletePal = pbCanDelete;
-    membuf buf((char*)phMem, (char*)phMem + iLen);
-    std::istream in(&buf);
-    Load(&in, pbForceUsing, pbForceTransparency);
+    std::istringstream isSource(std::string((char *)phMem, iLen), std::ios_base::binary | std::ios_base::in);
+    Load(&isSource, pbForceUsing, pbForceTransparency);
     m_bInited = 1;
 }
 

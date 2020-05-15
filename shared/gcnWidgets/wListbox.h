@@ -48,6 +48,8 @@ namespace SHR {
 
         virtual void draw(Graphics *graphics);
 
+        virtual void drawRow(Graphics *graphics, int i);
+
         virtual void logic();
 
         virtual void keyPressed(KeyEvent &keyEvent);
@@ -64,6 +66,7 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
+        virtual int getTextXOffset() const { return 1; }
 
     protected:
         void distributeValueChangedEvent();

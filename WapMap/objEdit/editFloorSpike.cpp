@@ -15,6 +15,9 @@ namespace ObjEdit {
             if (baselvl != 10) {
                 vszDefaultImgsets.push_back("LEVEL_FLOORSPIKES2");
             }
+        } else if (baselvl == 9) {
+            isSaw = true;
+            vszDefaultImgsets.push_back("LEVEL_FLOORSAW");
         } else {
             vszDefaultImgsets.push_back("LEVEL_FLOORSPIKES");
         }
@@ -65,9 +68,9 @@ namespace ObjEdit {
         delay = hTempObj->GetParam(WWD::Param_Speed);
         if (delay < 0)
             delay = 0;
-        if (!strcmp(hTempObj->GetLogic(), "FloorSpike2")) delay = 750;
-        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike3")) delay = 750 * 2;
-        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike4")) delay = 750 * 3;
+        if (!strcmp(hTempObj->GetLogic(), "FloorSpike2") || !strcmp(hTempObj->GetLogic(), "FloorSaw2")) delay = 750;
+        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike3") || !strcmp(hTempObj->GetLogic(), "FloorSaw3")) delay = 750 * 2;
+        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike4") || !strcmp(hTempObj->GetLogic(), "FloorSaw4")) delay = 750 * 3;
         damage = hTempObj->GetParam(WWD::Param_Damage);
         if (!damage) {
             damage = 10;
@@ -75,9 +78,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", timeon);
         tfTimeOn = new SHR::TextField(tmp);
-        tfTimeOn->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfTimeOn->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfTimeOn->SetNumerical(1, 0);
-        win->add(tfTimeOn, 140, 5 + yoffset);
+        win->add(tfTimeOn, 165, 5 + yoffset);
 
         labTimeOff = new SHR::Lab(GETL2S("EditObj_FloorSpike", "TimeOff"));
         labTimeOff->adjustSize();
@@ -85,9 +88,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", timeoff);
         tfTimeOff = new SHR::TextField(tmp);
-        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfTimeOff->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfTimeOff->SetNumerical(1, 0);
-        win->add(tfTimeOff, 140, 30 + yoffset);
+        win->add(tfTimeOff, 165, 30 + yoffset);
 
         labOffset = new SHR::Lab(GETL2S("EditObj_FloorSpike", "Delay"));
         labOffset->adjustSize();
@@ -95,9 +98,9 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", delay);
         tfOffset = new SHR::TextField(tmp);
-        tfOffset->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfOffset->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfOffset->SetNumerical(1, 0);
-        win->add(tfOffset, 140, 55 + yoffset);
+        win->add(tfOffset, 165, 55 + yoffset);
 
         labDamage = new SHR::Lab(GETL2S("EditObj_FloorSpike", "Damage"));
         labDamage->adjustSize();
@@ -105,12 +108,12 @@ namespace ObjEdit {
 
         sprintf(tmp, "%d", damage);
         tfDamage = new SHR::TextField(tmp);
-        tfDamage->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfDamage->setDimension(gcn::Rectangle(0, 0, 75, 20));
         tfDamage->SetNumerical(1, 0);
-        win->add(tfDamage, 140, 80 + yoffset);
+        win->add(tfDamage, 165, 80 + yoffset);
 
         winSeries = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_FloorSpike", "Win2Caption"));
-        winSeries->setDimension(gcn::Rectangle(0, 0, 210, 100));
+        winSeries->setDimension(gcn::Rectangle(0, 0, 240, 100));
         winSeries->setClose(0);
         winSeries->addActionListener(hAL);
         winSeries->setMovable(0);
@@ -124,9 +127,9 @@ namespace ObjEdit {
         winSeries->add(labnobjDelay, 5, 30);
 
         tfnobjDelay = new SHR::TextField("250");
-        tfnobjDelay->setDimension(gcn::Rectangle(0, 0, 100, 20));
+        tfnobjDelay->setDimension(gcn::Rectangle(0, 0, 70, 20));
         tfnobjDelay->SetNumerical(1, 0);
-        winSeries->add(tfnobjDelay, 100, 30);
+        winSeries->add(tfnobjDelay, 162, 30);
 
         winSeries->add(_butAddNext, 55, 50);
         st->conMain->add(winSeries, st->vPort->GetX() + win->getWidth(),
@@ -160,19 +163,20 @@ namespace ObjEdit {
         if (timeon == 1500) timeon = 0;
         if (timeoff == 1500) timeoff = 0;
 
+        std::string logic = isSaw ? "SawBlade" : "FloorSpike";
         if (delay == 750) {
             delay = 0;
-            hTempObj->SetLogic("FloorSpike2");
+            hTempObj->SetLogic((logic + "2").c_str());
         }
         else if (delay == 750 * 2) {
             delay = 0;
-            hTempObj->SetLogic("FloorSpike3");
+            hTempObj->SetLogic((logic + "3").c_str());
         }
         else if (delay == 750 * 3) {
             delay = 0;
-            hTempObj->SetLogic("FloorSpike4");
+            hTempObj->SetLogic((logic + "4").c_str());
         }
-        else { hTempObj->SetLogic("FloorSpike"); }
+        else { hTempObj->SetLogic(logic.c_str()); }
 
         hTempObj->SetParam(WWD::Param_SpeedX, timeon);
         hTempObj->SetParam(WWD::Param_SpeedY, timeoff);
@@ -202,11 +206,11 @@ namespace ObjEdit {
         for (int i = 0; i < 3; i++) {
             if (rbType[i] != 0) {
                 hgeSprite *spr = hState->SprBank->GetAssetByID(vszDefaultImgsets[i].c_str())->GetIMGByIterator(
-                        0)->GetSprite();
+                        isSaw ? 9 : 5)->GetSprite();
                 int grdim = spr->GetWidth();
                 if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
-                float fscale = 48.0f / float(grdim);
-                spr->RenderEx(dx + 37 + i * 73 + 13, dy + 56 + 8, 0, fscale);
+                float fscale = (isSaw ? 64.0f : 28.0f) / float(grdim);
+                spr->RenderEx(dx + (isSaw ? 48 : 37) + i * 73 + 13, dy + 56 + 8, 0, fscale);
                 WWD::Rect r = hState->SprBank->GetSpriteRenderRect(spr);
                 if (mx > dx + 37 + i * 73 + 13 + float(r.x1) * fscale &&
                     mx < dx + 37 + i * 73 + 13 + float(r.x2) * fscale &&

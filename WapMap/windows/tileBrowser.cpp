@@ -481,41 +481,47 @@ void winTileBrowser::Open() {
 }
 
 void winTileBrowser::Close() {
-
+    myWin->setVisible(0);
 }
 
 void winTileBrowser::action(const ActionEvent &actionEvent) {
     if (actionEvent.getSource() == butBrowseFolder) {
-        cFile f = GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTileByIterator(iSelectedTile)->GetFile();
-        std::string filepath = f.hFeed->GetAbsoluteLocation() + "/" + f.strPath;
-        size_t pos = filepath.find('/');
-        while (pos != std::string::npos) {
-            filepath[pos] = '\\';
-            pos = filepath.find('/');
+        if (iSelectedTileSet && iSelectedTile) {
+            cFile f = GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTileByIterator(iSelectedTile)->GetFile();
+            std::string filepath = f.hFeed->GetAbsoluteLocation() + "/" + f.strPath;
+            size_t pos = filepath.find('/');
+            while (pos != std::string::npos) {
+                filepath[pos] = '\\';
+                pos = filepath.find('/');
+            }
+            char buf[1024];
+            sprintf(buf, "Explorer.exe /select,%s", filepath.c_str());
+            system(buf);
         }
-        char buf[1024];
-        sprintf(buf, "Explorer.exe /select,%s", filepath.c_str());
-        system(buf);
     } else if (actionEvent.getSource() == butAddTiles) {
         GV->StateMgr->Push(
                 new State::ImageImport(State::ImageImportTile, GV->editState->hTileset->GetSet(iSelectedTileSet)));
     } else if (actionEvent.getSource() == butImportTileSet) {
         GV->StateMgr->Push(new State::ImageImport(State::ImageImportTile, 0));
     } else if (actionEvent.getSource() == butDeleteTile) {
-        cTile *t = GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTileByIterator(iSelectedTile);
-        if (iSelectedTile == GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTilesCount() - 1)
-            iSelectedTile--;
+        if (iSelectedTileSet && iSelectedTile) {
+            cTile* t = GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTileByIterator(iSelectedTile);
+            if (iSelectedTile == GV->editState->hTileset->GetSet(iSelectedTileSet)->GetTilesCount() - 1)
+                iSelectedTile--;
 
-        std::string strPath = t->GetFile().hFeed->GetAbsoluteLocation() + "/" + t->GetFile().strPath;
-        if (remove(strPath.c_str()) != 0) {
-            GV->Console->Printf("~r~Failed to remove: ~w~%s", strPath.c_str());
+            std::string strPath = t->GetFile().hFeed->GetAbsoluteLocation() + "/" + t->GetFile().strPath;
+            if (remove(strPath.c_str()) != 0) {
+                GV->Console->Printf("~r~Failed to remove: ~w~%s", strPath.c_str());
+            }
         }
-    } else if (actionEvent.getSource() == butDeleteTileSet) {
-        cTileImageSet *ts = GV->editState->hTileset->GetSet(iSelectedTileSet);
-        std::string strPath =
+    } /*else if (actionEvent.getSource() == butDeleteTileSet) {
+        if (iSelectedTileSet) {
+            cTileImageSet* ts = GV->editState->hTileset->GetSet(iSelectedTileSet);
+            std::string strPath =
                 GV->editState->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/TILES/" + ts->GetName();
-        SHR::RemoveDirR(strPath.c_str());
-    }
+            SHR::RemoveDirR(strPath.c_str());
+        }
+    }*/
 }
 
 void winTileBrowser::RenderTileGroup(std::vector<cTile *> tiles, int x, int y) {

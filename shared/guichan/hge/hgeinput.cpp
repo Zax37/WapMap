@@ -375,7 +375,13 @@ namespace gcn {
                 keysym = Key::ENTER;
                 break;
             default:
-                keysym = chr;
+                if (key >= HGEK_0 && key <= HGEK_9) {
+                    keysym = '0' + key - HGEK_0;
+                } else if (key >= HGEK_A && key <= HGEK_Z) {
+                    keysym = 'a' + key - HGEK_A;
+                } else {
+                    keysym = chr;
+                }
         }
 
         Key k = Key(keysym);

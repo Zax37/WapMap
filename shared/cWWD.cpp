@@ -853,6 +853,10 @@ WWD::Tile *WWD::Plane::GetTile(int piX, int piY) {
     return &m_hTiles[rowOffsets[piY] + piX];
 }
 
+WWD::Tile *WWD::Plane::GetTile(int it) {
+    return &m_hTiles[it];
+}
+
 void WWD::Parser::SetFilePath(const char *nPath) {
     strcpy(m_szFile, nPath);
 }
@@ -883,7 +887,6 @@ void WWD::Plane::DeleteObject(Object *ptr) {
             if (m_hObjDeletionCB != NULL)
                 (*m_hObjDeletionCB)(ptr);
             delete ptr;
-            m_vObjects[i] = NULL;
             m_vObjects.erase(m_vObjects.begin() + i);
             return;
         }
@@ -1043,6 +1046,10 @@ WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) th
     }
     //str.close();
     return Game_Unknown;
+}
+
+void WWD::operator++(WWD::GAME& game) {
+    game = (WWD::GAME)(game + 1);
 }
 
 void WWD::Object::SetName(const char *nname) {

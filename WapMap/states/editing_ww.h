@@ -389,9 +389,27 @@ namespace State {
     private:
         EditingWW *m_hOwn;
     public:
-        void action(const gcn::ActionEvent &actionEvent);
-
         EditingWWActionListener(EditingWW *owner);
+
+        void action(const gcn::ActionEvent &actionEvent) override;
+    };
+
+    class EditingWWFocusListener : public gcn::FocusListener {
+    private:
+        EditingWW *m_hOwn;
+    public:
+        EditingWWFocusListener(EditingWW *owner);
+
+        void focusLost(const Event& event) override;
+    };
+
+    class EditingWWKeyListener : public gcn::KeyListener {
+    private:
+        EditingWW *m_hOwn;
+    public:
+        EditingWWKeyListener(EditingWW *owner);
+
+        void keyPressed(KeyEvent& keyEvent) override;
     };
 
     class Viewport {
@@ -469,7 +487,6 @@ namespace State {
         SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmSpaceContext; //basic contexts
         SHR::Context *objFlagContext, *objFlagDrawContext, *objFlagAddContext, *objFlagDynamicContext; //flags contexts
         SHR::Context *advcon_Warp, *advcon_Container; //advanced contexts (object specific)
-        friend class cAppMenu;
 
         SHR::ContextModel *conmodObject, *conmodObjectMultiple, *conmodTilesSelected, *conmodTilesPaste, *conmodEditableObject;
         SHR::ContextModel *conmodPaste, *conmodSpawnPoint, *conmodAtEmpty;//, * conmodUseAsBrush;
@@ -496,11 +513,11 @@ namespace State {
         SHR::But * butIconLua;
 #endif
 
-        SHR::TextField *tfwpName, *tfwpAuthor, *tfwpDate, *tfwpREZ, *tfwpTiles, *tfwpPalette, *tfwpExe,
-                *tfwpMapVersion, *tfwpMapBuild, *tfwpWapVersion;
+        SHR::TextField *tfwpName, *tfwpAuthor, *tfwpDate, *tfwpREZ, *tfwpTiles, *tfwpPalette, *tfwpExe;
+        /*        *tfwpMapVersion, *tfwpMapBuild, *tfwpWapVersion;
         SHR::TextBox *tbwpMapDescription;
         SHR::ScrollArea *sawpMapDescription;
-        SHR::Lab *labwpMapVersion, *labwpMapBuild, *labwpMapDescription, *labwpWapVersion;
+        SHR::Lab *labwpMapVersion, *labwpMapBuild, *labwpMapDescription, *labwpWapVersion;*/
 
         SHR::But *butwpSave, *butwpCancel;
 
@@ -623,8 +640,6 @@ namespace State {
         int iMode;
         int iActiveTool;
 
-        bool **bFloodFillBuf;
-
         int iTilePicked;
         bool lockDrawing;
 
@@ -720,7 +735,7 @@ namespace State {
 
         bool ObjectThink(bool pbConsumed);
 
-        void FloodFill(int base, int x, int y, int tile);
+        void FloodFill(int x, int y, int tile);
 
         void DrawTileAtrib(int tileid, float posx, float posy, float width, float height);
 
@@ -864,8 +879,9 @@ namespace State {
         SHR::ScrollArea *sapmPlanes;
         SHR::Lab *labpmPlanes, *labpmAnchor, *labpmWidth, *labpmHeight;
         WIDG::Viewport *vppm;
-        SHR::Lab *labpmName, *labpmTileSize, *labpmTileSize_x, *labpmMovX, *labpmMovY, *labpmPlaneSize, *labpmMovement, *labpmZCoord, *labpmFlags, *labpmTileSet;
-        SHR::TextField *tfpmName, *tfpmTileSizeX, *tfpmTileSizeY, *tfpmPlaneSizeX, *tfpmPlaneSizeY, *tfpmMovX, *tfpmMovY, *tfpmZCoord;
+        SHR::Lab *labpmName, *labpmTileSize, *labpmTileSize_x, *labpmMovement, *labpmMovX, *labpmMovY,
+                 *labpmOffX, *labpmOffY, *labpmOffset, *labpmPlaneSize, *labpmZCoord, *labpmFlags, *labpmTileSet;
+        SHR::TextField *tfpmName, *tfpmTileSizeX, *tfpmTileSizeY, *tfpmPlaneSizeX, *tfpmPlaneSizeY, *tfpmMovX, *tfpmMovY, *tfpmOffX, *tfpmOffY, *tfpmZCoord;
         SHR::DropDown *ddpmTileSet;
         SHR::TextBox *tbpmImagesets;
         SHR::But *butpmResUL, *butpmResU, *butpmResUR, *butpmResL, *butpmResC, *butpmResR, *butpmResDL, *butpmResD, *butpmResDR;
@@ -1007,6 +1023,8 @@ namespace State {
         cServerIPC *hServerIPC;
 
         EditingWWActionListener *al;
+        EditingWWFocusListener *fl;
+        EditingWWKeyListener * kl;
 
         WWD::Plane *plMain;
 
@@ -1014,6 +1032,7 @@ namespace State {
         byte gamesLastOpened[10];
 
         bool OpenDocuments();
+        void SaveAs();
 
         int iTileDrawStartX, iTileDrawStartY;
 
@@ -1036,9 +1055,9 @@ namespace State {
         bool btpiFixedPos;
         WIDG::Viewport *vptpi;
 
-        void RebuildTilePicker();
+        void RebuildTilePicker(bool forceSliderRefresh = false);
 
-        void RefreshTilePickerSlider();
+        void RefreshTilePickerSlider(bool forceSliderRefresh = false);
 
         void DrawTilePicker();
 
@@ -1062,6 +1081,8 @@ namespace State {
         winImageSetBrowser *hwinImageSetBrowser;
         winOptions *hwinOptions;
         winAbout *hwinAbout;
+
+        void TextEditMoveToNextTile(bool saving = false);
     };
 };
 
