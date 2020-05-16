@@ -400,7 +400,6 @@ public:
     gcn::HGEGraphics *gcnGraphics;
     gcn::HGEImageLoader *gcnImageLoader;
 
-
     bool bKijan, bNapo;
     hgeSprite *sprKijan, *sprNapo;
 
@@ -412,11 +411,6 @@ public:
     bool bFirstRun;
 
     bool bAutoUpdate, bAlphaHigherPlanes, bSmoothZoom;
-
-    /*HTEXTURE texTiles;
-    cTileset * hTileset;
-    cSprBank * SprBank;
-    PID::Palette * hPalette;*/
 
     jmp_buf jmp_env;
     int jmp_val;
@@ -437,12 +431,6 @@ public:
     void ReloadLua();
 
     void ResetWD();
-
-    bool GetClawPath();
-
-    bool GetGruntzPath();
-
-    bool GetGMPath();
 
     State::EditingWW *editState;
     int iScreenW, iScreenH;

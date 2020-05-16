@@ -4,11 +4,6 @@
 #include "../states/editing_ww.h"
 #include "../../shared/commonFunc.h"
 #include "../cInterfaceSheet.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wSlider.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
-#include "../../shared/gcnWidgets/wDropDown.h"
 #include "../../shared/gcnWidgets/wIconListbox.h"
 #include "../cNativeController.h"
 
@@ -202,60 +197,74 @@ winOptions::winOptions() {
         myWin->add(conGame, scrollAreaCategories->getWidth(), 8);
     }
 
-
-
-    labVersion = new SHR::Lab("");
-    labVersion->adjustSize();
-    //myWin->add(labscpVersion, tfscpPath->getX(), 45);
-
-
-    //crazyhook options
-
-    labCrazyHookSettings = new SHR::Lab("");
-    labCrazyHookSettings->adjustSize();
-    //myWin->add(laboptCrazyHookSettings, 335, 80);
-
-    labGameRes = new SHR::Lab(GETL2S("Options", "GameRes"));
-    labGameRes->adjustSize();
-    //myWin->add(laboptGameRes, 300, 115);
-
-    ddoptGameRes = new SHR::DropDown();
-    ddoptGameRes->setListModel(new cListModelDisplay(1));
-    ddoptGameRes->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    ddoptGameRes->addActionListener(this);
-    ddoptGameRes->SetGfx(&GV->gcnParts);
-    ddoptGameRes->adjustHeight();
-    //myWin->add(ddoptGameRes, 440, 115);
-
     {
-        char actres[64];
-        int w, h;
-        GV->editState->hNativeController->GetDisplayResolution(&w, &h);
-        if (w == -1 && h == -1) {
-            ddoptGameRes->setSelected(0);
-        } else {
-            sprintf(actres, "%dx%d", w, h);
-            for (int i = 0; i < ddoptGameRes->getListModel()->getNumberOfElements(); i++) {
-                if (!strcmp(ddoptGameRes->getListModel()->getElementAt(i).c_str(), actres)) {
-                    ddoptGameRes->setSelected(i);
-                    break;
+        auto* conClaw = optionsForCategory[WWD::Game_Claw];
+        int xOffset = 8, yOffset = 15 + pathTextFields[0]->getHeight();
+
+        labVersion = new SHR::Lab(std::string(GETL2S("Options", "DetectedVer")) + " " + GV->editState->hNativeController->GetVersionStr());
+        labVersion->adjustSize();
+        conClaw->add(labVersion, pathTextFields[0]->getX(), yOffset);
+
+        yOffset += 30;
+
+        //crazyhook options
+
+        labCrazyHookSettings = new SHR::Lab(GETL2S("Options", (GV->editState->hNativeController->IsCrazyHookAvailable() ? "CrazyHook" : "CrazyHookNotFound")));
+        labCrazyHookSettings->adjustSize();
+        conClaw->add(labCrazyHookSettings, xOffset, yOffset);
+
+        yOffset += 30;
+
+        labGameRes = new SHR::Lab(GETL2S("Options", "GameRes"));
+        labGameRes->adjustSize();
+        conClaw->add(labGameRes, xOffset, yOffset);
+
+        ddoptGameRes = new SHR::DropDown();
+        ddoptGameRes->setListModel(new cListModelDisplay(true));
+        ddoptGameRes->setDimension(gcn::Rectangle(0, 0, 150, 20));
+        ddoptGameRes->addActionListener(this);
+        ddoptGameRes->SetGfx(&GV->gcnParts);
+        ddoptGameRes->adjustHeight();
+        conClaw->add(ddoptGameRes, xOffset + 5 + labGameRes->getWidth(), yOffset - 1);
+
+        yOffset += 30;
+
+        {
+            char actres[64];
+            int w, h;
+            GV->editState->hNativeController->GetDisplayResolution(&w, &h);
+            if (w == -1 && h == -1) {
+                ddoptGameRes->setSelected(0);
+            } else {
+                sprintf(actres, "%dx%d", w, h);
+                for (int i = 0; i < ddoptGameRes->getListModel()->getNumberOfElements(); i++) {
+                    if (!strcmp(ddoptGameRes->getListModel()->getElementAt(i).c_str(), actres)) {
+                        ddoptGameRes->setSelected(i);
+                        break;
+                    }
                 }
             }
         }
-    }
 
-    cboptCrazyHookDebugInfo = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "DebugInf"));
-    cboptCrazyHookDebugInfo->adjustSize();
-    cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
-    //myWin->add(cboptCrazyHookDebugInfo, 300, 170);
-    cboptCrazyHookGodMode = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "GodMode"));
-    cboptCrazyHookGodMode->adjustSize();
-    cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
-    //myWin->add(cboptCrazyHookGodMode, 300, 190);
-    cboptCrazyHookArmor = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "ArmorMode"));
-    cboptCrazyHookArmor->adjustSize();
-    cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
-    //myWin->add(cboptCrazyHookArmor, 300, 210);
+        cboptCrazyHookDebugInfo = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "DebugInf"));
+        cboptCrazyHookDebugInfo->adjustSize();
+        cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
+        conClaw->add(cboptCrazyHookDebugInfo, xOffset, yOffset);
+
+        yOffset += 25;
+
+        cboptCrazyHookGodMode = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "GodMode"));
+        cboptCrazyHookGodMode->adjustSize();
+        cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
+        conClaw->add(cboptCrazyHookGodMode, xOffset, yOffset);
+
+        yOffset += 25;
+
+        cboptCrazyHookArmor = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "ArmorMode"));
+        cboptCrazyHookArmor->adjustSize();
+        cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
+        conClaw->add(cboptCrazyHookArmor, xOffset, yOffset);
+    }
 
     butSave = new SHR::But(GV->hGfxInterface, GETL(Lang_Save));
     butSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
@@ -379,7 +388,7 @@ void winOptions::PickAndSetGameLocation(WWD::GAME game) {
     if (GetOpenFileName(&ofn) != 0) {
         char *path = SHR::GetDir(szFileopen);
         GV->gamePaths[game] = path;
-        pathTextFields[game - WWD::Games_First]->setText(path);
+        pathTextFields[game - WWD::Games_First]->setText(path, true);
         GV->SetLastOpenPath(path);
         delete[] path;
     }

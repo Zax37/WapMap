@@ -1647,15 +1647,14 @@ void State::EditingWW::Init() {
 
         winWelcome->add(conToAdd, winWelcome->getWidth() / 2 - conToAdd->getWidth() / 2,
                         winWelcome->getHeight() + 10);
-        winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
     }
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0) {
         char *n = SHR::GetFile(hMruList->GetRecentlyUsedFile(0));
-        bool bdots = 0;
+        bool bDots = false;
         while (GV->fntMyriad13->GetStringWidth(n) > 140) {
             if (strlen(n) < 5) break;
-            if (!bdots) {
+            if (!bDots) {
                 n[strlen(n) - 4] = '.';
                 n[strlen(n) - 3] = '.';
                 n[strlen(n) - 2] = '.';
@@ -1664,7 +1663,7 @@ void State::EditingWW::Init() {
                 n[strlen(n) - 4] = '.';
                 n[strlen(n) - 1] = '\0';
             }
-            bdots = 1;
+            bDots = true;
         }
         labwsRecently = new SHR::Lab(n);
         delete[] n;
@@ -1673,6 +1672,8 @@ void State::EditingWW::Init() {
     } else {
         labwsRecently = 0;
     }
+
+    winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
 
     butwsRecently->setEnabled(hMruList->GetFilesCount() > 0);
 
@@ -2494,6 +2495,7 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
                     labwsRecently->setPosition(375 - labwsRecently->getWidth() / 2, 108);
                 }
                 butwsRecently->setEnabled(1);
+                winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
             }
         } else {
             MDI->UnlockMapReload();
@@ -3078,11 +3080,10 @@ void State::EditingWW::DocumentSwitched() {
         winLogicBrowser->setVisible(0);
         if (conCrashRetrieve != 0 && conCrashRetrieve->isVisible()) {
             conCrashRetrieve->setVisible(0);
-            winWelcome->setHeight(winWelcome->getHeight() - conCrashRetrieve->getHeight());
+            winWelcome->remove(conCrashRetrieve);
             conRecentFiles->setVisible(1);
             winWelcome->add(conRecentFiles, winWelcome->getWidth() / 2 - conRecentFiles->getWidth() / 2,
-                            winWelcome->getHeight());
-            winWelcome->setHeight(winWelcome->getHeight() + conRecentFiles->getHeight());
+                            winWelcome->getHeight() + 20);
             winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
         }
         SetTool(EWW_TOOL_NONE);
@@ -3093,7 +3094,11 @@ void State::EditingWW::DocumentSwitched() {
         InitEmpty();
         vPort->MarkToRedraw(1);
         hAppMenu->SyncDocumentSwitched();
+        hNativeController->SyncDocumentSwitched();
         hDataCtrl = NULL;
+        for (cWindow* win : hWindows) {
+            win->Close();
+        }
         return;
     }
 
@@ -3205,6 +3210,10 @@ void State::EditingWW::DocumentSwitched() {
     hInvCtrl->MapSwitch();
     SwitchPlane();
     hAppMenu->SyncDocumentSwitched();
+    hNativeController->SyncDocumentSwitched(hParser);
+    for (cWindow* win : hWindows) {
+        win->OnDocumentChange();
+    }
 
     if (hmbActive == 0) {
         cbutActiveMode->simulateAction();

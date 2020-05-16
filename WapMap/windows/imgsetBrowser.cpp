@@ -418,7 +418,9 @@ void winImageSetBrowser::Draw(int piCode) {
 }
 
 void winImageSetBrowser::OnDocumentChange() {
-
+    iSelectedImageSet = iSelectedFrame = 0;
+    iHighlightedIS = iHighlightedF = -1;
+    Synchronize();
 }
 
 void winImageSetBrowser::Synchronize() {
@@ -690,7 +692,7 @@ int winImageSetBrowser::MouseHandleGroup(std::vector<cSprBankAssetIMG *> tiles, 
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
 
-    saFrames->setVerticalScrollAmount(saFrames->getVerticalScrollAmount() + 150 * hge->Input_GetMouseWheel());
+    saFrames->setVerticalScrollAmount(saFrames->getVerticalScrollAmount() + 150 * (-hge->Input_GetMouseWheel()));
 
     if (mx > x && mx < x + tilesPerRow * CONST_IMGSETBROWSER_FRAMEICOSIZE - 5 && my > y + 5) {
         int dx = (mx - x) / CONST_IMGSETBROWSER_FRAMEICOSIZE,

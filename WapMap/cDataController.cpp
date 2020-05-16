@@ -382,7 +382,7 @@ bool cDataController::IsLoadableImage(cFile hFile, cImageInfo *inf, cImageInfo::
 
 bool cDataController::RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iRy, int iRowSpan) {
     int w, h;
-    PID::Palette* palette;
+    PID::Palette* palette = NULL;
     byte *data = GetImageRaw(hFile, &w, &h, &palette);
     if (!data) return 0;
     bool ret = RenderImageRaw(data, texDest, iRx, iRy, iRowSpan, w, h, palette);

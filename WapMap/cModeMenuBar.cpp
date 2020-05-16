@@ -287,52 +287,62 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
 void cmmbObject::DocumentSwitched() {
     WWD::GAME game = GV->editState->hParser->GetGame();
     int base = GV->editState->hParser->GetBaseLevel();
-
-    butIconCrumblinPeg->setId(game == WWD::Game_Claw && !(base == 2 || base == 5 || base == 8 || base == 9 || base == 11) ? "" : "OFF");
-    butIconElevator->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconPathElevator->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconTreasure->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconHealth->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconCatnip->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconCurse->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconEnemy->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconEyeCandy->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconText->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconShake->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconCheckpoint->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconWarp->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconDialog->setId(game == WWD::Game_Claw ? "" : "OFF");
-    butIconSound->setId(game == WWD::Game_Claw ? "" : "OFF");
-
-    butIconCannon->setId(game == WWD::Game_Claw && (base == 2 || base == 9) ? "" : "OFF");
-    butIconStatue->setId(game == WWD::Game_Claw && base == 5 ? "" :"OFF");
-    butIconBreakPlank->setId(game == WWD::Game_Claw && (base == 5 || base == 11) ? "" : "OFF");
-    butIconTogglePeg->setId(game == WWD::Game_Claw && !(base == 3 || base == 4 || base == 6 || base == 7 || base == 9) ? "" : "OFF");
-    butIconStalactite->setId(game == WWD::Game_Claw && base == 12 ? "" : "OFF");
-    butIconLaser->setId(game == WWD::Game_Claw && base == 11 ? "" : "OFF");
-    butIconMapPiece->setId(game == WWD::Game_Claw && base % 2 == 1 && base != 13 ? "" : "OFF");
-    butIconCrate->setId(game == WWD::Game_Claw && base != 12 ? "" :"OFF");
-    butIconSpikes->setId(game == WWD::Game_Claw && (base == 3 || base == 4 || base == 9 || base == 10 || base >= 12) ? "" :"OFF");
-    butIconPowderKeg->setId(game == WWD::Game_Claw && !(base == 5 || base == 7 || base == 10 || base == 11 || base == 12 || base == 14) ? "" : "OFF");
-    butIconProjectile->setId(game == WWD::Game_Claw && (base == 9 || base == 10 || base == 13 || base == 14) ? "" : "OFF");
-    butIconCrabNest->setId(game == WWD::Game_Claw && base == 7 ? "" : "OFF");
-    butIconRope->setId(game == WWD::Game_Claw && (base == 3 || base == 6 || base == 8 || base == 9 || base == 10 || base == 13 || base == 14) ? "" : "OFF");
-    butIconSpringBoard->setId(game == WWD::Game_Claw && (base == 4 || base == 6 || base == 7 || base == 9 || base == 12 || base == 13) ? "" : "OFF");
-
-    _setVisible(bVisible);
-
-    int xoff = GV->editState->cbutActiveMode->getWidth() + 12;
+    int xOff = GV->editState->cbutActiveMode->getWidth() + 12;
 
     vSeparators.resize(1);
-    for (int i = 0; i < vButtons.size(); i++) {
-        if (vButtons[i]->getId() != "OFF") {
-            vButtons[i]->setX(xoff);
-            xoff += 32;
-        }
-        if (i == 0 || i == 1 || i == 8 || i == 14 || i == 19 || i == 27 || i == 30 || i == 31) {
-            vSeparators.push_back(xoff + 3);
-            xoff += 7;
-        }
+    for (auto but : vButtons) {
+        but->setId("OFF");
+        but->setVisible(false);
+    }
+
+#define ADD_BUTTON(button, condition) if (condition) { \
+    button->setId(""); \
+    button->setVisible(bVisible); \
+    button->setX(xOff); \
+    xOff += 32; \
+}
+
+#define ADD_SEPARATOR() vSeparators.push_back(xOff + 3); xOff += 7;
+
+    ADD_BUTTON(butIconSearchObject, true);
+    ADD_SEPARATOR();
+    ADD_BUTTON(butIconNewObjEmpty, true);
+    if (game == WWD::Game_Claw) {
+        ADD_SEPARATOR();
+        ADD_BUTTON(butIconCrumblinPeg,
+                   !(base == 2 || base == 5 || base == 8 || base == 9 || base == 11));
+        ADD_BUTTON(butIconBreakPlank, (base == 5 || base == 11));
+        ADD_BUTTON(butIconTogglePeg,
+                   !(base == 3 || base == 4 || base == 6 || base == 7 || base == 9));
+        ADD_BUTTON(butIconElevator, true);
+        ADD_BUTTON(butIconPathElevator, true);
+        ADD_BUTTON(butIconSpringBoard, base == 4 || base == 6 || base == 7 || base == 9 || base == 12 || base == 13);
+        ADD_BUTTON(butIconRope, base == 3 || base == 6 || base == 8 || base == 9 || base == 10 || base == 13 || base == 14);
+        ADD_SEPARATOR();
+        ADD_BUTTON(butIconTreasure, true);
+        ADD_BUTTON(butIconHealth, true);
+        ADD_BUTTON(butIconCatnip, true);
+        ADD_BUTTON(butIconCurse, true);
+        ADD_BUTTON(butIconCrate, base != 12);
+        ADD_BUTTON(butIconStatue, base == 5);
+        ADD_SEPARATOR();
+        ADD_BUTTON(butIconEnemy, true);
+        ADD_BUTTON(butIconPowderKeg, !(base == 5 || base == 7 || base == 10 || base == 11 || base == 12 || base == 14));
+        ADD_BUTTON(butIconCannon, base == 2 || base == 9);
+        ADD_BUTTON(butIconSpikes, base == 3 || base == 4 || base == 9 || base == 10 || base >= 12);
+        ADD_BUTTON(butIconProjectile, base == 9 || base == 10 || base == 13 || base == 14);
+        ADD_BUTTON(butIconCrabNest, base == 7);
+        ADD_BUTTON(butIconStalactite, base == 12);
+        ADD_BUTTON(butIconLaser, base == 11);
+        ADD_SEPARATOR();
+        ADD_BUTTON(butIconEyeCandy, true);
+        ADD_BUTTON(butIconText, true);
+        ADD_BUTTON(butIconShake, true);
+        ADD_BUTTON(butIconCheckpoint, true);
+        ADD_BUTTON(butIconWarp, true);
+        ADD_BUTTON(butIconDialog, true);
+        ADD_BUTTON(butIconSound, true);
+        ADD_BUTTON(butIconMapPiece, base % 2 == 1 && base != 13);
     }
 
     iContextOffset = 0;

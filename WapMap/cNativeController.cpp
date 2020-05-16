@@ -125,31 +125,62 @@ void cNativeController::SetDebugInfo(bool b) {
 }
 
 void cNativeController::RunGame(std::string strMap, int iPosX, int iPosY) {
-    if (!bValid) return;
-    GV->Console->Printf("Running map '~y~%s~w~'.", strMap.c_str());
-    std::string strParams, strExe = strNativePath + "/claw.exe";
-    if (IsCrazyHookAvailable()) {
-        strParams += "CL:\"" + strMap + "\"";
-        char tmp[64];
-        if (iDisplayW != -1 && iDisplayH != -1) {
-            sprintf(tmp, "%dx%d", iDisplayW, iDisplayH);
-            strParams += " RES:\"" + std::string(tmp) + "\"";
-        }
-        if (iPosX != -1 && iPosY != -1) {
-            sprintf(tmp, "%dx%d", iPosX, iPosY);
-            strParams += " POS:\"" + std::string(tmp) + "\"";
-            strParams += " -NOALIGN";
-        }
-        if (bDebug) strParams += " -DEBUGINFOS";
-        if (bGod) strParams += " -GOD";
-        if (bArmor) strParams += " -ARMOR";
+    if (game == WWD::Game_Unknown) return;
+
+    std::string exePath = GV->gamePaths[game] + "\\";
+    switch (game) {
+        case WWD::Game_Claw:
+            exePath += "CLAW.EXE";
+            break;
+        case WWD::Game_GetMedieval:
+            exePath += "MEDIEVAL.EXE";
+            break;
+        case WWD::Game_Gruntz:
+            exePath += "GRUNTZ.EXE";
+            break;
+        case WWD::Game_Claw2:
+            exePath += "CLAW2.EXE";
+            break;
+        default:
+            return;
     }
-    GV->Console->Printf("Command line is: '~y~%s~w~'.", strParams.c_str());
-    ShellExecute(0, "open", strExe.c_str(), (strParams.length() > 0 ? strParams.c_str() : 0), strNativePath.c_str(),
-                 SW_SHOWNORMAL);
+
+    std::string strParams;
+
+    if (game == WWD::Game_Claw) {
+        if (!bValid) return;
+        GV->Console->Printf("Running map '~y~%s~w~'.", strMap.c_str());
+        if (IsCrazyHookAvailable()) {
+            strParams += "CL:\"" + strMap + "\"";
+            char tmp[64];
+            if (iDisplayW != -1 && iDisplayH != -1) {
+                sprintf(tmp, "%dx%d", iDisplayW, iDisplayH);
+                strParams += " RES:\"" + std::string(tmp) + "\"";
+            }
+            if (iPosX != -1 && iPosY != -1) {
+                sprintf(tmp, "%dx%d", iPosX, iPosY);
+                strParams += " POS:\"" + std::string(tmp) + "\"";
+                strParams += " -NOALIGN";
+            }
+            if (bDebug) strParams += " -DEBUGINFOS";
+            if (bGod) strParams += " -GOD";
+            if (bArmor) strParams += " -ARMOR";
+        }
+        GV->Console->Printf("Command line is: '~y~%s~w~'.", strParams.c_str());
+    }
+
+    ShellExecute(0, "open", exePath.c_str(), (strParams.length() > 0 ? strParams.c_str() : 0), GV->gamePaths[game].c_str(), SW_SHOWNORMAL);
 }
 
 void cNativeController::GetDisplayResolution(int *w, int *h) {
     *w = iDisplayW;
     *h = iDisplayH;
+}
+
+void cNativeController::SyncDocumentSwitched(WWD::Parser* hParser) {
+    if (hParser) {
+        game = hParser->GetGame();
+    } else {
+        game = WWD::Game_Unknown;
+    }
 }

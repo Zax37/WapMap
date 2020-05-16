@@ -192,11 +192,9 @@ void winTileBrowser::Think() {
 
     cTileImageSet *ts = hTileset->GetSet((iSelectedTileSet));
 
-
     int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
             tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
-    int tilesPerRow = (tilePickW / 60),
-            rowCount = tilePickH / 80 + 2;
+    int tilesPerRow = (tilePickW / 60);
     int borderoffset = (tilePickW - (tilesPerRow * 60)) / 2;
     int scroll = saTiles->getVerticalScrollAmount();
 
@@ -263,8 +261,8 @@ void winTileBrowser::Draw(int piCode) {
             GV->hGfxInterface->sprMainBackground->Render(dx + 6 + x * 128, dy + 45 + y * 128);
     //hge->Gfx_Clear(0xFFFF00FF);
     if (hTileset->GetSetsCount() > 0) {
-        int startset = saTileSets->getVerticalScrollAmount() / 68;
-        for (int i = startset; i < hTileset->GetSetsCount() && i < startset + (saTileSets->getHeight() / 68) + 2; i++) {
+        int startSet = saTileSets->getVerticalScrollAmount() / 68;
+        for (int i = startSet; i < hTileset->GetSetsCount() && i < startSet + (saTileSets->getHeight() / 68) + 2; i++) {
             int drawX = dx + 8;
             int drawY = dy + 40 + 10 + i * 68 - saTileSets->getVerticalScrollAmount();
             cTileImageSet *ts = hTileset->GetSet(i);
@@ -301,9 +299,8 @@ void winTileBrowser::Draw(int piCode) {
         GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
 
         int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
-                tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
+            tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
         cTileImageSet *tsPick = hTileset->GetSet(iSelectedTileSet);
-
 
         hge->Gfx_SetClipping(dx + 230, dy + 110, 64, 64);
         GV->sprCheckboard->Render(dx + 230, dy + 110);
@@ -321,8 +318,7 @@ void winTileBrowser::Draw(int piCode) {
         seltile->GetImage()->SetColor(0xFFFFFFFF);
         seltile->GetImage()->RenderStretch(dx + 230, dy + 110, dx + 230 + 64, dy + 110 + 64);
 
-        int tilesPerRow = (tilePickW / 60),
-                rowCount = tilePickH / 80 + 2;
+        int tilesPerRow = (tilePickW / 60);
         int borderoffset = (tilePickW - (tilesPerRow * 60)) / 2;
         int scroll = saTiles->getVerticalScrollAmount();
         if (scroll < 0) scroll = 0;
@@ -339,7 +335,7 @@ void winTileBrowser::Draw(int piCode) {
             for (int i = 0; i < 3; i++)
                 if (vtGroups[i].size() > 0) {
                     int drawX = tilePickX + borderoffset,
-                            drawY = tilePickY + 10 - scroll + ypos;
+                        drawY = tilePickY + 10 - scroll + ypos;
                     const char *label = 0;
                     if (i == 0) label = GETL2S("Win_TileBrowser", "GroupREZ");
                     else if (i == 1) label = GETL2S("Win_TileBrowser", "GroupClaw");
@@ -358,7 +354,9 @@ void winTileBrowser::Draw(int piCode) {
 }
 
 void winTileBrowser::OnDocumentChange() {
-
+    iSelectedTileSet = iSelectedTile = 0;
+    iHighlightedTS = iHighlightedT = -1;
+    Synchronize();
 }
 
 void winTileBrowser::Synchronize() {
@@ -574,7 +572,7 @@ int winTileBrowser::MouseHandleGroup(std::vector<cTile *> tiles, int x, int y, i
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
 
-    saTiles->setVerticalScrollAmount(saTiles->getVerticalScrollAmount() + 150 * hge->Input_GetMouseWheel());
+    saTiles->setVerticalScrollAmount(saTiles->getVerticalScrollAmount() + 150 * (-hge->Input_GetMouseWheel()));
 
     if (mx > x && mx < x + tilesPerRow * 60 - 5 && my > y + 5) {
         int dx = (mx - x) / 60,

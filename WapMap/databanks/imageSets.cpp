@@ -274,6 +274,7 @@ WWD::Rect cBankImageSet::GetSpriteRenderRect(hgeSprite *spr) {
 WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
     hgeSprite *spr = GetObjectSprite(obj);
     WWD::Rect ret;
+    if (!spr) return ret;
     float hsx, hsy;
     spr->GetHotSpot(&hsx, &hsy);
     ret.x2 = spr->GetWidth();

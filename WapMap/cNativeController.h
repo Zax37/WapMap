@@ -3,6 +3,7 @@
 
 #include <string>
 #include <windows.h>
+#include "../shared/cWWD.h"
 
 /**
  Class used to connect WM with installed game. It's responsible for version query, recognition and features access.
@@ -19,6 +20,7 @@ private:
     FILETIME ftExeModification;
     bool bGod, bArmor, bDebug;
     int iDisplayW, iDisplayH;
+    WWD::GAME game;
 
 public:
     cNativeController();
@@ -59,6 +61,8 @@ public:
     bool IsArmorModeOn() { return bArmor; };
 
     bool IsDebugInfoOn() { return bDebug; };
+
+    void SyncDocumentSwitched(WWD::Parser* hParser = NULL);
 };
 
 #endif // H_C_NATIVECTRL
