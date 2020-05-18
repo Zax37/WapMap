@@ -73,6 +73,11 @@ namespace SHR {
 
 		bool gotFocus();
 
+		void unDrag() {
+            mMoved = false;
+            _getFocusHandler()->setDraggedWidget(NULL);
+		}
+
     protected:
         guiParts *hGfx;
         std::string mCaption;

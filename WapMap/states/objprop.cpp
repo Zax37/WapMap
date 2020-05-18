@@ -298,16 +298,16 @@ namespace State {
             }
 
             //vert flags left separator
-            hge->Gfx_RenderLine(dx + 278 + 95, dy, dx + 278 + 95, dy + 315, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 278 + 96, dy, dx + 278 + 96, dy + 315, 0xFF5c5c5c);
+            hge->Gfx_RenderLine(dx + 278 + 95, dy + 6, dx + 278 + 95, dy + 496, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 278 + 96, dy + 6, dx + 278 + 96, dy + 496, 0xFF5c5c5c);
 
             //vert flags right separator
-            hge->Gfx_RenderLine(dx + 715, dy, dx + 715, dy + 620, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 716, dy, dx + 716, dy + 620, 0xFF5c5c5c);
+            hge->Gfx_RenderLine(dx + 715, dy + 6, dx + 715, dy + 620, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 716, dy + 6, dx + 716, dy + 620, 0xFF5c5c5c);
 
             //dynamic and draw flags vertical separator
-            hge->Gfx_RenderLine(dx + 563 - 28, dy, dx + 563 - 28, dy + 112, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 564 - 28, dy, dx + 564 - 28, dy + 112, 0xFF5c5c5c);
+            hge->Gfx_RenderLine(dx + 563 - 28, dy + 6, dx + 563 - 28, dy + 112, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 564 - 28, dy + 6, dx + 564 - 28, dy + 112, 0xFF5c5c5c);
 
             //type flags vert sep
             hge->Gfx_RenderLine(dx + 563 - 23, dy + 203, dx + 563 - 23, dy + 496, 0xFF1f1f1f);

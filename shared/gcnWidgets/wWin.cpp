@@ -282,10 +282,12 @@ namespace SHR {
             }
         }
 
-        mDragOffsetX = mouseEvent.getX();
-        mDragOffsetY = mouseEvent.getY();
+        if (!bHide && mVisible) {
+            mDragOffsetX = mouseEvent.getX();
+            mDragOffsetY = mouseEvent.getY();
 
-        mMoved = mouseEvent.getY() <= (int) 22;
+            mMoved = mouseEvent.getY() <= 22;
+        }
     }
 
     void Win::mouseReleased(MouseEvent &mouseEvent) {
@@ -293,7 +295,7 @@ namespace SHR {
     }
 
     void Win::mouseDragged(MouseEvent &mouseEvent) {
-        if (mouseEvent.isConsumed() || mouseEvent.getSource() != this) {
+        if (mouseEvent.isConsumed() || mouseEvent.getSource() != this || bHide) {
             return;
         }
 

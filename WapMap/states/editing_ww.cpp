@@ -588,45 +588,44 @@ void State::EditingWW::Init() {
     winTileProp->add(vpTileProp, 0, 0);
 
     wintoolSelArea = new SHR::Win(&GV->gcnParts, GETL2S("ObjProp", "SelVals"));
-    wintoolSelArea->setDimension(gcn::Rectangle(0, 0, 350, 125));
-    wintoolSelArea->setVisible(0);
-    wintoolSelArea->setMovable(0);
-    wintoolSelArea->setClose(1);
+    wintoolSelArea->setDimension(gcn::Rectangle(0, 0, 340, 165));
+    wintoolSelArea->setShow(false);
+    wintoolSelArea->setClose(true);
     wintoolSelArea->addActionListener(al);
     conMain->add(wintoolSelArea, vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
 
     char label[200];
-    sprintf(label, "X1: ~y~0~l~, Y1: ~y~0~l~, X2: ~y~0~l~, Y2: ~y~0~l~");
+    sprintf(label, "~w~X1: ~y~0~w~, Y1: ~y~0~w~, X2: ~y~0~w~, Y2: ~y~0~w~");
     labtoolSelAreaValues = new SHR::Lab(label);
     labtoolSelAreaValues->adjustSize();
-    wintoolSelArea->add(labtoolSelAreaValues, 5, 8);
+    wintoolSelArea->add(labtoolSelAreaValues, 7, 13);
 
     buttoolSelAreaPickMinX = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickX1"));
-    buttoolSelAreaPickMinX->setDimension(gcn::Rectangle(0, 0, 85, 33));
+    buttoolSelAreaPickMinX->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaPickMinX->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaPickMinX, 5, 30);
+    wintoolSelArea->add(buttoolSelAreaPickMinX, 5, 35);
     buttoolSelAreaPickMinY = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickY1"));
-    buttoolSelAreaPickMinY->setDimension(gcn::Rectangle(0, 0, 85, 33));
+    buttoolSelAreaPickMinY->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaPickMinY->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaPickMinY, 90, 30);
+    wintoolSelArea->add(buttoolSelAreaPickMinY, 5, 70);
     buttoolSelAreaPickMaxX = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickX2"));
-    buttoolSelAreaPickMaxX->setDimension(gcn::Rectangle(0, 0, 85, 33));
+    buttoolSelAreaPickMaxX->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaPickMaxX->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaPickMaxX, 175, 30);
+    wintoolSelArea->add(buttoolSelAreaPickMaxX, 170, 35);
     buttoolSelAreaPickMaxY = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickY2"));
-    buttoolSelAreaPickMaxY->setDimension(gcn::Rectangle(0, 0, 85, 33));
+    buttoolSelAreaPickMaxY->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaPickMaxY->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaPickMaxY, 260, 30);
+    wintoolSelArea->add(buttoolSelAreaPickMaxY, 170, 70);
 
     buttoolSelAreaOK = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "Accept"));
-    buttoolSelAreaOK->setDimension(gcn::Rectangle(0, 0, 85, 33));
+    buttoolSelAreaOK->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaOK->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaOK, 5, 70);
+    wintoolSelArea->add(buttoolSelAreaOK, 5, 110);
 
     buttoolSelAreaAll = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickByArea"));
-    buttoolSelAreaAll->setDimension(gcn::Rectangle(0, 0, 170, 33));
+    buttoolSelAreaAll->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaAll->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaAll, 175, 70);
+    wintoolSelArea->add(buttoolSelAreaAll, 170, 110);
 
     winMeasureOpt = new SHR::Win(&GV->gcnParts, GETL(Lang_MeasureOptions));
     winMeasureOpt->setDimension(gcn::Rectangle(0, 0, 300, 100));
@@ -2583,10 +2582,10 @@ void State::EditingWW::OpenTool(int iTool) {
         winTilePicker->setVisible(true);
         return;
     } else if (iTool == EWW_TOOL_WRITEID) {
-        hmbTile->butIconWriteID->setHighlight(1);
+        hmbTile->butIconWriteID->setHighlight(true);
         iTileWriteIDx = iTileWriteIDy = -1;
     } else if (iTool == EWW_TOOL_SPACEOBJ) {
-        winSpacing->setVisible(1);
+        winSpacing->setVisible(true);
         winSpacing->requestMoveToTop();
     } else if (iTool == EWW_TOOL_BRUSH) {
         iActiveTool = iTool;
@@ -2597,27 +2596,30 @@ void State::EditingWW::OpenTool(int iTool) {
         iLastBrushPlacedX = iLastBrushPlacedY = -1;
         return;
     } else if (iTool == EWW_TOOL_BRUSHOBJECT) {
-        winObjectBrush->setVisible(1);
+        winObjectBrush->setVisible(true);
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
     } else if (iTool == EWW_TOOL_MEASURE) {
-        winMeasureOpt->setVisible(1);
+        winMeasureOpt->setVisible(true);
     } else if (iTool == EWW_TOOL_OBJSELAREA) {
-        wintoolSelArea->setVisible(1);
+        bObjDragSelection = false;
+        wintoolSelArea->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
+        wintoolSelArea->setShow(true);
+        wintoolSelArea->unDrag();
         char label[200];
-        sprintf(label, "X1: ~y~%d~l~, Y1: ~y~%d~l~, X2: ~y~%d~l~, Y2: ~y~%d~l~",
+        sprintf(label, "~w~X1: ~y~%d~w~, Y1: ~y~%d~w~, X2: ~y~%d~w~, Y2: ~y~%d~w~",
                 toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
         labtoolSelAreaValues->setCaption(label);
         labtoolSelAreaValues->adjustSize();
         toolsaAction = TOOL_OBJSA_NONE;
-        LockToolSpecificFunctions(1);
+        LockToolSpecificFunctions(true);
     } else if (iTool == EWW_TOOL_EDITOBJ) {
         MinimizeWindows();
-        LockToolSpecificFunctions(1);
-        bEditObjDelete = 0;
+        LockToolSpecificFunctions(true);
+        bEditObjDelete = false;
     } else if (iTool == EWW_TOOL_ALIGNOBJ) {
 
     } else if (iTool == EWW_TOOL_MOVEOBJECT)
-        bEditObjDelete = 0;
+        bEditObjDelete = false;
 }
 
 void State::EditingWW::CloseTool(int iTool) {
@@ -2647,14 +2649,14 @@ void State::EditingWW::CloseTool(int iTool) {
         vTileGhosting.clear();
         return;
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
-        winObjectBrush->setVisible(0);
+        winObjectBrush->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_MEASURE) {
-        winMeasureOpt->setVisible(0);
+        winMeasureOpt->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_OBJSELAREA) {
-        wintoolSelArea->setVisible(0);
-        LockToolSpecificFunctions(0);
+        wintoolSelArea->setShow(false);
+        LockToolSpecificFunctions(false);
     } else if (iActiveTool == EWW_TOOL_EDITOBJ) {
-        LockToolSpecificFunctions(0);
+        LockToolSpecificFunctions(false);
         delete hEditObj;
         hEditObj = NULL;
         MaximizeWindows();

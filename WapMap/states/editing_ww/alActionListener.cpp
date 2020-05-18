@@ -1224,17 +1224,17 @@ namespace State {
 					if (obj != NULL)
 						m_hOwn->vObjectsPicked.push_back(obj);
 				}
-			} else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaAll)
-				m_hOwn->toolsaAction = TOOL_OBJSA_PICKALL;
-			else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinX)
-				m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINX;
-			else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinY)
-				m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINY;
-			else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxX)
-				m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXX;
-			else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxY)
-				m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXY;
-			else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaOK) {
+			} else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaAll) {
+                m_hOwn->toolsaAction = TOOL_OBJSA_PICKALL;
+            } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinX) {
+                m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINX;
+            } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinY) {
+                m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINY;
+            } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxX) {
+                m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXX;
+            } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxY) {
+                m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXY;
+            } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaOK) {
 				int *ret = new int[4];
 				ret[0] = m_hOwn->toolsaMinX;
 				ret[1] = m_hOwn->toolsaMinY;

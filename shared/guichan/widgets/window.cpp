@@ -50,7 +50,6 @@
 #include "guichan/exception.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
-#include "guichan/mouseinput.hpp"
 
 namespace gcn {
     Window::Window()
