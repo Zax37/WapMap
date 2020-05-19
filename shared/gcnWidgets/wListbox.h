@@ -56,10 +56,6 @@ namespace SHR {
 
         virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
-
-        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
-
         virtual void mouseDragged(MouseEvent &mouseEvent);
 
         virtual void mouseMoved(MouseEvent &mouseEvent);
@@ -67,6 +63,8 @@ namespace SHR {
         virtual void mouseExited(MouseEvent &mouseEvent);
 
         virtual int getTextXOffset() const { return 1; }
+
+        int findIndexOf(const std::string& option);
 
     protected:
         void distributeValueChangedEvent();
@@ -77,6 +75,8 @@ namespace SHR {
         typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;
         typedef SelectionListenerList::iterator SelectionListenerIterator;
+
+        friend class TextDropDown;
     };
 }
 

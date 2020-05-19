@@ -353,6 +353,12 @@ namespace ObjEdit {
 			//GV->fntMyriad13->printf(drawX + IMAGE_TILE_WIDTH * 0.5, drawY + IMAGE_TILE_HEIGHT - 13, HGETEXT_CENTER, "%s", 0, imgSet->GetID());
 		}
 
+		if (!count) {
+		    static const char* noImagesStr = GETL2S("EditObj_Candy", "NoImages");
+            GV->fntMyriad13->SetColor(0xFFa1a1a1);
+            GV->fntMyriad13->Render(dx + (CONTAINER_WIDTH - GV->fntMyriad13->GetStringWidth(noImagesStr)) / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_MIDDLE, noImagesStr);
+		}
+
 		hge->Gfx_SetClipping();
 		hge->Gfx_RenderLine(dx, dy + CONTAINER_HEIGHT, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT, GV->colLineBright);
 

@@ -53,7 +53,7 @@ namespace SHR {
         // Check the current clip area so we don't draw unnecessary items
         // that are not visible.
         const ClipRectangle currentClipArea = graphics->getCurrentClipArea();
-        unsigned rowHeight = getRowHeight();
+        int rowHeight = getRowHeight();
 
         // Calculate the number of rows to draw by checking the clip area.
         // The addition of two makes covers a partial visible row at the top
@@ -194,7 +194,7 @@ namespace SHR {
         }
     }
 
-    void ListBox::mouseWheelMovedUp(MouseEvent &mouseEvent) {
+    /*void ListBox::mouseWheelMovedUp(MouseEvent &mouseEvent) {
         if (isFocused()) {
             if (getSelected() > 0) {
                 setSelected(getSelected() - 1);
@@ -214,7 +214,7 @@ namespace SHR {
             mActionEventId = "WHEEL";
             distributeActionEvent();
         }
-    }
+    }*/
 
     void ListBox::mouseDragged(MouseEvent &mouseEvent) {
         mouseEvent.consume();
@@ -263,5 +263,14 @@ namespace SHR {
 
     unsigned int ListBox::getRowHeight() const {
         return getFont()->getHeight();
+    }
+
+    int ListBox::findIndexOf(const std::string& option) {
+        for (int i = 0; i < mListModel->getNumberOfElements(); ++i) {
+            if (option == mListModel->getElementAt(i)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

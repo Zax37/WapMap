@@ -32,7 +32,7 @@ namespace SHR {
                      ScrollArea *scrollArea = NULL,
                      ListBox *listBox = NULL);
 
-        virtual ~TextDropDown();
+        ~TextDropDown() override;
 
         void setSelected(int selected);
 
@@ -46,7 +46,6 @@ namespace SHR {
 
         void removeSelectionListener(SelectionListener *selectionListener);
 
-
         virtual void draw(Graphics *graphics);
 
         void setBaseColor(const Color &color);
@@ -59,31 +58,31 @@ namespace SHR {
 
         void setSelectionColor(const Color &color);
 
-        virtual gcn::Rectangle getChildrenArea();
+        gcn::Rectangle getChildrenArea() override;
 
-        virtual void focusLost(const Event &event);
+        void focusLost(const Event &event) override;
 
-        virtual void action(const ActionEvent &actionEvent);
+        void action(const ActionEvent &actionEvent) override;
 
-        virtual void death(const Event &event);
+        void death(const Event &event) override;
 
-        virtual void keyPressed(KeyEvent &keyEvent);
+        void keyPressed(KeyEvent &keyEvent) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
+        void mouseWheelMovedUp(MouseEvent &mouseEvent) override;
 
-        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
+        void mouseWheelMovedDown(MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        void mouseDragged(MouseEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void mouseExited(MouseEvent &mouseEvent) override;
 
-        virtual void valueChanged(const SelectionEvent &event);
+        void valueChanged(const SelectionEvent &event) override;
 
         void SetGfx(guiParts *n) { hGfx = n; };
 

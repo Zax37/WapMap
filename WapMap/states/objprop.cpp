@@ -262,32 +262,8 @@ namespace State {
             m_hOwn->GetWindow()->getAbsolutePosition(dx, dy);
             dy += 24;
 
-            //hge->Gfx_SetClipping();
-            hge->Gfx_RenderLine(dx + 5, dy + 5, dx + m_hOwn->window->getWidth(), dy + 5, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 5, dy + 6, dx + m_hOwn->window->getWidth(), dy + 6, 0xFF5c5c5c);
-
-            //position upper separator
-            /*hge->Gfx_RenderLine(dx, dy+189, dx+278+95, dy+189, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx, dy+190, dx+278+95, dy+190, 0xFF5c5c5c);
-            //position upper separator
-            hge->Gfx_RenderLine(dx, dy+240, dx+278+95, dy+240, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx, dy+241, dx+278+95, dy+241, 0xFF5c5c5c);*/
-
-            //user values upper separator
-            hge->Gfx_RenderLine(dx, dy + 496, dx + 714, dy + 496, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx, dy + 497, dx + 714, dy + 497, 0xFF5c5c5c);
-
-            //add. flags upper separator
-            hge->Gfx_RenderLine(dx + 278 + 95, dy + 108 + 5, dx + 715, dy + 108 + 5, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 278 + 95, dy + 109 + 5, dx + 715, dy + 109 + 5, 0xFF5c5c5c);
-
-            //add.flags lower separator
-            hge->Gfx_RenderLine(dx + 278 + 95, dy + 198 + 5, dx + 715, dy + 198 + 5, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 278 + 95, dy + 199 + 5, dx + 715, dy + 199 + 5, 0xFF5c5c5c);
-
-            //user flags upper separator
-            //hge->Gfx_RenderLine(dx+278+95, dy+468+5, dx+715, dy+468+5, 0xFF1f1f1f);
-            //hge->Gfx_RenderLine(dx+278+95, dy+469+5, dx+715, dy+469+5, 0xFF5c5c5c);
+            hge->Gfx_RenderLine(dx, dy + 194, dx + 566 - 23, dy + 194, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx, dy + 195, dx + 566 - 23, dy + 195, 0xFF5c5c5c);
 
             //rect separators
             for (int i = 0; i < 7; i++) {
@@ -297,21 +273,17 @@ namespace State {
                                     0xFF5c5c5c);
             }
 
-            //vert flags left separator
-            hge->Gfx_RenderLine(dx + 278 + 95, dy + 6, dx + 278 + 95, dy + 496, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 278 + 96, dy + 6, dx + 278 + 96, dy + 496, 0xFF5c5c5c);
+            // location separator
+            hge->Gfx_RenderLine(dx + 363, dy, dx + 363, dy + 194, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 364, dy, dx + 364, dy + 194, 0xFF5c5c5c);
 
-            //vert flags right separator
-            hge->Gfx_RenderLine(dx + 715, dy + 6, dx + 715, dy + 620, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 716, dy + 6, dx + 716, dy + 620, 0xFF5c5c5c);
+            // flags vert sep
+            hge->Gfx_RenderLine(dx + 566 - 23, dy, dx + 566 - 23, dy + m_hOwn->window->getHeight(), 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 567 - 23, dy, dx + 567 - 23, dy + m_hOwn->window->getHeight(), 0xFF5c5c5c);
 
-            //dynamic and draw flags vertical separator
-            hge->Gfx_RenderLine(dx + 563 - 28, dy + 6, dx + 563 - 28, dy + 112, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 564 - 28, dy + 6, dx + 564 - 28, dy + 112, 0xFF5c5c5c);
-
-            //type flags vert sep
-            hge->Gfx_RenderLine(dx + 563 - 23, dy + 203, dx + 563 - 23, dy + 496, 0xFF1f1f1f);
-            hge->Gfx_RenderLine(dx + 564 - 23, dy + 203, dx + 564 - 23, dy + 496, 0xFF5c5c5c);
+            // flags vs rects separator
+            hge->Gfx_RenderLine(dx + 715, dy, dx + 715, dy + 620, 0xFF1f1f1f);
+            hge->Gfx_RenderLine(dx + 716, dy, dx + 716, dy + 620, 0xFF5c5c5c);
         } else if (iCode == OBJVP_ISPICK) {
             float mx, my;
             hge->Input_GetMousePos(&mx, &my);
@@ -730,251 +702,323 @@ namespace State {
 
 
         //-----------------------------MAIN---------------------------------
-        labadvID = new SHR::Lab(GETL(Lang_ID));
-        labadvID->adjustSize();
-        window->add(labadvID, 5, 20);
 
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_ID));
-        tfadvID = new SHR::TextField(tmp);
-        tfadvID->SetNumerical(1);
-        tfadvID->setDimension(gcn::Rectangle(0, 0, 240, 20));
-        window->add(tfadvID, 125, 20);
-
-        labadvName = new SHR::Lab(GETL(Lang_Name));
-        labadvName->adjustSize();
-        window->add(labadvName, 5, 45);
-        tfadvName = new SHR::TextField(obj->GetName());
-        tfadvName->setDimension(gcn::Rectangle(0, 0, 240, 20));
-        window->add(tfadvName, 125, 45);
+        int xOffset = 8, yOffset = 18;
 
         labadvLogicType = new SHR::Lab(GETL2S("ObjectProperties", "LogicType"));
         labadvLogicType->adjustSize();
-        window->add(labadvLogicType, 5, 70);
+        window->add(labadvLogicType, xOffset, yOffset + 1);
 
         rbLogicStandard = new SHR::RadBut(GV->hGfxInterface, GETL2S("ObjectProperties", "LogicStandard"), "logicType");
         rbLogicStandard->adjustSize();
         rbLogicStandard->addActionListener(hAL);
         rbLogicStandard->setSelected(strcmp(obj->GetLogic(), "CustomLogic") != 0);
-        window->add(rbLogicStandard, 125, 70);
+        window->add(rbLogicStandard, xOffset + 85, yOffset);
         rbLogicCustom = new SHR::RadBut(GV->hGfxInterface, GETL2S("ObjectProperties", "LogicCustom"), "logicType");
         rbLogicCustom->adjustSize();
         rbLogicCustom->addActionListener(hAL);
         rbLogicCustom->setSelected(strcmp(obj->GetLogic(), "CustomLogic") == 0);
-        window->add(rbLogicCustom, 245, 70);
-        tfadvName->setEnabled(rbLogicStandard->isSelected());
-        if (rbLogicCustom->isSelected())
-            tfadvName->setText(GETL2S("ObjectProperties", "CustomLogicNameNotify"));
+        window->add(rbLogicCustom, xOffset + 240, yOffset);
 
-        labadvLogic = new SHR::Lab(GETL(Lang_Logic));
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_Logic));
+        labadvLogic = new SHR::Lab(tmp);
         labadvLogic->adjustSize();
-        window->add(labadvLogic, 5, 95);
+        window->add(labadvLogic, xOffset, yOffset + 1);
 
         tddadvLogic = new SHR::TextDropDown("", this);
-        tddadvLogic->setDimension(gcn::Rectangle(0, 0, 240, 20));
+        tddadvLogic->setDimension(gcn::Rectangle(0, 0, 230, 20));
         tddadvLogic->SetGfx(&GV->gcnParts);
         tddadvLogic->addActionListener(hAL);
         tddadvLogic->setText(obj->GetLogic());
-        window->add(tddadvLogic, 125, 95);
+        window->add(tddadvLogic, xOffset + 85, yOffset);
         tddadvLogic->setVisible(rbLogicStandard->isSelected());
 
         tddadvCustomLogic = new SHR::TextDropDown("", GV->editState->hCustomLogics);
-        tddadvCustomLogic->setDimension(gcn::Rectangle(0, 0, 240, 20));
+        tddadvCustomLogic->setDimension(gcn::Rectangle(0, 0, 230, 20));
         tddadvCustomLogic->SetGfx(&GV->gcnParts);
         tddadvCustomLogic->addActionListener(hAL);
         tddadvCustomLogic->setText(rbLogicCustom->isSelected() ? obj->GetName()
                                                                : "");
-        window->add(tddadvCustomLogic, 125, 95);
+        window->add(tddadvCustomLogic, xOffset + 85, yOffset);
         tddadvCustomLogic->setVisible(rbLogicCustom->isSelected());
 
-        butCustomLogicEdit = new SHR::But(GV->hGfxInterface, GETL2S("ObjectProperties", "CustomLogicEdit"));
+        butCustomLogicEdit = new SHR::But(GV->hGfxInterface);
         butCustomLogicEdit->setIcon(GV->sprIcons16[Icon16_Pencil]);
-        butCustomLogicEdit->setDimension(gcn::Rectangle(0, 0, 115, 25));
+        butCustomLogicEdit->setDimension(gcn::Rectangle(0, 0, 22, 22));
+        butCustomLogicEdit->SetTooltip(GETL2S("ObjectProperties", "CustomLogicEdit"));
         butCustomLogicEdit->addActionListener(hAL);
-        window->add(butCustomLogicEdit, 125, 120);
+        window->add(butCustomLogicEdit, xOffset + 85 + 240 - 2, yOffset);
         butCustomLogicEdit->setEnabled(rbLogicCustom->isSelected());
 
-        labadvImageSet = new SHR::Lab(GETL(Lang_Graphic));
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_Name));
+        labadvName = new SHR::Lab(tmp);
+        labadvName->adjustSize();
+        window->add(labadvName,  xOffset, yOffset + 1);
+        tfadvName = new SHR::TextField(obj->GetName());
+        tfadvName->setDimension(gcn::Rectangle(0, 0, 260, 20));
+        tfadvName->setEnabled(rbLogicStandard->isSelected());
+        if (rbLogicCustom->isSelected())
+            tfadvName->setText(GETL2S("ObjectProperties", "CustomLogicNameNotify"));
+        window->add(tfadvName, xOffset + 85, yOffset);
+
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_Graphic));
+        labadvImageSet = new SHR::Lab(tmp);
         labadvImageSet->adjustSize();
-        window->add(labadvImageSet, 5, 150);
+        window->add(labadvImageSet, xOffset, yOffset + 2);
 
         tddadvImageSet = new SHR::TextDropDown("", hState->SprBank);
-        tddadvImageSet->setDimension(gcn::Rectangle(0, 0, 240, 20));
+        tddadvImageSet->setDimension(gcn::Rectangle(0, 0, 260, 20));
         tddadvImageSet->SetGfx(&GV->gcnParts);
         tddadvImageSet->addActionListener(hAL);
         tddadvImageSet->setText(obj->GetImageSet());
-        window->add(tddadvImageSet, 125, 150);
+        window->add(tddadvImageSet, xOffset + 85, yOffset);
+
+        yOffset += 25;
 
         butSelListImageSet = new SHR::But(GV->hGfxInterface, GETL(Lang_SelFromList));
-        butSelListImageSet->setDimension(gcn::Rectangle(0, 0, 240, 33));
+        butSelListImageSet->setDimension(gcn::Rectangle(0, 0, 260, 30));
         butSelListImageSet->addActionListener(hAL);
-        window->add(butSelListImageSet, 125, 183);
+        window->add(butSelListImageSet, xOffset + 85, yOffset);
 
-        labadvAnim = new SHR::Lab(GETL(Lang_Anim));
+        yOffset += 36;
+
+        sprintf(tmp, "%s:", GETL(Lang_Anim));
+        labadvAnim = new SHR::Lab(tmp);
         labadvAnim->adjustSize();
-        window->add(labadvAnim, 5, 225);
+        window->add(labadvAnim, xOffset, yOffset + 2);
 
         tddadvAnim = new SHR::TextDropDown("", hState->hAniBank);
-        tddadvAnim->setDimension(gcn::Rectangle(0, 0, 240, 20));
+        tddadvAnim->setDimension(gcn::Rectangle(0, 0, 260, 20));
         tddadvAnim->SetGfx(&GV->gcnParts);
         tddadvAnim->addActionListener(hAL);
         tddadvAnim->setText(obj->GetAnim());
-        window->add(tddadvAnim, 125, 225);
+        window->add(tddadvAnim, xOffset + 85, yOffset);
 
-        //----------------LOCATION-----------------------------------------------------
-        int yoffset = 220,
-                xoffset = 371;
+
+        //----------------ID & LOCATION-----------------------------------------------------
+        yOffset = 49;
+        xOffset = 367;
+
+        sprintf(tmp, "%s:", GETL(Lang_ID));
+        labadvID = new SHR::Lab(tmp);
+        labadvID->adjustSize();
+        window->add(labadvID, xOffset, yOffset + 1);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_ID));
+        tfadvID = new SHR::TextField(tmp);
+        tfadvID->SetNumerical(true);
+        tfadvID->setDimension(gcn::Rectangle(0, 0, 80, 20));
+        window->add(tfadvID, xOffset + 87, yOffset);
+
+        yOffset += 30;
 
         sprintf(tmp, "%s X:", GETL(Lang_Location));
         labadvLocX = new SHR::Lab(tmp);
         labadvLocX->adjustSize();
-        window->add(labadvLocX, xoffset + 5, yoffset + 2);
+        window->add(labadvLocX, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_LocationX));
         tfadvLocX = new SHR::TextField(tmp);
         tfadvLocX->SetNumerical(1);
         tfadvLocX->setDimension(gcn::Rectangle(0, 0, 80, 20));
-        window->add(tfadvLocX, xoffset + 84, yoffset);
+        window->add(tfadvLocX, xOffset + 85, yOffset);
 
-        yoffset += 25;
+        yOffset += 30;
 
         sprintf(tmp, "%s Y:", GETL(Lang_Location));
         labadvLocY = new SHR::Lab(tmp);
         labadvLocY->adjustSize();
-        window->add(labadvLocY, xoffset + 5, yoffset + 2);
+        window->add(labadvLocY, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_LocationY));
         tfadvLocY = new SHR::TextField(tmp);
         tfadvLocY->SetNumerical(1);
         tfadvLocY->setDimension(gcn::Rectangle(0, 0, 80, 20));
-        window->add(tfadvLocY, xoffset + 84, yoffset);
+        window->add(tfadvLocY, xOffset + 85, yOffset);
 
-        yoffset += 25;
+        yOffset += 30;
 
         sprintf(tmp, "%s Z:", GETL(Lang_Location));
         labadvLocZ = new SHR::Lab(tmp);
         labadvLocZ->adjustSize();
-        window->add(labadvLocZ, xoffset + 5, yoffset + 2);
+        window->add(labadvLocZ, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_LocationZ));
         tfadvLocZ = new SHR::TextField(tmp);
         tfadvLocZ->SetNumerical(1);
         tfadvLocZ->setDimension(gcn::Rectangle(0, 0, 80, 20));
-        window->add(tfadvLocZ, xoffset + 84, yoffset);
+        window->add(tfadvLocZ, xOffset + 85, yOffset);
 
-        yoffset += 25;
+        yOffset += 30;
 
         labadvLocI = new SHR::Lab(GETL2S("ObjectProperties", "FrameI"));
         labadvLocI->adjustSize();
-        window->add(labadvLocI, xoffset + 5, yoffset + 2);
+        window->add(labadvLocI, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_LocationI));
         tfadvLocI = new SHR::TextField(tmp);
-        tfadvLocI->SetNumerical(1);
+        tfadvLocI->SetNumerical(true);
         tfadvLocI->setDimension(gcn::Rectangle(0, 0, 80, 20));
-        window->add(tfadvLocI, xoffset + 84, yoffset);
-
+        window->add(tfadvLocI, xOffset + 85, yOffset);
 
         //----------------------------------------------------PROPERTIES
 
-        xoffset = 5;
-        yoffset = 325;
+        xOffset = 8;
+        yOffset += 50;
 
-        labadvSpeedX = new SHR::Lab(GETL(Lang_SpeedX));
+        sprintf(tmp, "%s:", GETL(Lang_SpeedX));
+        labadvSpeedX = new SHR::Lab(tmp);
         labadvSpeedX->adjustSize();
-        window->add(labadvSpeedX, xoffset, yoffset + 2);
+        window->add(labadvSpeedX, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_SpeedX));
         tfadvSpeedX = new SHR::TextField(tmp);
         tfadvSpeedX->SetNumerical(1);
         tfadvSpeedX->adjustSize();
         tfadvSpeedX->setWidth(80);
-        window->add(tfadvSpeedX, xoffset + 80, yoffset);
+        window->add(tfadvSpeedX, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvSpeedY = new SHR::Lab(GETL(Lang_SpeedY));
+        sprintf(tmp, "%s:", GETL(Lang_SpeedY));
+        labadvSpeedY = new SHR::Lab(tmp);
         labadvSpeedY->adjustSize();
-        window->add(labadvSpeedY, xoffset, yoffset + 2);
+        window->add(labadvSpeedY, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_SpeedY));
         tfadvSpeedY = new SHR::TextField(tmp);
         tfadvSpeedY->SetNumerical(1);
         tfadvSpeedY->adjustSize();
         tfadvSpeedY->setWidth(80);
-        window->add(tfadvSpeedY, xoffset + 80, yoffset);
+        window->add(tfadvSpeedY, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvTweakX = new SHR::Lab(GETL(Lang_TweakX));
-        labadvTweakX->adjustSize();
-        window->add(labadvTweakX, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TweakX));
-        tfadvTweakX = new SHR::TextField(tmp);
-        tfadvTweakX->SetNumerical(1);
-        tfadvTweakX->adjustSize();
-        tfadvTweakX->setWidth(80);
-        window->add(tfadvTweakX, xoffset + 80, yoffset);
-
-        xoffset = 5;
-        yoffset += 25;
-
-        labadvTweakY = new SHR::Lab(GETL(Lang_TweakY));
-        labadvTweakY->adjustSize();
-        window->add(labadvTweakY, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TweakY));
-        tfadvTweakY = new SHR::TextField(tmp);
-        tfadvTweakY->SetNumerical(1);
-        tfadvTweakY->adjustSize();
-        tfadvTweakY->setWidth(80);
-        window->add(tfadvTweakY, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        labadvCounter = new SHR::Lab(GETL(Lang_Counter));
-        labadvCounter->adjustSize();
-        window->add(labadvCounter, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_Counter));
-        tfadvCounter = new SHR::TextField(tmp);
-        tfadvCounter->SetNumerical(1);
-        tfadvCounter->adjustSize();
-        tfadvCounter->setWidth(80);
-        window->add(tfadvCounter, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        labadvSpeed = new SHR::Lab(GETL(Lang_Speed));
+        sprintf(tmp, "%s:", GETL(Lang_Speed));
+        labadvSpeed = new SHR::Lab(tmp);
         labadvSpeed->adjustSize();
-        window->add(labadvSpeed, xoffset, yoffset + 2);
+        window->add(labadvSpeed, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Speed));
         tfadvSpeed = new SHR::TextField(tmp);
         tfadvSpeed->SetNumerical(1);
         tfadvSpeed->adjustSize();
         tfadvSpeed->setWidth(80);
-        window->add(tfadvSpeed, xoffset + 80, yoffset);
+        window->add(tfadvSpeed, xOffset + 85, yOffset);
 
-        xoffset = 5;
-        yoffset += 25;
+        xOffset = 8;
+        yOffset += 30;
 
-        labadvWidth = new SHR::Lab(GETL(Lang_Width));
+        sprintf(tmp, "%s:", GETL(Lang_TweakX));
+        labadvTweakX = new SHR::Lab(tmp);
+        labadvTweakX->adjustSize();
+        window->add(labadvTweakX, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TweakX));
+        tfadvTweakX = new SHR::TextField(tmp);
+        tfadvTweakX->SetNumerical(1);
+        tfadvTweakX->adjustSize();
+        tfadvTweakX->setWidth(80);
+        window->add(tfadvTweakX, xOffset + 85, yOffset);
+
+        xOffset += 180;
+
+        sprintf(tmp, "%s:", GETL(Lang_TweakY));
+        labadvTweakY = new SHR::Lab(tmp);
+        labadvTweakY->adjustSize();
+        window->add(labadvTweakY, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TweakY));
+        tfadvTweakY = new SHR::TextField(tmp);
+        tfadvTweakY->SetNumerical(1);
+        tfadvTweakY->adjustSize();
+        tfadvTweakY->setWidth(80);
+        window->add(tfadvTweakY, xOffset + 85, yOffset);
+
+        xOffset += 180;
+
+        sprintf(tmp, "%s:", GETL(Lang_Direction));
+        labadvDirection = new SHR::Lab(tmp);
+        labadvDirection->adjustSize();
+        window->add(labadvDirection, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_Direction));
+        tfadvDirection = new SHR::TextField(tmp);
+        tfadvDirection->SetNumerical(1);
+        tfadvDirection->adjustSize();
+        tfadvDirection->setWidth(80);
+        window->add(tfadvDirection, xOffset + 85, yOffset);
+
+        xOffset = 8;
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_MoveResX));
+        labadvMoveResX = new SHR::Lab(tmp);
+        labadvMoveResX->adjustSize();
+        window->add(labadvMoveResX, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_MoveResX));
+        tfadvMoveResX = new SHR::TextField(tmp);
+        tfadvMoveResX->SetNumerical(1);
+        tfadvMoveResX->adjustSize();
+        tfadvMoveResX->setWidth(80);
+        window->add(tfadvMoveResX, xOffset + 85, yOffset);
+
+        xOffset += 180;
+
+        sprintf(tmp, "%s:", GETL(Lang_MoveResY));
+        labadvMoveResY = new SHR::Lab(tmp);
+        labadvMoveResY->adjustSize();
+        window->add(labadvMoveResY, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_MoveResY));
+        tfadvMoveResY = new SHR::TextField(tmp);
+        tfadvMoveResY->SetNumerical(1);
+        tfadvMoveResY->adjustSize();
+        tfadvMoveResY->setWidth(80);
+        window->add(tfadvMoveResY, xOffset + 85, yOffset);
+
+        xOffset += 180;
+
+        sprintf(tmp, "%s:", GETL(Lang_FacingDirection));
+        labadvFaceDir = new SHR::Lab(tmp);
+        labadvFaceDir->adjustSize();
+        window->add(labadvFaceDir, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_FaceDir));
+        tfadvFaceDir = new SHR::TextField(tmp);
+        tfadvFaceDir->SetNumerical(1);
+        tfadvFaceDir->adjustSize();
+        tfadvFaceDir->setWidth(80);
+        window->add(tfadvFaceDir, xOffset + 85, yOffset);
+
+        xOffset = 8;
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_Width));
+        labadvWidth = new SHR::Lab(tmp);
         labadvWidth->adjustSize();
-        window->add(labadvWidth, xoffset, yoffset + 2);
+        window->add(labadvWidth, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Width));
         tfadvWidth = new SHR::TextField(tmp);
         tfadvWidth->SetNumerical(1);
         tfadvWidth->adjustSize();
         tfadvWidth->setWidth(80);
-        window->add(tfadvWidth, xoffset + 80, yoffset);
+        window->add(tfadvWidth, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvHeight = new SHR::Lab(GETL(Lang_Height));
+        sprintf(tmp, "%s:", GETL(Lang_Height));
+        labadvHeight = new SHR::Lab(tmp);
         labadvHeight->adjustSize();
-        window->add(labadvHeight, xoffset, yoffset + 2);
+        window->add(labadvHeight, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Height));
         tfadvHeight = new SHR::TextField(tmp);
@@ -982,194 +1026,182 @@ namespace State {
         tfadvHeight->adjustSize();
         tfadvHeight->
                 setWidth(80);
-        window->add(tfadvHeight, xoffset + 80, yoffset);
+        window->add(tfadvHeight, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvDirection = new SHR::Lab(GETL(Lang_Direction));
-        labadvDirection->adjustSize();
-        window->add(labadvDirection, xoffset, yoffset + 2);
+        sprintf(tmp, "%s:", GETL(Lang_Counter));
+        labadvCounter = new SHR::Lab(tmp);
+        labadvCounter->adjustSize();
+        window->add(labadvCounter, xOffset, yOffset + 2);
 
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_Direction));
-        tfadvDirection = new SHR::TextField(tmp);
-        tfadvDirection->SetNumerical(1);
-        tfadvDirection->adjustSize();
-        tfadvDirection->setWidth(80);
-        window->add(tfadvDirection, xoffset + 80, yoffset);
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_Counter));
+        tfadvCounter = new SHR::TextField(tmp);
+        tfadvCounter->SetNumerical(1);
+        tfadvCounter->adjustSize();
+        tfadvCounter->setWidth(80);
+        window->add(tfadvCounter, xOffset + 85, yOffset);
 
-        xoffset = 5;
-        yoffset += 25;
+        xOffset = 8;
+        yOffset += 30;
 
-        labadvFaceDir = new SHR::Lab(GETL(Lang_FacingDirection));
-        labadvFaceDir->adjustSize();
-        window->add(labadvFaceDir, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_FaceDir));
-        tfadvFaceDir = new SHR::TextField(tmp);
-        tfadvFaceDir->SetNumerical(1);
-        tfadvFaceDir->adjustSize();
-        tfadvFaceDir->setWidth(80);
-        window->add(tfadvFaceDir, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        labadvTimeDelay = new SHR::Lab(GETL(Lang_TimeDelay));
-        labadvTimeDelay->adjustSize();
-        window->add(labadvTimeDelay, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TimeDelay));
-        tfadvTimeDelay = new SHR::TextField(tmp);
-        tfadvTimeDelay->SetNumerical(1);
-        tfadvTimeDelay->adjustSize();
-        tfadvTimeDelay->setWidth(80);
-        window->add(tfadvTimeDelay, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        labadvFrameDelay = new SHR::Lab(GETL(Lang_FrameDelay));
-        labadvFrameDelay->adjustSize();
-        window->add(labadvFrameDelay, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_FrameDelay));
-        tfadvFrameDelay = new SHR::TextField(tmp);
-        tfadvFrameDelay->SetNumerical(1);
-        tfadvFrameDelay->adjustSize();
-        tfadvFrameDelay->setWidth(80);
-        window->add(tfadvFrameDelay, xoffset + 80, yoffset);
-
-        xoffset = 5;
-        yoffset += 25;
-
-        labadvMoveResX = new SHR::Lab(GETL(Lang_MoveResX));
-        labadvMoveResX->adjustSize();
-        window->add(labadvMoveResX, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_MoveResX));
-        tfadvMoveResX = new SHR::TextField(tmp);
-        tfadvMoveResX->SetNumerical(1);
-        tfadvMoveResX->adjustSize();
-        tfadvMoveResX->setWidth(80);
-        window->add(tfadvMoveResX, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        labadvMoveResY = new SHR::Lab(GETL(Lang_MoveResY));
-        labadvMoveResY->adjustSize();
-        window->add(labadvMoveResY, xoffset, yoffset + 2);
-
-        sprintf(tmp, "%d", obj->GetParam(WWD::Param_MoveResY));
-        tfadvMoveResY = new SHR::TextField(tmp);
-        tfadvMoveResY->SetNumerical(1);
-        tfadvMoveResY->adjustSize();
-        tfadvMoveResY->setWidth(80);
-        window->add(tfadvMoveResY, xoffset + 80, yoffset);
-
-        xoffset += 185;
-
-        //----------------------------------------------PROPERTIES
-        labadvScore = new SHR::Lab(GETL(Lang_Score));
+        sprintf(tmp, "%s:", GETL(Lang_Score));
+        labadvScore = new SHR::Lab(tmp);
         labadvScore->adjustSize();
-        window->add(labadvScore, xoffset, yoffset + 2);
+        window->add(labadvScore, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Score));
         tfadvScore = new SHR::TextField(tmp);
         tfadvScore->SetNumerical(1);
         tfadvScore->adjustSize();
         tfadvScore->setWidth(80);
-        window->add(tfadvScore, xoffset + 80, yoffset);
+        window->add(tfadvScore, xOffset + 85, yOffset);
 
-        xoffset = 5;
-        yoffset += 25;
+        xOffset += 180;
 
-        labadvPoints = new SHR::Lab(GETL(Lang_Points));
+        sprintf(tmp, "%s:", GETL(Lang_TimeDelay));
+        labadvTimeDelay = new SHR::Lab(tmp);
+        labadvTimeDelay->adjustSize();
+        window->add(labadvTimeDelay, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_TimeDelay));
+        tfadvTimeDelay = new SHR::TextField(tmp);
+        tfadvTimeDelay->SetNumerical(1);
+        tfadvTimeDelay->adjustSize();
+        tfadvTimeDelay->setWidth(80);
+        window->add(tfadvTimeDelay, xOffset + 85, yOffset);
+
+        xOffset += 180;
+
+        sprintf(tmp, "%s:", GETL(Lang_FrameDelay));
+        labadvFrameDelay = new SHR::Lab(tmp);
+        labadvFrameDelay->adjustSize();
+        window->add(labadvFrameDelay, xOffset, yOffset + 2);
+
+        sprintf(tmp, "%d", obj->GetParam(WWD::Param_FrameDelay));
+        tfadvFrameDelay = new SHR::TextField(tmp);
+        tfadvFrameDelay->SetNumerical(1);
+        tfadvFrameDelay->adjustSize();
+        tfadvFrameDelay->setWidth(80);
+        window->add(tfadvFrameDelay, xOffset + 85, yOffset);
+
+        xOffset = 8;
+        yOffset += 30;
+
+        sprintf(tmp, "%s:", GETL(Lang_Points));
+        labadvPoints = new SHR::Lab(tmp);
         labadvPoints->adjustSize();
-        window->add(labadvPoints, xoffset, yoffset + 2);
+        window->add(labadvPoints, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Points));
         tfadvPoints = new SHR::TextField(tmp);
         tfadvPoints->SetNumerical(1);
         tfadvPoints->adjustSize();
         tfadvPoints->setWidth(80);
-        window->add(tfadvPoints, xoffset + 80, yoffset);
+        window->add(tfadvPoints, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvPowerup = new SHR::Lab(GETL(Lang_Powerup));
+        sprintf(tmp, "%s:", GETL(Lang_Powerup));
+        labadvPowerup = new SHR::Lab(tmp);
         labadvPowerup->adjustSize();
-        window->add(labadvPowerup, xoffset, yoffset + 2);
+        window->add(labadvPowerup, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Powerup));
         tfadvPowerup = new SHR::TextField(tmp);
         tfadvPowerup->SetNumerical(1);
         tfadvPowerup->adjustSize();
         tfadvPowerup->setWidth(80);
-        window->add(tfadvPowerup, xoffset + 80, yoffset);
+        window->add(tfadvPowerup, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvDamage = new SHR::Lab(GETL(Lang_Damage));
+        sprintf(tmp, "%s:", GETL(Lang_Damage));
+        labadvDamage = new SHR::Lab(tmp);
         labadvDamage->adjustSize();
-        window->add(labadvDamage, xoffset, yoffset + 2);
+        window->add(labadvDamage, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Damage));
         tfadvDamage = new SHR::TextField(tmp);
         tfadvDamage->SetNumerical(1);
         tfadvDamage->adjustSize();
         tfadvDamage->setWidth(80);
-        window->add(tfadvDamage, xoffset + 80, yoffset);
+        window->add(tfadvDamage, xOffset + 85, yOffset);
 
-        xoffset = 5;
-        yoffset += 25;
+        xOffset = 8;
+        yOffset += 30;
 
-        labadvSmarts = new SHR::Lab(GETL(Lang_Smarts));
+        sprintf(tmp, "%s:", GETL(Lang_Smarts));
+        labadvSmarts = new SHR::Lab(tmp);
         labadvSmarts->adjustSize();
-        window->add(labadvSmarts, xoffset, yoffset + 2);
+        window->add(labadvSmarts, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Smarts));
         tfadvSmarts = new SHR::TextField(tmp);
         tfadvSmarts->SetNumerical(1);
         tfadvSmarts->adjustSize();
         tfadvSmarts->setWidth(80);
-        window->add(tfadvSmarts, xoffset + 80, yoffset);
+        window->add(tfadvSmarts, xOffset + 85, yOffset);
 
-        xoffset += 185;
+        xOffset += 180;
 
-        labadvHealth = new SHR::Lab(GETL(Lang_Health));
+        sprintf(tmp, "%s:", GETL(Lang_Health));
+        labadvHealth = new SHR::Lab(tmp);
         labadvHealth->adjustSize();
-        window->add(labadvHealth, xoffset, yoffset + 2);
+        window->add(labadvHealth, xOffset, yOffset + 2);
 
         sprintf(tmp, "%d", obj->GetParam(WWD::Param_Health));
         tfadvHealth = new SHR::TextField(tmp);
         tfadvHealth->SetNumerical(1);
         tfadvHealth->adjustSize();
         tfadvHealth->setWidth(80);
-        window->add(tfadvHealth, xoffset + 80, yoffset);
+        window->add(tfadvHealth, xOffset + 85, yOffset);
 
-        xoffset = 5;
-        yoffset += 30;
+        xOffset = 8;
+        yOffset += 40;
 
         //---------------------------------------------------USER NUMERICAL VALUES
-        labadvUserValues = new SHR::Lab(GETL(Lang_UserValues));
+        sprintf(tmp, "%s:", GETL(Lang_UserValues));
+        labadvUserValues = new SHR::Lab(tmp);
         labadvUserValues->adjustSize();
-        window->add(labadvUserValues, xoffset, yoffset);
+        window->add(labadvUserValues, xOffset, yOffset);
 
-        yoffset += 20;
+        yOffset += 25;
 
         for (int i = 0; i < 8; i++) {
             sprintf(tmp, "#%d", i + 1);
-            //sprintf(tmp, "%s #%d", GETL(Lang_UserValue), i+1);
             labadvUserValue[i] = new SHR::Lab(tmp);
             labadvUserValue[i]->adjustSize();
-            window->add(labadvUserValue[i], xoffset + (i % 4) * 110, yoffset + 2 + (i >= 4) * 25);
+            window->add(labadvUserValue[i], xOffset + (i % 4) * 89, yOffset + 1 + (i >= 4) * 25);
             sprintf(tmp, "%d", obj->GetUserValue(i));
             tfadvUserValue[i] = new SHR::TextField(tmp);
-            tfadvUserValue[i]->SetNumerical(1);
+            tfadvUserValue[i]->SetNumerical(true);
             tfadvUserValue[i]->adjustSize();
-            tfadvUserValue[i]->setWidth(75);
-            window->add(tfadvUserValue[i], xoffset + 25 + (i % 4) * 110, yoffset + (i >= 4) * 25);
+            tfadvUserValue[i]->setWidth(55);
+            window->add(tfadvUserValue[i], xOffset + 21 + (i % 4) * 89, yOffset + (i >= 4) * 25);
         }
 
-        yoffset = 15;
+        yOffset += 60;
+
+        //----------------------------------------------USER FLAGS
+        sprintf(tmp, "%s:", GETL(Lang_UserFlags));
+        labadvUserFlags = new SHR::Lab(tmp);
+        labadvUserFlags->adjustSize();
+        window->add(labadvUserFlags, xOffset, yOffset);
+
+        yOffset += 20;
+
+        for (int i = 0; i < 12; i++) {
+            sprintf(tmp, "#%d", i + 1);
+            //sprintf(tmp, "%s #%d", GETL(Lang_UserFlag), i+1);
+            cbadvUser[i] = new SHR::CBox(GV->hGfxInterface, tmp);
+            cbadvUser[i]->adjustSize();
+            window->add(cbadvUser[i], xOffset + i * 42 + (i > 9 ? 8 * (i - 9) : 0), yOffset + 2);
+            if (obj->GetUserFlags() & (WWD::OBJ_USER_FLAGS) (1 << i))  // 2^i
+                cbadvUser[i]->setSelected(true);
+        }
+
+        yOffset = 15;
 
         //--------------------------------------------------RECTS
         sprintf(tmp, "%s #%d", GETL(Lang_UserRect), 1);
@@ -1177,141 +1209,144 @@ namespace State {
                                        obj->GetParam(WWD::Param_MinY),
                                        obj->GetParam(WWD::Param_MaxX),
                                        obj->GetParam(WWD::Param_MaxY));
-        guirectMinMax = new cRectPropGUI(&testrect, window, 725, yoffset, GETL2S("Various", "MinMaxRect"));
+        guirectMinMax = new cRectPropGUI(&testrect, window, 725, yOffset, GETL2S("Various", "MinMaxRect"));
         guirectMinMax->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         testrect = obj->GetUserRect(0);
-        guirectUser[0] = new cRectPropGUI(&testrect, window, 725, yoffset, tmp);
+        guirectUser[0] = new cRectPropGUI(&testrect, window, 725, yOffset, tmp);
         guirectUser[0]->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         sprintf(tmp, "%s #%d", GETL(Lang_UserRect), 2);
         testrect = obj->GetUserRect(1);
-        guirectUser[1] = new cRectPropGUI(&testrect, window, 725, yoffset, tmp);
+        guirectUser[1] = new cRectPropGUI(&testrect, window, 725, yOffset, tmp);
         guirectUser[1]->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         testrect = obj->GetMoveRect();
-        guirectMove = new cRectPropGUI(&testrect, window, 725, yoffset, GETL(Lang_MoveRect));
+        guirectMove = new cRectPropGUI(&testrect, window, 725, yOffset, GETL(Lang_MoveRect));
         guirectMove->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         testrect = obj->GetHitRect();
-        guirectHit = new cRectPropGUI(&testrect, window, 725, yoffset, GETL(Lang_HitRect));
+        guirectHit = new cRectPropGUI(&testrect, window, 725, yOffset, GETL(Lang_HitRect));
         guirectHit->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         testrect = obj->GetAttackRect();
-        guirectAttack = new cRectPropGUI(&testrect, window, 725, yoffset, GETL(Lang_AttackRect));
+        guirectAttack = new cRectPropGUI(&testrect, window, 725, yOffset, GETL(Lang_AttackRect));
         guirectAttack->butPick->addActionListener(hAL);
-        yoffset += 74;
+        yOffset += 74;
         testrect = obj->GetClipRect();
-        guirectClip = new cRectPropGUI(&testrect, window, 725, yoffset, GETL(Lang_ClipRect));
+        guirectClip = new cRectPropGUI(&testrect, window, 725, yOffset, GETL(Lang_ClipRect));
         guirectClip->butPick->addActionListener(hAL);
-        yoffset += 74;
 
-        yoffset = 15;
-        xoffset = 380;
+        yOffset = 18;
+        xOffset = 380 + 170;
 
         //------------------------------DRAW FLAGS
-        labadvDrawFlags = new SHR::Lab(GETL(Lang_DrawingFlags));
+        sprintf(tmp, "%s:", GETL(Lang_DrawingFlags));
+        labadvDrawFlags = new SHR::Lab(tmp);
         labadvDrawFlags->adjustSize();
-        window->add(labadvDrawFlags, xoffset, yoffset);
+        window->add(labadvDrawFlags, xOffset, yOffset);
 
-        yoffset += 20;
+        yOffset += 23;
 
         cbadvDraw_No = new SHR::CBox(GV->hGfxInterface, GETL(Lang_NoDraw));
         cbadvDraw_No->setSelected((obj->GetDrawFlags() & WWD::Flag_dr_NoDraw));
         cbadvDraw_No->adjustSize();
-        window->add(cbadvDraw_No, xoffset, yoffset);
-        yoffset += 20;
+        window->add(cbadvDraw_No, xOffset, yOffset);
+        yOffset += 20;
         cbadvDraw_Mirror = new SHR::CBox(GV->hGfxInterface, GETL(Lang_Mirror));
         cbadvDraw_Mirror->setSelected((obj->GetDrawFlags() & WWD::Flag_dr_Mirror));
         cbadvDraw_Mirror->adjustSize();
-        window->add(cbadvDraw_Mirror, xoffset, yoffset);
-        yoffset += 20;
+        window->add(cbadvDraw_Mirror, xOffset, yOffset);
+        yOffset += 20;
         cbadvDraw_Invert = new SHR::CBox(GV->hGfxInterface, GETL(Lang_Invert));
         cbadvDraw_Invert->setSelected((obj->GetDrawFlags() & WWD::Flag_dr_Invert));
         cbadvDraw_Invert->adjustSize();
-        window->add(cbadvDraw_Invert, xoffset, yoffset);
-        yoffset += 20;
+        window->add(cbadvDraw_Invert, xOffset, yOffset);
+        yOffset += 20;
         cbadvDraw_Flash = new SHR::CBox(GV->hGfxInterface, GETL(Lang_Flash));
         cbadvDraw_Flash->setSelected((obj->GetDrawFlags() & WWD::Flag_dr_Flash));
         cbadvDraw_Flash->adjustSize();
-        window->add(cbadvDraw_Flash, xoffset, yoffset);
-        yoffset -= 80;
+        window->add(cbadvDraw_Flash, xOffset, yOffset);
+        yOffset += 30;
 
-        xoffset -= 28;
         //-------------------------------DYNAMIC FLAGS
-        labadvDynamicFlags = new SHR::Lab(GETL(Lang_DynamicFlags));
+        sprintf(tmp, "%s:", GETL(Lang_DynamicFlags));
+        labadvDynamicFlags = new SHR::Lab(tmp);
         labadvDynamicFlags->adjustSize();
-        window->add(labadvDynamicFlags, xoffset + 190, yoffset);
-        yoffset += 20;
+        window->add(labadvDynamicFlags, xOffset, yOffset);
+        yOffset += 23;
 
         cbadvDynamic_NoHit = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_NoHit));
         cbadvDynamic_NoHit->setSelected((obj->GetDynamicFlags() & WWD::Flag_dy_NoHit));
         cbadvDynamic_NoHit->adjustSize();
-        window->add(cbadvDynamic_NoHit, xoffset + 190, yoffset);
-        yoffset += 20;
+        window->add(cbadvDynamic_NoHit, xOffset, yOffset);
+        yOffset += 20;
         cbadvDynamic_AlwaysActive = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_AlwaysActive));
         cbadvDynamic_AlwaysActive->setSelected((obj->GetDynamicFlags() & WWD::Flag_dy_AlwaysActive));
         cbadvDynamic_AlwaysActive->adjustSize();
-        window->add(cbadvDynamic_AlwaysActive, xoffset + 190, yoffset);
-        yoffset += 20;
+        window->add(cbadvDynamic_AlwaysActive, xOffset, yOffset);
+        yOffset += 20;
         cbadvDynamic_Safe = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_Safe));
         cbadvDynamic_Safe->setSelected((obj->GetDynamicFlags() & WWD::Flag_dy_Safe));
         cbadvDynamic_Safe->adjustSize();
-        window->add(cbadvDynamic_Safe, xoffset + 190, yoffset);
-        yoffset += 20;
+        window->add(cbadvDynamic_Safe, xOffset, yOffset);
+        yOffset += 20;
         cbadvDynamic_AutoHitDmg = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_AutoHitDmg));
         cbadvDynamic_AutoHitDmg->setSelected((obj->GetDynamicFlags() & WWD::Flag_dy_AutoHitDamage));
         cbadvDynamic_AutoHitDmg->adjustSize();
-        window->add(cbadvDynamic_AutoHitDmg, xoffset + 190, yoffset);
-        yoffset += 30;
+        window->add(cbadvDynamic_AutoHitDmg, xOffset, yOffset);
+        yOffset += 30;
         //--------------------------------------------ADD FLAGS
-        xoffset += 28;
         labadvAddFlags = new SHR::Lab(GETL(Lang_AddFlags));
         labadvAddFlags->adjustSize();
-        window->add(labadvAddFlags, xoffset, yoffset);
-        yoffset += 20;
+        //window->add(labadvAddFlags, xOffset, yOffset);
+        //yOffset += 20;
 
+        xOffset -= 170;
+
+        // hidden - not used by the game
         cbadvAdd_Difficult = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_Difficult));
         cbadvAdd_Difficult->setSelected((obj->GetAddFlags() & WWD::Flag_a_Difficult));
         cbadvAdd_Difficult->adjustSize();
-        window->add(cbadvAdd_Difficult, xoffset, yoffset);
-        yoffset += 20;
+        //window->add(cbadvAdd_Difficult, xOffset, yOffset);
+        //yOffset += 20;
         cbadvAdd_EyeCandy = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_EyeCandy));
         cbadvAdd_EyeCandy->setSelected((obj->GetAddFlags() & WWD::Flag_a_EyeCandy));
         cbadvAdd_EyeCandy->adjustSize();
-        window->add(cbadvAdd_EyeCandy, xoffset, yoffset);
-        yoffset += 20;
+        //window->add(cbadvAdd_EyeCandy, xOffset, yOffset);
+        //yOffset += 20;
         cbadvAdd_HighDetail = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_HighDetail));
         cbadvAdd_HighDetail->setSelected((obj->GetAddFlags() & WWD::Flag_a_HighDetail));
         cbadvAdd_HighDetail->adjustSize();
-        window->add(cbadvAdd_HighDetail, xoffset, yoffset);
-        yoffset -= 40;
+        //window->add(cbadvAdd_HighDetail, xOffset, yOffset);
+        //yOffset -= 40;
 
-        xoffset -= 28;
+        xOffset -= 28;
         cbadvAdd_Multiplayer = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_Multiplayer));
         cbadvAdd_Multiplayer->setSelected((obj->GetAddFlags() & WWD::Flag_a_Multiplayer));
         cbadvAdd_Multiplayer->adjustSize();
-        window->add(cbadvAdd_Multiplayer, xoffset + 190, yoffset);
-        yoffset += 20;
+        //window->add(cbadvAdd_Multiplayer, xOffset + 190, yOffset);
+        //yOffset += 20;
         cbadvAdd_ExtraMemory = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_ExtraMemory));
         cbadvAdd_ExtraMemory->setSelected((obj->GetAddFlags() & WWD::Flag_a_ExtraMemory));
         cbadvAdd_ExtraMemory->adjustSize();
-        window->add(cbadvAdd_ExtraMemory, xoffset + 190, yoffset);
-        yoffset += 20;
+        //window->add(cbadvAdd_ExtraMemory, xOffset + 190, yOffset);
+        //yOffset += 20;
         cbadvAdd_FastCPU = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_FastCPU));
         cbadvAdd_FastCPU->setSelected((obj->GetAddFlags() & WWD::Flag_a_FastCPU));
         cbadvAdd_FastCPU->adjustSize();
-        window->add(cbadvAdd_FastCPU, xoffset + 190, yoffset);
-        yoffset += 30;
+        //window->add(cbadvAdd_FastCPU, xOffset + 190, yOffset);
+        //yOffset += 30;
 
         //----------------------------------------------TYPE
-        xoffset += 33;
-        labadvType = new SHR::Lab(GETL(Lang_TypeFlag));
+        xOffset += 33;
+        sprintf(tmp, "%s:", GETL(Lang_TypeFlag));
+        labadvType = new SHR::Lab(tmp);
         labadvType->adjustSize();
-        window->add(labadvType, xoffset + 190 - 28, yoffset);
+        window->add(labadvType, xOffset + 190 - 25, yOffset);
         //sprintf(tmp, "%d_type_%d", obj->GetParam(WWD::Param_ID), hge->Random_Int(0,1000));
 
-        yoffset += 20;
+        yOffset += 23;
 
         lmAdvType = new gcn::GenericListModel();
         lmAdvType->addElement(std::string(GETL2S("ObjectProperties", "Default")));
@@ -1320,11 +1355,11 @@ namespace State {
         }
 
         ddAdvType = new SHR::DropDown();
-        ddAdvType->setDimension(gcn::Rectangle(0, 0, 165, 20));
+        ddAdvType->setDimension(gcn::Rectangle(0, 0, 160, 20));
         ddAdvType->setListModel(lmAdvType);
         ddAdvType->addActionListener(hAL);
         ddAdvType->SetGfx(&GV->gcnParts);
-        window->add(ddAdvType, xoffset + 190 - 28, yoffset);
+        window->add(ddAdvType, xOffset + 190 - 28, yOffset);
         if (obj->GetTypeFlags() != 0) {
             for (int i = 0; i < 12; i++)
                 if (pow(2, i) == obj->GetTypeFlags()) {
@@ -1333,46 +1368,24 @@ namespace State {
                 }
         }
 
-        //yoffset -= 20;
-        yoffset += 40;
+        //yOffset -= 20;
+        yOffset += 35;
 
         //----------------------------------------------HITTYPE
-        xoffset -= 28;
-        labadvHitType = new SHR::Lab(GETL(Lang_HitTypeFlags));
+        xOffset -= 25;
+        sprintf(tmp, "%s:", GETL(Lang_HitTypeFlags));
+        labadvHitType = new SHR::Lab(tmp);
         labadvHitType->adjustSize();
-        window->add(labadvHitType, xoffset + 190, yoffset);
+        window->add(labadvHitType, xOffset + 190, yOffset);
 
-        yoffset += 20;
+        yOffset += 23;
 
         for (int i = 0; i < 12; i++) {
             cbadvHitType[i] = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ObjFlag_HitType1 + i));
             cbadvHitType[i]->adjustSize();
-            if (i > 7)
-                window->add(cbadvHitType[i], xoffset + 190 + ((i - 8) % 2) * 80, yoffset + 160 + ((i - 8) / 2) * 20);
-            else
-                window->add(cbadvHitType[i], xoffset + 190, yoffset + i * 20);
+            window->add(cbadvHitType[i], xOffset + 190, yOffset + i * 20);
             if (obj->GetHitTypeFlags() & (WWD::OBJ_TYPE_FLAGS) (1 << i)) // 2^i
                 cbadvHitType[i]->setSelected(1);
-        }
-
-        yoffset += 210;
-
-        //----------------------------------------------USERFLAGS
-        xoffset += 28;
-        labadvUserFlags = new SHR::Lab(GETL(Lang_UserFlags));
-        labadvUserFlags->adjustSize();
-        window->add(labadvUserFlags, xoffset + 90 - 28, yoffset);
-
-        yoffset += 20;
-
-        for (int i = 0; i < 12; i++) {
-            sprintf(tmp, "#%d", i + 1);
-            //sprintf(tmp, "%s #%d", GETL(Lang_UserFlag), i+1);
-            cbadvUser[i] = new SHR::CBox(GV->hGfxInterface, tmp);
-            cbadvUser[i]->adjustSize();
-            window->add(cbadvUser[i], xoffset + 90 - 28 + (i % 6) * 40, yoffset + 2 + (i / 6) * 25);
-            if (obj->GetUserFlags() & (WWD::OBJ_USER_FLAGS) (1 << i))  // 2^i
-                cbadvUser[i]->setSelected(1);
         }
 
         //-------------------MAIN BUTTONS---------------------------------------

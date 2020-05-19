@@ -53,26 +53,29 @@ void State::EditingWW::ExpandLogicBrowser() {
             width = lab->getWidth();
         }
     }
+    width += 10;
+
+    int yOffset = 16;
 
     winLogicBrowser->setDimension(gcn::Rectangle(0, 0, 800, 221));
     winLogicBrowser->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 400,
                                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 120);
-    winLogicBrowser->add(labbrlLogicName, 310, 20);
-    winLogicBrowser->add(labbrlFilePath, 310, 45);
-    winLogicBrowser->add(labbrlFileSize, 310, 70);
-    winLogicBrowser->add(labbrlFileChecksum, 310, 95);
-    winLogicBrowser->add(labbrlFileModDate, 310, 120);
-    //winLogicBrowser->add(tfbrlRename, 310 + width, 19);
-    //winLogicBrowser->add(butbrlRenameOK, 310 + width + 5 + 200, 15);
-    winLogicBrowser->add(labbrlLogicNameV, 310 + width, 20);
-    winLogicBrowser->add(labbrlFilePathV, 310 + width, 45);
-    winLogicBrowser->add(labbrlFileSizeV, 310 + width, 70);
-    winLogicBrowser->add(labbrlFileChecksumV, 310 + width, 95);
-    winLogicBrowser->add(labbrlFileModDateV, 310 + width, 120);
-    winLogicBrowser->add(butbrlBrowseDir, 310, 177);
-    winLogicBrowser->add(butbrlEdit, 310, 147);
-    winLogicBrowser->add(butbrlRename, 310 + 245, 147);
-    winLogicBrowser->add(butbrlDelete, 310 + 245, 177);
+    winLogicBrowser->add(labbrlLogicName, 305, yOffset);
+    winLogicBrowser->add(labbrlFilePath, 305, yOffset + 25);
+    winLogicBrowser->add(labbrlFileSize, 305, yOffset + 50);
+    winLogicBrowser->add(labbrlFileChecksum, 305, yOffset + 75);
+    winLogicBrowser->add(labbrlFileModDate, 305, yOffset + 100);
+    //winLogicBrowser->add(tfbrlRename, 305 + width, 19);
+    //winLogicBrowser->add(butbrlRenameOK, 305 + width + 5 + 200, 15);
+    winLogicBrowser->add(labbrlLogicNameV, 305 + width, yOffset);
+    winLogicBrowser->add(labbrlFilePathV, 305 + width, yOffset + 25);
+    winLogicBrowser->add(labbrlFileSizeV, 305 + width, yOffset + 50);
+    winLogicBrowser->add(labbrlFileChecksumV, 305 + width, yOffset + 75);
+    winLogicBrowser->add(labbrlFileModDateV, 305 + width, yOffset + 100);
+    winLogicBrowser->add(butbrlBrowseDir, 305, yOffset + 160);
+    winLogicBrowser->add(butbrlEdit, 305, yOffset + 130);
+    winLogicBrowser->add(butbrlRename, 305 + 248, yOffset + 130);
+    winLogicBrowser->add(butbrlDelete, 305 + 248, yOffset + 160);
 }
 
 void State::EditingWW::Init() {
@@ -751,20 +754,14 @@ void State::EditingWW::Init() {
 
     labbrlLogicName = new SHR::Lab(GETL2S("Win_LogicBrowser", "LogicName"));
     labbrlLogicName->adjustSize();
-    int width = labbrlLogicName->getWidth();
     labbrlFilePath = new SHR::Lab(GETL2S("Win_LogicBrowser", "FilePath"));
     labbrlFilePath->adjustSize();
-    if (labbrlFilePath->getWidth() > width) width = labbrlFilePath->getWidth();
     labbrlFileSize = new SHR::Lab(GETL2S("Win_LogicBrowser", "FileSize"));
     labbrlFileSize->adjustSize();
-    if (labbrlFileSize->getWidth() > width) width = labbrlFileSize->getWidth();
     labbrlFileChecksum = new SHR::Lab(GETL2S("Win_LogicBrowser", "FileChecksum"));
     labbrlFileChecksum->adjustSize();
-    if (labbrlFileChecksum->getWidth() > width) width = labbrlFileChecksum->getWidth();
     labbrlFileModDate = new SHR::Lab(GETL2S("Win_LogicBrowser", "ModDate"));
     labbrlFileModDate->adjustSize();
-    if (labbrlFileModDate->getWidth() > width) width = labbrlFileModDate->getWidth();
-    width += 15;
 
     tfbrlRename = new SHR::TextField("");
     tfbrlRename->setDimension(gcn::Rectangle(0, 0, 200, 20));
@@ -791,10 +788,10 @@ void State::EditingWW::Init() {
     lbbrlLogicList->addActionListener(al);
     lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 300, 215));
 
-    sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_AUTO);
-    sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 294, 206));
-    sabrlLogicList->setOpaque(0);
-    winLogicBrowser->add(sabrlLogicList, 0, 10);
+    sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_AUTO);
+    sabrlLogicList->setBackgroundColor(0x131313);
+    sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 296, 194));
+    winLogicBrowser->add(sabrlLogicList, 0, 8);
 
     /*butbrlNew = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "AddNew"));
 	butbrlNew->setIcon(GV->sprIcons16[Icon16_Add]);

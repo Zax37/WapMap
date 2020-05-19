@@ -6,47 +6,10 @@
 using namespace gcn;
 
 namespace SHR {
-    ScrollArea::ScrollArea() {
-        mVScroll = 0;
-        mHScroll = 0;
-        mHPolicy = SHOW_AUTO;
-        mVPolicy = SHOW_AUTO;
-        mScrollbarWidth = 12;
-        mUpButtonPressed = false;
-        mDownButtonPressed = false;
-        mLeftButtonPressed = false;
-        mRightButtonPressed = false;
-        mUpButtonScrollAmount = 10;
-        mDownButtonScrollAmount = 10;
-        mLeftButtonScrollAmount = 10;
-        mRightButtonScrollAmount = 10;
-        mIsVerticalMarkerDragged = false;
-        mIsHorizontalMarkerDragged = false;
-        mOpaque = true;
-
-        addMouseListener(this);
+    ScrollArea::ScrollArea() : ScrollArea(NULL, SHOW_AUTO, SHOW_AUTO) {
     }
 
-    ScrollArea::ScrollArea(Widget *content) {
-        mVScroll = 0;
-        mHScroll = 0;
-        mHPolicy = SHOW_AUTO;
-        mVPolicy = SHOW_AUTO;
-        mScrollbarWidth = 12;
-        mUpButtonPressed = false;
-        mDownButtonPressed = false;
-        mLeftButtonPressed = false;
-        mRightButtonPressed = false;
-        mUpButtonScrollAmount = 10;
-        mDownButtonScrollAmount = 10;
-        mLeftButtonScrollAmount = 10;
-        mRightButtonScrollAmount = 10;
-        mIsVerticalMarkerDragged = false;
-        mIsHorizontalMarkerDragged = false;
-        mOpaque = true;
-
-        setContent(content);
-        addMouseListener(this);
+    ScrollArea::ScrollArea(Widget *content) : ScrollArea(content, SHOW_AUTO, SHOW_AUTO) {
     }
 
     ScrollArea::ScrollArea(Widget *content,
@@ -69,7 +32,9 @@ namespace SHR {
         mIsHorizontalMarkerDragged = false;
         mOpaque = true;
 
-        setContent(content);
+        if (content) {
+            setContent(content);
+        }
         addMouseListener(this);
     }
 

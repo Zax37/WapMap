@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -55,7 +55,7 @@ namespace gcn
     /**
      * Represents a mouse event.
      *
-     * @author Olof Naessén
+     * @author Olof Naessï¿½n
      * @since 0.6.0
      */
     class GCN_CORE_DECLSPEC MouseEvent: public InputEvent
@@ -114,6 +114,8 @@ namespace gcn
          * @see Widget::addMouseListener, Widget::removeMouseListener
          */
         int getY() const;
+
+        int offsetY(int off);
 
         /**
          * Gets the number of clicks generated with the same button.

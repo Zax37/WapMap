@@ -13,7 +13,6 @@
 
 #ifdef WAP_MAP
 
-#include "../../WapMap/globals.h"
 #include "../../WapMap/states/editing_ww.h"
 
 #endif
@@ -311,68 +310,72 @@ namespace SHR {
     }
 
     void TextDropDown::mousePressed(MouseEvent &mouseEvent) {
-        // If we have a mouse press on the widget.
-        if (0 <= mouseEvent.getY()
-            && mouseEvent.getY() < getHeight()
-            && mouseEvent.getX() >= 0
-            && mouseEvent.getX() < getWidth()
-            && mouseEvent.getButton() == MouseEvent::LEFT
-            && !mDroppedDown
-            && mouseEvent.getSource() == this) {
-            if (mouseEvent.getX() < getWidth() - 22) {
-                mCaretPosition = getFont()->getStringIndexAt(mText, mouseEvent.getX() + mXScroll);
-                fixScroll();
-                bTextFocused = 1;
-            } else {
-                bTextFocused = 0;
-                mCaretPosition = -1;
-                mPushed = true;
-                dropDown();
-                requestModalMouseInputFocus();
+        int x = mouseEvent.getX(),
+            y = mouseEvent.getY();
+
+        if (mouseEvent.getSource() == this) {
+
+            // If we have a mouse press on the widget.
+            if (y >= 0
+                && y < getHeight()
+                && x >= 0
+                && x < getWidth()
+                && mouseEvent.getButton() == MouseEvent::LEFT
+                && !mDroppedDown) {
+                if (x < getWidth() - 22) {
+                    mCaretPosition = getFont()->getStringIndexAt(mText, x + mXScroll);
+                    fixScroll();
+                    bTextFocused = 1;
+                }
+                else {
+                    bTextFocused = 0;
+                    mCaretPosition = -1;
+                    mPushed = true;
+                    dropDown();
+                    requestModalMouseInputFocus();
+                }
+                mSelectionPosition = -1;
             }
-            mSelectionPosition = -1;
-        }
             // Fold up the listbox if the upper part is clicked after fold down
-        else if (0 <= mouseEvent.getY()
-                 && mouseEvent.getY() < mFoldedUpHeight
-                 && mouseEvent.getX() >= 0
-                 && mouseEvent.getX() < getWidth()
-                 && mouseEvent.getButton() == MouseEvent::LEFT
-                 && mDroppedDown
-                 && mouseEvent.getSource() == this) {
-            if (mouseEvent.getX() < getWidth() - 22) bTextFocused = 1;
-            mPushed = false;
-            foldUp();
-            releaseModalMouseInputFocus();
-        }
+            else if (y >= 0
+                && y < mFoldedUpHeight
+                && x >= 0
+                && x < getWidth()
+                && mouseEvent.getButton() == MouseEvent::LEFT
+                && mDroppedDown) {
+                if (x < getWidth() - 22) bTextFocused = 1;
+                mPushed = false;
+                foldUp();
+                releaseModalMouseInputFocus();
+            }
             // If we have a mouse press outside the widget
-        else if (0 > mouseEvent.getY()
-                 || mouseEvent.getY() >= getHeight()
-                 || mouseEvent.getX() < 0
-                 || mouseEvent.getX() >= getWidth()) {
-            mPushed = false;
-            foldUp();
-            bTextFocused = 0;
+            else if (0 > y
+                || y >= getHeight()
+                || x < 0
+                || x >= getWidth()) {
+                mPushed = false;
+                foldUp();
+                bTextFocused = 0;
+            }
         }
     }
 
     void TextDropDown::mouseReleased(MouseEvent &mouseEvent) {
+        int x = mouseEvent.getX(),
+            y = mouseEvent.getY();
+
         if (mIsDragged) {
             mPushed = false;
         }
 
         // Released outside of widget. Can happen when we have modal input focus.
-        if ((0 > mouseEvent.getY()
-             || mouseEvent.getY() >= getHeight()
-             || mouseEvent.getX() < 0
-             || mouseEvent.getX() >= getWidth())
+        if ((0 > y
+             || y >= getHeight()
+             || x < 0
+             || x >= getWidth())
             && mouseEvent.getButton() == MouseEvent::LEFT
             && isModalMouseInputFocused()) {
             releaseModalMouseInputFocus();
-
-            if (mIsDragged) {
-                foldUp();
-            }
         } else if (mouseEvent.getButton() == MouseEvent::LEFT) {
             mPushed = false;
         }
@@ -452,6 +455,11 @@ namespace SHR {
         }
 
         mListBox->requestFocus();
+        int i = mListBox->findIndexOf(mText);
+        if (i != -1) {
+            mListBox->setSelected(i);
+            mScrollArea->setVerticalScrollAmount((i + 0.5f) * mListBox->getRowHeight() - mScrollArea->getHeight() / 2);
+        }
     }
 
     void TextDropDown::foldUp() {
@@ -463,6 +471,7 @@ namespace SHR {
     }
 
     void TextDropDown::focusLost(const Event &event) {
+        Widget* source = event.getSource();
         foldUp();
         mInternalFocusHandler.focusNone();
     }
@@ -547,7 +556,10 @@ namespace SHR {
     }
 
     void TextDropDown::mouseWheelMovedUp(MouseEvent &mouseEvent) {
-        if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled) {
+        if (mDroppedDown) {
+            mScrollArea->mouseWheelMovedUp(mouseEvent);
+            mouseMoved(mouseEvent);
+        } else if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled) {
             mouseEvent.consume();
 
             if (mListBox->getSelected() > 0) {
@@ -557,7 +569,10 @@ namespace SHR {
     }
 
     void TextDropDown::mouseWheelMovedDown(MouseEvent &mouseEvent) {
-        if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled) {
+        if (mDroppedDown) {
+            mScrollArea->mouseWheelMovedDown(mouseEvent);
+            mouseMoved(mouseEvent);
+        } else if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled) {
             mouseEvent.consume();
 
             mListBox->setSelected(mListBox->getSelected() + 1);
@@ -627,15 +642,15 @@ namespace SHR {
     }
 
     void TextDropDown::mouseEntered(MouseEvent &mouseEvent) {
-        mHasMouse = 1;
+        mHasMouse = true;
     }
 
     void TextDropDown::mouseExited(MouseEvent &mouseEvent) {
-        mHasMouse = 0;
+        mHasMouse = false;
     }
 
     bool TextDropDown::showHand() {
-        if (!mHasMouse || !isEnabled()) return 0;
+        if (!mHasMouse || !isEnabled()) return false;
         int x, y;
         getAbsolutePosition(x, y);
         float mx, my;

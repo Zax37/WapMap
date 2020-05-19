@@ -2353,8 +2353,6 @@ bool State::EditingWW::Render() {
         hge->Gfx_RenderQuad(&q);
     }
 
-    SHR::cTooltip::RenderTooltip();
-
     if (fade_iAction < 2) {
         hgeQuad q;
         q.tex = 0;

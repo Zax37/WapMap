@@ -186,6 +186,8 @@ bool SHR::cStateMgr::Render() {
 	}
 	ret = std::max(m_hStateStack.back()->Render(), ret);
 
+	SHR::cTooltip::RenderTooltip();
+
 	ManualRenderStop();
 	return 0;
 }
