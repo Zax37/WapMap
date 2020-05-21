@@ -157,7 +157,7 @@ namespace ObjEdit {
         hSpeedPick = new cProcPickXYLockable(GETL2S("EditObj_Elevator", "Speed"),
                 GETL2S("EditObj_Elevator", "Horizontal"), speedX,
                 GETL2S("EditObj_Elevator", "Vertical"), speedY,
-                speedX != 0 && speedX == speedY, GETL2S("EditObj_Elevator", "LockAspect_TT"), !regularElevator);
+                speedX != 0 && speedX == speedY, GETL2S("EditObj_Elevator", "LockAspect_TT"));
         hSpeedPick->addActionListener(hAL);
         win->add(hSpeedPick, 10, SPEED_SECTION_Y + 10);
 
