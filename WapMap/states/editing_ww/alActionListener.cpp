@@ -301,6 +301,8 @@ namespace State {
 			}
 		} else if (actionEvent.getSource() == m_hOwn->winDuplicate) {
             m_hOwn->iActiveTool = EWW_TOOL_NONE;
+		} else if (actionEvent.getSource() == m_hOwn->winSpacing) {
+            m_hOwn->iActiveTool = EWW_TOOL_NONE;
 		}
 
 		for (int i = 0; i < 10; i++)
@@ -1225,10 +1227,16 @@ namespace State {
                 if (m_hOwn->winLogicBrowser->isVisible()) {
                     m_hOwn->winLogicBrowser->setVisible(false);
                 }
-                if (m_hOwn->winDuplicate->isVisible() || m_hOwn->winObjectBrush->isVisible()
-                    || m_hOwn->iActiveTool == EWW_TOOL_ALIGNOBJ) {
-					m_hOwn->SetTool(EWW_TOOL_NONE);
+
+                switch (m_hOwn->iActiveTool) {
+                    case EWW_TOOL_DUPLICATE:
+                    case EWW_TOOL_BRUSHOBJECT:
+                    case EWW_TOOL_ALIGNOBJ:
+                    case EWW_TOOL_SPACEOBJ:
+                        m_hOwn->SetTool(EWW_TOOL_NONE);
+                        break;
                 }
+
                 for (cWindow* win : m_hOwn->hWindows) {
                     win->Close();
                 }

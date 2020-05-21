@@ -705,6 +705,7 @@ void State::EditingWW::Init() {
     winSpacing->setDimension(gcn::Rectangle(0, 0, 250, 100));
     winSpacing->setVisible(0);
     winSpacing->setClose(1);
+    winSpacing->addActionListener(al);
     conMain->add(winSpacing, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 100,
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 50);
 
