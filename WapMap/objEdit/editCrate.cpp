@@ -110,6 +110,10 @@ namespace ObjEdit {
         labTreasures->adjustSize();
         win->add(labTreasures, 5, 90);
 
+        if (hTempObj->GetParam(WWD::Param_Powerup) == 0 && !strstr(hTempObj->GetLogic(), "Stacked")) {
+            hTempObj->SetParam(WWD::Param_Powerup, 33);
+        }
+
         if (!bStackable) {
             invTabs[0] = new SHR::InvTab(&GV->gcnParts);
             invTabs[0]->adjustSize();
