@@ -9,7 +9,6 @@ class LogicInfo {
       humanEnemy = NOT_TESTED,
       boss = NOT_TESTED;
 
-
 public:
     LogicInfo(const char* logic): logic(logic) {}
 

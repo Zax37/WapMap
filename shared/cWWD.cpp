@@ -7,6 +7,8 @@
 #include "cProgressInfo.h"
 #include "../WapMap/cParallelLoop.h"
 #include "../WapMap/cObjectUserData.h"
+#include "../WapMap/globals.h"
+#include "../WapMap/states/editing_ww.h"
 #endif // WAP_MAP
 
 namespace WWD {
@@ -1104,6 +1106,20 @@ bool WWD::Object::GetFlipY() {
     return m_hUserData ? GetUserDataFromObj(this)->GetFlipY() : GetDrawFlags() & Flag_dr_Invert;
 }
 
+bool WWD::Object::ShouldPromptForRectChange(WWD::Parser* hParser) {
+    if (hParser->GetGame() != Game_Claw && hParser->GetGame() != Game_Claw2) return false;
+    return ((!strstr(m_szLogic, "Elevator")
+     && (GetParam(WWD::Param_MinX) != 0 ||
+         GetParam(WWD::Param_MinY) != 0 ||
+         GetParam(WWD::Param_MaxX) != 0 ||
+         GetParam(WWD::Param_MaxY) != 0))
+     || (!strcmp(m_szLogic, "Shake")
+     && (GetAttackRect().x1 != 0 ||
+         GetAttackRect().y1 != 0 ||
+         GetAttackRect().x2 != 0 ||
+         GetAttackRect().y2 != 0)));
+}
+
 void WWD::Parser::SetImageSetPrefix(int id, const char *npref) {
     strncpy(m_Header.m_szSetsPrefixes[id], npref, 32);
 }
@@ -1235,14 +1251,24 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
     Tile * newt = new Tile[s];
 
     if (m_hTiles) {
-        if (ox || oy) {
-            int objectsOffsetX = -ox * m_Header.m_iTileW,
-                objectsOffsetY = -oy * m_Header.m_iTileH;
+        if ((GetFlags() & Flag_p_MainPlane) && (ox || oy)) {
+            int objectsOffsetX = ox * m_Header.m_iTileW,
+                objectsOffsetY = oy * m_Header.m_iTileH;
 
-            for (auto& m_vObject : m_vObjects) {
-                m_vObject->SetParam(WWD::Param_LocationX, m_vObject->GetParam(WWD::Param_LocationX) + objectsOffsetX);
-                m_vObject->SetParam(WWD::Param_LocationY, m_vObject->GetParam(WWD::Param_LocationY) + objectsOffsetY);
+            for (auto& object : m_vObjects) {
+                GetUserDataFromObj(object)->SetPos(object->GetParam(WWD::Param_LocationX) + objectsOffsetX, object->GetParam(WWD::Param_LocationY) + objectsOffsetY);
             }
+
+            GV->editState->UpdateMovedObjectWithRects(m_vObjects);
+            int startX = GV->editState->hParser->GetStartX() + objectsOffsetX,
+                startY = GV->editState->hParser->GetStartY() + objectsOffsetY;
+            GV->editState->hStartingPosObj->SetParam(WWD::Param_LocationX, startX);
+            GV->editState->hStartingPosObj->SetParam(WWD::Param_LocationY, startY);
+            GetUserDataFromObj(GV->editState->hStartingPosObj)->SyncToObj();
+            GV->editState->hParser->SetStartX(startX);
+            GV->editState->hParser->SetStartY(startY);
+            GV->editState->MarkUnsaved();
+            GV->editState->vPort->MarkToRedraw(true);
         }
 
         int i = 0, y = 0;
@@ -1257,16 +1283,23 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
         int tx = std::min(nw, m_Header.m_iW + ox),
             ty = std::min(nh, m_Header.m_iH + oy);
 
-        for (; y < ty; ++y) {
+        for (int ry = -oy; y < ty; ++ry, ++y) {
             int x = 0;
-            int rowOffset = rowOffsets[y];
+            int rowOffset = rowOffsets[ry];
 
-            for (; x < ox; ++x, ++i) {
+            int rx = ox;
+
+            while (rx > 0) {
                 newt[i].SetInvisible(1);
+                ++x;
+                ++i;
+                --rx;
             }
 
-            for (; x < tx; ++x, ++i) {
-                newt[i] = m_hTiles[rowOffset + x];
+            rx = -rx;
+
+            for (; x < tx; ++rx, ++x, ++i) {
+                newt[i] = m_hTiles[rowOffset + rx];
             }
 
             for (; x < nw; ++x, ++i) {
@@ -1306,22 +1339,23 @@ void WWD::Plane::ResizeAnchor(int nw, int nh, int anchor) {
     int xDiff = nw - m_Header.m_iW, yDiff = nh - m_Header.m_iH;
 
     int ox = 0, oy = 0;
+    div_t a = div(anchor - 1, 3);
 
-    switch (anchor % 3) {
-    case 0: // right anchor
-        ox = xDiff;
-        break;
-    case 2: // center anchor
+    switch (a.rem) {
+    case 1: // center anchor
         ox = xDiff / 2;
+        break;
+    case 2: // right anchor
+        ox = xDiff;
         break;
     }
 
-    switch (anchor / 3) {
-    case 0: // bottom anchor
-        oy = yDiff;
-        break;
-    case 2: // center anchor
+    switch (a.quot) {
+    case 1: // center anchor
         oy = yDiff / 2;
+        break;
+    case 2: // bottom anchor
+        oy = yDiff;
         break;
     }
 

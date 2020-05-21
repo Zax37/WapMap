@@ -673,6 +673,7 @@ void cGlobals::Init() {
 
     sprArrowVerticalM->SetHotSpot(22, 128);
     sprArrowVerticalU->SetHotSpot(22, 37);
+    sprArrowVerticalD->SetHotSpot(22, 0);
 
     for (int i = 0; i < 4; i++)
         sprCloudTip[i] = new hgeSprite(texMain, 50 + 10 * (i == 1 || i == 3), 326 + 10 * (i > 1), 10, 10);

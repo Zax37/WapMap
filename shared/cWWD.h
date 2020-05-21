@@ -455,6 +455,8 @@ namespace WWD {
 
         void *GetUserData() { return m_hUserData; };
 
+        bool ShouldPromptForRectChange(WWD::Parser* hParser);
+
         int GetX();
 
         int GetY();

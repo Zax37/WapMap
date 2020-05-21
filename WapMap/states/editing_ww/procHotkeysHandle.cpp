@@ -128,7 +128,7 @@ void State::EditingWW::HandleHotkeys() {
         if (iOldP != iTilePicked && iActiveTool == EWW_TOOL_BRUSH) {
         }
     } else if (iMode == EWW_MODE_OBJECT && !vObjectsPicked.empty() &&
-               conMain->getWidgetAt(mx, my) == vPort->GetWidget() &&
+               vPort->GetWidget()->isFocused() &&
                (hge->Input_GetKeyState(HGEK_CTRL) || hge->Input_GetKeyState(HGEK_SHIFT) ||
                 hge->Input_GetKeyState(HGEK_ALT)) &&
                (hge->Input_KeyDown(HGEK_LEFT) || hge->Input_KeyDown(HGEK_RIGHT) || hge->Input_KeyDown(HGEK_UP) ||
@@ -162,42 +162,22 @@ void State::EditingWW::HandleHotkeys() {
     } else if (bFocus && hge->Input_KeyDown(HGEK_HOME)) {
         fCamX = hParser->GetStartX() - (vPort->GetWidth() / 2 / fZoom);
         fCamY = hParser->GetStartY() - (vPort->GetHeight() / 2 / fZoom);
-        /*}else if( hge->Input_GetKeyState(HGEK_SHIFT) && hge->Input_KeyDown(HGEK_TAB) && iMode == EWW_MODE_OBJECT ){
-         iObjectPicked--;
-         if( iObjectPicked < 0 )
-          iObjectPicked = GetActivePlane()->GetObjectsCount()-1;
-         fCamX = GetActivePlane()->GetObjectByIterator(iObjectPicked)->GetParam(WWD::Param_LocationX)-(vPort->GetWidth()/2/fZoom);
-         fCamY = GetActivePlane()->GetObjectByIterator(iObjectPicked)->GetParam(WWD::Param_LocationY)-(vPort->GetHeight()/2/fZoom);
-        }else if( hge->Input_KeyDown(HGEK_TAB) && iMode == EWW_MODE_OBJECT ){
-         iObjectPicked++;
-         if( iObjectPicked >= GetActivePlane()->GetObjectsCount() )
-          iObjectPicked = 0;
-         fCamX = GetActivePlane()->GetObjectByIterator(iObjectPicked)->GetParam(WWD::Param_LocationX)-(vPort->GetWidth()/2/fZoom);
-         fCamY = GetActivePlane()->GetObjectByIterator(iObjectPicked)->GetParam(WWD::Param_LocationY)-(vPort->GetHeight()/2/fZoom);*/
-    } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_D) && iMode == EWW_MODE_OBJECT &&
-               vObjectsPicked.size() != 0) {
-        ShowAndUpdateDuplicateMenu();
-#ifndef CONF_NOSAVE
-    } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_S)) {
+    } else if (bFocus && hParser && hge->Input_KeyDown(HGEK_END)) {
+        for (int i = 0; i < hParser->GetMainPlane()->GetObjectsCount(); ++i) {
+            auto object = hParser->GetMainPlane()->GetObjectByIterator(i);
 
-    } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_S)) {
+            if (!strcmp(object->GetLogic(), "BossStager") || !strcmp(object->GetLogic(), "EndOfLevelPowerup")
+                || (!strcmp(object->GetLogic(), "SpecialPowerup")
+                    && (!strcmp(object->GetImageSet(), "GAME_MAPPIECE")
+                        || !strcmp(object->GetImageSet(), "LEVEL_GEM")))) {
+                fCamX = object->GetX() - (vPort->GetWidth() / 2 / fZoom);
+                fCamY = object->GetY() - (vPort->GetHeight() / 2 / fZoom);
 
-#endif
-    } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_N)) {
-
-    } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_T)) {
-
+                return;
+            }
+        }
     } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_M)) {
         cbutActiveMode->setSelectedEntryID(!cbutActiveMode->getSelectedEntryID(), 1);
-        //butIconMode->simulatePress();
-        //}else if( hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_O) ){
-        /*hPlaneData[GetActivePlaneID()]->bDrawObjects = !hPlaneData[GetActivePlaneID()]->bDrawObjects;
-        vPort->MarkToRedraw(1);
-        if( hPlaneData[GetActivePlaneID()]->bDrawObjects ){
-         SetHint(HINT_OBJON, GETL(Lang_ObjectsOn), GetActivePlane()->GetName());
-        }else{
-         SetHint(HINT_OBJOFF, GETL(Lang_ObjectsOff), GetActivePlane()->GetName());
-        }*/
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_G)) {
         hPlaneData[GetActivePlaneID()]->bDrawGrid = !hPlaneData[GetActivePlaneID()]->bDrawGrid;
         vPort->MarkToRedraw(1);

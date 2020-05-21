@@ -69,7 +69,7 @@ void State::EditingWW::ObjectOverlay() {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     if (iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_OBJSELAREA &&
-        (toolsaMinX != 0 || toolsaMinY != 0 || toolsaMaxX != 0 || toolsaMaxY != 0 || toolsaAction != TOOL_OBJSA_NONE)) {
+        (toolsaMinX != 0 || toolsaMinY != 0 || toolsaMaxX != 0 || toolsaMaxY != 0 || (toolsaAction != TOOL_OBJSA_NONE && toolsaAction != TOOL_OBJSA_PICKALL))) {
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
@@ -276,10 +276,6 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             }
         }
     } else if (iActiveTool == EWW_TOOL_NONE) {
-
-        /*if( fObjPickLastMx != mx || fObjPickLastMy != my ){
-         bObjPickMoved = 1;
-        }*/
         if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON) &&
             !bObjDragSelection) {
             bObjDragSelection = 1;
@@ -288,11 +284,11 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         } else if (hge->Input_GetKeyState(HGEK_LBUTTON) && bObjDragSelection && vPort->GetWidget()->isMouseOver() &&
                    !pbConsumed) {
             int actx = Scr2WrdX(GetActivePlane(), mx),
-                    acty = Scr2WrdY(GetActivePlane(), my);
+                acty = Scr2WrdY(GetActivePlane(), my);
             int x = std::min(iObjDragOrigX, actx),
-                    y = std::min(iObjDragOrigY, acty),
-                    w = std::max(iObjDragOrigX, actx) - x,
-                    h = std::max(iObjDragOrigY, acty) - y;
+                y = std::min(iObjDragOrigY, acty),
+                w = std::max(iObjDragOrigX, actx) - x,
+                h = std::max(iObjDragOrigY, acty) - y;
             vObjectsHL = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(x, y, w, h);
             vObjectsForbidHL.clear();
             if (hge->Input_GetKeyState(HGEK_CTRL)) {
@@ -327,7 +323,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         } else if (bObjDragSelection) {
             bObjDragSelection = 0;
             int actx = Scr2WrdX(GetActivePlane(), mx),
-                    acty = Scr2WrdY(GetActivePlane(), my);
+                acty = Scr2WrdY(GetActivePlane(), my);
             if (actx == iObjDragOrigX && acty == iObjDragOrigY && vObjectsHL.size() > 1) {
                 int selid = -1;
                 for (int i = 0; i < vObjectsPicked.size(); i++)
@@ -469,7 +465,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                             } else
                                 objContext->SetModel(conmodObjectMultiple);
 
-                            for (int flag = 0; flag < 14; flag++) {
+                            for (int flag = 0; flag < 8; flag++) {
                                 SHR::Context *hmyContext = objFlagDrawContext;
                                 int flagtype = 0, flagpos = flag, menupos = OBJMENU_FLAGS_DRAW + flag + 1;
                                 if (flag > 3 && flag < 8) {
@@ -477,12 +473,12 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                                     flagpos -= 4;
                                     menupos = OBJMENU_FLAGS_DYNAMIC + flagpos + 1;
                                     hmyContext = objFlagDynamicContext;
-                                } else if (flag > 7) {
+                                } /*else if (flag > 7) {
                                     flagtype = 2;
                                     flagpos -= 8;
                                     menupos = OBJMENU_FLAGS_ADDITIONAL + flagpos + 1;
                                     hmyContext = objFlagAddContext;
-                                }
+                                }*/
                                 int binaryval = pow(2, flagpos);
                                 bool valset = 0;
                                 unsigned char fval = 0;
@@ -654,12 +650,12 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             !hge->Input_GetKeyState(HGEK_RBUTTON)) {
             //Move vector.
             int wmx = Scr2WrdX(GetActivePlane(), mx),
-                    wmy = Scr2WrdY(GetActivePlane(), my);
+                wmy = Scr2WrdY(GetActivePlane(), my);
             int diffx = wmx - iMoveRelX, diffy = wmy - iMoveRelY;
             //For every selected object
-            for (int i = 0; i < vObjectsPicked.size(); i++) {
+            for (auto & object : vObjectsPicked) {
                 //Get base (initial) object coords
-                int basex = vObjectsPicked[i]->GetParam(WWD::Param_LocationX), basey = vObjectsPicked[i]->GetParam(
+                int basex = object->GetParam(WWD::Param_LocationX), basey = object->GetParam(
                         WWD::Param_LocationY);
                 //Align on X and Y axis when SHIFT is hold down.
                 if (hge->Input_GetKeyState(HGEK_SHIFT)) {
@@ -669,21 +665,21 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                     else
                         ratio = 2;
                     if (ratio >= -0.50f && ratio <= 0.50)
-                        GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex, basey + diffy);
+                        GetUserDataFromObj(object)->SetPos(basex, basey + diffy);
                     else if (ratio > 1.5f || ratio < -1.5f)
-                        GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex + diffx, basey);
+                        GetUserDataFromObj(object)->SetPos(basex + diffx, basey);
                     else {
                         int diff = std::min(abs(diffx), abs(diffy));
                         if (diffy < 0) {
                             if (ratio < -0.5f && ratio > -1.5f) //upright
-                                GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex + diff, basey - diff);
+                                GetUserDataFromObj(object)->SetPos(basex + diff, basey - diff);
                             else if (ratio > 0.5f && ratio < 1.5f) //upleft
-                                GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex - diff, basey - diff);
+                                GetUserDataFromObj(object)->SetPos(basex - diff, basey - diff);
                         } else {
                             if (ratio < -0.5f && ratio > -1.5f) //downleft
-                                GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex - diff, basey + diff);
+                                GetUserDataFromObj(object)->SetPos(basex - diff, basey + diff);
                             else if (ratio > 0.5f && ratio < 1.5f) //downright
-                                GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex + diff, basey + diff);
+                                GetUserDataFromObj(object)->SetPos(basex + diff, basey + diff);
                         }
                     }
                     //Align to grid/tile center when CONTROL is hold down.
@@ -701,7 +697,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                     diffx -= diffmodulox - modx;
                     diffy -= diffmoduloy - mody;
                     //Apply
-                    GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex + diffx, basey + diffy);
+                    GetUserDataFromObj(object)->SetPos(basex + diffx, basey + diffy);
                     //No align.
                 } else {
                     //Stick to guides
@@ -722,7 +718,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                             }
                         }
                     }
-                    GetUserDataFromObj(vObjectsPicked[i])->SetPos(basex + diffx, basey + diffy);
+                    GetUserDataFromObj(object)->SetPos(basex + diffx, basey + diffy);
                 }
             }
             fObjPickLastMx = Scr2WrdX(GetActivePlane(), mx);
@@ -730,62 +726,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             vPort->MarkToRedraw(1);
         }
         if (hge->Input_KeyDown(HGEK_LBUTTON)) {
-            bool bRecalc = 0;
-            for (int i = 0; i < vObjectsPicked.size(); i++) {
-                if ((!strstr(vObjectsPicked[i]->GetLogic(), "Elevator")
-                    && (vObjectsPicked[i]->GetParam(WWD::Param_MinX) != 0 ||
-                    vObjectsPicked[i]->GetParam(WWD::Param_MinY) != 0 ||
-                    vObjectsPicked[i]->GetParam(WWD::Param_MaxX) != 0 ||
-                    vObjectsPicked[i]->GetParam(WWD::Param_MaxY) != 0))
-                    ||
-                    (!strcmp(vObjectsPicked[i]->GetLogic(), "Shake") &&
-                     (vObjectsPicked[i]->GetAttackRect().x1 != 0 ||
-                      vObjectsPicked[i]->GetAttackRect().y1 != 0 ||
-                      vObjectsPicked[i]->GetAttackRect().x2 != 0 ||
-                      vObjectsPicked[i]->GetAttackRect().y2 != 0))) {
-                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "MsgRecalcMinMaxXY"),
-                                   GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDYES) {
-                        bRecalc = 1;
-                    }
-                    break;
-                }
-            }
-            for (int i = 0; i < vObjectsPicked.size(); i++) {
-                if (bRecalc || strstr(vObjectsPicked[i]->GetLogic(), "Elevator")) {
-                    int diffx = GetUserDataFromObj(vObjectsPicked[i])->GetX() -
-                                vObjectsPicked[i]->GetParam(WWD::Param_LocationX),
-                        diffy = GetUserDataFromObj(vObjectsPicked[i])->GetY() -
-                                vObjectsPicked[i]->GetParam(WWD::Param_LocationY);
-                    if (!strcmp(vObjectsPicked[i]->GetLogic(), "Shake")) {
-                        WWD::Rect atrect = vObjectsPicked[i]->GetAttackRect();
-                        if (atrect.x1 != 0) atrect.x1 += diffx;
-                        if (atrect.y1 != 0) atrect.y1 += diffy;
-                        if (atrect.x2 != 0) atrect.x2 += diffx;
-                        if (atrect.y2 != 0) atrect.y2 += diffy;
-                        vObjectsPicked[i]->SetAttackRect(atrect);
-                    } else {
-                        if (vObjectsPicked[i]->GetParam(WWD::Param_MinX) != 0)
-                            vObjectsPicked[i]->SetParam(WWD::Param_MinX,
-                                                        vObjectsPicked[i]->GetParam(WWD::Param_MinX) + diffx);
-                        if (vObjectsPicked[i]->GetParam(WWD::Param_MinY) != 0)
-                            vObjectsPicked[i]->SetParam(WWD::Param_MinY,
-                                                        vObjectsPicked[i]->GetParam(WWD::Param_MinY) + diffy);
-                        if (vObjectsPicked[i]->GetParam(WWD::Param_MaxX) != 0)
-                            vObjectsPicked[i]->SetParam(WWD::Param_MaxX,
-                                                        vObjectsPicked[i]->GetParam(WWD::Param_MaxX) + diffx);
-                        if (vObjectsPicked[i]->GetParam(WWD::Param_MaxY) != 0)
-                            vObjectsPicked[i]->SetParam(WWD::Param_MaxY,
-                                                        vObjectsPicked[i]->GetParam(WWD::Param_MaxY) + diffy);
-                    }
-                }
-                vObjectsPicked[i]->SetParam(WWD::Param_LocationX, GetUserDataFromObj(vObjectsPicked[i])->GetX());
-                vObjectsPicked[i]->SetParam(WWD::Param_LocationY, GetUserDataFromObj(vObjectsPicked[i])->GetY());
-                hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(vObjectsPicked[i]);
-                if (vObjectsPicked[i] == hStartingPosObj) {
-                    hParser->SetStartX(GetUserDataFromObj(vObjectsPicked[i])->GetX());
-                    hParser->SetStartY(GetUserDataFromObj(vObjectsPicked[i])->GetY());
-                }
-            }
+            UpdateMovedObjectWithRects(vObjectsPicked);
             SetTool(EWW_TOOL_NONE);
             MarkUnsaved();
         } else if (hge->Input_KeyDown(HGEK_ESCAPE)) {
@@ -816,64 +757,23 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                                               iobjbrLastDrawnY,
                                               Scr2WrdX(GetActivePlane(), mx),
                                               Scr2WrdY(GetActivePlane(), my));
-                    float percdist = distance / sliobrDistance->getValue();
-                    if (percdist > 1) percdist = 1;
-                    dwCursorColor = SETR(SETB(0xFF00FF00, int((1 - percdist) * 255)), int((1 - percdist) * 255));
+                    float percDist = distance / sliobrDistance->getValue();
+                    if (percDist > 1) percDist = 1;
+                    dwCursorColor = SETR(SETB(0xFF00FF00, int((1 - percDist) * 255)), int((1 - percDist) * 255));
                     if (distance > sliobrDistance->getValue()) {
                         iobjbrLastDrawnX = Scr2WrdX(GetActivePlane(), mx);
                         iobjbrLastDrawnY = Scr2WrdY(GetActivePlane(), my);
-                        int scatterx = atoi(tfobrDispX->getText().c_str()),
-                                scattery = atoi(tfobrDispY->getText().c_str());
-                        int scatvx = hge->Random_Int(-scatterx, scatterx),
-                                scatvy = hge->Random_Int(-scattery, scattery);
-                        for (int i = 0; i < vObjectsBrushCB.size(); i++) {
-                            if (i > 0 && cbobrApplyScatterSeparately->isSelected()) {
-                                scatvx = hge->Random_Int(-scatterx, scatterx),
-                                        scatvy = hge->Random_Int(-scattery, scattery);
-                            }
-                            WWD::Object *obj = new WWD::Object(vObjectsBrushCB[i]);
-                            int diffx = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationX) -
-                                        vObjectsBrushCB[0]->GetParam(WWD::Param_LocationX),
-                                    diffy = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationY) -
-                                            vObjectsBrushCB[0]->GetParam(WWD::Param_LocationY);
-                            obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), mx) + diffx + scatvx);
-                            obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), my) + diffy + scatvy);
-                            GetActivePlane()->AddObjectAndCalcID(obj);
-                            obj->SetUserData(new cObjUserData(obj));
-                            hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-                        }
-                        MarkUnsaved();
-                        vPort->MarkToRedraw(1);
+
+                        ObjectBrush(iobjbrLastDrawnX, iobjbrLastDrawnY);
                     }
                 }
             }
             if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                 iobjbrLastDrawnX = Scr2WrdX(GetActivePlane(), mx);
                 iobjbrLastDrawnY = Scr2WrdY(GetActivePlane(), my);
-                int scatterx = atoi(tfobrDispX->getText().c_str()),
-                        scattery = atoi(tfobrDispY->getText().c_str());
-                int scatvx = hge->Random_Int(-scatterx, scatterx),
-                        scatvy = hge->Random_Int(-scattery, scattery);
-                for (int i = 0; i < vObjectsBrushCB.size(); i++) {
-                    if (i > 0 && cbobrApplyScatterSeparately->isSelected()) {
-                        scatvx = hge->Random_Int(-scatterx, scatterx),
-                                scatvy = hge->Random_Int(-scattery, scattery);
-                    }
-                    WWD::Object *obj = new WWD::Object(vObjectsBrushCB[i]);
-                    int diffx = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationX) -
-                                vObjectsBrushCB[0]->GetParam(WWD::Param_LocationX),
-                            diffy = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationY) -
-                                    vObjectsBrushCB[0]->GetParam(WWD::Param_LocationY);
-                    obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), mx) + diffx + scatvx);
-                    obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), my) + diffy + scatvy);
-                    GetActivePlane()->AddObjectAndCalcID(obj);
-                    obj->SetUserData(new cObjUserData(obj));
-                    hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-                }
-                MarkUnsaved();
-                bObjBrushDrawing = 1;
+                ObjectBrush(iobjbrLastDrawnX, iobjbrLastDrawnY);
+                bObjBrushDrawing = true;
             }
-            vPort->MarkToRedraw(1);
         }
 
         if (objContext->isVisible()) {
@@ -903,24 +803,11 @@ WWD::Object *State::EditingWW::GetObjUnderWorldPos(int mx, int my) {
 
 void State::EditingWW::ShowAndUpdateDuplicateMenu() {
     winDuplicate->setVisible(1);
-    //objdSource = GetActivePlane()->GetObjectByIterator(iObjectPicked);
-    char tmp[128];
-    /*if( objdSource->GetName()[0] != '\0' )
-     sprintf(tmp, "%s: ~y~%d~l~ (~y~%s~l~)", GETL(Lang_SourceObjectID), objdSource->GetParam(WWD::Param_ID), objdSource->GetName());
-    else*/
-    if (vObjectsPicked.size() == 1) {
-        objdSource = vObjectsPicked[0];
-        sprintf(tmp, "%s: ~y~%d~l~", GETL(Lang_SourceObjectID), objdSource->GetParam(WWD::Param_ID));
-    } else {
-        objdSource = NULL;
-        sprintf(tmp, "%s: ~y~%s~l~", GETL(Lang_SourceObjectID), GETL(Lang_ManyObjects));
-    }
-    labdCopiedObjectID->setCaption(tmp);
-    labdCopiedObjectID->adjustSize();
     tfdTimes->requestFocus();
 }
 
 bool State::EditingWW::IsEditableObject(WWD::Object* obj, ObjEdit::cObjEdit** hEdit) {
+    if (hParser->GetGame() != WWD::Game_Claw && hParser->GetGame() != WWD::Game_Claw2) return false;
     LogicInfo logicInfo = GetLogicInfo(obj->GetLogic());
     if (!strcmp(obj->GetLogic(), "CursePowerup")) {
         if (hEdit != 0) *hEdit = new ObjEdit::cEditObjCurse(obj, this);
@@ -1284,4 +1171,92 @@ void State::EditingWW::UpdateSearchResults() {
     butObjSearchSelectAll->setVisible(vObjSearchResults.size() > 0);
     labObjSearchResults->adjustSize();
     labObjSearchResults->setVisible(1);
+}
+
+void State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt) {
+    bool reCalculate = false;
+    if (prompt) {
+        for (auto &object : vector) {
+            if (object->ShouldPromptForRectChange(hParser)) {
+                if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "MsgRecalcMinMaxXY"),
+                               GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDYES) {
+                    reCalculate = true;
+                }
+                break;
+            }
+        }
+    } else {
+        reCalculate = true;
+    }
+    for (auto & obj : vector) {
+        if (reCalculate || (strstr(obj->GetLogic(), "Elevator") && strcmp(obj->GetLogic(), "SlidingElevator") != 0)) {
+            int diffX = GetUserDataFromObj(obj)->GetX() - obj->GetParam(WWD::Param_LocationX),
+                diffY = GetUserDataFromObj(obj)->GetY() - obj->GetParam(WWD::Param_LocationY);
+
+            if (!strcmp(obj->GetLogic(), "Shake")) {
+                WWD::Rect attackRect = obj->GetAttackRect();
+                if (attackRect.x1 != 0) attackRect.x1 += diffX;
+                if (attackRect.y1 != 0) attackRect.y1 += diffY;
+                if (attackRect.x2 != 0) attackRect.x2 += diffX;
+                if (attackRect.y2 != 0) attackRect.y2 += diffY;
+                obj->SetAttackRect(attackRect);
+            } else {
+                if (obj->GetParam(WWD::Param_MinX) != 0)
+                    obj->SetParam(WWD::Param_MinX,
+                                  obj->GetParam(WWD::Param_MinX) + diffX);
+                if (obj->GetParam(WWD::Param_MinY) != 0)
+                    obj->SetParam(WWD::Param_MinY,
+                                  obj->GetParam(WWD::Param_MinY) + diffY);
+                if (obj->GetParam(WWD::Param_MaxX) != 0)
+                    obj->SetParam(WWD::Param_MaxX,
+                                  obj->GetParam(WWD::Param_MaxX) + diffX);
+                if (obj->GetParam(WWD::Param_MaxY) != 0)
+                    obj->SetParam(WWD::Param_MaxY,
+                                  obj->GetParam(WWD::Param_MaxY) + diffY);
+            }
+        }
+        obj->SetParam(WWD::Param_LocationX, GetUserDataFromObj(obj)->GetX());
+        obj->SetParam(WWD::Param_LocationY, GetUserDataFromObj(obj)->GetY());
+        hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
+        if (obj == hStartingPosObj) {
+            hParser->SetStartX(GetUserDataFromObj(obj)->GetX());
+            hParser->SetStartY(GetUserDataFromObj(obj)->GetY());
+        }
+    }
+}
+
+void State::EditingWW::ObjectBrush(int x, int y) {
+    std::vector<WWD::Object*> createdObjects;
+    int scatterX = atoi(tfobrDispX->getText().c_str()),
+        scatterY = atoi(tfobrDispY->getText().c_str());
+    int scatVX, scatVY;
+    for (int i = 0; i < vObjectsBrushCB.size(); i++) {
+        if (i == 0 || cbobrApplyScatterSeparately->isSelected()) {
+            scatVX = hge->Random_Int(-scatterX, scatterX);
+            scatVY = hge->Random_Int(-scatterY, scatterY);
+        }
+        auto *obj = new WWD::Object(vObjectsBrushCB[i]);
+        obj->SetUserData(new cObjUserData(obj));
+        int diffX = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationX)
+                  - vObjectsBrushCB[0]->GetParam(WWD::Param_LocationX),
+            diffY = vObjectsBrushCB[i]->GetParam(WWD::Param_LocationY)
+                  - vObjectsBrushCB[0]->GetParam(WWD::Param_LocationY);
+        GetUserDataFromObj(obj)->SetPos(x + diffX + scatVX,
+                                        y + diffY + scatVY);
+        GetActivePlane()->AddObjectAndCalcID(obj);
+        createdObjects.push_back(obj);
+    }
+
+    if (cbobrUpdateRects->isSelected()) {
+        UpdateMovedObjectWithRects(createdObjects, false);
+    } else {
+        for (auto & obj : createdObjects) {
+            obj->SetParam(WWD::Param_LocationX, obj->GetX());
+            obj->SetParam(WWD::Param_LocationY, obj->GetY());
+            hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
+        }
+    }
+
+    MarkUnsaved();
+    vPort->MarkToRedraw(true);
 }

@@ -249,15 +249,7 @@ namespace SHR {
         } else if (key.getValue() == Key::END) {
             mCaretPosition = mText.size();
             mSelectionPosition = -1;
-        }
-
-            /*else if( hge->Input_GetKeyState(HGEK_CTRL) ){
-             if( key.getValue() == 'v' || key.getValue() == 'x' || key.getValue() == 'c' ){
-              //printf("op\n");
-             }
-             //printf("wklej!\n");
-            }*/
-        else if (key.getValue() == 22 && keyEvent.isControlPressed()) { //paste
+        } else if (key.getValue() == 'v' && keyEvent.isControlPressed()) { //paste
             if (bSelection) deleteSelection();
             int pastepos = mCaretPosition;
             char *cb = SHR::GetClipboard();
@@ -265,16 +257,16 @@ namespace SHR {
                 bool bAllow = mText.length() + strlen(cb) < iMaxLength;
                 if (bNumerical) {
                     for (int i = 0; i < strlen(cb); i++) {
-                        if (cb[i] < 48 && cb[i] != 45 || cb[i] > 57 ||
-                            (cb[i] == 45 && (i != 0 || pastepos != 0) || !bAllowNegative))
-                            bAllow = 0;
+                        if ((cb[i] < '0' && cb[i] != '-') || cb[i] > '9' ||
+                            ((cb[i] == '-' && (i != 0 || pastepos != 0)) || !bAllowNegative))
+                            bAllow = false;
                     }
                 }
                 if (bAllow) {
                     char *nlfix = new char[strlen(cb) + 1];
                     int offset = 0;
                     for (int i = 0; i <= strlen(cb); i++) {
-                        if (cb[i] != 0 && cb[i] == 13 && cb[i + 1] == 10) {
+                        if (cb[i] == 13 && cb[i + 1] == 10) {
                             i += 2;
                             offset += 2;
                         }
@@ -287,16 +279,16 @@ namespace SHR {
                 }
                 delete[] cb;
             }
-        } else if (key.getValue() == 3 && keyEvent.isControlPressed() && bSelection) { //copy
+        } else if (key.getValue() == 'c' && keyEvent.isControlPressed() && bSelection) { //copy
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
                     end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
-        } else if (key.getValue() == 24 && keyEvent.isControlPressed() && bSelection) { //cut
+        } else if (key.getValue() == 'x' && keyEvent.isControlPressed() && bSelection) { //cut
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
                     end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
             deleteSelection();
-        } else if (key.getValue() == 1 && keyEvent.isControlPressed()) { //select all
+        } else if (key.getValue() == 'a' && keyEvent.isControlPressed()) { //select all
             mCaretPosition = 0;
             mSelectionPosition = mText.length();
         } else if (key.isCharacter() && key.getValue() != Key::TAB && !bNumerical ||

@@ -69,7 +69,7 @@ typedef unsigned long DWORD;
 #define EWW_TOOL_PENCIL          1  //tile mode pencil
 #define EWW_TOOL_BRUSH           2  //tile mode lua brushes
 #define EWW_TOOL_FILL            3  //tile mode flood feature
-#define EWW_TOOL_NEWOBJECT       4
+#define EWW_TOOL_DUPLICATE       4  //object duplication
 #define EWW_TOOL_MOVEOBJECT      5  //moving objects, self-explaining
 #define EWW_TOOL_BRUSHOBJECT     6  //object brush, self-explaining
 #define EWW_TOOL_MEASURE         7  //measure tool, self-explaining
@@ -591,26 +591,24 @@ namespace State {
         SHR::But *butcamSetTo, *butcamSetToSpawn;
 
         SHR::Win *winObjectBrush;
-        SHR::Lab *labobrSource;
         SHR::Lab *labobrDistance, *labobrDispX, *labobrDispY;
         SHR::TextField *tfobrDispX, *tfobrDispY;
         SHR::Slider *sliobrDistance;
-        SHR::CBox *cbobrApplyScatterSeparately;
+        SHR::CBox *cbobrApplyScatterSeparately, *cbobrUpdateRects;
 
         SHR::CBox *cbmsDrawObjects;
-        SHR::Lab *labLoadLastOpened, *labClawPath, *labLang;
+        SHR::Lab *labLoadLastOpened;
         SHR::Link *lnkLastOpened[10];
 
         SHR::Win *winDuplicate;
-        SHR::Lab *labdTimes, *labdOffsetX, *labdOffsetY, *labdCopiedObjectID, *labobjseaInfo, *labdChangeZ;
+        SHR::Lab *labdTimes, *labdOffsetX, *labdOffsetY, *labobjseaInfo, *labdChangeZ;
         SHR::TextField *tfdTimes, *tfdOffsetX, *tfdOffsetY, *tfdChangeZ;
         SHR::But *butdOK;
-        WWD::Object *objdSource;
 
         int iobjbrLastDrawnX, iobjbrLastDrawnY;
 
         SHR::Win *winTileProp;
-        SHR::But *buttpPrev, *buttpNext, *buttpZoom, *buttpApply, *buttpShow, *buttpPipette;
+        SHR::But *buttpPrev, *buttpNext, *buttpZoom, *buttpApply, *buttpShow;//, *buttpPipette;
         SHR::TextField *tftpTileID, *tftpW, *tftpH, *tftpX1, *tftpX2, *tftpY1, *tftpY2;
         SHR::RadBut *rbtpSingle, *rbtpDouble, *rbtpIn[5], *rbtpOut[5];
         WWD::TileAttrib *hTempAttrib = nullptr;
@@ -713,11 +711,11 @@ namespace State {
 
         void SetHint(const char *pszFormat, ...);
 
-        void SetTool(int iNTool);
+        void SetTool(int iNewTool);
 
-        void OpenTool(int iTool);
+        void OpenTool(int iNewTool);
 
-        void CloseTool(int iTool);
+        void CloseTool(int iNewTool);
 
         void FreeResources();
 
@@ -1012,7 +1010,7 @@ namespace State {
 
         void RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill,
                             DWORD hwFillCol); //renders area in viewport, given absolute screen-coords, if any coord = 0 then no draw
-        void RenderArrow(int x, int y, int x2, int y2, bool finished, bool setcolors = 1);
+        void RenderArrow(int x, int y, int x2, int y2, bool finished, bool setColors = true, bool twoSided = false);
 
         bool ValidateLevelName(const char *name, bool bAllowNoNum);
 
@@ -1083,6 +1081,10 @@ namespace State {
         winAbout *hwinAbout;
 
         void TextEditMoveToNextTile(bool saving = false);
+
+        void UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt = true);
+
+        void ObjectBrush(int x, int y);
     };
 };
 

@@ -659,7 +659,7 @@ void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
     if (!btpiFixedPos) {
         winTilePicker->setY(vPort->GetY());
         winTilePicker->setHeight(vPort->GetHeight());
-        btpiFixedPos = 1;
+        //btpiFixedPos = 1;
         buttpiReloadBrush->setY(winTilePicker->getHeight() - 50);
         labtpiReloadBrush->setY(winTilePicker->getHeight() - 50 + 6);
         cbtpiShowTileID->setY(winTilePicker->getHeight() - 60);
@@ -676,12 +676,16 @@ void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
             iActiveTool != EWW_TOOL_FILL && iTilePicked != EWW_TILE_PIPETTE && iTileDrawMode == EWW_DRAW_RECT);
     buttpiEllipse->setHighlight(
             iActiveTool != EWW_TOOL_FILL && iTilePicked != EWW_TILE_PIPETTE && iTileDrawMode == EWW_DRAW_ELLIPSE);
+    buttpiFlood->setHighlight(iTilePicked != EWW_TILE_PIPETTE && iActiveTool == EWW_TOOL_FILL);
     buttpiSpray->setHighlight(
             iActiveTool != EWW_TOOL_FILL && iTilePicked != EWW_TILE_PIPETTE && iTileDrawMode == EWW_DRAW_SPRAY);
 
+    buttpiPoint->setVisible(iActiveTool != EWW_TOOL_BRUSH);
+    buttpiLine->setVisible(iActiveTool != EWW_TOOL_BRUSH);
+    buttpiRect->setVisible(iActiveTool != EWW_TOOL_BRUSH);
+    buttpiEllipse->setVisible(iActiveTool != EWW_TOOL_BRUSH);
     buttpiFlood->setVisible(iActiveTool != EWW_TOOL_BRUSH);
     buttpiSpray->setVisible(iActiveTool != EWW_TOOL_BRUSH);
-    buttpiFlood->setHighlight(iTilePicked != EWW_TILE_PIPETTE && iActiveTool == EWW_TOOL_FILL);
     buttpiReloadBrush->setVisible(iActiveTool == EWW_TOOL_BRUSH);
     labtpiReloadBrush->setVisible(iActiveTool == EWW_TOOL_BRUSH);
 
@@ -698,7 +702,7 @@ void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
     slitpiSprayDensity->setVisible(iActiveTool == EWW_TOOL_PENCIL && iTileDrawMode == EWW_DRAW_SPRAY);
 
     if (iActiveTool == EWW_TOOL_BRUSH) {
-        iTilePickerOffUp = 5;
+        iTilePickerOffUp = 0;
         iTilePickerOffDown = 60;
         if (iTilePicked != -1) {
             cBrush *br = hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(iTilePicked);
@@ -706,10 +710,10 @@ void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
                 iTilePickerOffDown += 10 + br->GetSettingsHeight();
         }
     } else {
-        iTilePickerOffUp = 40;
+        iTilePickerOffUp = 40 + 32 * 2;
         iTilePickerOffDown = 70;
     }
-    iTilePickerOffUp += 15 + 40 + 32 * 2;
+    iTilePickerOffUp += 15 + 40;
 
     cbtpiShowTileID->setVisible(iActiveTool != EWW_TOOL_BRUSH);
     cbtpiShowProperties->setVisible(iActiveTool != EWW_TOOL_BRUSH);
@@ -732,6 +736,7 @@ void State::EditingWW::RefreshTilePickerSlider(bool forceSliderRefresh) {
     slitpiPicker->setEnabled(scale > 0);
     if (scale > 0)
         slitpiPicker->setScaleEnd(scale);
+    else slitpiPicker->setValue(slitpiPicker->getScaleEnd());
 
     if (!winTilePicker->isVisible() || forceSliderRefresh) {
         slitpiPicker->setValue(slitpiPicker->getScaleEnd());
@@ -739,24 +744,30 @@ void State::EditingWW::RefreshTilePickerSlider(bool forceSliderRefresh) {
 }
 
 void State::EditingWW::HandleBrushSwitch(int itOld, int itNew) {
-    bool changed = 0;
+    bool changed = false;
     int oOff = 0, nOff = 0;
     cTileImageSet *set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
     if (itOld >= 0 && set->GetBrushByIterator(itOld)->HasSettings()) {
         oOff = set->GetBrushByIterator(itOld)->GetSettingsHeight() + 10;
         set->GetBrushByIterator(itOld)->RemoveSettingsFromContainer(winTilePicker);
-        changed = 1;
+        changed = true;
+    }
+    if (changed) {
+        RebuildTilePicker();
+        if (nOff != oOff && slitpiPicker->isEnabled())
+            slitpiPicker->setValue(slitpiPicker->getValue() + (nOff - oOff));
+        changed = false;
     }
     if (itNew >= 0 && set->GetBrushByIterator(itNew)->HasSettings()) {
         nOff = set->GetBrushByIterator(itNew)->GetSettingsHeight() + 10;
         set->GetBrushByIterator(itNew)->AddSettingsToContainer(winTilePicker, 5,
                                                                winTilePicker->getHeight() - 60 -
                                                                set->GetBrushByIterator(itNew)->GetSettingsHeight());
-        changed = 1;
+        changed = true;
     }
     if (changed) {
         RebuildTilePicker();
-        if (nOff != oOff)
+        if (nOff != oOff && slitpiPicker->isEnabled())
             slitpiPicker->setValue(slitpiPicker->getValue() + (nOff - oOff));
     }
 }

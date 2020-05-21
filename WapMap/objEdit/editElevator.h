@@ -44,11 +44,13 @@ namespace ObjEdit {
 
         ~cEditObjElevator();
 
-        virtual void Save();
+        void Save() override;
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        void Action(const gcn::ActionEvent &actionEvent) override;
 
-        virtual void Draw() override;
+        void Draw() override;
+
+        void ObjectMovedInsideEasyEdit(int fromX, int fromY) override;
     };
 
 }

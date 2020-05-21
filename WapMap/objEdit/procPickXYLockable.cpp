@@ -45,11 +45,7 @@ cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX
 
     valX = valueX;
     valY = valueY;
-    locked = lock;
-    lockBut->setRenderBG(locked);
-    if (locked) {
-        lockedRatio = (float) valX / (float) valY;
-    }
+    setLocked(lock);
 }
 
 cProcPickXYLockable::~cProcPickXYLockable() {
@@ -162,4 +158,25 @@ void cProcPickXYLockable::setValueY(int val, bool generatesChangeEvent) {
     tfY->setText(std::to_string(val));
     mActionEventId = "CHANGE_Y";
     distributeActionEvent();
+}
+
+void cProcPickXYLockable::setEnabled(bool enabled) {
+    enabledMaster = enabled;
+    labMain->setColor(enabledMaster ? 0xFFa1a1a1 : 0xFF000000);
+    tfX->setEnabled(enabledMaster && xEnabled);
+    labX->setColor(enabledMaster && xEnabled ? 0xFFa1a1a1 : 0xFF000000);
+    tfY->setEnabled(enabledMaster && yEnabled);
+    labY->setColor(enabledMaster && yEnabled ? 0xFFa1a1a1 : 0xFF000000);
+}
+
+void cProcPickXYLockable::setEnabledX(bool enabled) {
+    xEnabled = enabled;
+    tfX->setEnabled(enabledMaster && xEnabled);
+    labX->setColor(enabled ? 0xFFa1a1a1 : 0xFF000000);
+}
+
+void cProcPickXYLockable::setEnabledY(bool enabled) {
+    yEnabled = enabled;
+    tfY->setEnabled(enabledMaster && yEnabled);
+    labY->setColor(enabled ? 0xFFa1a1a1 : 0xFF000000);
 }

@@ -406,7 +406,7 @@ void State::EditingWW::SavePlaneProperties() {
         }
     }
 
-    if (bDimChange) {
+    /*if (bDimChange) {
         if (pl->GetPlaneWidthPx() <= 2048 && pl->GetPlaneHeightPx() <= 2048) {
             GV->Console->Printf("Creating buffer for plane '~y~%s~w~' (%dx%d).", pl->GetName(), pl->GetPlaneWidthPx(),
                                 pl->GetPlaneHeightPx());
@@ -421,7 +421,7 @@ void State::EditingWW::SavePlaneProperties() {
             }
             hPlaneData[lbpmPlanes->getSelected()]->hRB = NULL;
         }
-    }
+    }*/
 
     if (cbpmFlagMainPlane->isSelected() != pl->GetFlag(WWD::Flag_p_MainPlane)) {
         bool bDo = 1;

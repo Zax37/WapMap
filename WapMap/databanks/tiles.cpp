@@ -11,6 +11,7 @@
 #include "../../shared/HashLib/hashlibpp.h"
 #include "../../shared/cWWD.h"
 #include "../cBrush.h"
+#include "../states/editing_ww.h"
 
 extern structProgressInfo _ghProgressInfo;
 extern HGE *hge;
@@ -62,8 +63,16 @@ void cBankTile::BatchProcessEnd(cDataController *hDC) {
     for (int i = 0; i < m_vhSets.size(); i++) {
         m_vhSets[i]->Sort();
     }
-    if (bReloadBrushes)
+    if (bReloadBrushes) {
+        if (GV->editState->iActiveTool == EWW_TOOL_BRUSH) {
+            GV->editState->HandleBrushSwitch(GV->editState->iTilePicked, EWW_TILE_NONE);
+            GV->editState->iTilePicked = EWW_TILE_NONE;
+        }
         ReloadBrushes();
+        if (GV->editState->iActiveTool == EWW_TOOL_BRUSH) {
+            GV->editState->RebuildTilePicker();
+        }
+    }
 
     int toloadc = 0;
     int sets = 0;

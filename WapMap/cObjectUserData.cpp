@@ -76,11 +76,12 @@ void cObjUserData::SyncToObj() {
     bInvert = hObj->GetDrawFlags() & WWD::Flag_dr_Invert;
     bVisible = !(hObj->GetDrawFlags() & WWD::Flag_dr_NoDraw);
 
-    if (bUpdatePos)
+    if (bUpdatePos) {
         if (m_vhCells.size() != 0) {
             cObjectQuadTree *cell = m_vhCells[0];
             cell->UpdateObject(hObj);
         }
+    }
 }
 
 void cObjUserData::ClearCellReferences() {

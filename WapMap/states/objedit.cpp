@@ -61,7 +61,7 @@ namespace ObjEdit {
                 hState->GetActivePlane()->DeleteObject(hOrigObj);
                 hOrigObj = 0;
                 hState->vObjectsPicked.clear();
-            } else if (bChangesMade) {
+            } else {
                 hState->MarkUnsaved();
             }
         }
@@ -90,13 +90,13 @@ namespace ObjEdit {
 
         if (!bMouseConsumed && bMouseIn) {
             int wmx = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
-                    wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
+                wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
             if (_bDragging) {
                 int destx = wmx - _iDragOffX,
-                        desty = wmy - _iDragOffY;
+                    desty = wmy - _iDragOffY;
                 if (hge->Input_GetKeyState(HGEK_CTRL)) {
                     int diffx = wmx - _iMoveInitX,
-                            diffy = wmy - _iMoveInitY;
+                        diffy = wmy - _iMoveInitY;
                     int diffmodulox = wmx % 64;
                     int diffmoduloy = wmy % 64;
                     int modx = 0, mody = 0;
@@ -140,10 +140,13 @@ namespace ObjEdit {
                 }
                 if (hTempObj->GetParam(WWD::Param_LocationX) != destx ||
                     hTempObj->GetParam(WWD::Param_LocationY) != desty) {
-                    GV->editState->vPort->MarkToRedraw(1);
+                    int sourceX = hTempObj->GetParam(WWD::Param_LocationX),
+                        sourceY = hTempObj->GetParam(WWD::Param_LocationY);
+                    GV->editState->vPort->MarkToRedraw(true);
                     hTempObj->SetParam(WWD::Param_LocationX, destx);
                     hTempObj->SetParam(WWD::Param_LocationY, desty);
                     GetUserDataFromObj(hTempObj)->SyncToObj();
+                    ObjectMovedInsideEasyEdit(sourceX, sourceY);
                 }
             }
             if (_bDragging && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
@@ -239,9 +242,13 @@ namespace ObjEdit {
 	}
 
     void cObjEdit::SaveChanges() {
-        bObjectSaved = 1;
-        bChangesMade = ChangesMade();
-        if (!bChangesMade) return;
+        bObjectSaved = true;
+
+        if (!hState->bEditObjDelete) {
+            bChangesMade = ChangesMade();
+            if (!bChangesMade) return;
+        }
+
         WWD::Object *tmpptr;
         tmpptr = hTempObj;
         hTempObj = hOrigObj;
@@ -249,8 +256,9 @@ namespace ObjEdit {
         int iOrigid = hTempObj->GetParam(WWD::Param_ID);
         hOrigObj->SetParam(WWD::Param_ID, iOrigid);
         hState->MarkUnsaved();
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw(true);
     }
+
 	void cObjEditVP::Draw(int iCode)
 	{
 		m_hOwn->Draw();

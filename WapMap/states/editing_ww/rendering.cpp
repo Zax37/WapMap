@@ -234,7 +234,7 @@ void State::EditingWW::DrawDB() {
             hgeSprite *spr = img->GetSprite();
             spr->SetFlip(cbdbisFlipX->isSelected(), cbdbisFlipY->isSelected());
             int sprx = vpx + 233 - idbisMoveX,
-                    spry = vpy + 141 - idbisMoveY;
+                spry = vpy + 141 - idbisMoveY;
             spr->Render(sprx, spry);
 
             if (cbdbisBorder->isSelected()) {
@@ -384,32 +384,32 @@ void State::EditingWW::DrawTileProperties() {
     hge->Gfx_RenderLine(dx + 9 + !btpZoomTile * 32, dy + 130 + btpZoomTile * 32 + 32, dx + 75 + btpZoomTile * 32 + 32,
                         dy + 130 + btpZoomTile * 32 + 32, GV->colLineBright);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 68, HGETEXT_LEFT, GETL(Lang_Width), 0);
-    GV->fntMyriad13->Render(dx + 145, dy + 94, HGETEXT_LEFT, GETL(Lang_Height), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 68, HGETEXT_LEFT, (std::string(GETL(Lang_Width)) + ':').c_str(), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 94, HGETEXT_LEFT, (std::string(GETL(Lang_Height)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 110, HGETEXT_LEFT, GETL(Lang_Type), 0);
-    GV->fntMyriad13->Render(dx + 165, dy + 136, HGETEXT_LEFT, GETL(Lang_AtribSingle), 0);
-    GV->fntMyriad13->Render(dx + 165, dy + 163, HGETEXT_LEFT, GETL(Lang_AtribDouble), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 125, HGETEXT_LEFT, (std::string(GETL(Lang_Type)) + ':').c_str(), 0);
+    GV->fntMyriad13->Render(dx + 175, dy + 149, HGETEXT_LEFT, GETL(Lang_AtribSingle), 0);
+    GV->fntMyriad13->Render(dx + 175, dy + 172, HGETEXT_LEFT, GETL(Lang_AtribDouble), 0);
 
-    GV->fntMyriad13->Render(dx + 5, dy + 205, HGETEXT_LEFT, GETL(Lang_AtribInside), 0);
+    GV->fntMyriad13->Render(dx + 8, dy + 208, HGETEXT_LEFT, (std::string(GETL(Lang_AtribInside)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 125, dy + 205, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
-    GV->fntMyriad13->Render(dx + 225, dy + 205, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
+    GV->fntMyriad13->Render(dx + 130, dy + 208, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
+    GV->fntMyriad13->Render(dx + 230, dy + 208, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
 
-    GV->fntMyriad13->Render(dx + 25, dy + 235, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
-    GV->fntMyriad13->Render(dx + 125, dy + 235, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
-    GV->fntMyriad13->Render(dx + 225, dy + 235, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
+    GV->fntMyriad13->Render(dx + 30, dy + 238, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
+    GV->fntMyriad13->Render(dx + 130, dy + 238, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
+    GV->fntMyriad13->Render(dx + 230, dy + 238, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
 
     if (rbtpDouble->isSelected()) {
-        GV->fntMyriad13->Render(dx + 125, dy + 265, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
-        GV->fntMyriad13->Render(dx + 225, dy + 265, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
+        GV->fntMyriad13->Render(dx + 130, dy + 268, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
+        GV->fntMyriad13->Render(dx + 230, dy + 268, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
 
-        GV->fntMyriad13->Render(dx + 25, dy + 295, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
-        GV->fntMyriad13->Render(dx + 125, dy + 295, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
-        GV->fntMyriad13->Render(dx + 225, dy + 295, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
+        GV->fntMyriad13->Render(dx + 30, dy + 298, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
+        GV->fntMyriad13->Render(dx + 130, dy + 298, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
+        GV->fntMyriad13->Render(dx + 230, dy + 298, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
 
-        GV->fntMyriad13->Render(dx + 5, dy + 265, HGETEXT_LEFT, GETL(Lang_AtribOutside), 0);
-        GV->fntMyriad13->Render(dx + 110, dy + 327, HGETEXT_RIGHT, GETL(Lang_Mask), 0);
+        GV->fntMyriad13->Render(dx + 8, dy + 268, HGETEXT_LEFT, (std::string(GETL(Lang_AtribOutside)) + ':').c_str(), 0);
+        GV->fntMyriad13->Render(dx + 105, dy + 327, HGETEXT_RIGHT, GETL(Lang_Mask), 0);
         GV->fntMyriad13->Render(dx + 150, dy + 327, HGETEXT_LEFT, "x", 0);
         GV->fntMyriad13->Render(dx + 202, dy + 325, HGETEXT_LEFT, "-", 0);
         GV->fntMyriad13->Render(dx + 250, dy + 327, HGETEXT_LEFT, "x", 0);
@@ -970,18 +970,11 @@ void State::EditingWW::DrawViewport() {
             int offx = atoi(tfdOffsetX->getText().c_str());
             int offy = atoi(tfdOffsetY->getText().c_str());
             for (int i = 0; i < count; i++) {
-                if (objdSource != NULL) {
-                    RenderObject(objdSource,
-                                 Wrd2ScrX(GetActivePlane(), GetUserDataFromObj(objdSource)->GetX() + offx * (i + 1)),
-                                 Wrd2ScrY(GetActivePlane(), GetUserDataFromObj(objdSource)->GetY() + offy * (i + 1)),
-                                 0x77FFFFFF);
-                } else {
-                    for (int y = 0; y < vObjectsPicked.size(); y++) {
-                        RenderObject(vObjectsPicked[y], Wrd2ScrX(GetActivePlane(),
-                                                                 GetUserDataFromObj(vObjectsPicked[y])->GetX() +
-                                                                 offx * (i + 1)),
-                                     Wrd2ScrY(GetActivePlane(),
-                                              GetUserDataFromObj(vObjectsPicked[y])->GetY() + offy * (i + 1)),
+                for (auto & obj : vObjectsPicked) {
+                    if (obj != hStartingPosObj) {
+                        RenderObject(obj,
+                                     Wrd2ScrX(GetActivePlane(), GetUserDataFromObj(obj)->GetX() + offx * (i + 1)),
+                                     Wrd2ScrY(GetActivePlane(), GetUserDataFromObj(obj)->GetY() + offy * (i + 1)),
                                      0x77FFFFFF);
                     }
                 }
@@ -1382,7 +1375,7 @@ void State::EditingWW::DrawViewport() {
                 } else if (strstr(obj->GetLogic(), "Elevator") && strcmp(obj->GetLogic(), "SlidingElevator") != 0) {
 
                     if (strcmp(obj->GetLogic(), "Elevator") != 0) { // Elevator_
-                        int startX = Wrd2ScrY(GetActivePlane(), obj->GetX()),
+                        int startX = Wrd2ScrX(GetActivePlane(), obj->GetX()),
                             startY = Wrd2ScrY(GetActivePlane(), obj->GetY());
 
                         int dir = obj->GetParam(WWD::Param_Direction),
@@ -1437,132 +1430,152 @@ void State::EditingWW::DrawViewport() {
                                 }
                             }*/
                     } else if ((minX != 0 && maxX != 0 && minX <= maxX) || (minY != 0 && maxY != 0 && minY <= maxY)) {
-                        if (minX == maxX) { //vertical
-                            int starty = Wrd2ScrY(GetActivePlane(), minY),
-                                endy = Wrd2ScrY(GetActivePlane(), maxY);
-                            float xpad = 22 * fZoom;
-                            int x = Wrd2ScrX(GetActivePlane(), GetUserDataFromObj(obj)->GetX());
+                        if (minX == maxX) { // vertical
+                            int x = Wrd2ScrX(GetActivePlane(), obj->GetX()),
+                                startY = Wrd2ScrY(GetActivePlane(), minY),
+                                endY = Wrd2ScrY(GetActivePlane(), maxY);
                             spr->SetColor(0x77FFFFFF);
                             if (minY != GetUserDataFromObj(obj)->GetY())
-                                spr->RenderEx(x, starty, 0, fZoom);
+                                spr->RenderEx(x, startY, 0, fZoom);
                             if (maxY != GetUserDataFromObj(obj)->GetY())
-                                spr->RenderEx(x, endy, 0, fZoom);
-                            float lpad = 48 * fZoom, rpad = 48 * fZoom;
-                            GV->sprArrowVerticalU->SetColor(0x77FFFFFF);
-                            GV->sprArrowVerticalM->SetColor(0x77FFFFFF);
-                            GV->sprArrowVerticalD->SetColor(0x77FFFFFF);
-                            GV->sprArrowVerticalU->RenderEx(x, starty + 37 * fZoom, 0, fZoom);
-                            GV->sprArrowVerticalM->RenderEx(x, endy - rpad, 0, fZoom,
-                                                            float(endy - starty - lpad - 37 * fZoom) / 128.0f);
-                            GV->sprArrowVerticalD->RenderEx(x - xpad, endy - rpad, 0, fZoom);
-                        } else if (minY == maxY) { //horizontal
-                            int startx = Wrd2ScrX(GetActivePlane(), minX),
-                                endx = Wrd2ScrX(GetActivePlane(), maxX);
-                            float ypad = 22 * fZoom;
-                            int y = Wrd2ScrY(GetActivePlane(), GetUserDataFromObj(obj)->GetY()) - ypad;
+                                spr->RenderEx(x, endY, 0, fZoom);
+                            RenderArrow(x, startY, x, endY, true, true, true);
+                        } else if (minY == maxY) { // horizontal
+                            int y = Wrd2ScrY(GetActivePlane(), obj->GetY()),
+                                startX = Wrd2ScrX(GetActivePlane(), minX),
+                                endX = Wrd2ScrX(GetActivePlane(), maxX);
                             spr->SetColor(0x77FFFFFF);
-                            if (minX != GetUserDataFromObj(obj)->GetX())
-                                spr->RenderEx(startx, y + ypad, 0, fZoom);
-                            if (maxX != GetUserDataFromObj(obj)->GetX())
-                                spr->RenderEx(endx, y + ypad, 0, fZoom);
-                            float lpad = 35 * fZoom, rpad = 39 * fZoom;
-                            GV->sprArrowHorizontalL->SetColor(0x77FFFFFF);
-                            GV->sprArrowHorizontalC->SetColor(0x77FFFFFF);
-                            GV->sprArrowHorizontalR->SetColor(0x77FFFFFF);
-                            GV->sprArrowHorizontalL->RenderEx(startx, y, 0, fZoom);
-                            GV->sprArrowHorizontalC->RenderEx(startx + lpad, y, 0,
-                                                              float(endx - startx - lpad - rpad) / 8.0f, fZoom);
-                            GV->sprArrowHorizontalR->RenderEx(endx - rpad, y, 0, fZoom);
+                            if (minX != obj->GetX())
+                                spr->RenderEx(startX, y, 0, fZoom);
+                            if (maxX != obj->GetX())
+                                spr->RenderEx(endX, y, 0, fZoom);
+                            RenderArrow(startX, y, endX, y, true, true, true);
+                        } else if ((maxX - minX == maxY - minY) // diagonal
+                        && obj->GetParam(WWD::Param_SpeedX) == obj->GetParam(WWD::Param_SpeedY)) {
+                            int x = GetUserDataFromObj(obj)->GetX(), y = GetUserDataFromObj(obj)->GetY();
+
+                            int dir = obj->GetParam(WWD::Param_Direction);
+                            if (dir == 7 || dir == 4 || dir == 1) {
+                                if (x == minX) x = maxX;
+                                else x = minX;
+                            }
+                            if (dir == 7 || dir == 8 || dir == 9) {
+                                if (y == minY) y = maxY;
+                                else y = minY;
+                            }
+
+                            int startX = Wrd2ScrX(GetActivePlane(), x), startY = Wrd2ScrY(GetActivePlane(), y);
+
+                            spr->SetColor(0x77FFFFFF);
+                            if (x != startX || y != startY) {
+                                spr->RenderEx(startX, startY, 0, fZoom);
+                            }
+
+                            if (dir != 2 && dir != 8) {
+                                if (x == minX) x = maxX;
+                                else x = minX;
+                            }
+
+                            if (dir != 4 && dir != 6) {
+                                if (y == minY) y = maxY;
+                                else y = minY;
+                            }
+
+                            int endX = Wrd2ScrX(GetActivePlane(), x), endY = Wrd2ScrY(GetActivePlane(), y);
+
+                            if (x != endX || y != endY) {
+                                spr->RenderEx(Wrd2ScrX(GetActivePlane(), x), Wrd2ScrY(GetActivePlane(), y), 0, fZoom);
+                            }
+
+                            RenderArrow(startX, startY, endX, endY, true, true, true);
                         } else { // other
                             bool closed = false;
                             std::vector<POINT> travelPoints;
 
-                            if (!strcmp(obj->GetLogic(), "Elevator")) {
-                                int x = GetUserDataFromObj(obj)->GetX(), y = GetUserDataFromObj(obj)->GetY();
-                                int width = maxX - minX;
-                                int height = maxY - minY;
+                            int x = GetUserDataFromObj(obj)->GetX(), y = GetUserDataFromObj(obj)->GetY();
+                            int width = maxX - minX;
+                            int height = maxY - minY;
 
-                                if (width <= 0 && height <= 0) return;
+                            if (width <= 0 && height <= 0) return;
 
-                                int cycleX = 2 * width;
-                                int cycleY = 2 * height;
+                            int cycleX = 2 * width;
+                            int cycleY = 2 * height;
 
-                                int tweakX = std::min(std::max(x - minX, 0), width),
-                                        tweakY = std::min(std::max(y - minY, 0), height);
+                            int tweakX = std::min(std::max(x - minX, 0), width),
+                                tweakY = std::min(std::max(y - minY, 0), height);
 
-                                int dir = obj->GetParam(WWD::Param_Direction);
-                                if (dir == 7 || dir == 4 || dir == 1) {
-                                    tweakX += width;
-                                }
-                                if (dir == 7 || dir == 8 || dir == 9) {
-                                    tweakY += height;
-                                }
+                            int dir = obj->GetParam(WWD::Param_Direction);
+                            if (dir == 7 || dir == 4 || dir == 1) {
+                                tweakX += width;
+                            }
+                            if (dir == 7 || dir == 8 || dir == 9) {
+                                tweakY += height;
+                            }
 
-                                std::function<void()> updateXY = [&](){
-                                    if (cycleX) {
-                                        div_t diffX = div(tweakX, cycleX);
-                                        diffX.quot = width;
-                                        if (diffX.rem <= diffX.quot) {
-                                            x = minX + diffX.rem;
-                                        } else {
-                                            x = maxX + diffX.quot - diffX.rem;
-                                        }
+                            std::function<void()> updateXY = [&](){
+                                if (cycleX) {
+                                    div_t diffX = div(tweakX, cycleX);
+                                    diffX.quot = width;
+                                    if (diffX.rem <= diffX.quot) {
+                                        x = minX + diffX.rem;
+                                    } else {
+                                        x = maxX + diffX.quot - diffX.rem;
                                     }
-                                    if (cycleY) {
-                                        div_t diffY = div(tweakY, cycleY);
-                                        diffY.quot = height;
-                                        if (diffY.rem <= diffY.quot) {
-                                            y = minY + diffY.rem;
-                                        } else {
-                                            y = maxY + diffY.quot - diffY.rem;
-                                        }
+                                }
+                                if (cycleY) {
+                                    div_t diffY = div(tweakY, cycleY);
+                                    diffY.quot = height;
+                                    if (diffY.rem <= diffY.quot) {
+                                        y = minY + diffY.rem;
+                                    } else {
+                                        y = maxY + diffY.quot - diffY.rem;
                                     }
-                                };
+                                }
+                            };
+
+                            updateXY();
+
+                            int scrStartX = Wrd2ScrX(GetActivePlane(), x), scrStartY = Wrd2ScrY(GetActivePlane(), y);
+                            travelPoints.emplace_back(POINT{scrStartX, scrStartY});
+
+                            int speedX = obj->GetParam(WWD::Param_SpeedX),
+                                speedY = obj->GetParam(WWD::Param_SpeedY);
+
+                            if (width <= 0) speedX = 0;
+                            else if (!speedX) speedX = DEFAULT_ELEVATOR_SPEED;
+                            if (height <= 0) speedY = 0;
+                            else if (!speedY) speedY = DEFAULT_ELEVATOR_SPEED;
+
+                            for (int i = 1; i < 32; i++) {
+                                if (speedX <= 0) {
+                                    if (speedY <= 0) return;
+                                    tweakY += height - tweakY % height;
+                                } else if (speedY <= 0) {
+                                    if (speedX <= 0) return;
+                                    tweakX += width - tweakX % width;
+                                } else {
+                                    int distX = width - tweakX % width;
+                                    int distY = height - tweakY % height;
+
+                                    if (distX * 1000 / speedX < distY * 1000 / speedY) {
+                                        tweakX += distX;
+                                        tweakY += distX * speedY / speedX;
+                                    } else {
+                                        tweakX += distY * speedX / speedY;
+                                        tweakY += distY;
+                                    }
+                                }
 
                                 updateXY();
-
-                                int scrStartX = Wrd2ScrX(GetActivePlane(), x), scrStartY = Wrd2ScrY(GetActivePlane(), y);
-                                travelPoints.emplace_back(POINT{scrStartX, scrStartY});
-
-                                int speedX = obj->GetParam(WWD::Param_SpeedX),
-                                    speedY = obj->GetParam(WWD::Param_SpeedY);
-
-                                if (width <= 0) speedX = 0;
-                                else if (!speedX) speedX = DEFAULT_ELEVATOR_SPEED;
-                                if (height <= 0) speedY = 0;
-                                else if (!speedY) speedY = DEFAULT_ELEVATOR_SPEED;
-
-                                for (int i = 1; i < 32; i++) {
-                                    if (speedX <= 0) {
-                                        if (speedY <= 0) return;
-                                        tweakY += height - tweakY % height;
-                                    } else if (speedY <= 0) {
-                                        if (speedX <= 0) return;
-                                        tweakX += width - tweakX % width;
-                                    } else {
-                                        int distX = width - tweakX % width;
-                                        int distY = height - tweakY % height;
-
-                                        if (distX * 1000 / speedX < distY * 1000 / speedY) {
-                                            tweakX += distX;
-                                            tweakY += distX * speedY / speedX;
-                                        } else {
-                                            tweakX += distY * speedX / speedY;
-                                            tweakY += distY;
-                                        }
+                                int scrX = Wrd2ScrX(GetActivePlane(), x), scrY = Wrd2ScrY(GetActivePlane(), y);
+                                /*for (const auto& p : travelPoints) {
+                                    if (p.x == scrX && p.y == scrY) {
+                                        closed = true;
+                                        i = 666;
+                                        break;
                                     }
-
-                                    updateXY();
-                                    int scrX = Wrd2ScrX(GetActivePlane(), x), scrY = Wrd2ScrY(GetActivePlane(), y);
-                                    /*for (const auto& p : travelPoints) {
-                                        if (p.x == scrX && p.y == scrY) {
-                                            closed = true;
-                                            i = 666;
-                                            break;
-                                        }
-                                    }*/
-                                    travelPoints.emplace_back(POINT{scrX, scrY});
-                                }
+                                }*/
+                                travelPoints.emplace_back(POINT{scrX, scrY});
                             }
 
                             const POINT* pp = NULL;
@@ -2255,12 +2268,13 @@ void State::EditingWW::DrawViewport() {
                         hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
 }
 
-void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, bool setcolors) {
+void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, bool setColors, bool twoSided) {
     float len = sqrt(pow(x2 - x, 2) + pow(y2 - y, 2));
 
-    if (setcolors) {
+    if (setColors) {
         GV->sprArrowVerticalM->SetColor(0x77FFFFFF);
         GV->sprArrowVerticalU->SetColor(0x77FFFFFF);
+        if (twoSided) GV->sprArrowVerticalD->SetColor(0x77FFFFFF);
         if (!finished) {
             GV->sprArrowVerticalU->SetColor(0x00FFFFFF, 0);
             GV->sprArrowVerticalU->SetColor(0x00FFFFFF, 1);
@@ -2274,17 +2288,32 @@ void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, 
     hgeVector vec(x2 - x, y2 - y);
     vec.Normalize();
     float rot = atan2f(vec.x, vec.y);
-    if (len < 40.0f * fZoom) {
-        GV->sprArrowVerticalU->RenderEx(x, y, rot * -1 - M_PI, fZoom);
+    if ((twoSided && len < 80.0f * fZoom) || len < 40.0f * fZoom) {
+        if (twoSided) {
+            GV->sprArrowVerticalD->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
+        }
+        GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
         return;
     }
-    len -= 37.0f * fZoom;
+    len -= 38.0f * fZoom;
+
+    if (twoSided) {
+        len -= 38.0f * fZoom;
+    }
+
     vec.x = 0;
     vec.y = len;
     vec.Rotate(rot);
     rot *= -1;
     rot -= M_PI;
 
+    if (twoSided) {
+        hgeVector vec2(0, 38.0f * fZoom);
+        vec2.Rotate(rot);
+        x -= vec2.x;
+        y -= vec2.y;
+        GV->sprArrowVerticalD->RenderEx(x, y, rot, fZoom);
+    }
     GV->sprArrowVerticalM->RenderEx(x, y, rot, fZoom, len / 128.0f);
     GV->sprArrowVerticalU->RenderEx(x - vec.x, y + vec.y, rot, fZoom);
 }
@@ -2952,15 +2981,15 @@ void State::EditingWW::RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWO
     }
 
     if (dr.x1 || dr.x2)
-        for (int y = r.y1; y < r.y2; y += 120) {
-            if (dr.x1) GV->sprDottedLineVertical->Render(r.x1, y);
-            if (dr.x2) GV->sprDottedLineVertical->Render(r.x2 - 5, y);
+        for (int y = r.y1; y < r.y2; y += 120 * fZoom) {
+            if (dr.x1) GV->sprDottedLineVertical->RenderEx(r.x1, y, 0, fZoom);
+            if (dr.x2) GV->sprDottedLineVertical->RenderEx(r.x2 - 5, y, 0, fZoom);
         }
 
     if (dr.y1 || dr.y2)
-        for (int x = r.x1; x < r.x2; x += 120) {
-            if (dr.y1) GV->sprDottedLineHorizontal->Render(x, r.y1);
-            if (dr.y2) GV->sprDottedLineHorizontal->Render(x, r.y2 - 5);
+        for (int x = r.x1; x < r.x2; x += 120 * fZoom) {
+            if (dr.y1) GV->sprDottedLineHorizontal->RenderEx(x, r.y1, 0, fZoom);
+            if (dr.y2) GV->sprDottedLineHorizontal->RenderEx(x, r.y2 - 5, 0, fZoom);
         }
 }
 
@@ -3019,7 +3048,7 @@ void State::EditingWW::DrawTilePicker() {
         int itpx = dx + 4, itpy = dy + iTilePickerOffUp + 16;
         hge->Gfx_SetClipping(itpx, itpy, 230, slitpiPicker->getHeight());
 
-        if (mx > itpx && mx < itpx + 230 && my > itpy && my < itpy + slitpiPicker->getHeight()) {
+        if (mx > itpx && mx < itpx + 230 && my > itpy && my < itpy + slitpiPicker->getHeight() && slitpiPicker->isEnabled()) {
             slitpiPicker->setValue(slitpiPicker->getValue() + 100 * hge->Input_GetMouseWheel());
         }
 

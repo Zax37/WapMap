@@ -516,31 +516,31 @@ void State::EditingWW::Init() {
     winTileProp->setMovable(1);
     winTileProp->setClose(1);
     conMain->add(winTileProp, 300, 300);
-    buttpPrev = MakeButton(0, 8, Icon_Undo, winTileProp, 1, 1);
+    buttpPrev = MakeButton(0, 10, Icon_Undo, winTileProp, 1, 1);
     buttpPrev->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Previous));
-    buttpNext = MakeButton(265, 8, Icon_Redo, winTileProp, 1, 1);
+    buttpNext = MakeButton(264, 10, Icon_Redo, winTileProp, 1, 1);
     buttpNext->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Next));
-    buttpZoom = MakeButton(265, 45, Icon_Zoom, winTileProp, 1, 1);
+    buttpZoom = MakeButton(264, 60, Icon_Zoom, winTileProp, 1, 1);
     buttpZoom->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Zoom));
-    buttpShow = MakeButton(265, 80, Icon_Eye, winTileProp, 1, 1);
+    buttpShow = MakeButton(264, 100, Icon_Eye, winTileProp, 1, 1);
     buttpShow->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Preview));
-    buttpPipette = MakeButton(265, 115, Icon_Pipette, winTileProp, 0);
-    buttpPipette->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Pipette));
-    buttpApply = MakeButton(265, 150, Icon_Apply, winTileProp, 1, 1);
+    //buttpPipette = MakeButton(265, 115, Icon_Pipette, winTileProp, 0);
+    //buttpPipette->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Pipette));
+    buttpApply = MakeButton(264, 140, Icon_Apply, winTileProp, 1, 1);
     buttpApply->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Apply));
     tftpTileID = new SHR::TextField("0");
     tftpTileID->setDimension(gcn::Rectangle(0, 0, 100, 20));
     tftpTileID->addActionListener(al);
-    winTileProp->add(tftpTileID, 100, 10);
+    winTileProp->add(tftpTileID, 100, 15);
 
     rbtpSingle = new SHR::RadBut(GV->hGfxInterface, "", "atribtype");
     rbtpSingle->adjustSize();
     rbtpSingle->addActionListener(al);
-    winTileProp->add(rbtpSingle, 145, 123);
+    winTileProp->add(rbtpSingle, 145, 133);
     rbtpDouble = new SHR::RadBut(GV->hGfxInterface, "", "atribtype");
     rbtpDouble->adjustSize();
     rbtpDouble->addActionListener(al);
-    winTileProp->add(rbtpDouble, 145, 150);
+    winTileProp->add(rbtpDouble, 145, 155);
 
     for (int i = 0; i < 5; i++) {
         rbtpIn[i] = new SHR::RadBut(GV->hGfxInterface, "", "atribinside");
@@ -551,12 +551,12 @@ void State::EditingWW::Init() {
         rbtpOut[i]->adjustSize();
     }
     for (int i = 0; i < 2; i++) {
-        winTileProp->add(rbtpIn[i], 105 + i * 100, 190);
-        winTileProp->add(rbtpOut[i], 105 + i * 100, 250);
+        winTileProp->add(rbtpIn[i], 107 + i * 100, 192);
+        winTileProp->add(rbtpOut[i], 107 + i * 100, 252);
     }
     for (int i = 2; i < 5; i++) {
-        winTileProp->add(rbtpIn[i], 5 + (i - 2) * 100, 220);
-        winTileProp->add(rbtpOut[i], 5 + (i - 2) * 100, 280);
+        winTileProp->add(rbtpIn[i], 7 + (i - 2) * 100, 222);
+        winTileProp->add(rbtpOut[i], 7 + (i - 2) * 100, 282);
     }
 
     tftpX1 = new SHR::TextField("0");
@@ -579,12 +579,12 @@ void State::EditingWW::Init() {
     tftpW = new SHR::TextField("0");
     tftpW->setDimension(gcn::Rectangle(0, 0, 35, 20));
     tftpW->addActionListener(al);
-    winTileProp->add(tftpW, 220, 54);
+    winTileProp->add(tftpW, 220, 50);
 
     tftpH = new SHR::TextField("0");
     tftpH->setDimension(gcn::Rectangle(0, 0, 35, 20));
     tftpH->addActionListener(al);
-    winTileProp->add(tftpH, 220, 82);
+    winTileProp->add(tftpH, 220, 76);
 
     itpSelectedTile = -1;
     vpTileProp = new WIDG::Viewport(vp, VP_TILEPROP);
@@ -620,15 +620,15 @@ void State::EditingWW::Init() {
     buttoolSelAreaPickMaxY->addActionListener(al);
     wintoolSelArea->add(buttoolSelAreaPickMaxY, 170, 70);
 
-    buttoolSelAreaOK = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "Accept"));
-    buttoolSelAreaOK->setDimension(gcn::Rectangle(0, 0, 160, 33));
-    buttoolSelAreaOK->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaOK, 5, 110);
-
     buttoolSelAreaAll = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "PickByArea"));
     buttoolSelAreaAll->setDimension(gcn::Rectangle(0, 0, 160, 33));
     buttoolSelAreaAll->addActionListener(al);
-    wintoolSelArea->add(buttoolSelAreaAll, 170, 110);
+    wintoolSelArea->add(buttoolSelAreaAll, 5, 110);
+
+    buttoolSelAreaOK = new SHR::But(GV->hGfxInterface, GETL2S("ObjProp", "Accept"));
+    buttoolSelAreaOK->setDimension(gcn::Rectangle(0, 0, 160, 33));
+    buttoolSelAreaOK->addActionListener(al);
+    wintoolSelArea->add(buttoolSelAreaOK, 170, 110);
 
     winMeasureOpt = new SHR::Win(&GV->gcnParts, GETL(Lang_MeasureOptions));
     winMeasureOpt->setDimension(gcn::Rectangle(0, 0, 300, 100));
@@ -644,52 +644,62 @@ void State::EditingWW::Init() {
     butmeasClear = MakeButton(260, 15, Icon_X, winMeasureOpt);
 
     winObjectBrush = new SHR::Win(&GV->gcnParts, GETL(Lang_BrushProperties));
-    winObjectBrush->setDimension(gcn::Rectangle(0, 0, 300, 150));
+    winObjectBrush->setDimension(gcn::Rectangle(0, 0, 330, 165));
     winObjectBrush->setVisible(0);
     winObjectBrush->setClose(1);
     winObjectBrush->addActionListener(al);
     conMain->add(winObjectBrush, vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
 
     char tmp[128];
-    sprintf(tmp, "%s: -", GETL(Lang_SourceObjectID));
-    labobrSource = new SHR::Lab(tmp);
-    labobrSource->adjustSize();
-    winObjectBrush->add(labobrSource, 5, 12);
+    int offsetY = 18;
+
+    cbobrUpdateRects = new SHR::CBox(GV->hGfxInterface, GETL2S("Tool_ObjectBrush", "UpdateRects"));
+    cbobrUpdateRects->adjustSize();
+    cbobrUpdateRects->setSelected(true);
+    winObjectBrush->add(cbobrUpdateRects, 5, offsetY);
+
+    offsetY += 25;
 
     labobrDispX = new SHR::Lab(GETL2S("Tool_ObjectBrush", "ScatterX"));
     labobrDispX->adjustSize();
-    winObjectBrush->add(labobrDispX, 5, 35);
+    winObjectBrush->add(labobrDispX, 5, offsetY);
 
     tfobrDispX = new SHR::TextField("0");
     tfobrDispX->setDimension(gcn::Rectangle(0, 0, 50, 20));
     tfobrDispX->SetNumerical(1, 0);
-    winObjectBrush->add(tfobrDispX, labobrDispX->getWidth() + 15, 35);
+    winObjectBrush->add(tfobrDispX, labobrDispX->getWidth() + 15, offsetY - 2);
 
     labobrDispY = new SHR::Lab(GETL2S("Tool_ObjectBrush", "ScatterY"));
     labobrDispY->adjustSize();
-    winObjectBrush->add(labobrDispY, tfobrDispX->getX() + tfobrDispX->getWidth() + 15, 35);
+    winObjectBrush->add(labobrDispY, tfobrDispX->getX() + tfobrDispX->getWidth() + 13, offsetY);
 
     tfobrDispY = new SHR::TextField("0");
     tfobrDispY->setDimension(gcn::Rectangle(0, 0, 50, 20));
     tfobrDispY->SetNumerical(1, 0);
-    winObjectBrush->add(tfobrDispY, labobrDispY->getX() + labobrDispY->getWidth() + 15, 35);
+    winObjectBrush->add(tfobrDispY, labobrDispY->getX() + labobrDispY->getWidth() + 13, offsetY - 2);
+
+    offsetY += 25;
 
     cbobrApplyScatterSeparately = new SHR::CBox(GV->hGfxInterface, GETL2S("Tool_ObjectBrush", "ScatterSeparately"));
     cbobrApplyScatterSeparately->adjustSize();
-    winObjectBrush->add(cbobrApplyScatterSeparately, 5, 60);
+    winObjectBrush->add(cbobrApplyScatterSeparately, 5, offsetY);
 
-    sliobrDistance = new SHR::Slider(SHR::Slider::HORIZONTAL);
-    sliobrDistance->setScale(10.0f, 750.0f);
-    sliobrDistance->setDimension(gcn::Rectangle(0, 0, 280, 16));
-    sliobrDistance->setValue(64.0f);
-    sliobrDistance->addActionListener(al);
-    sliobrDistance->setMarkerLength(45);
-    winObjectBrush->add(sliobrDistance, 5, 110);
+    offsetY += 25;
 
     sprintf(tmp, "%s: 64px", GETL(Lang_BrushInterval));
     labobrDistance = new SHR::Lab(tmp);
     labobrDistance->adjustSize();
-    winObjectBrush->add(labobrDistance, 5, 85);
+    winObjectBrush->add(labobrDistance, 5, offsetY);
+
+    offsetY += 25;
+
+    sliobrDistance = new SHR::Slider(SHR::Slider::HORIZONTAL);
+    sliobrDistance->setScale(10.0f, 700.0f);
+    sliobrDistance->setDimension(gcn::Rectangle(0, 0, 315, 16));
+    sliobrDistance->setValue(64.0f);
+    sliobrDistance->addActionListener(al);
+    sliobrDistance->setMarkerLength(45);
+    winObjectBrush->add(sliobrDistance, 5, offsetY);
 
     winSpacing = new SHR::Win(&GV->gcnParts, GETL2S("WinSpacing", "WinCaption"));
     winSpacing->setDimension(gcn::Rectangle(0, 0, 250, 100));
@@ -1444,59 +1454,66 @@ void State::EditingWW::Init() {
     winWorld->add(vpWorld, 0, 0);
 
     winDuplicate = new SHR::Win(&GV->gcnParts, GETL(Lang_Duplicating));
-    winDuplicate->setDimension(gcn::Rectangle(0, 0, 210, 200));
+    winDuplicate->setDimension(gcn::Rectangle(0, 0, 210, 170));
     winDuplicate->setVisible(0);
     winDuplicate->setClose(1);
+    winDuplicate->addActionListener(al);
     conMain->add(winDuplicate, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 105,
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 100);
 
-    labdCopiedObjectID = new SHR::Lab("");
-    labdCopiedObjectID->adjustSize();
-    winDuplicate->add(labdCopiedObjectID, 5, 15);
+    offsetY = 16;
 
-    labdTimes = new SHR::Lab(GETL(Lang_CopyXTimes));
+    labdTimes = new SHR::Lab(std::string(GETL(Lang_CopyXTimes)) + ':');
     labdTimes->adjustSize();
-    winDuplicate->add(labdTimes, 5, 40);
+    winDuplicate->add(labdTimes, 5, offsetY + 1);
 
     tfdTimes = new SHR::TextField("1");
     tfdTimes->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfdTimes->SetNumerical(1, 0);
     tfdTimes->addActionListener(al);
-    winDuplicate->add(tfdTimes, 125, 40);
+    winDuplicate->add(tfdTimes, 125, offsetY);
 
-    labdOffsetX = new SHR::Lab(GETL(Lang_OffsetX));
+    offsetY += 25;
+
+    labdOffsetX = new SHR::Lab(std::string(GETL(Lang_OffsetX)) + ':');
     labdOffsetX->adjustSize();
     labdOffsetX->addActionListener(al);
-    winDuplicate->add(labdOffsetX, 5, 65);
+    winDuplicate->add(labdOffsetX, 5, offsetY + 1);
 
     tfdOffsetX = new SHR::TextField("0");
     tfdOffsetX->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfdOffsetX->SetNumerical(1, 1);
     tfdOffsetX->addActionListener(al);
-    winDuplicate->add(tfdOffsetX, 125, 65);
+    winDuplicate->add(tfdOffsetX, 125, offsetY);
 
-    labdOffsetY = new SHR::Lab(GETL(Lang_OffsetY));
+    offsetY += 25;
+
+    labdOffsetY = new SHR::Lab(std::string(GETL(Lang_OffsetY)) + ':');
     labdOffsetY->adjustSize();
-    winDuplicate->add(labdOffsetY, 5, 90);
+    winDuplicate->add(labdOffsetY, 5, offsetY + 1);
 
     tfdOffsetY = new SHR::TextField("0");
     tfdOffsetY->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfdOffsetY->SetNumerical(1, 1);
-    winDuplicate->add(tfdOffsetY, 125, 90);
+    winDuplicate->add(tfdOffsetY, 125, offsetY);
 
-    labdChangeZ = new SHR::Lab(GETL2S("Win_Duplicate", "ChangeZ"));
+    offsetY += 25;
+
+    labdChangeZ = new SHR::Lab(std::string(GETL(Lang_OffsetZ)) + ':');
     labdChangeZ->adjustSize();
-    winDuplicate->add(labdChangeZ, 5, 115);
+    winDuplicate->add(labdChangeZ, 5, offsetY + 1);
 
     tfdChangeZ = new SHR::TextField("0");
     tfdChangeZ->setDimension(gcn::Rectangle(0, 0, 75, 20));
     tfdChangeZ->SetNumerical(1, 1);
-    winDuplicate->add(tfdChangeZ, 125, 115);
+    winDuplicate->add(tfdChangeZ, 125, offsetY);
+
+    offsetY += 30;
 
     butdOK = new SHR::But(GV->hGfxInterface, GETL(Lang_OK));
     butdOK->setDimension(gcn::Rectangle(0, 0, 75, 25));
     butdOK->addActionListener(al);
-    winDuplicate->add(butdOK, 68, 145);
+    winDuplicate->add(butdOK, 68, offsetY);
 
     gui->setTop(conMain);
 
@@ -1747,6 +1764,8 @@ void State::EditingWW::Init() {
 
     conmodSpawnPoint = new SHR::ContextModel();
     conmodSpawnPoint->AddElement(OBJMENU_MOVE, GETL(Lang_Move), GV->sprIcons16[Icon16_Move]);
+    conmodSpawnPoint->AddElement(OBJMENU_TESTFROMHERE, GETL2S("Various", "ContextTestFromHere"),
+                            GV->sprIcons16[Icon16_Play]);
 
     //conmodUseAsBrush = new SHR::ContextModel();
     //conmodUseAsBrush->AddElement(OBJMENU_USEASBRUSH, GETL(Lang_UseAsBrush), GV->sprIcons16[Icon16_Brush]);
@@ -1793,7 +1812,7 @@ void State::EditingWW::Init() {
 
     objFlagContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     objFlagContext->AddElement(OBJMENU_FLAGS_DRAW, GETL(Lang_DrawingFlags), 0);
-    objFlagContext->AddElement(OBJMENU_FLAGS_ADDITIONAL, GETL(Lang_AddFlags), 0);
+    //objFlagContext->AddElement(OBJMENU_FLAGS_ADDITIONAL, GETL(Lang_AddFlags), 0);
     objFlagContext->AddElement(OBJMENU_FLAGS_DYNAMIC, GETL(Lang_DynamicFlags), 0);
     objFlagContext->adjustSize();
     objFlagContext->hide();
@@ -1812,7 +1831,7 @@ void State::EditingWW::Init() {
     conMain->add(objFlagDrawContext, 400, 400);
     objFlagContext->GetElementByID(OBJMENU_FLAGS_DRAW)->SetCascade(objFlagDrawContext);
 
-    objFlagAddContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    /*objFlagAddContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_DIFFICULT, GETL(Lang_ObjFlag_Difficult), 0);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY, GETL(Lang_ObjFlag_ExtraMemory), 0);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_EYECANDY, GETL(Lang_ObjFlag_EyeCandy), 0);
@@ -1824,7 +1843,7 @@ void State::EditingWW::Init() {
     objFlagAddContext->addActionListener(al);
     objFlagAddContext->hide();
     conMain->add(objFlagAddContext, 400, 400);
-    objFlagContext->GetElementByID(OBJMENU_FLAGS_ADDITIONAL)->SetCascade(objFlagAddContext);
+    objFlagContext->GetElementByID(OBJMENU_FLAGS_ADDITIONAL)->SetCascade(objFlagAddContext);*/
 
     objFlagDynamicContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
     objFlagDynamicContext->AddElement(OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE, GETL(Lang_ObjFlag_AlwaysActive), 0);
@@ -2565,39 +2584,37 @@ void State::EditingWW::LockToolSpecificFunctions(bool bLock) {
     hAppMenu->SetToolSpecificEnabled(!bLock);
 }
 
-void State::EditingWW::SetTool(int iNTool) {
-    CloseTool(iNTool);
-    OpenTool(iNTool);
-    iActiveTool = iNTool;
+void State::EditingWW::SetTool(int iNewTool) {
+    CloseTool(iNewTool);
+    OpenTool(iNewTool);
+    iActiveTool = iNewTool;
 }
 
-void State::EditingWW::OpenTool(int iTool) {
-    if (iTool == EWW_TOOL_PENCIL || iTool == EWW_TOOL_FILL) {
-        iActiveTool = iTool;
+void State::EditingWW::OpenTool(int iNewTool) {
+    if (iNewTool == EWW_TOOL_PENCIL || iNewTool == EWW_TOOL_FILL) {
+        iActiveTool = iNewTool;
         iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker(true);
         winTilePicker->setVisible(true);
-        return;
-    } else if (iTool == EWW_TOOL_WRITEID) {
+    } else if (iNewTool == EWW_TOOL_WRITEID) {
         hmbTile->butIconWriteID->setHighlight(true);
         iTileWriteIDx = iTileWriteIDy = -1;
-    } else if (iTool == EWW_TOOL_SPACEOBJ) {
+    } else if (iNewTool == EWW_TOOL_SPACEOBJ) {
         winSpacing->setVisible(true);
         winSpacing->requestMoveToTop();
-    } else if (iTool == EWW_TOOL_BRUSH) {
-        iActiveTool = iTool;
+    } else if (iNewTool == EWW_TOOL_BRUSH) {
+        iActiveTool = iNewTool;
         iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker(true);
         if (!winTilePicker->isVisible())
             winTilePicker->setVisible(true);
         iLastBrushPlacedX = iLastBrushPlacedY = -1;
-        return;
-    } else if (iTool == EWW_TOOL_BRUSHOBJECT) {
+    } else if (iNewTool == EWW_TOOL_BRUSHOBJECT) {
         winObjectBrush->setVisible(true);
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
-    } else if (iTool == EWW_TOOL_MEASURE) {
+    } else if (iNewTool == EWW_TOOL_MEASURE) {
         winMeasureOpt->setVisible(true);
-    } else if (iTool == EWW_TOOL_OBJSELAREA) {
+    } else if (iNewTool == EWW_TOOL_OBJSELAREA) {
         bObjDragSelection = false;
         wintoolSelArea->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
         wintoolSelArea->setShow(true);
@@ -2609,21 +2626,26 @@ void State::EditingWW::OpenTool(int iTool) {
         labtoolSelAreaValues->adjustSize();
         toolsaAction = TOOL_OBJSA_NONE;
         LockToolSpecificFunctions(true);
-    } else if (iTool == EWW_TOOL_EDITOBJ) {
+    } else if (iNewTool == EWW_TOOL_EDITOBJ) {
         MinimizeWindows();
         LockToolSpecificFunctions(true);
         bEditObjDelete = false;
-    } else if (iTool == EWW_TOOL_ALIGNOBJ) {
+    } else if (iNewTool == EWW_TOOL_ALIGNOBJ) {
 
-    } else if (iTool == EWW_TOOL_MOVEOBJECT)
+    } else if (iNewTool == EWW_TOOL_MOVEOBJECT) {
         bEditObjDelete = false;
+    } else if (iNewTool == EWW_TOOL_DUPLICATE) {
+        ShowAndUpdateDuplicateMenu();
+    } else if (iNewTool == EWW_TOOL_NONE) {
+        iTilePicked = EWW_TILE_NONE;
+    }
 }
 
-void State::EditingWW::CloseTool(int iTool) {
+void State::EditingWW::CloseTool(int iNewTool) {
     if (iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL) {
-        if (iTool != EWW_TOOL_PENCIL && iTool != EWW_TOOL_FILL) {
+        if (iNewTool != EWW_TOOL_PENCIL && iNewTool != EWW_TOOL_FILL) {
             iTilePicked = EWW_TILE_NONE;
-            if (iTool != EWW_TOOL_BRUSH) {
+            if (iNewTool != EWW_TOOL_BRUSH) {
                 winTilePicker->setVisible(false);
             }
         }
@@ -2636,7 +2658,7 @@ void State::EditingWW::CloseTool(int iTool) {
     } else if (iActiveTool == EWW_TOOL_SPACEOBJ) {
         winSpacing->setVisible(0);
     } else if (iActiveTool == EWW_TOOL_BRUSH) {
-        if (iTool != EWW_TOOL_PENCIL && iTool != EWW_TOOL_FILL) {
+        if (iNewTool != EWW_TOOL_PENCIL && iNewTool != EWW_TOOL_FILL) {
             winTilePicker->setVisible(false);
         }
 
@@ -2644,7 +2666,10 @@ void State::EditingWW::CloseTool(int iTool) {
             hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(
                     iTilePicked)->RemoveSettingsFromContainer(winTilePicker);
         vTileGhosting.clear();
+        iTilePicked = EWW_TILE_NONE;
         return;
+    } else if (iActiveTool == EWW_TOOL_DUPLICATE) {
+        winDuplicate->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
         winObjectBrush->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_MEASURE) {
@@ -2659,6 +2684,11 @@ void State::EditingWW::CloseTool(int iTool) {
         MaximizeWindows();
     } else if (iActiveTool == EWW_TOOL_ALIGNOBJ) {
 
+    } else if (iActiveTool == EWW_TOOL_NONE) {
+        iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
+        iObjDragOrigX = iObjDragOrigY = -1;
+        bObjDragSelection = false;
+        vPort->MarkToRedraw(true);
     }
 }
 

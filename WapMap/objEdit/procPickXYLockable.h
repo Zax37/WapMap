@@ -37,21 +37,27 @@ public:
 
     bool isEnabled() { return enabledMaster; }
 
-    void setEnabled(bool enabled) {
-        enabledMaster = enabled;
-        tfX->setEnabled(enabledMaster && xEnabled);
-        tfY->setEnabled(enabledMaster && yEnabled);
-    }
+    void setEnabled(bool enabled);
 
     bool isEnabledX() { return xEnabled; }
 
-    void setEnabledX(bool enabled) { xEnabled = enabled; tfX->setEnabled(enabledMaster && xEnabled); }
+    void setEnabledX(bool enabled);
 
     bool isEnabledY() { return yEnabled; }
 
-    void setEnabledY(bool enabled) { yEnabled = enabled; tfY->setEnabled(enabledMaster && yEnabled); }
+    void setEnabledY(bool enabled);
 
     void setAllowNegative(bool allowNegative) { tfX->SetNumerical(true, allowNegative); tfY->SetNumerical(true, allowNegative); }
+
+    void setLocked(bool lock) {
+        locked = lock;
+        lockBut->setRenderBG(lock);
+
+        if (locked) {
+            lockedRatio = (float) valX / (float) valY;
+            lockBut->setEnabled(true);
+        }
+    }
 };
 
 

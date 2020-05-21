@@ -258,6 +258,7 @@ namespace SHR {
     }
 
     void Context::mouseMoved(MouseEvent &mouseEvent) {
+        if (bHide) return;
         int n = mouseEvent.getY() / iRowHeight;
         if (n >= vElements.size()) n = vElements.size() - 1;
         if (n == iSelectedIt) return;

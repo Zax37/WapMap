@@ -180,7 +180,7 @@ namespace State {
 		} else if (actionEvent.getSource() == m_hOwn->winMeasureOpt) {
 			m_hOwn->SetTool(EWW_TOOL_NONE);
 		} else if (actionEvent.getSource() == m_hOwn->winObjectBrush) {
-			m_hOwn->SetTool(EWW_TOOL_NONE);
+			m_hOwn->iActiveTool = EWW_TOOL_NONE;
 		} else if (actionEvent.getSource() == m_hOwn->butwsNew) {
 			GV->editState->NewMap_Open();
 		} else if (actionEvent.getSource() == m_hOwn->butwsOpen) {
@@ -299,6 +299,8 @@ namespace State {
 				m_hOwn->vptpfcPalette->setVisible(0);
 				m_hOwn->buttpfcShow->setCaption(GETL(Lang_SelectFill));
 			}
+		} else if (actionEvent.getSource() == m_hOwn->winDuplicate) {
+            m_hOwn->iActiveTool = EWW_TOOL_NONE;
 		}
 
 		for (int i = 0; i < 10; i++)
@@ -541,42 +543,37 @@ namespace State {
 			} else if (actionEvent.getSource() == m_hOwn->butwpCancel) {
 				m_hOwn->winWorld->setVisible(false);
 				m_hOwn->SyncWorldOptionsWithParser();
-			} else if (actionEvent.getSource() == m_hOwn->butdOK ||
-					   actionEvent.getSource()->getActionEventId() == "ENTER" &&
-					   (actionEvent.getSource() == m_hOwn->tfdTimes ||
-						actionEvent.getSource() == m_hOwn->tfdOffsetX ||
-						actionEvent.getSource() == m_hOwn->tfdOffsetY)) {
+			} else if (actionEvent.getSource() == m_hOwn->butdOK
+					   || (actionEvent.getSource()->getActionEventId() == "ENTER"
+						   && (actionEvent.getSource() == m_hOwn->tfdTimes
+							   || actionEvent.getSource() == m_hOwn->tfdOffsetX
+							   || actionEvent.getSource() == m_hOwn->tfdOffsetY))) {
+				std::vector<WWD::Object*> duplicates;
+
 				int count = atoi(m_hOwn->tfdTimes->getText().c_str());
-				int offx = atoi(m_hOwn->tfdOffsetX->getText().c_str());
-				int offy = atoi(m_hOwn->tfdOffsetY->getText().c_str());
-				int offz = atoi(m_hOwn->tfdChangeZ->getText().c_str());
+				int offX = atoi(m_hOwn->tfdOffsetX->getText().c_str());
+				int offY = atoi(m_hOwn->tfdOffsetY->getText().c_str());
+				int offZ = atoi(m_hOwn->tfdChangeZ->getText().c_str());
 				if (count < 0) count = 0;
 				for (int i = 0; i < count; i++) {
-					if (m_hOwn->objdSource != NULL) {
-						WWD::Object *obj = new WWD::Object(m_hOwn->objdSource);
-						obj->SetParam(WWD::Param_LocationX, obj->GetParam(WWD::Param_LocationX) + offx * (i + 1));
-						obj->SetParam(WWD::Param_LocationY, obj->GetParam(WWD::Param_LocationY) + offy * (i + 1));
-						obj->SetParam(WWD::Param_LocationZ, obj->GetParam(WWD::Param_LocationZ) + offz * (i + 1));
-						m_hOwn->GetActivePlane()->AddObjectAndCalcID(obj);
+					for (auto & picked : m_hOwn->vObjectsPicked) {
+						auto *obj = new WWD::Object(picked);
 						obj->SetUserData(new cObjUserData(obj));
-						m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-					} else {
-						for (int y = 0; y < m_hOwn->vObjectsPicked.size(); y++) {
-							WWD::Object *obj = new WWD::Object(m_hOwn->vObjectsPicked[y]);
-							obj->SetParam(WWD::Param_LocationX, obj->GetParam(WWD::Param_LocationX) + offx * (i + 1));
-							obj->SetParam(WWD::Param_LocationY, obj->GetParam(WWD::Param_LocationY) + offy * (i + 1));
-							obj->SetParam(WWD::Param_LocationZ, obj->GetParam(WWD::Param_LocationZ) + offz * (i + 1));
-							m_hOwn->GetActivePlane()->AddObjectAndCalcID(obj);
-							obj->SetUserData(new cObjUserData(obj));
-							m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-						}
+						GetUserDataFromObj(obj)->SetPos(obj->GetParam(WWD::Param_LocationX) + offX * (i + 1), obj->GetParam(WWD::Param_LocationY) + offY * (i + 1));
+						obj->SetParam(WWD::Param_LocationZ, obj->GetParam(WWD::Param_LocationZ) + offZ * (i + 1));
+						m_hOwn->GetActivePlane()->AddObjectAndCalcID(obj);
+						duplicates.push_back(obj);
+						//m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
 					}
 				}
 				if (count != 0) {
-					m_hOwn->vPort->MarkToRedraw(1);
+					m_hOwn->UpdateMovedObjectWithRects(duplicates);
+
+					m_hOwn->vPort->MarkToRedraw(true);
 					m_hOwn->MarkUnsaved();
-					m_hOwn->winDuplicate->setVisible(0);
 				}
+
+                m_hOwn->SetTool(EWW_TOOL_NONE);
 			} else if (actionEvent.getSource() == m_hOwn->butcamSetToSpawn) {
 				m_hOwn->fCamX = m_hOwn->hParser->GetStartX() - (m_hOwn->vPort->GetWidth() / 2 / m_hOwn->fZoom);
 				m_hOwn->fCamY = m_hOwn->hParser->GetStartY() - (m_hOwn->vPort->GetHeight() / 2 / m_hOwn->fZoom);
@@ -597,6 +594,13 @@ namespace State {
 					strlen(m_hOwn->GetActivePlane()->GetImageSet(0)) + 1];
 					strcpy(m_hOwn->MDI->GetActiveDoc()->hTileClipboardImageSet,
 						   m_hOwn->GetActivePlane()->GetImageSet(0));
+
+					if (m_hOwn->iTileSelectX2 >= m_hOwn->GetActivePlane()->GetPlaneWidth()) {
+						m_hOwn->iTileSelectX2 = m_hOwn->GetActivePlane()->GetPlaneWidth() - 1;
+					}
+					if (m_hOwn->iTileSelectY2 >= m_hOwn->GetActivePlane()->GetPlaneHeight()) {
+						m_hOwn->iTileSelectY2 = m_hOwn->GetActivePlane()->GetPlaneHeight() - 1;
+					}
 
 					m_hOwn->MDI->GetActiveDoc()->iTileCBw = m_hOwn->iTileSelectX2 - m_hOwn->iTileSelectX1 + 1;
 					m_hOwn->MDI->GetActiveDoc()->iTileCBh = m_hOwn->iTileSelectY2 - m_hOwn->iTileSelectY1 + 1;
@@ -685,10 +689,10 @@ namespace State {
 														   worldY);
 					}
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_DUPLICATE) {
-					for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
+                    for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
 						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
 							m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
-					m_hOwn->ShowAndUpdateDuplicateMenu();
+                    m_hOwn->SetTool(EWW_TOOL_DUPLICATE);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_MOVE) {
 					m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
 					float mx, my;
@@ -754,44 +758,17 @@ namespace State {
 					x = x / m_hOwn->fZoom;
 					y = y / m_hOwn->fZoom;
 
-					float diffX = x - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationX),
-						  diffY = y - m_hOwn->vObjectClipboard[0]->GetParam(WWD::Param_LocationY);
-
-					bool bRecalc = 0;
 					for (auto & clipboardObject : m_hOwn->vObjectClipboard) {
-						if (!strstr(clipboardObject->GetLogic(), "Elevator")
-                            && (clipboardObject->GetParam(WWD::Param_MinX) != 0 ||
-                                clipboardObject->GetParam(WWD::Param_MinY) != 0 ||
-                                clipboardObject->GetParam(WWD::Param_MaxX) != 0 ||
-                                clipboardObject->GetParam(WWD::Param_MaxY) != 0)) {
-							if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "MsgRecalcMinMaxXY"),
-										   GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDYES) {
-								bRecalc = 1;
-							}
-							break;
-						}
-					}
-
-					for (auto & i : m_hOwn->vObjectClipboard) {
-						auto *object = new WWD::Object(i);
-
-						if (bRecalc || strstr(i->GetLogic(), "Elevator")) {
-							if (object->GetParam(WWD::Param_MinX) != 0)
-								object->SetParam(WWD::Param_MinX, object->GetParam(WWD::Param_MinX) + diffX);
-							if (object->GetParam(WWD::Param_MinY) != 0)
-								object->SetParam(WWD::Param_MinY, object->GetParam(WWD::Param_MinY) + diffY);
-							if (object->GetParam(WWD::Param_MaxX) != 0)
-								object->SetParam(WWD::Param_MaxX, object->GetParam(WWD::Param_MaxX) + diffX);
-							if (object->GetParam(WWD::Param_MaxY) != 0)
-								object->SetParam(WWD::Param_MaxY, object->GetParam(WWD::Param_MaxY) + diffY);
-						}
-						object->SetParam(WWD::Param_LocationX, object->GetParam(WWD::Param_LocationX) + diffX);
-						object->SetParam(WWD::Param_LocationY, object->GetParam(WWD::Param_LocationY) + diffY);
+						auto *object = new WWD::Object(clipboardObject);
 						m_hOwn->GetActivePlane()->AddObjectAndCalcID(object);
 						object->SetUserData(new cObjUserData(object));
-						m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
+						//m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
 						m_hOwn->vObjectsPicked.push_back(object);
+						GetUserDataFromObj(object)->SetPos(x, y);
 					}
+
+					m_hOwn->UpdateMovedObjectWithRects(m_hOwn->vObjectsPicked);
+
 					m_hOwn->MarkUnsaved();
 					m_hOwn->vPort->MarkToRedraw(true);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_USEASBRUSH) {
@@ -799,14 +776,6 @@ namespace State {
 						if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
 							m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
 					m_hOwn->vObjectsBrushCB = m_hOwn->vObjectsPicked;
-					char tmp[128];
-					if (m_hOwn->vObjectsPicked.size() == 1)
-						sprintf(tmp, "%s: %d", GETL(Lang_SourceObjectID),
-								m_hOwn->vObjectsPicked[0]->GetParam(WWD::Param_ID));
-					else
-						sprintf(tmp, "%s: %s", GETL(Lang_SourceObjectID), GETL(Lang_ManyObjects));
-					m_hOwn->labobrSource->setCaption(tmp);
-					m_hOwn->labobrSource->adjustSize();
 					m_hOwn->SetTool(EWW_TOOL_BRUSHOBJECT);
 				} else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_NEWOBJ) {
 					if (m_hOwn->objContext->GetElementByID(OBJMENU_NEWOBJ)->GetCascade()) return;
@@ -834,9 +803,9 @@ namespace State {
 					flagpos = menupos - OBJMENU_FLAGS_DRAW - 1;
 				} else if (hCallingContext == m_hOwn->objFlagDynamicContext) {
 					flagpos = menupos - OBJMENU_FLAGS_DYNAMIC - 1;
-				} else if (hCallingContext == m_hOwn->objFlagAddContext) {
+				} /*else if (hCallingContext == m_hOwn->objFlagAddContext) {
 					flagpos = menupos - OBJMENU_FLAGS_ADDITIONAL - 1;
-				}
+				}*/
 				int flagbinaryval = pow(2, flagpos);
 
 				for (size_t obji = 0; obji < m_hOwn->vObjectsPicked.size(); obji++) {
@@ -994,7 +963,11 @@ namespace State {
 				m_hOwn->labobrDistance->setCaption(tmp);
 				m_hOwn->labobrDistance->adjustSize();
 			} else if (actionEvent.getSource() == m_hOwn->buttpiReloadBrush) {
+				m_hOwn->HandleBrushSwitch(m_hOwn->iTilePicked, EWW_TILE_NONE);
+				m_hOwn->iTilePicked = EWW_TILE_NONE;
 				m_hOwn->hTileset->ReloadBrushes();
+				m_hOwn->RebuildTilePicker();
+				m_hOwn->gui->focusNone();
 			} else if (actionEvent.getSource() == m_hOwn->butmeasClear) {
 				m_hOwn->m_vMeasurePoints.clear();
 			} else if (actionEvent.getSource() == m_hOwn->tftpTileID) {
@@ -1127,79 +1100,26 @@ namespace State {
                 m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
             } else if (actionEvent.getSource() == m_hOwn->butExtLayerUp) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(0, -1);
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
-				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
-					m_hOwn->hParser->SetStartY(
-							m_hOwn->hParser->GetStartY() + m_hOwn->GetActivePlane()->GetTileHeight());
-					m_hOwn->hStartingPosObj->SetParam(WWD::Param_LocationY, m_hOwn->hParser->GetStartY());
-					GetUserDataFromObj(m_hOwn->hStartingPosObj)->SyncToObj();
-				}
-				for (int i = 0; i < m_hOwn->GetActivePlane()->GetObjectsCount(); i++) {
-					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
-				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDown) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(0, 1);
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerLeft) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(-1, 0);
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
-				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
-					m_hOwn->hParser->SetStartX(m_hOwn->hParser->GetStartX() + m_hOwn->GetActivePlane()->GetTileWidth());
-					m_hOwn->hStartingPosObj->SetParam(WWD::Param_LocationX, m_hOwn->hParser->GetStartX());
-					GetUserDataFromObj(m_hOwn->hStartingPosObj)->SyncToObj();
-				}
-				for (int i = 0; i < m_hOwn->GetActivePlane()->GetObjectsCount(); i++) {
-					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
-				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerRight) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(1, 0);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerUL) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(-1, -1);
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
-				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
-					m_hOwn->hParser->SetStartX(m_hOwn->hParser->GetStartX() + m_hOwn->GetActivePlane()->GetTileWidth());
-					m_hOwn->hParser->SetStartY(
-							m_hOwn->hParser->GetStartY() + m_hOwn->GetActivePlane()->GetTileHeight());
-					m_hOwn->hStartingPosObj->SetParam(WWD::Param_LocationX, m_hOwn->hParser->GetStartX());
-					m_hOwn->hStartingPosObj->SetParam(WWD::Param_LocationY, m_hOwn->hParser->GetStartY());
-					GetUserDataFromObj(m_hOwn->hStartingPosObj)->SyncToObj();
-				}
-				for (int i = 0; i < m_hOwn->GetActivePlane()->GetObjectsCount(); i++) {
-					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
-				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerUR) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(1, -1);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
-				if (m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane) {
-					m_hOwn->hParser->SetStartY(
-							m_hOwn->hParser->GetStartY() + m_hOwn->GetActivePlane()->GetTileHeight());
-					m_hOwn->hStartingPosObj->SetParam(WWD::Param_LocationY, m_hOwn->hParser->GetStartY());
-					GetUserDataFromObj(m_hOwn->hStartingPosObj)->SyncToObj();
-				}
-				for (int i = 0; i < m_hOwn->GetActivePlane()->GetObjectsCount(); i++) {
-					GetUserDataFromObj(m_hOwn->GetActivePlane()->GetObjectByIterator(i))->SyncToObj();
-				}
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDL) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(-1, 1);
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butExtLayerDR) {
                 m_hOwn->GetActivePlane()->ResizeAddTiles(1, 1);
 				m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
 				m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
-				m_hOwn->vPort->MarkToRedraw(1);
-				m_hOwn->MarkUnsaved();
 			} else if (actionEvent.getSource() == m_hOwn->butMicroTileCB) {
 				m_hOwn->bForceTileClipbPreview = !m_hOwn->bForceTileClipbPreview;
 				if (m_hOwn->bForceTileClipbPreview)
@@ -1305,40 +1225,70 @@ namespace State {
                 if (m_hOwn->winLogicBrowser->isVisible()) {
                     m_hOwn->winLogicBrowser->setVisible(false);
                 }
+                if (m_hOwn->winDuplicate->isVisible() || m_hOwn->winObjectBrush->isVisible()
+                    || m_hOwn->iActiveTool == EWW_TOOL_ALIGNOBJ) {
+					m_hOwn->SetTool(EWW_TOOL_NONE);
+                }
                 for (cWindow* win : m_hOwn->hWindows) {
                     win->Close();
                 }
             }
 	        return;
 	    }
-		if (keyEvent.getType() != KeyEvent::PRESSED || !keyEvent.isControlPressed()) return;
-		switch (keyEvent.getKey().getValue()) {
-			case 'n':
-				m_hOwn->NewMap_Open();
-				break;
-			case 'o':
-				m_hOwn->OpenDocuments();
-				break;
-			case 's':
-				if (!m_hOwn->MDI->GetActiveDoc()) return;
-				if (keyEvent.isShiftPressed()) {
-					m_hOwn->SaveAs();
-				} else {
-					m_hOwn->MDI->SaveCurrent();
-				}
-				break;
-			case 'w':
-				if (m_hOwn->MDI->GetActiveDoc()) {
-					m_hOwn->MDI->CloseDocByIt(m_hOwn->MDI->GetActiveDocIt());
-				}
-				break;
-			case 't':
-				if (keyEvent.isShiftPressed()) {
-					if (m_hOwn->MDI->GetCachedClosedDocsCount() > 0) {
-						GV->StateMgr->Push(new State::LoadMap(m_hOwn->MDI->GetMostRecentlyClosedDoc().c_str()));
-					}
-				}
-				break;
+		if (keyEvent.getType() != KeyEvent::PRESSED) return;
+		if (keyEvent.isControlPressed()) {
+            switch (keyEvent.getKey().getValue()) {
+                case 'd':
+                    if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty()) {
+                        for (auto & object : m_hOwn->vObjectsPicked) {
+                            object = new WWD::Object(object);
+                            object->SetUserData(new cObjUserData(object));
+                            m_hOwn->plMain->AddObjectAndCalcID(object);
+                            GetUserDataFromObj(object)->SyncToObj();
+                            m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
+                        }
+
+                        m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
+                        m_hOwn->bEditObjDelete = true;
+                        m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
+                        m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
+                    }
+                    break;
+                case 'n':
+                    m_hOwn->NewMap_Open();
+                    break;
+                case 'o':
+                    m_hOwn->OpenDocuments();
+                    break;
+                case 's':
+                    if (!m_hOwn->MDI->GetActiveDoc()) return;
+                    if (keyEvent.isShiftPressed()) {
+                        m_hOwn->SaveAs();
+                    } else {
+                        m_hOwn->MDI->SaveCurrent();
+                    }
+                    break;
+                case 'w':
+                    if (m_hOwn->MDI->GetActiveDoc()) {
+                        m_hOwn->MDI->CloseDocByIt(m_hOwn->MDI->GetActiveDocIt());
+                    }
+                    break;
+                case 't':
+                    if (keyEvent.isShiftPressed()) {
+                        if (m_hOwn->MDI->GetCachedClosedDocsCount() > 0) {
+                            GV->StateMgr->Push(new State::LoadMap(m_hOwn->MDI->GetMostRecentlyClosedDoc().c_str()));
+                        }
+                    }
+                    break;
+            }
+        } else if (keyEvent.isAltPressed()) {
+            switch (keyEvent.getKey().getValue()) {
+                case 'd':
+                    if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty()) {
+                        m_hOwn->SetTool(EWW_TOOL_DUPLICATE);
+                    }
+                    break;
+            }
 		}
 	}
 }

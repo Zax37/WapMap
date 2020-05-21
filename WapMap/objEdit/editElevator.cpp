@@ -143,9 +143,15 @@ namespace ObjEdit {
 
         int speedX = hTempObj->GetParam(WWD::Param_SpeedX);
         int speedY = hTempObj->GetParam(WWD::Param_SpeedY);
-        if (!speedX) speedX = DEFAULT_ELEVATOR_SPEED;
+        if (!speedX) {
+            speedX = DEFAULT_ELEVATOR_SPEED;
+            hTempObj->SetParam(WWD::Param_SpeedX, speedX);
+        }
         else if (regularElevator && speedX < 0) speedX = 0;
-        if (!speedY) speedY = DEFAULT_ELEVATOR_SPEED;
+        if (!speedY) {
+            speedY = DEFAULT_ELEVATOR_SPEED;
+            hTempObj->SetParam(WWD::Param_SpeedY, speedY);
+        }
         else if (regularElevator && speedY < 0) speedY = 0;
 
         hSpeedPick = new cProcPickXYLockable(GETL2S("EditObj_Elevator", "Speed"),
@@ -316,29 +322,33 @@ namespace ObjEdit {
     }
 
 #define GET_X_MINMAX() int tX = hTravelDistPick->getValueX(); \
-    if (!tX) { tX = hTravelDistPick->getValueY(); if (!tX) tX = 150; hTravelDistPick->setValueX(tX); hSpeedPick->setValueX(hSpeedPick->getValueY()); } \
-    int x = hTempObj->GetParam(WWD::Param_LocationX); \
+    if (!tX) { tX = hTravelDistPick->getValueY(); if (!tX) tX = 150; int sY = hSpeedPick->getValueY(); \
+    hTempObj->SetParam(WWD::Param_SpeedX, sY); \
+    hTravelDistPick->setValueX(tX); hTravelDistPick->setLocked(true); hSpeedPick->setValueX(sY); } \
+    int x = GetUserDataFromObj(hTempObj)->GetX(); \
     rArea.x1 = left ? x - tX : x; \
     rArea.x2 = left ? x : x + tX;
 
 #define GET_Y_MINMAX() int tY = hTravelDistPick->getValueY(); \
-    if (!tY) { tY = hTravelDistPick->getValueX(); if (!tY) tY = 150; hTravelDistPick->setValueY(tY); hSpeedPick->setValueY(hSpeedPick->getValueX()); } \
-    int y = hTempObj->GetParam(WWD::Param_LocationY); \
+    if (!tY) { tY = hTravelDistPick->getValueX(); if (!tY) tY = 150; int sX = hSpeedPick->getValueX(); \
+    hTempObj->SetParam(WWD::Param_SpeedY, sX); \
+    hTravelDistPick->setValueY(tY); hTravelDistPick->setLocked(true); hSpeedPick->setValueY(sX); } \
+    int y = GetUserDataFromObj(hTempObj)->GetY(); \
     rArea.y1 = top ? y - tY : y; \
     rArea.y2 = top ? y : y + tY;
 
     void cEditObjElevator::UpdateDirection(bool init) {
         iDirection = hTempObj->GetParam(WWD::Param_Direction);
         if (init && automatic->isSelected()) {
-            if (hTempObj->GetParam(WWD::Param_LocationX) == rArea.x1 && (iDirection == 1 || iDirection == 4 || iDirection == 7)) {
+            if (GetUserDataFromObj(hTempObj)->GetX() == rArea.x1 && (iDirection == 1 || iDirection == 4 || iDirection == 7)) {
                 iDirection += 2;
-            } else if (hTempObj->GetParam(WWD::Param_LocationX) == rArea.x2 && (iDirection == 3 || iDirection == 6 || iDirection == 9)) {
+            } else if (GetUserDataFromObj(hTempObj)->GetX() == rArea.x2 && (iDirection == 3 || iDirection == 6 || iDirection == 9)) {
                 iDirection -= 2;
             }
 
-            if (hTempObj->GetParam(WWD::Param_LocationY) == rArea.y1 && iDirection < 4) {
+            if (GetUserDataFromObj(hTempObj)->GetY() == rArea.y1 && iDirection < 4) {
                 iDirection += 6;
-            } else if (hTempObj->GetParam(WWD::Param_LocationY) == rArea.y2 && iDirection > 6) {
+            } else if (GetUserDataFromObj(hTempObj)->GetY() == rArea.y2 && iDirection > 6) {
                 iDirection -= 6;
             }
         }
@@ -386,6 +396,34 @@ namespace ObjEdit {
                 if (iDirection == 1 || iDirection == 7 || iDirection == 9) {
                     hTempObj->SetParam(WWD::Param_Direction, 3);
                 }
+            }
+        }
+    }
+
+    void cEditObjElevator::ObjectMovedInsideEasyEdit(int fromX, int fromY) {
+        if (automatic->isSelected()) {
+            int diffX = GetUserDataFromObj(hTempObj)->GetX() - fromX,
+                diffY = GetUserDataFromObj(hTempObj)->GetY() - fromY;
+
+            if (hTempObj->GetParam(WWD::Param_MinX) != 0) {
+                rArea.x1 += diffX;
+                hTempObj->SetParam(WWD::Param_MinX,
+                                   hTempObj->GetParam(WWD::Param_MinX) + diffX);
+            }
+            if (hTempObj->GetParam(WWD::Param_MinY) != 0) {
+                rArea.y1 += diffY;
+                hTempObj->SetParam(WWD::Param_MinY,
+                                   hTempObj->GetParam(WWD::Param_MinY) + diffY);
+            }
+            if (hTempObj->GetParam(WWD::Param_MaxX) != 0) {
+                rArea.x2 += diffX;
+                hTempObj->SetParam(WWD::Param_MaxX,
+                                   hTempObj->GetParam(WWD::Param_MaxX) + diffX);
+            }
+            if (hTempObj->GetParam(WWD::Param_MaxY) != 0) {
+                rArea.y2 += diffY;
+                hTempObj->SetParam(WWD::Param_MaxY,
+                                   hTempObj->GetParam(WWD::Param_MaxY) + diffY);
             }
         }
     }

@@ -18,9 +18,12 @@
 <li>Added hotkey for toggling invert flag(I). Allowed using M/I keys while easy editor is open.</li>
 <li>Added hotkeys for saving (CTRL + S), saving as (CTRL + SHIFT + S) and closing (CTRL + W) current document tab.</li>
 <li>Added hotkey for reopening last closed (CTRL + SHIFT + T) document tab and creating new one (CTRL + N).</li>
+<li>Added hotkey for duplicating selected objects once (CTRL + D) or multiple times (ALT + D).</li>
+<li>Added hotkey for moving camera to end of level (END).</li>
 <li>Added possibility to select multiple documents to open at once.</li>
 <li>Added tooltips to most of the interface elements.</li>
 <li>Added support of recently opened documents for Windows 8 and 10.</li>
+<li>Added "test from this position" button to spawn point context menu.</li>
 <li>Grouped enemies into one button. Added PunkRat to enemies list.</li>
 <li>Treasure easy editor will automatically update "Add glitter" option to selected treasure's default value.</li>
 <li>Easy editor window positions no longer reset when "Add next" button is used.</li>
@@ -28,13 +31,15 @@
 <li>Minor visual tweaks ("New Map" menu, mode menu, easy editors, document tabs).</li>
 <li>Removed unused fields from map settings window.</li>
 <li>Rearranged object properties, removing additional flags section (not used by Claw engine).</li>
+<li>Rearranged tile properties, removed unused picker button.</li>
+<li>Minor changes / fixes to object brush / duplicate window. Added option to recalculate rects when appliable.</li>
 <li>Fixes and improvements to tiles text edit(auto selecting next tile, F for filled tile...).</li>
 <li>Fixed bug with command menu "Z coordinate" option opening logic editor / crashing.</li>
 <li>Fixed "Show tile properties" option crashing when tile picker is open.</li>
 <li>Fixed object added with "Add next" button not getting destroyed upon cancel.</li>
 <li>Fixes and improvements to all elevators movement preview.</li>
 <li>Fixed crash happening when the corner of context menu is clicked.</li>
-<li>Fixed tile picker leaving trail of tile ids.</li>
+<li>Fixed tile pipette leaving trail of tile ids.</li>
 <li>Fixed random powder keg / bush spawning in new levels based on The Battlements / Township.</li>
 <li>Fixed crash on clipboard preview for objects cut out of map.</li>
 <li>Fixed objects disappearing from clipboard after they are deleted from map.</li>
@@ -57,6 +62,9 @@
 <li>Fixed multiple problems with assets viewer windows (some of which were crashfixes).</li>
 <li>Fixed multiple problems with object properties rect picker selection.</li>
 <li>Fixed multiple problems with dropdowns / scrollable lists (they'll be scrolling instead of changing selection on mouse wheel now).</li>
+<li>Fixed tile selection staying after tool switch.</li>
+<li>Fixed multiple problems with tile / brush picker (scroll issues, brush options, brush reloading). Removed unused buttons from brush picker.</li>
+<li>Fixed multiple problems with layers resizing. Added recalculating rects with prompt when appliable.</li>
 </ol>
 
 <h2>v0.3.3 (b32)</h2>

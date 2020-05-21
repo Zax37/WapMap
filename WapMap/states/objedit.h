@@ -146,7 +146,9 @@ namespace ObjEdit {
         virtual void *GenerateNextObjectData() { return NULL; };
 
         virtual void ApplyDataFromPrevObject(void *ptr) {};
-		
+
+        virtual void ObjectMovedInsideEasyEdit(int fromX, int fromY) {};
+
 		virtual bool IsAnyInputFocused();
 
         void GetWindowPosition(int& x, int& y);
