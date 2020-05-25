@@ -1380,18 +1380,25 @@ void State::EditingWW::DrawViewport() {
                             speedX = obj->GetParam(WWD::Param_SpeedX),
                             speedY = obj->GetParam(WWD::Param_SpeedY);
 
-                        bool flip = false;
+                        bool flip = false, broken = false,
+                             returns = !strstr(obj->GetLogic(), "OneWay");
 
                         if (!speedX) speedX = 125;
+                        else if (speedX < 60) {
+                            broken = true;
+                        }
                         if (dir == 8 || dir == 2) speedX = 0;
 
                         if (!speedY) speedY = 125;
+                        else if (speedY < 60) {
+                            broken = true;
+                        }
                         if (dir == 6 || dir == 4) speedY = 0;
 
                         if (dir == 2 || dir == 3 || dir == 6) {
-                            flip = startX >= maxX && startY >= maxY;
+                            flip = returns && startX >= maxX && startY >= maxY;
                         } else {
-                            flip = !(startX <= minX && startY <= minY);
+                            flip = !(returns && startX <= minX && startY <= minY);
                         }
 
                         startX = Wrd2ScrX(GetActivePlane(), startX);
@@ -1399,58 +1406,113 @@ void State::EditingWW::DrawViewport() {
 
                         int x = startX, y = startY,
                             targetX = Wrd2ScrX(GetActivePlane(), flip ? minX : maxX),
-                            targetY = Wrd2ScrY(GetActivePlane(), flip ? minY : maxY);
+                            targetY = Wrd2ScrY(GetActivePlane(), flip ? minY : maxY),
+                            color = broken ? 0x77FF7777 : 0x77FFFFFF;
 
-                        bool returns = !strstr(obj->GetLogic(), "OneWay");
+                        spr->SetColor(color);
+                        GV->sprArrowVerticalM->SetColor(color);
+                        GV->sprArrowVerticalU->SetColor(color);
+                        GV->sprArrowVerticalD->SetColor(color);
 
-                        spr->SetColor(0x77FFFFFF);
                         if (!speedY) {
                             if (!speedX || flip ? x < targetX : x > targetX) break;
+                            int nextTargetX = Wrd2ScrX(GetActivePlane(), !flip ? minX : maxX);
+                            int nextTargetY = Wrd2ScrY(GetActivePlane(), !flip ? minY : maxY);
+                            if (y != targetY || y != nextTargetY) {
+                                color = 0x77FF7777;
+                                spr->SetColor(color);
+                                GV->sprArrowVerticalM->SetColor(color);
+                                GV->sprArrowVerticalU->SetColor(color);
+                                GV->sprArrowVerticalD->SetColor(color);
+                                returns = y == targetY;
+                            }
+                            else if (x != nextTargetX) {
+                                returns = false;
+                            }
 
-                            spr->RenderEx(targetX, y, 0, fZoom);
-                            RenderArrow(x, y, targetX, y, true, true, returns);
+                            if (x != targetX) {
+                                spr->RenderEx(targetX, y, 0, fZoom);
+                                RenderArrow(x, y, targetX, y, true, false, returns);
+                            }
+
+                            if (broken || (!flip ? y < targetY : y > targetY)) break;
+
+                            if (x != nextTargetX) {
+                                spr->RenderEx(nextTargetX, y, 0, fZoom);
+                                RenderArrow(targetX, y, nextTargetX, y, true, false);
+                            }
                         } else if (!speedX) {
                             if (flip ? y < targetY : y > targetY) break;
+                            int nextTargetX = Wrd2ScrX(GetActivePlane(), !flip ? minX : maxX);
+                            int nextTargetY = Wrd2ScrY(GetActivePlane(), !flip ? minY : maxY);
+                            if (x != targetX || x != nextTargetX) {
+                                color = 0x77FF7777;
+                                spr->SetColor(color);
+                                GV->sprArrowVerticalM->SetColor(color);
+                                GV->sprArrowVerticalU->SetColor(color);
+                                GV->sprArrowVerticalD->SetColor(color);
+                                returns = x == targetX;
+                            } else if (y != nextTargetY) {
+                                returns = false;
+                            }
 
-                            spr->RenderEx(x, targetY, 0, fZoom);
-                            RenderArrow(x, y, x, targetY, true, true, returns);
+                            if (y != targetY) {
+                                spr->RenderEx(x, targetY, 0, fZoom);
+                                RenderArrow(x, y, x, targetY, true, false, returns);
+                            }
+
+                            if (broken || (!flip ? x < targetX : x > targetX)) break;
+
+                            if (y != nextTargetY) {
+                                spr->RenderEx(x, nextTargetY, 0, fZoom);
+                                RenderArrow(x, targetY, x, nextTargetY, true, false);
+                            }
                         } else {
+                            if (speedX > 9999) speedX = 9999;
+                            if (speedY > 9999) speedY = 9999;
+
                             int travelX = targetX - x,
                                 travelY = targetY - y;
 
                             #define SHOW_PATH() \
-                            if (flip) { \
-                                if (x < targetX) travelX = 0; \
-                                if (y < targetY) travelY = 0; \
-                            } else { \
-                                if (x > targetX) travelX = 0; \
-                                if (y > targetY) travelY = 0; \
-                            } \
-                            if (!travelX && !travelY) break; \
-                            if (travelX && travelY) { \
-                                if (abs(travelX) > abs(travelY)) { \
-                                    travelX = travelX < 0 ^ travelY < 0 ? -travelY : travelY; \
+                                if (flip) { \
+                                    if (x < targetX) travelX = 0; \
+                                    if (y < targetY) travelY = 0; \
                                 } else { \
-                                    travelY = travelX < 0 ^ travelY < 0 ? -travelX : travelX; \
+                                    if (x > targetX) travelX = 0; \
+                                    if (y > targetY) travelY = 0; \
                                 } \
-                            } \
-                            x += travelX; \
-                            y += travelY; \
-                            spr->RenderEx(x, y, 0, fZoom); \
-                            RenderArrow(x - travelX, y - travelY, x, y, true); \
-                            if ((x != targetX && travelX != 0) || (y != targetY && travelY != 0)) { \
-                                spr->RenderEx(targetX, targetY, 0, fZoom); \
-                                RenderArrow(x, y, targetX, targetY, true); \
-                                x = targetX; \
-                                y = targetY; \
-                            }
+                                if (!travelX && !travelY) break; \
+                                if (travelX && travelY) { \
+                                    if (abs(travelX) * 1000 / speedX > abs(travelY) * 1000 / speedY) { \
+                                        travelX = (travelX < 0 ^ travelY < 0 ? -travelY : travelY) * speedX / speedY; \
+                                    } else { \
+                                        travelY = (travelX < 0 ^ travelY < 0 ? -travelX : travelX) * speedY / speedX; \
+                                    } \
+                                } \
+                                x += travelX; \
+                                y += travelY; \
+                                spr->RenderEx(x, y, 0, fZoom); \
+                                if ((x != targetX && travelX != 0) || (y != targetY && travelY != 0)) { \
+                                    RenderArrow(x - travelX, y - travelY, x, y, true, false); \
+                                    if (abs(targetX - x) > 1 || abs(targetY - y) > 1) { \
+                                        spr->RenderEx(targetX, targetY, 0, fZoom); \
+                                        RenderArrow(x, y, targetX, targetY, true, false); \
+                                        x = targetX; \
+                                        y = targetY; \
+                                    } \
+                                } else { \
+                                    int nTX = Wrd2ScrX(GetActivePlane(), !flip ? minX : maxX), \
+                                        nTY = Wrd2ScrY(GetActivePlane(), !flip ? minY : maxY); \
+                                    if (nTX == x - travelX && nTY == y - travelY) { \
+                                        RenderArrow(nTX, nTY, x, y, true, false, true); \
+                                        break; \
+                                    } else { \
+                                        RenderArrow(x - travelX, y - travelY, x, y, true, false); \
+                                    } \
+                                }
 
-                            SHOW_PATH();
-
-                            int secondStX = x, secondStY = y;
-
-                            if (returns) {
-                                #define OTHER_WAY() \
+                            #define OTHER_WAY() \
                                 flip = !flip; \
                                 targetX = Wrd2ScrX(GetActivePlane(), flip ? minX : maxX); \
                                 targetY = Wrd2ScrY(GetActivePlane(), flip ? minY : maxY); \
@@ -1458,16 +1520,35 @@ void State::EditingWW::DrawViewport() {
                                 travelY = targetY - y; \
                                 SHOW_PATH();
 
-                                OTHER_WAY();
+                            /*if (speedX == speedY && maxX - minX == maxY - minY) {
+                                int secondTargetX = Wrd2ScrX(GetActivePlane(), !flip ? minX : maxX),
+                                    secondTargetY = Wrd2ScrY(GetActivePlane(), !flip ? minY : maxY);
 
-                                if (x != startX || y != startY) {
+                                RenderArrow(targetX, targetY, secondTargetX, secondTargetY, true);
+                                spr->RenderEx(targetX, targetY, 0, fZoom);
+
+                                if (x != secondTargetX || y != secondTargetY) {
+                                    RenderArrow(x, y, targetX, targetY, true);
+                                    spr->RenderEx(secondTargetX, secondTargetY, 0, fZoom);
+                                }
+                            } else {*/
+                                SHOW_PATH();
+                                if (broken) break;
+
+                                int secondStX = x, secondStY = y;
+
+                                if (returns) {
                                     OTHER_WAY();
 
-                                    if ((x != startX || y != startY) && (x != secondStX || y != secondStY)) {
+                                    if (x != startX || y != startY) {
                                         OTHER_WAY();
+
+                                        if ((x != startX || y != startY) && (x != secondStX || y != secondStY)) {
+                                            OTHER_WAY();
+                                        }
                                     }
                                 }
-                            }
+                            //}
                         }
                     } while (false); // trick to allow breaking
                     else if ((minX != 0 && maxX != 0 && minX <= maxX) || (minY != 0 && maxY != 0 && minY <= maxY)) {
@@ -1492,8 +1573,17 @@ void State::EditingWW::DrawViewport() {
                                 spr->RenderEx(endX, y, 0, fZoom);
                             RenderArrow(startX, y, endX, y, true, true, true);
                         } else if ((maxX - minX == maxY - minY) // diagonal
+                        && (((GetUserDataFromObj(obj)->GetX() <= minX || GetUserDataFromObj(obj)->GetX() >= maxX)
+                        && (GetUserDataFromObj(obj)->GetY() <= minY || GetUserDataFromObj(obj)->GetY() >= maxY))
+                        || GetUserDataFromObj(obj)->GetX() - minX == GetUserDataFromObj(obj)->GetY() - minY)
                         && obj->GetParam(WWD::Param_SpeedX) == obj->GetParam(WWD::Param_SpeedY)) {
                             int x = GetUserDataFromObj(obj)->GetX(), y = GetUserDataFromObj(obj)->GetY();
+
+                            if (x < minX) x = minX;
+                            else if (x > maxX) x = maxX;
+
+                            if (y < minY) y = minY;
+                            else if (y > maxY) y = maxY;
 
                             int dir = obj->GetParam(WWD::Param_Direction);
                             if (dir == 7 || dir == 4 || dir == 1) {
@@ -1508,27 +1598,31 @@ void State::EditingWW::DrawViewport() {
                             int startX = Wrd2ScrX(GetActivePlane(), x), startY = Wrd2ScrY(GetActivePlane(), y);
 
                             spr->SetColor(0x77FFFFFF);
-                            if (x != startX || y != startY) {
-                                spr->RenderEx(startX, startY, 0, fZoom);
-                            }
+                            spr->RenderEx(startX, startY, 0, fZoom);
 
-                            if (dir != 2 && dir != 8) {
-                                if (x == minX) x = maxX;
-                                else x = minX;
+                            #define FLIP() \
+                            if (dir != 2 && dir != 8) { \
+                                if (x == minX) x = maxX; \
+                                else x = minX; \
+                            } \
+                            if (dir != 4 && dir != 6) { \
+                                if (y == minY) y = maxY; \
+                                else y = minY; \
                             }
-
-                            if (dir != 4 && dir != 6) {
-                                if (y == minY) y = maxY;
-                                else y = minY;
-                            }
+                            FLIP();
 
                             int endX = Wrd2ScrX(GetActivePlane(), x), endY = Wrd2ScrY(GetActivePlane(), y);
+                            spr->RenderEx(endX, endY, 0, fZoom);
 
-                            if (x != endX || y != endY) {
-                                spr->RenderEx(Wrd2ScrX(GetActivePlane(), x), Wrd2ScrY(GetActivePlane(), y), 0, fZoom);
+                            FLIP();
+                            int nextX = Wrd2ScrX(GetActivePlane(), x), nextY = Wrd2ScrY(GetActivePlane(), y);
+                            bool onceAgain = (nextX != startX || nextY != startY);
+
+                            RenderArrow(startX, startY, endX, endY, true, true, !onceAgain);
+
+                            if (onceAgain) {
+                                RenderArrow(endX, endY, Wrd2ScrX(GetActivePlane(), x), Wrd2ScrY(GetActivePlane(), y), true, true, true);
                             }
-
-                            RenderArrow(startX, startY, endX, endY, true, true, true);
                         } else do { // other
                             bool closed = false;
                             std::vector<POINT> travelPoints;
@@ -1587,12 +1681,12 @@ void State::EditingWW::DrawViewport() {
                             if (height <= 0) speedY = 0;
                             else if (!speedY) speedY = DEFAULT_ELEVATOR_SPEED;
 
+                            if (speedX <=0 && speedY <= 0) break;
+
                             for (int i = 1; i < 32; i++) {
                                 if (speedX <= 0) {
-                                    if (speedY <= 0) break;
                                     tweakY += height - tweakY % height;
                                 } else if (speedY <= 0) {
-                                    if (speedX <= 0) break;
                                     tweakX += width - tweakX % width;
                                 } else {
                                     int distX = width - tweakX % width;
@@ -1617,6 +1711,7 @@ void State::EditingWW::DrawViewport() {
                                     }
                                 }*/
                                 travelPoints.emplace_back(POINT{scrX, scrY});
+                                if (scrX == travelPoints[0].x && scrY == travelPoints[0].y) break;
                             }
 
                             const POINT* pp = NULL;
@@ -2332,8 +2427,12 @@ void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, 
     if ((twoSided && len < 80.0f * fZoom) || len < 40.0f * fZoom) {
         if (twoSided) {
             GV->sprArrowVerticalD->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
+            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
+        } else {
+            if (x2 > x) x -= 20 * fZoom; else x += 20 * fZoom;
+            if (y2 > y) y -= 20 * fZoom; else y += 20 * fZoom;
+            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
         }
-        GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
         return;
     }
     len -= 38.0f * fZoom;

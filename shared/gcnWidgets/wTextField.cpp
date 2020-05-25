@@ -256,10 +256,13 @@ namespace SHR {
             if (cb != NULL) {
                 bool bAllow = mText.length() + strlen(cb) < iMaxLength;
                 if (bNumerical) {
-                    for (int i = 0; i < strlen(cb); i++) {
-                        if ((cb[i] < '0' && cb[i] != '-') || cb[i] > '9' ||
-                            ((cb[i] == '-' && (i != 0 || pastepos != 0)) || !bAllowNegative))
+                    if (cb[0] == '-' && (!bAllowNegative || pastepos != 0)) bAllow = false;
+                    else if (cb[0] < '0' || cb[0] > '9') bAllow = false;
+                    else for (int i = 1; i < strlen(cb); i++) {
+                        if (cb[i] < '0' || cb[i] > '9') {
                             bAllow = false;
+                            break;
+                        }
                     }
                 }
                 if (bAllow) {
@@ -278,16 +281,20 @@ namespace SHR {
                     delete[] nlfix;
                 }
                 delete[] cb;
+                setActionEventId("");
+                distributeActionEvent();
             }
         } else if (key.getValue() == 'c' && keyEvent.isControlPressed() && bSelection) { //copy
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
-                    end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
+                end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
         } else if (key.getValue() == 'x' && keyEvent.isControlPressed() && bSelection) { //cut
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
-                    end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
+                end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
             deleteSelection();
+            setActionEventId("");
+            distributeActionEvent();
         } else if (key.getValue() == 'a' && keyEvent.isControlPressed()) { //select all
             mCaretPosition = 0;
             mSelectionPosition = mText.length();
@@ -295,7 +302,7 @@ namespace SHR {
                    key.isNumber() ||
                    key.getValue() == '-' && bNumerical && (mCaretPosition == 0 || mSelectionPosition == 0) &&
                    bAllowNegative) {
-            if (mText.length() < iMaxLength) {
+            if (bSelection || mText.length() < iMaxLength) {
                 if (bSelection) {
                     int caretpos = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition);
                     deleteSelection();

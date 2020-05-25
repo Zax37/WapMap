@@ -22,6 +22,7 @@ namespace ObjEdit {
         cProcPickRect *hRectPick;
 
         cProcPickXYLockable *hSpeedPick;
+        SHR::Lab *labSpeedWarning;
 
         SHR::Lab *labDirection;
         SHR::But *butDirection[8];
@@ -33,6 +34,8 @@ namespace ObjEdit {
 
         void UpdateLogic();
         void UpdateOneWayCheckBoxEnabled();
+        void UpdateAllowedDirections();
+        void UpdateSpeedWarning();
 
         friend class cObjPropVP;
 

@@ -83,6 +83,13 @@ namespace SHR {
 
     void Lab::adjustSize() {
         setWidth(getFont()->getWidth(getCaption()));
-        setHeight(getFont()->getHeight() + 2);
+
+        const char* pch = strchr(getCaption().c_str(), '\n');
+        int lines = 1;
+        while (pch) {
+            ++lines;
+            pch = strchr(pch + 1, '\n');
+        }
+        setHeight((getFont()->getHeight() + 2) * lines);
     }
 }

@@ -131,6 +131,7 @@ namespace ObjEdit {
         hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
         hRectPick->setActionListener(hAL);
         hRectPick->setType(PickRect_MinMax);
+        hRectPick->setEnabled(!bAutomatic);
 
         int manualX = win->getWidth() - hRectPick->getWidth() - 15;
 
@@ -147,12 +148,15 @@ namespace ObjEdit {
             speedX = DEFAULT_ELEVATOR_SPEED;
             hTempObj->SetParam(WWD::Param_SpeedX, speedX);
         }
-        else if (regularElevator && speedX < 0) speedX = 0;
+        else if (speedX < 0) speedX = regularElevator ? 0 : 9999;
         if (!speedY) {
             speedY = DEFAULT_ELEVATOR_SPEED;
             hTempObj->SetParam(WWD::Param_SpeedY, speedY);
         }
-        else if (regularElevator && speedY < 0) speedY = 0;
+        else if (speedY < 0) speedY = regularElevator ? 0 : 9999;
+
+        if (speedX > 9999) speedX = 9999;
+        if (speedY > 9999) speedY = 9999;
 
         hSpeedPick = new cProcPickXYLockable(GETL2S("EditObj_Elevator", "Speed"),
                 GETL2S("EditObj_Elevator", "Horizontal"), speedX,
@@ -160,6 +164,11 @@ namespace ObjEdit {
                 speedX != 0 && speedX == speedY, GETL2S("EditObj_Elevator", "LockAspect_TT"));
         hSpeedPick->addActionListener(hAL);
         win->add(hSpeedPick, 10, SPEED_SECTION_Y + 10);
+
+        labSpeedWarning = new SHR::Lab(GETL2S("EditObj_Elevator", "SpeedWarning"));
+        labSpeedWarning->adjustSize();
+        UpdateSpeedWarning();
+        win->add(labSpeedWarning, 10, SPEED_SECTION_Y + 100);
 
         int xOffset = win->getWidth() - 3*32 - 16;
         int yOffset = SPEED_SECTION_Y + 10;
@@ -188,6 +197,7 @@ namespace ObjEdit {
 
         UpdateDirection(true);
         UpdateOneWayCheckBoxEnabled();
+        UpdateAllowedDirections();
 
         win->add(_butAddNext, 120, 420);
         win->add(_butSave, 233, 420);
@@ -217,6 +227,7 @@ namespace ObjEdit {
         delete hTravelDistPick;
         delete hRectPick;
         delete hSpeedPick;
+        delete labSpeedWarning;
         delete labDirection;
 
         for (auto & i : butDirection)
@@ -236,9 +247,18 @@ namespace ObjEdit {
             return;
         } else if (actionEvent.getSource() == cbOneWay) {
             UpdateLogic();
+            hTempObj->SetParam(WWD::Param_Direction, iDirection);
+            UpdateDirection();
+            UpdateAllowedDirections();
         } else if (actionEvent.getSource() == type) {
+            bool needsDirUpdate = cbOneWay->isSelected();
             UpdateLogic();
             UpdateOneWayCheckBoxEnabled();
+            if (needsDirUpdate) {
+                UpdateDirection();
+            }
+            UpdateAllowedDirections();
+            UpdateSpeedWarning();
         } else if (actionEvent.getSource() == automatic || actionEvent.getSource() == manual) {
             hTravelDistPick->setEnabled(automatic->isSelected());
             hRectPick->setEnabled(manual->isSelected());
@@ -246,6 +266,12 @@ namespace ObjEdit {
             if (automatic->isSelected()) {
                 for (auto & i : butDirection)
                     i->setEnabled(true);
+                UpdateLogic();
+                UpdateDirection();
+                UpdateAllowedDirections();
+            } else {
+                for (auto & pBut : butDirection)
+                    pBut->setEnabled(true);
                 UpdateDirection();
             }
         } else if (actionEvent.getSource() == hTravelDistPick) {
@@ -274,6 +300,7 @@ namespace ObjEdit {
             } else if (actionEvent.getId() == "CHANGE_Y") {
                 hTempObj->SetParam(WWD::Param_SpeedY, hSpeedPick->getValueY());
             }
+            UpdateSpeedWarning();
         } else {
             for (int i = 0; i < 8; i++) {
                 if (actionEvent.getSource() == butDirection[i]) {
@@ -281,6 +308,8 @@ namespace ObjEdit {
                         pBut->setEnabled(true);
                     hTempObj->SetParam(WWD::Param_Direction, i < 4 ? i + 1 : i + 2);
                     UpdateDirection();
+                    UpdateAllowedDirections();
+                    break;
                 }
             }
         }
@@ -384,20 +413,54 @@ namespace ObjEdit {
                 hTempObj->SetParam(WWD::Param_MinX, 0);
                 hTempObj->SetParam(WWD::Param_MaxX, 0);
                 hRectPick->setValues(0, rArea.y1, 0, rArea.y2);
+
+                if (cbOneWay->isSelected()) {
+                    hTempObj->SetParam(WWD::Param_Direction, iDirection == 8 ? 2 : 8);
+                }
             } else {
                 GET_X_MINMAX();
                 GET_Y_MINMAX();
-                hTempObj->SetParam(WWD::Param_MinX, rArea.x1);
-                hTempObj->SetParam(WWD::Param_MaxX, rArea.x2);
-                hTempObj->SetParam(WWD::Param_MinY, rArea.y1);
-                hTempObj->SetParam(WWD::Param_MaxY, rArea.y2);
-                hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
 
-                if (iDirection == 1 || iDirection == 7 || iDirection == 9) {
-                    hTempObj->SetParam(WWD::Param_Direction, 3);
+                if (cbOneWay->isSelected()) {
+                    int tgX = left ? rArea.x1 : rArea.x2;
+                    int tgY = top ? rArea.y1 : rArea.y2;
+
+                    hTempObj->SetParam(WWD::Param_MinX, tgX);
+                    hTempObj->SetParam(WWD::Param_MaxX, tgX);
+                    hTempObj->SetParam(WWD::Param_MinY, tgY);
+                    hTempObj->SetParam(WWD::Param_MaxY, tgY);
+                    hRectPick->setValues(rArea.x1 = tgX, rArea.y1 = tgY, rArea.x2 = tgX, rArea.y2 = tgY);
+
+                    if (iDirection % 3 == 0) {
+                        hTempObj->SetParam(WWD::Param_Direction, iDirection == 3 ? 9 : 3);
+                    }
+                }
+                else {
+                    hTempObj->SetParam(WWD::Param_MinX, rArea.x1);
+                    hTempObj->SetParam(WWD::Param_MaxX, rArea.x2);
+                    hTempObj->SetParam(WWD::Param_MinY, rArea.y1);
+                    hTempObj->SetParam(WWD::Param_MaxY, rArea.y2);
+                    hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
+
+                    if (iDirection == 1 || iDirection == 7 || iDirection == 9) {
+                        hTempObj->SetParam(WWD::Param_Direction, 3);
+                    }
                 }
             }
         }
+    }
+
+    void cEditObjElevator::UpdateAllowedDirections() {
+        bool enabled = type->getSelectedEntryID() == 0 || !automatic->isSelected();
+        butDirection[2]->setEnabled(enabled && iDirection != 3);
+        butDirection[5]->setEnabled(enabled && iDirection != 7);
+    }
+
+    void cEditObjElevator::UpdateSpeedWarning() {
+        bool regularElevator = !strcmp(hTempObj->GetLogic(), "Elevator");
+        int speedX = hSpeedPick->isEnabledX() ? hSpeedPick->getValueX() : 0,
+            speedY = hSpeedPick->isEnabledY() ? hSpeedPick->getValueY() : 0;
+        labSpeedWarning->setVisible(!regularElevator && ((speedX > 0 && speedX < 60) || (speedY > 0 && speedY < 60)));
     }
 
     void cEditObjElevator::ObjectMovedInsideEasyEdit(int fromX, int fromY) {

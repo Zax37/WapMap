@@ -440,9 +440,13 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                             fObjContextX = fCamX;
                             fObjContextY = fCamY;
                             if (vObjectsPicked.size() == 1) {
-                                if (vObjectsPicked[0] == hStartingPosObj)
+                                if (vObjectsPicked[0] == hStartingPosObj) {
+                                    bool canTestFromPos = hNativeController->IsValid() &&
+                                                          hNativeController->IsCrazyHookAvailable() &&
+                                                          strlen(hParser->GetFilePath()) > 0;
+                                    conmodSpawnPoint->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
                                     objContext->SetModel(conmodSpawnPoint);
-                                else {
+                                } else {
                                     SHR::Context *con = (SHR::Context *) 1;
                                     bool spec = AreObjectSpecificOptionsAvailable(vObjectsPicked[0], &con);
                                     if (IsEditableObject(vObjectsPicked[0]))
@@ -544,17 +548,18 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                             sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), GETL(Lang_ManyObjects));
                         conmodPaste->GetElementByID(OBJMENU_PASTE)->SetCaption(ncap);
 
-                        conmodPaste->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(hNativeController->IsValid() &&
-                                                                                      hNativeController->IsCrazyHookAvailable() &&
-                                                                                      strlen(hParser->GetFilePath()) >
-                                                                                      0);
+                        bool canTestFromPos = hNativeController->IsValid() &&
+                                           hNativeController->IsCrazyHookAvailable() &&
+                                           strlen(hParser->GetFilePath()) > 0;
+                        conmodPaste->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
 
                         objContext->SetModel(conmodPaste);
                     } else {
-                        conmodAtEmpty->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(hNativeController->IsValid() &&
-                                                                                        hNativeController->IsCrazyHookAvailable() &&
-                                                                                        strlen(hParser->GetFilePath()) >
-                                                                                        0);
+                        bool canTestFromPos = hNativeController->IsValid() &&
+                                              hNativeController->IsCrazyHookAvailable() &&
+                                              strlen(hParser->GetFilePath()) > 0;
+                        conmodAtEmpty->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
+
                         objContext->SetModel(conmodAtEmpty);
                     }
                     objContext->adjustSize();

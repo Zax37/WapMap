@@ -27,6 +27,7 @@ cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX
     tfX->SetNumerical(true, allowNegative);
     tfX->addActionListener(this);
     tfX->setText(std::to_string(valueX));
+    tfX->setMaxLength(4);
     SHR::Container::add(tfX, fieldsX, 30);
 
     tfY = new SHR::TextField();
@@ -34,6 +35,7 @@ cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX
     tfY->SetNumerical(true, allowNegative);
     tfY->addActionListener(this);
     tfY->setText(std::to_string(valueY));
+    tfY->setMaxLength(4);
     SHR::Container::add(tfY, fieldsX, 60);
 
     lockBut = new SHR::But(GV->hGfxInterface, GV->sprIcons16[Icon16_Lock]);
@@ -172,11 +174,11 @@ void cProcPickXYLockable::setEnabled(bool enabled) {
 void cProcPickXYLockable::setEnabledX(bool enabled) {
     xEnabled = enabled;
     tfX->setEnabled(enabledMaster && xEnabled);
-    labX->setColor(enabled ? 0xFFa1a1a1 : 0xFF000000);
+    labX->setColor(enabledMaster && enabled ? 0xFFa1a1a1 : 0xFF000000);
 }
 
 void cProcPickXYLockable::setEnabledY(bool enabled) {
     yEnabled = enabled;
     tfY->setEnabled(enabledMaster && yEnabled);
-    labY->setColor(enabled ? 0xFFa1a1a1 : 0xFF000000);
+    labY->setColor(enabledMaster && enabled ? 0xFFa1a1a1 : 0xFF000000);
 }
