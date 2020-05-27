@@ -152,11 +152,11 @@ cGlobals::cGlobals() {
     {
         std::vector<SHR::DisplayMode> disp = SHR::GetDisplayModes();
         int w = std::stoi(ini->GetValue("WapMap", "DisplayWidth", "1024")),
-                h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", "768"));
+            h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", "768"));
         int smallw = 10000, smallh = 10000;
         bool ok = 0, defok = 0;
         for (int i = 0; i < disp.size(); i++) {
-            if (disp[i].iWidth < 1024 || disp[i].iHeight < 768) continue;
+            if (disp[i].iWidth < 1024 || disp[i].iHeight < 600) continue;
             if (disp[i].iWidth * disp[i].iHeight < smallw * smallh) {
                 smallw = disp[i].iWidth;
                 smallh = disp[i].iHeight;
@@ -202,9 +202,16 @@ cGlobals::~cGlobals() {
     delete StateMgr;
     delete Console;
     delete sprConsoleBG;
-    delete sprLogoBig, sprBlank;
-    delete gcnParts.gcnfntMyriad10, gcnParts.gcnfntMyriad13, gcnParts.gcnfntSystem;
-    delete fntMyriad10, fntMyriad13, fntMyriad20, fntMyriad80, fntSystem17;
+    delete sprLogoBig;
+    delete sprBlank;
+    delete gcnParts.gcnfntMyriad10;
+    delete gcnParts.gcnfntMyriad13;
+    delete gcnParts.gcnfntSystem;
+    delete fntMyriad10;
+    delete fntMyriad13;
+    delete fntMyriad20;
+    delete fntMyriad80;
+    delete fntSystem17;
     delete gcnImageLoader;
     delete gcnInput;
     delete gcnGraphics;

@@ -62,6 +62,7 @@ winOptions::winOptions() {
     settingsCategoriesList->addActionListener(this);
     scrollAreaCategories = new SHR::ScrollArea(settingsCategoriesList, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_NEVER);
     scrollAreaCategories->setDimension(settingsCategoriesList->getDimension());
+    scrollAreaCategories->setOpaque(false);
     myWin->add(scrollAreaCategories, 0, 8);
     myWin->setHeight(24 + settingsCategoriesList->getHeight());
 

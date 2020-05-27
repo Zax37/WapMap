@@ -45,120 +45,163 @@ bool State::ObjSortCoordZ(WWD::Object *a, WWD::Object *b) {
     return (z1 < z2);
 }
 
-void State::EditingWW::DrawTileAtrib(WWD::TileAttrib *atrib, float posx, float posy, float width, float height) {
-	if (!atrib) return;
-    float wid = 64.0f * width;
-    float hei = 64.0f * height;
-    if (atrib->GetType() == WWD::AttribType_Single) {
-        if (atrib->GetAtribInside() == WWD::Attrib_Clear) return;
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
+#define SWITCH_FOR_TA_COLOR(a) switch (a) { \
+    case WWD::Attrib_Climb: \
+    q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_CLIMB; \
+    break; \
+    case WWD::Attrib_Death: \
+    q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_DEATH; \
+    break; \
+    case WWD::Attrib_Ground: \
+    q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_GROUND; \
+    break; \
+    case WWD::Attrib_Solid: \
+    q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_SOLID; \
+    break; \
+    default: \
+    q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_UNKNOWN; \
+    break; \
+}
 
-        if (atrib->GetAtribInside() == WWD::Attrib_Climb)
-            q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_CLIMB;
-        else if (atrib->GetAtribInside() == WWD::Attrib_Death)
-            q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_DEATH;
-        else if (atrib->GetAtribInside() == WWD::Attrib_Ground)
-            q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_GROUND;
-        else if (atrib->GetAtribInside() == WWD::Attrib_Solid)
-            q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_SOLID;
+void State::EditingWW::DrawTileAttributes(WWD::TileAttrib *attrib, float posX, float posY, float widthMod, float heightMod) {
+	if (!attrib) return;
+    float w = attrib->getWidth() * widthMod;
+    float h = attrib->getHeight() * heightMod;
+
+    hgeQuad q;
+    q.blend = BLEND_DEFAULT;
+    q.tex = 0;
+
+    if (attrib->getType() == WWD::AttribType_Single) {
+        auto a = (WWD::SingleTileAttrib*)attrib;
+        if (a->getAttrib() == WWD::Attrib_Clear) return;
+
+        SWITCH_FOR_TA_COLOR(a->getAttrib())
 
         q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
-        q.v[0].x = posx;
-        q.v[0].y = posy;
-        q.v[1].x = q.v[0].x + wid;
+        q.v[0].x = posX;
+        q.v[0].y = posY;
+        q.v[1].x = q.v[0].x + w;
         q.v[1].y = q.v[0].y;
         q.v[2].x = q.v[1].x;
-        q.v[2].y = q.v[0].y + hei;
+        q.v[2].y = q.v[0].y + h;
         q.v[3].x = q.v[0].x;
         q.v[3].y = q.v[2].y;
         hge->Gfx_RenderQuad(&q);
-    } else {
-        if (atrib->GetAtribInside() == WWD::Attrib_Clear && atrib->GetAtribOutside() == WWD::Attrib_Clear) return;
+    } else if (attrib->getType() == WWD::AttribType_Double) {
+        auto a = (WWD::DoubleTileAttrib*)attrib;
+        if (a->getInsideAttrib() == WWD::Attrib_Clear && a->getOutsideAttrib() == WWD::Attrib_Clear) return;
 
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
-        WWD::Rect mask = atrib->GetMask();
+        auto mask = a->getMask();
         q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
 
-        if (atrib->GetAtribInside() != WWD::Attrib_Clear) {
-            if (atrib->GetAtribInside() == WWD::Attrib_Climb)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_CLIMB;
-            else if (atrib->GetAtribInside() == WWD::Attrib_Death)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_DEATH;
-            else if (atrib->GetAtribInside() == WWD::Attrib_Ground)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_GROUND;
-            else if (atrib->GetAtribInside() == WWD::Attrib_Solid)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_SOLID;
+        if (a->getInsideAttrib() != WWD::Attrib_Clear) {
+            SWITCH_FOR_TA_COLOR(a->getInsideAttrib())
 
-            q.v[0].x = posx + mask.x1 * width;
-            q.v[0].y = posy + mask.y1 * height;
-            q.v[1].x = posx + (mask.x2 + 1) * width;
+            q.v[0].x = posX + mask.x1 * widthMod;
+            q.v[0].y = posY + mask.y1 * heightMod;
+            q.v[1].x = posX + (mask.x2 + 1) * widthMod;
             q.v[1].y = q.v[0].y;
             q.v[2].x = q.v[1].x;
-            q.v[2].y = posy + (mask.y2 + 1) * height;
+            q.v[2].y = posY + (mask.y2 + 1) * heightMod;
             q.v[3].x = q.v[0].x;
             q.v[3].y = q.v[2].y;
             hge->Gfx_RenderQuad(&q);
         }
-        if (atrib->GetAtribOutside() != WWD::Attrib_Clear) {
-            if (atrib->GetAtribOutside() == WWD::Attrib_Climb)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_CLIMB;
-            else if (atrib->GetAtribOutside() == WWD::Attrib_Death)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_DEATH;
-            else if (atrib->GetAtribOutside() == WWD::Attrib_Ground)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_GROUND;
-            else if (atrib->GetAtribOutside() == WWD::Attrib_Solid)
-                q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = COLOR_SOLID;
+
+        if (a->getOutsideAttrib() != WWD::Attrib_Clear) {
+            SWITCH_FOR_TA_COLOR(a->getOutsideAttrib())
 
             //upper
-            q.v[0].x = posx;
-            q.v[0].y = posy;
-            q.v[1].x = q.v[0].x + wid;
+            q.v[0].x = posX;
+            q.v[0].y = posY;
+            q.v[1].x = q.v[0].x + w;
             q.v[1].y = q.v[0].y;
             q.v[2].x = q.v[1].x;
-            q.v[2].y = posy + mask.y1 * height;
+            q.v[2].y = posY + mask.y1 * heightMod;
             q.v[3].x = q.v[0].x;
             q.v[3].y = q.v[2].y;
             hge->Gfx_RenderQuad(&q);
             //lower
-            q.v[0].x = posx;
-            q.v[0].y = posy + (mask.y2 + 1) * height;
-            q.v[1].x = q.v[0].x + wid;
+            q.v[0].x = posX;
+            q.v[0].y = posY + (mask.y2 + 1) * heightMod;
+            q.v[1].x = q.v[0].x + w;
             q.v[1].y = q.v[0].y;
             q.v[2].x = q.v[1].x;
-            q.v[2].y = posy + hei;
+            q.v[2].y = posY + h;
             q.v[3].x = q.v[0].x;
             q.v[3].y = q.v[2].y;
             hge->Gfx_RenderQuad(&q);
             //left
-            q.v[0].x = posx;
-            q.v[0].y = posy + mask.y1 * height;
-            q.v[1].x = posx + mask.x1 * width;
+            q.v[0].x = posX;
+            q.v[0].y = posY + mask.y1 * heightMod;
+            q.v[1].x = posX + mask.x1 * widthMod;
             q.v[1].y = q.v[0].y;
             q.v[2].x = q.v[1].x;
-            q.v[2].y = posy + (mask.y2 + 1) * height;
+            q.v[2].y = posY + (mask.y2 + 1) * heightMod;
             q.v[3].x = q.v[0].x;
             q.v[3].y = q.v[2].y;
             hge->Gfx_RenderQuad(&q);
             //right
-            q.v[0].x = posx + (mask.x2 + 1) * width;
-            q.v[0].y = posy + mask.y1 * height;
-            q.v[1].x = posx + wid;
+            q.v[0].x = posX + (mask.x2 + 1) * widthMod;
+            q.v[0].y = posY + mask.y1 * heightMod;
+            q.v[1].x = posX + w;
             q.v[1].y = q.v[0].y;
             q.v[2].x = q.v[1].x;
-            q.v[2].y = posy + (mask.y2 + 1) * height;
+            q.v[2].y = posY + (mask.y2 + 1) * heightMod;
             q.v[3].x = q.v[0].x;
             q.v[3].y = q.v[2].y;
             hge->Gfx_RenderQuad(&q);
         }
+    } else if (attrib->getType() == WWD::AttribType_Mask) {
+        auto a = (WWD::MaskTileAttrib*)attrib;
+        auto data = a->getData();
+        if (data == nullptr) return;
+
+        int x1 = std::min(itpDDx1, itpDDx2),
+            y1 = std::min(itpDDy1, itpDDy2),
+            x2 = std::max(itpDDx1, itpDDx2),
+            y2 = std::max(itpDDy1, itpDDy2);
+        if (!btpDragDropMask) {
+            x1 = a->getWidth();
+        }
+
+        for (int i = 0, y = 0; y < a->getHeight(); ++y) {
+            for (int x = 0; x < a->getWidth(); ++x, ++i) {
+                auto attrib = data[i];
+
+                if (x >= x1 && y >= y1 && x <= x2 && y <= y2) {
+                    int i = 0;
+                    for (; i < 5; ++i) {
+                        if (rbtpIn[i]->isSelected()) break;
+                    }
+                    attrib = (WWD::TILE_ATTRIB)i;
+                }
+
+                if (attrib) {
+                    SWITCH_FOR_TA_COLOR(attrib);
+
+                    q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
+                    q.v[0].x = posX;
+                    q.v[0].y = posY;
+                    q.v[1].x = posX + widthMod;
+                    q.v[1].y = posY;
+                    q.v[2].x = posX + widthMod;
+                    q.v[2].y = posY + heightMod;
+                    q.v[3].x = posX;
+                    q.v[3].y = posY + heightMod;
+                    hge->Gfx_RenderQuad(&q);
+                }
+                posX += widthMod;
+            }
+            posX -= w;
+            posY += heightMod;
+        }
     }
 }
 
-void State::EditingWW::DrawTileAtrib(int tileid, float posx, float posy, float width, float height) {
-    DrawTileAtrib(hParser->GetTileAttribs(tileid), posx, posy, width, height);
+void State::EditingWW::DrawTileAttributes(int tileId, float posX, float posY, float widthMod, float heightMod) {
+    DrawTileAttributes(hParser->GetTileAttribs(tileId), posX, posY, widthMod, heightMod);
 }
 
 void State::EditingWW::DrawDB() {
@@ -349,6 +392,7 @@ void State::EditingWW::DrawDB() {
 }
 
 void State::EditingWW::DrawTileProperties() {
+    if (!hParser) return;
     int dx, dy;
     winTileProp->getAbsolutePosition(dx, dy);
 
@@ -384,14 +428,13 @@ void State::EditingWW::DrawTileProperties() {
     hge->Gfx_RenderLine(dx + 9 + !btpZoomTile * 32, dy + 130 + btpZoomTile * 32 + 32, dx + 75 + btpZoomTile * 32 + 32,
                         dy + 130 + btpZoomTile * 32 + 32, GV->colLineBright);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 68, HGETEXT_LEFT, (std::string(GETL(Lang_Width)) + ':').c_str(), 0);
-    GV->fntMyriad13->Render(dx + 145, dy + 94, HGETEXT_LEFT, (std::string(GETL(Lang_Height)) + ':').c_str(), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 66, HGETEXT_LEFT, (std::string(GETL(Lang_Width)) + ':').c_str(), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 91, HGETEXT_LEFT, (std::string(GETL(Lang_Height)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 125, HGETEXT_LEFT, (std::string(GETL(Lang_Type)) + ':').c_str(), 0);
-    GV->fntMyriad13->Render(dx + 175, dy + 149, HGETEXT_LEFT, GETL(Lang_AtribSingle), 0);
-    GV->fntMyriad13->Render(dx + 175, dy + 172, HGETEXT_LEFT, GETL(Lang_AtribDouble), 0);
+    GV->fntMyriad13->Render(dx + 145, dy + 114, HGETEXT_LEFT, (std::string(GETL(Lang_Type)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 8, dy + 208, HGETEXT_LEFT, (std::string(GETL(Lang_AtribInside)) + ':').c_str(), 0);
+    GV->fntMyriad13->Render(dx + 8, dy + 208, HGETEXT_LEFT, (
+            std::string(GETL(rbtpMask->isSelected() ? Lang_AttribMaskType : Lang_AttribInside)) + ':').c_str(), 0);
 
     GV->fntMyriad13->Render(dx + 130, dy + 208, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
     GV->fntMyriad13->Render(dx + 230, dy + 208, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
@@ -408,74 +451,83 @@ void State::EditingWW::DrawTileProperties() {
         GV->fntMyriad13->Render(dx + 130, dy + 298, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
         GV->fntMyriad13->Render(dx + 230, dy + 298, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
 
-        GV->fntMyriad13->Render(dx + 8, dy + 268, HGETEXT_LEFT, (std::string(GETL(Lang_AtribOutside)) + ':').c_str(), 0);
+        GV->fntMyriad13->Render(dx + 8, dy + 268, HGETEXT_LEFT, (std::string(GETL(Lang_AttribOutside)) + ':').c_str(), 0);
         GV->fntMyriad13->Render(dx + 105, dy + 327, HGETEXT_RIGHT, GETL(Lang_Mask), 0);
         GV->fntMyriad13->Render(dx + 150, dy + 327, HGETEXT_LEFT, "x", 0);
         GV->fntMyriad13->Render(dx + 202, dy + 325, HGETEXT_LEFT, "-", 0);
         GV->fntMyriad13->Render(dx + 250, dy + 327, HGETEXT_LEFT, "x", 0);
     }
 
-    cTile *tile = hTileset->GetTile("ACTION", itpSelectedTile);
+    double widthMod = 64.f / hParser->GetMainPlane()->GetTileWidth(),
+           heightMod = 64.f / hParser->GetMainPlane()->GetTileHeight();
+
+    if (btpZoomTile) {
+        widthMod *= 2.0f;
+        heightMod *= 2.0f;
+    } else {
+        dx += 32;
+        dy += 32;
+    }
+
+    cTile *tile = hTileset->GetTile(hParser->GetMainPlane()->GetImageSet(0), itpSelectedTile);
     if (tile != NULL) {
-        if (rbtpDouble->isSelected()) {
+        if (!rbtpSingle->isSelected()) {
             float mx, my;
             hge->Input_GetMousePos(&mx, &my);
             if (btpDragDropMask && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
-                btpDragDropMask = 0;
+                if (rbtpMask->isSelected()) {
+                    int i = 0;
+                    for (; i < 5; ++i) {
+                        if (rbtpIn[i]->isSelected()) break;
+                    }
+                    ((WWD::MaskTileAttrib *) hTempAttrib)->setArea(std::min(itpDDx1, itpDDx2),
+                                                                   std::min(itpDDy1, itpDDy2),
+                                                                   std::max(itpDDx1, itpDDx2),
+                                                                   std::max(itpDDy1, itpDDy2),
+                                                                   (WWD::TILE_ATTRIB)i);
+                }
+                btpDragDropMask = false;
             } else if (!btpDragDropMask && hge->Input_KeyDown(HGEK_LBUTTON) &&
-                       mx > dx + 10 + (!btpZoomTile * 32) && mx < dx + 10 + 64 + 32 + btpZoomTile * 32 &&
-                       my > dy + 65 + (!btpZoomTile * 32) && my < dy + 65 + 64 + 32 + btpZoomTile * 32) {
+                       mx > dx + 10 && mx < dx + 10 + 64 + btpZoomTile * 64 &&
+                       my > dy + 65 && my < dy + 65 + 64 + btpZoomTile * 64) {
                 btpDragDropMask = 1;
-                if (btpZoomTile) {
-                    itpDDx1 = (mx - dx - 10) / 2;
-                    itpDDy1 = (my - dy - 65) / 2;
-                } else {
-                    itpDDx1 = mx - dx - 10 - 32;
-                    itpDDy1 = my - dy - 65 - 32;
-                }
-                char tmp[16];
-                sprintf(tmp, "%d", itpDDx1);
-                tftpX1->setText(tmp);
-                sprintf(tmp, "%d", itpDDy1);
-                tftpY1->setText(tmp);
+                itpDDx1 = (mx - dx - 10) / widthMod;
+                itpDDy1 = (my - dy - 65) / heightMod;
+                itpDDx2 = itpDDx1;
+                itpDDy2 = itpDDy1;
             } else if (btpDragDropMask) {
-                int nx, ny;
-                if (btpZoomTile) {
-                    nx = (mx - dx - 10) / 2;
-                    ny = (my - dy - 65) / 2;
-                } else {
-                    nx = mx - dx - 10 - 32;
-                    ny = my - dy - 65 - 32;
-                }
-                if (nx >= 64) nx = 63;
-                if (ny >= 64) ny = 63;
-                if (nx < 0) nx = 0;
-                if (ny < 0) ny = 0;
-                hTempAttrib->SetMask(std::min(itpDDx1, nx), std::min(itpDDy1, ny), std::max(itpDDx1, nx),
-                                     std::max(itpDDy1, ny));
-                char tmp[16];
-                sprintf(tmp, "%d", std::min(itpDDx1, nx));
-                tftpX1->setText(tmp);
-                sprintf(tmp, "%d", std::min(itpDDy1, ny));
-                tftpY1->setText(tmp);
+                itpDDx2 = (mx - dx - 10) / widthMod;
+                itpDDy2 = (my - dy - 65) / heightMod;
 
-                sprintf(tmp, "%d", std::max(itpDDx1, nx));
-                tftpX2->setText(tmp);
-                sprintf(tmp, "%d", std::max(itpDDy1, ny));
-                tftpY2->setText(tmp);
+                if (itpDDx2 >= hTempAttrib->getWidth()) itpDDx2 = hTempAttrib->getWidth() - 1;
+                if (itpDDy2 >= hTempAttrib->getHeight()) itpDDy2 = hTempAttrib->getHeight() - 1;
+                if (itpDDx2 < 0) itpDDx2 = 0;
+                if (itpDDy2 < 0) itpDDy2 = 0;
+
+                if (rbtpDouble->isSelected()) {
+                    ((WWD::DoubleTileAttrib *) hTempAttrib)->setMask(std::min(itpDDx1, itpDDx2),
+                                                                     std::min(itpDDy1, itpDDy2),
+                                                                     std::max(itpDDx1, itpDDx2),
+                                                                     std::max(itpDDy1, itpDDy2));
+                    char tmp[16];
+                    sprintf(tmp, "%d", std::min(itpDDx1, itpDDx2));
+                    tftpX1->setText(tmp);
+                    sprintf(tmp, "%d", std::min(itpDDy1, itpDDy2));
+                    tftpY1->setText(tmp);
+
+                    sprintf(tmp, "%d", std::max(itpDDx1, itpDDx2));
+                    tftpX2->setText(tmp);
+                    sprintf(tmp, "%d", std::max(itpDDy1, itpDDy2));
+                    tftpY2->setText(tmp);
+                }
             }
         }
 
         tile->GetImage()->SetColor(0xffffffff);
         tile->GetImage()->SetFlip(0, 0);
         tile->GetImage()->SetHotSpot(0, 0);
-        if (btpZoomTile) {
-            tile->GetImage()->RenderEx(dx + 10, dy + 65, 0, 2.0f);
-            DrawTileAtrib(hTempAttrib, dx + 10, dy + 65, 2.0f, 2.0f);
-        } else {
-            tile->GetImage()->Render(dx + 10 + 32, dy + 65 + 32);
-            DrawTileAtrib(hTempAttrib, dx + 10 + 32, dy + 65 + 32, 1.0f, 1.0f);
-        }
+        tile->GetImage()->RenderEx(dx + 10, dy + 65, 0, widthMod, heightMod);
+        DrawTileAttributes(hTempAttrib, dx + 10, dy + 65, widthMod, heightMod);
     } else {
 
     }
@@ -534,12 +586,18 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
             }
         }
     }
-    bool ghosting = 0;
+    bool ghosting = false;
     for (auto & i : vTileGhosting)
         if (i.pl == plane) {
-            ghosting = 1;
+            ghosting = true;
             break;
         }
+
+    std::sort(std::begin(vTileGhosting), std::end(vTileGhosting), [](TileGhost& a, TileGhost& b) {
+        if (a.y == b.y) return a.x < b.x;
+        return a.y < b.y;
+    });
+    auto tgIterator = vTileGhosting.begin();
 
     bool pickerHighlight = false;
     if (!bUsingBuffer || ghosting)
@@ -548,27 +606,28 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
             for (int x = sx; x < ex; x++) {
                 float posx = x * plane->GetTileWidth() * fZoom - cammx;
                 WWD::Tile* tile = plane->GetTile(x, y);
-                if (!vTileGhosting.empty()) {
-                    bool ghosted = 0;
-                    for (int i = 0; i < vTileGhosting.size(); i++) {
-                        if (x == vTileGhosting[i].x && y == vTileGhosting[i].y && plane == vTileGhosting[i].pl) {
-                            if (vTileGhosting[i].id >= 0 && vTileGhosting[i].id != tile->GetID()) {
+                if (ghosting) {
+                    bool ghosted = false;
+                    int cx = plane->GetFlags() & WWD::Flag_p_XWrapping ? plane->ClampX(x) : x,
+                        cy = plane->GetFlags() & WWD::Flag_p_YWrapping ? plane->ClampY(y) : y;
+                    while (tgIterator != vTileGhosting.end() && (cy > tgIterator->y || (cy == tgIterator->y && cx > tgIterator->x)))
+                        ++tgIterator;
+
+                    if (tgIterator != vTileGhosting.end()) {
+                        if (cy == tgIterator->y && cx == tgIterator->x && plane == tgIterator->pl) {
+                            if (tgIterator->id >= 0 && tgIterator->id != tile->GetID()) {
                                 hgeSprite *spr;
-                                spr = hTileset->GetSet(plane->GetImageSet(0))->GetTile(vTileGhosting[i].id)->GetImage();
+                                spr = hTileset->GetSet(plane->GetImageSet(0))->GetTile(tgIterator->id)->GetImage();
                                 spr->SetColor(SETA(col, 160));
                                 spr->SetHotSpot(0, 0);
                                 spr->RenderEx(posx, posy, 0, fZoom);
-                                ghosted = 1;
                                 if (bDrawTileProperties && pl == GetActivePlaneID()) {
-                                    DrawTileAtrib(vTileGhosting[i].id, posx, posy,
-                                                  1.0f / (64.0f / (plane->GetTileWidth() * fZoom)),
-                                                  1.0f / (64.0f / (plane->GetTileHeight() * fZoom)));
+                                    DrawTileAttributes(tgIterator->id, posx, posy, fZoom, fZoom);
                                 }
-                                break;
-                            } else if (vTileGhosting[i].id == EWW_TILE_ERASE && !tile->IsInvisible()) {
-                                ghosted = 1;
-                                break;
-                            } else if (vTileGhosting[i].id == EWW_TILE_FILL && !tile->IsFilled()) {
+                                ghosted = true;
+                            } else if (tgIterator->id == EWW_TILE_ERASE && !tile->IsInvisible()) {
+                                ghosted = true;
+                            } else if (tgIterator->id == EWW_TILE_FILL && !tile->IsFilled()) {
                                 hgeQuad q;
                                 q.blend = BLEND_DEFAULT;
                                 q.tex = 0;
@@ -584,26 +643,28 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                                 q.v[3].x = q.v[0].x;
                                 q.v[3].y = q.v[2].y;
                                 hge->Gfx_RenderQuad(&q);
-                                ghosted = 1;
-                                break;
-                            } else if (vTileGhosting[i].id == EWW_TILE_PIPETTE) {
+                                ghosted = true;
+                            } else if (tgIterator->id == EWW_TILE_PIPETTE) {
                                 pickerHighlight = true;
                                 if (tile->IsInvisible()) {
-                                    vTileGhosting[i].id = EWW_TILE_ERASE;
+                                    tgIterator->id = EWW_TILE_ERASE;
                                 } else if (tile->IsFilled()) {
-                                    vTileGhosting[i].id = EWW_TILE_FILL;
+                                    tgIterator->id = EWW_TILE_FILL;
                                 } else {
-                                    vTileGhosting[i].id = tile->GetID();
+                                    tgIterator->id = tile->GetID();
                                 }
-                                break;
                             }
                         }
                     }
-                    if (ghosted)
-                        continue;
+                    
+                    if (plane->GetFlags() & WWD::Flag_p_XWrapping && cx == plane->GetPlaneWidth() - 1) {
+                        tgIterator = vTileGhosting.begin();
+                    }
+
+                    if (ghosted) continue;
                 }
 
-                if (!bUsingBuffer)
+                //if (!bUsingBuffer)
                     if (tile->IsFilled()) {
                         hgeQuad q;
                         q.blend = BLEND_DEFAULT;
@@ -644,20 +705,16 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                         }
 
                         if (bDrawTileProperties && pl == GetActivePlaneID()) {
-                            DrawTileAtrib(tile->GetID(), posx, posy,
-                                          1.0f / (64.0f / (plane->GetTileWidth() * fZoom)),
-                                          1.0f / (64.0f / (plane->GetTileHeight() * fZoom)));
+                            DrawTileAttributes(tile->GetID(), posx, posy, fZoom, fZoom);
                         }
                         rcount++;
                     }
 
-                if (bUsingBuffer) continue;
+                //if (bUsingBuffer) continue;
 
-                if (hPlaneData[pl]->bDrawBoundary &&
-                    ((x % plane->GetPlaneWidth()) == plane->GetPlaneWidth() - 1 &&
-                     (plane->GetFlags() & WWD::Flag_p_YWrapping) != 0 ||
-                     (x % plane->GetPlaneWidth()) == plane->GetPlaneWidth() - 1 &&
-                     (plane->GetFlags() & WWD::Flag_p_YWrapping) == 0))
+                if (hPlaneData[pl]->bDrawBoundary && (plane->GetFlags() & WWD::Flag_p_XWrapping
+                    ? x % plane->GetPlaneWidth() == plane->GetPlaneWidth() - 1
+                    : x == plane->GetPlaneWidth() - 1))
                     hge->Gfx_RenderLine(int(posx + plane->GetTileWidth() * fZoom), 0,
                                         int(posx + plane->GetTileWidth() * fZoom), endplaney,
                                         ARGB(GETA(col), 255, 0, 255));
@@ -666,18 +723,20 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                                         int(posx + plane->GetTileWidth() * fZoom), endplaney,
                                         ARGB(GETA(col), 255, 255, 255));
             }
-            if (bUsingBuffer) continue;
+            //if (bUsingBuffer) continue;
 
-            if (hPlaneData[pl]->bDrawBoundary &&
-                ((y % plane->GetPlaneHeight()) == plane->GetPlaneHeight() - 1 &&
-                 (plane->GetFlags() & WWD::Flag_p_YWrapping) != 0 ||
-                 (y % plane->GetPlaneHeight()) == plane->GetPlaneHeight() - 1 &&
-                 (plane->GetFlags() & WWD::Flag_p_YWrapping) == 0))
+            if (hPlaneData[pl]->bDrawBoundary && (plane->GetFlags() & WWD::Flag_p_YWrapping
+                ? y % plane->GetPlaneHeight() == plane->GetPlaneHeight() - 1
+                : y == plane->GetPlaneHeight() - 1))
                 hge->Gfx_RenderLine(0, int(posy + plane->GetTileHeight() * fZoom), endplanex,
-                                    int(posy + plane->GetTileHeight() * fZoom), ARGB(GETA(col), 255, 0, 255));
+                    int(posy + plane->GetTileHeight() * fZoom), ARGB(GETA(col), 255, 0, 255));
             else if (hPlaneData[pl]->bDrawGrid)
                 hge->Gfx_RenderLine(0, int(posy + plane->GetTileHeight() * fZoom), endplanex,
                                     int(posy + plane->GetTileHeight() * fZoom), ARGB(GETA(col), 255, 255, 255));
+
+            if (ghosting && plane->GetFlags() & WWD::Flag_p_YWrapping && y % plane->GetPlaneHeight() == plane->GetPlaneHeight() - 1) {
+                tgIterator = vTileGhosting.begin();
+            }
         }
 
     if (pickerHighlight) {
@@ -1796,16 +1855,20 @@ void State::EditingWW::DrawViewport() {
                     bDrawObjProperties = 0;
 
                 if (obj == hStartingPosObj) {
+                    GV->fntMyriad13->SetColor(0);
                     GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
-                                            HGETEXT_LEFT, "~l~%s", 0, GETL(Lang_StartingPlace));
+                                            HGETEXT_LEFT, "%s", 0, GETL(Lang_StartingPlace));
+                    GV->fntMyriad13->SetColor(0xFFFFFF);
                     GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
-                                            "~w~%s~l~", 0, GETL(Lang_StartingPlace));
+                                            "%s", 0, GETL(Lang_StartingPlace));
 
+                    GV->fntMyriad13->SetColor(0);
                     GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh + 15,
-                                            HGETEXT_LEFT, "~l~X: %d Y: %d", 0, obj->GetParam(WWD::Param_LocationX),
+                                            HGETEXT_LEFT, "X: %d Y: %d", 0, obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY));
+                    GV->fntMyriad13->SetColor(0xFFFFFF);
                     GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh + 15,
-                                            HGETEXT_LEFT, "~w~X: ~y~%d ~w~Y: ~y~%d~l~", 0,
+                                            HGETEXT_LEFT, "X: ~y~%d ~w~Y: ~y~%d", 0,
                                             obj->GetParam(WWD::Param_LocationX), obj->GetParam(WWD::Param_LocationY));
                 } else if (bDrawObjProperties) {
                     int ioff = 15;
@@ -3271,7 +3334,7 @@ void State::EditingWW::DrawTilePicker() {
                     tile->GetImage()->SetColor(0xFFFFFFFF);
                     tile->GetImage()->RenderEx(drx, dry, 0, 0.75f);
                     if (cbtpiShowProperties->isSelected()) {
-                        DrawTileAtrib(tile->GetID(), drx, dry, 0.75f, 0.75f);
+                        DrawTileAttributes(tile->GetID(), drx, dry, 0.75f, 0.75f);
                     }
                     if (cbtpiShowTileID->isSelected()) {
                         GV->fntMyriad13->SetColor(0xFF000000);

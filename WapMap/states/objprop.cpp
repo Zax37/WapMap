@@ -137,9 +137,9 @@ namespace State {
             int scaleend = std::max(0, m_hOwn->asImageSetPick->GetSpritesCount() * 138 - 790);
             m_hOwn->sliisFrame->setScale(0, scaleend);
             m_hOwn->sliisFrame->setEnabled(scaleend != 0);
-            m_hOwn->sliisPick->setValue(std::max(0, std::min(int(m_hOwn->sliisPick->getScaleEnd() - 790),
+            m_hOwn->sliisPick->setValue(std::max(0, std::min(int(m_hOwn->sliisPick->getScaleEnd()),
                                                              int((m_hOwn->iisPickIT) * 138 - 395 + 64))));
-            m_hOwn->sliisFrame->setValue(std::max(0, std::min(int(m_hOwn->sliisFrame->getScaleEnd() - 790),
+            m_hOwn->sliisFrame->setValue(std::max(0, std::min(int(m_hOwn->sliisFrame->getScaleEnd()),
                                                               int((m_hOwn->iisFrameIT) * 138 - 395 + 64))));
         } else if (actionEvent.getSource() == m_hOwn->winisPick) {
             m_hOwn->window->setVisible(1);
@@ -295,9 +295,9 @@ namespace State {
             hgeQuad q;
             q.tex = 0;
             q.blend = BLEND_DEFAULT;
-            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 25, dx + w - 5, dy + 193 - 5);
+            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 25, dx + w - 5, dy + 182);
             hge->Gfx_RenderQuad(&q);
-            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 233, dx + w - 5, dy + 406);
+            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 233, dx + w - 5, dy + 390);
             hge->Gfx_RenderQuad(&q);
 
             for (int z = 0; z < 2; z++) {
@@ -346,6 +346,10 @@ namespace State {
                                 m_hOwn->asimgImageSetFrame = m_hOwn->asImageSetPick->GetIMGByIterator(0);
                                 m_hOwn->iisFrameIT = 0;
                                 m_hOwn->sliisFrame->setValue(0);
+
+                                int scaleend = std::max(0, m_hOwn->asImageSetPick->GetSpritesCount() * 138 - 790);
+                                m_hOwn->sliisFrame->setScale(0, scaleend);
+                                m_hOwn->sliisFrame->setEnabled(scaleend != 0);
                             }
                         }
                     }
@@ -368,13 +372,13 @@ namespace State {
             GV->sprShadeBar->SetFlip(0, 0);
             GV->sprShadeBar->RenderStretch(dx + 5, dy + 25, dx + w - 5, dy + 31);
             GV->sprShadeBar->SetFlip(0, 1);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 193 - 5 - 6, dx + w - 5, dy + 193 - 5);
+            GV->sprShadeBar->RenderStretch(dx + 5, dy + 182 - 6, dx + w - 5, dy + 182);
             GV->sprShadeBar->SetFlip(0, 0);
 
             GV->sprShadeBar->SetFlip(0, 0);
             GV->sprShadeBar->RenderStretch(dx + 5, dy + 233, dx + w - 5, dy + 239);
             GV->sprShadeBar->SetFlip(0, 1);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 406 - 6, dx + w - 5, dy + 406);
+            GV->sprShadeBar->RenderStretch(dx + 5, dy + 390 - 6, dx + w - 5, dy + 390);
             GV->sprShadeBar->SetFlip(0, 0);
         }
     }
@@ -1400,7 +1404,7 @@ namespace State {
         window->add(butCancel, 825 + 33, 538);
 
         winisPick = new SHR::Win(&GV->gcnParts, GETL2S("WinObjectProperties", "PickIS_WinCaption"));
-        winisPick->setDimension(gcn::Rectangle(0, 0, 800, 500));
+        winisPick->setDimension(gcn::Rectangle(0, 0, 800, 480));
         winisPick->setVisible(0);
         winisPick->setClose(1);
         winisPick->addActionListener(hAL);
@@ -1410,29 +1414,29 @@ namespace State {
         winisPick->add(vpisPick, 0, 0);
 
         sliisPick = new SHR::Slider(0, GV->editState->SprBank->GetAssetsCount() * 138 - 790);
-        sliisPick->setDimension(gcn::Rectangle(0, 0, 790, 11));
+        sliisPick->setDimension(gcn::Rectangle(0, 0, 793, 16));
         sliisPick->setOrientation(SHR::Slider::HORIZONTAL);
         sliisPick->setMarkerLength(40);
-        winisPick->add(sliisPick, 5, 200);
+        winisPick->add(sliisPick, 2, 197);
 
         labisImageSet = new SHR::Lab(GETL2S("WinObjectProperties", "PickIS_ImageSet"));
         labisImageSet->adjustSize();
-        winisPick->add(labisImageSet, 5, 10);
+        winisPick->add(labisImageSet, 5, 14);
 
         labisFrame = new SHR::Lab(GETL2S("WinObjectProperties", "PickIS_Frame"));
         labisFrame->adjustSize();
-        winisPick->add(labisFrame, 5, 215);
+        winisPick->add(labisFrame, 5, 222);
 
         sliisFrame = new SHR::Slider(0, 100);
-        sliisFrame->setDimension(gcn::Rectangle(0, 0, 790, 11));
+        sliisFrame->setDimension(gcn::Rectangle(0, 0, 793, 16));
         sliisFrame->setOrientation(SHR::Slider::HORIZONTAL);
         sliisFrame->setMarkerLength(40);
-        winisPick->add(sliisFrame, 5, 418);
+        winisPick->add(sliisFrame, 2, 405);
 
         butisOK = new SHR::But(GV->hGfxInterface, GETL(Lang_OK));
         butisOK->setDimension(gcn::Rectangle(0, 0, 100, 33));
         butisOK->addActionListener(hAL);
-        winisPick->add(butisOK, 400 - 50, 440);
+        winisPick->add(butisOK, 400 - 50, 426);
     }
 
     cObjectProp::~cObjectProp() {

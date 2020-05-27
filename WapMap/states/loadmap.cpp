@@ -172,7 +172,7 @@ void State::LoadMap::Init() {
         }
         hParser->SetStartX(alt_width * mainpl->GetTileWidth() / 2);
         hParser->SetStartY(alt_height * mainpl->GetTileHeight() / 2);
-        mainpl->Resize(alt_width, alt_height);
+        mainpl->Resize(alt_width, alt_height, 0, 0, true);
         hParser->SetFilePath("");
         hParser->UpdateDate();
     }

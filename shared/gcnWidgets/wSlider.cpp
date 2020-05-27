@@ -134,63 +134,63 @@ namespace SHR {
                 dx += getMarkerPosition();
             if (isEnabled())
                 sliderDrawBar(dx, dy, orient, getMarkerLength(), 1, 0xFFFFFFFF);
-            int markdimx = (orient ? 16 : getMarkerLength()),
-                    markdimy = (orient ? getMarkerLength() : 16);
-            bool markerfocus = (mHasMouse && mx > dx && my > dy && mx < dx + markdimx && my < dy + markdimy);
+            int markDimX = (orient ? 16 : getMarkerLength()),
+                markDimY = (orient ? getMarkerLength() : 16);
+            bool markerFocus = (mHasMouse && mx > dx && my > dy && mx < dx + markDimX && my < dy + markDimY);
 
-            if (markerfocus && hge->Input_GetKeyState(HGEK_LBUTTON) && fTimer < 0.4f) {
+            if (markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON) && fTimer < 0.4f) {
                 fTimer += hge->Timer_GetDelta();
                 if (fTimer > 0.4f) fTimer = 0.4f;
-            } else if (!(markerfocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
+            } else if (!(markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
                 fTimer -= hge->Timer_GetDelta();
                 if (fTimer < 0.2f) fTimer = 0.2f;
-            } else if (markerfocus && fTimer < 0.2f) {
+            } else if (markerFocus && fTimer < 0.2f) {
                 fTimer += hge->Timer_GetDelta();
                 if (fTimer > 0.2f) fTimer = 0.2f;
-            } else if (!markerfocus && fTimer > 0.0f) {
+            } else if (!markerFocus && fTimer > 0.0f) {
                 fTimer -= hge->Timer_GetDelta();
                 if (fTimer < 0.0f) fTimer = 0.0f;
             }
             if (isEnabled())
-                sliderDrawBar(dx, dy, orient, getMarkerLength(), 2,
+                sliderDrawBar(dx, dy + 1, orient, getMarkerLength(), 2,
                               SETA(0xFFFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
         } else {
-            int markspr = (mStyle == POINTER);
+            int markSpr = (mStyle == POINTER);
             if (mOrientation == HORIZONTAL) {
                 _ghGfxInterface->sprSliderBG[0]->Render(dx, dy + 3);
                 _ghGfxInterface->sprSliderBG[1]->RenderStretch(dx + 5, dy + 3, dx + getWidth() - 5, dy + 8);
                 _ghGfxInterface->sprSliderBG[2]->Render(dx + getWidth() - 5, dy + 3);
 
-                for (int i = 0; i < vKeys.size(); i++) {
-                    int off = valueToMarkerPosition(vKeys[i]) + 7;
+                for (double vKey : vKeys) {
+                    int off = valueToMarkerPosition(vKey) + 7;
                     //off += getStepLength()
                     hge->Gfx_RenderLine(dx + off, dy + 11, dx + off, dy + 16, 0xFF606162);
                 }
 
                 int v = getMarkerPosition();
 
-                bool markerfocus = (mx > dx + v && mx < dx + v + getMarkerLength() && my > dy && my < dy + 12 &&
+                bool markerFocus = (mx > dx + v && mx < dx + v + getMarkerLength() && my > dy && my < dy + 12 &&
                                     mHasMouse);
 
-                if (markerfocus && hge->Input_GetKeyState(HGEK_LBUTTON) && fTimer < 0.4f) {
+                if (markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON) && fTimer < 0.4f) {
                     fTimer += hge->Timer_GetDelta();
                     if (fTimer > 0.4f) fTimer = 0.4f;
-                } else if (!(markerfocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
+                } else if (!(markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
                     fTimer -= hge->Timer_GetDelta();
                     if (fTimer < 0.2f) fTimer = 0.2f;
-                } else if (markerfocus && fTimer < 0.2f) {
+                } else if (markerFocus && fTimer < 0.2f) {
                     fTimer += hge->Timer_GetDelta();
                     if (fTimer > 0.2f) fTimer = 0.2f;
-                } else if (!markerfocus && fTimer > 0.0f) {
+                } else if (!markerFocus && fTimer > 0.0f) {
                     fTimer -= hge->Timer_GetDelta();
                     if (fTimer < 0.0f) fTimer = 0.0f;
                 }
 
-                _ghGfxInterface->sprSlider[markspr][0]->Render(dx + v, dy);
+                _ghGfxInterface->sprSlider[markSpr][0]->Render(dx + v, dy);
                 if (fTimer > 0.0f) {
-                    _ghGfxInterface->sprSlider[markspr][1]->SetColor(
+                    _ghGfxInterface->sprSlider[markSpr][1]->SetColor(
                             SETA(0xFFFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
-                    _ghGfxInterface->sprSlider[markspr][1]->Render(dx + v, dy);
+                    _ghGfxInterface->sprSlider[markSpr][1]->Render(dx + v, dy);
                 }
             } else if (mOrientation == VERTICAL) {
                 //todo

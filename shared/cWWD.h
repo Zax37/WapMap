@@ -158,12 +158,13 @@ namespace WWD {
         Flag_p_AutoTileSize = 16
     };
 
-    enum TILE_ATTRIB {
+    typedef enum TILE_ATTRIB : unsigned char {
         Attrib_Clear = 0,
         Attrib_Solid = 1,
         Attrib_Ground = 2,
         Attrib_Climb = 3,
-        Attrib_Death = 4
+        Attrib_Death = 4,
+        Attrib_Unknown = 5
     };
 
     enum TILE_ATTRIB_TYPE {
@@ -306,57 +307,126 @@ namespace WWD {
     };
 
     class TileAttrib {
-    private:
-        TILE_ATTRIB_TYPE m_iType;
+    protected:
         int m_iW, m_iH;
-        TILE_ATTRIB m_iAtribOutside, m_iAtribInside;
+    public:
+        TileAttrib();
+        TileAttrib(int pW, int pH) : m_iW(pW), m_iH(pH) {}
+        virtual ~TileAttrib() {}
+
+        virtual bool operator!=(TileAttrib& other) = 0;
+
+        int getWidth() { return m_iW; }
+
+        int getHeight() { return m_iH; }
+
+        void setWidth(int w) { m_iW = w; }
+
+        void setHeight(int h) { m_iH = h; }
+
+        virtual TILE_ATTRIB_TYPE getType() = 0;
+        virtual void readFromStream(std::istream* psSource) = 0;
+        virtual void compileToStream(std::iostream* psDestination) = 0;
+        virtual std::vector<TILE_ATTRIB> getAttribSummary() = 0;
+    };
+
+    class SingleTileAttrib : public TileAttrib {
+    private:
+        TILE_ATTRIB attrib;
+    public:
+        SingleTileAttrib() {}
+
+        SingleTileAttrib(SingleTileAttrib* other) : TileAttrib(other->m_iW, other->m_iH), attrib(other->attrib) {}
+
+        SingleTileAttrib(int pW, int pH, TILE_ATTRIB attr) : TileAttrib(pW, pH), attrib(attr) {}
+
+        bool operator!=(TileAttrib& other) override;
+
+        TILE_ATTRIB_TYPE getType() override { return AttribType_Single; }
+
+        TILE_ATTRIB getAttrib() { return attrib; }
+
+        void setAttrib(TILE_ATTRIB atr) { attrib = atr; }
+
+        void readFromStream(std::istream* psSource) override;
+        void compileToStream(std::iostream* psDestination) override;
+        std::vector<TILE_ATTRIB> getAttribSummary() override;
+    };
+
+    class DoubleTileAttrib : public TileAttrib {
+    private:
+        TILE_ATTRIB m_iAttribOutside, m_iAttribInside;
         Rect m_rMask;
 
         friend class Parser;
 
     public:
-        ~TileAttrib();
+        DoubleTileAttrib() {}
 
-        TileAttrib(TileAttrib *src);
+        DoubleTileAttrib(DoubleTileAttrib* other) : TileAttrib(other->m_iW, other->m_iH), m_iAttribInside(other->m_iAttribInside),
+            m_iAttribOutside(other->m_iAttribOutside), m_rMask(other->m_rMask) {}
 
-        TileAttrib();
+        DoubleTileAttrib(int pW, int pH, TILE_ATTRIB pIns, TILE_ATTRIB pOut = Attrib_Clear,
+            Rect pMask = Rect(0, 0, 0, 0)) : TileAttrib(pW, pH), m_iAttribInside(pIns), m_iAttribOutside(pOut), m_rMask(pMask) {}
 
-        TileAttrib(int pW, int pH, TILE_ATTRIB_TYPE pType, TILE_ATTRIB pIns, TILE_ATTRIB pOut = Attrib_Clear,
-                   Rect pMask = Rect(0, 0, 0, 0));
+        bool operator!=(TileAttrib& other) override;
 
-        void SetTo(TileAttrib *src);
+        TILE_ATTRIB_TYPE getType() override { return AttribType_Double; }
 
-        TILE_ATTRIB_TYPE GetType() { return m_iType; };
+        void readFromStream(std::istream* psSource) override;
+        void compileToStream(std::iostream* psDestination) override;
 
-        void SetType(TILE_ATTRIB_TYPE atr) { m_iType = atr; };
+        std::vector<TILE_ATTRIB> getAttribSummary() override;
 
-        TILE_ATTRIB GetAtribInside() { return m_iAtribInside; };
+        TILE_ATTRIB getInsideAttrib() { return m_iAttribInside; }
 
-        void SetAtribInside(TILE_ATTRIB atr) { m_iAtribInside = atr; };
+        void setInsideAttrib(TILE_ATTRIB atr) { m_iAttribInside = atr; }
 
-        int GetW() { return m_iW; };
+        TILE_ATTRIB getOutsideAttrib() { return m_iAttribOutside; };
 
-        int GetH() { return m_iH; };
+        void setOutsideAttrib(TILE_ATTRIB atr) { m_iAttribOutside = atr; };
 
-        void SetW(int w) { m_iW = w; };
+        Rect getMask() { return m_rMask; };
 
-        void SetH(int h) { m_iH = h; };
-
-        //double only
-        TILE_ATTRIB GetAtribOutside() { return m_iAtribOutside; };
-
-        void SetAtribOutside(TILE_ATTRIB atr) { m_iAtribOutside = atr; };
-
-        Rect GetMask() { return m_rMask; };
-
-        void SetMask(int x1, int y1, int x2, int y2) {
+        void setMask(int x1, int y1, int x2, int y2) {
             m_rMask.x1 = x1;
             m_rMask.y1 = y1;
             m_rMask.x2 = x2;
             m_rMask.y2 = y2;
         };
+    };
 
-        std::vector<CollisionRect> GetColRects();
+    class MaskTileAttrib : public TileAttrib {
+    private:
+        unsigned size;
+        TILE_ATTRIB *data = nullptr;
+    public:
+        MaskTileAttrib() {}
+
+        MaskTileAttrib(int pW, int pH) : TileAttrib(pW, pH) {
+            size = pW * pH;
+            data = new TILE_ATTRIB[size]{};
+        }
+
+        MaskTileAttrib(MaskTileAttrib* other) : TileAttrib(other->m_iW, other->m_iH), size(other->size) {
+            data = new TILE_ATTRIB[size];
+            for (int i = 0; i < size; ++i) data[i] = other->data[i];
+        }
+
+        ~MaskTileAttrib() override;
+
+        bool operator!=(TileAttrib& other) override;
+
+        TILE_ATTRIB_TYPE getType() override { return AttribType_Mask; }
+        
+        const TILE_ATTRIB* getData() const { return data; }
+
+        void setArea(int x1, int y1, int x2, int y2, WWD::TILE_ATTRIB attrib);
+
+        void readFromStream(std::istream* psSource) override;
+        void compileToStream(std::iostream* psDestination) override;
+
+        std::vector<TILE_ATTRIB> getAttribSummary() override;
     };
 
     class Object {
@@ -603,7 +673,7 @@ namespace WWD {
         Tile* GetTile(int piX, int piY);
         Tile* GetTile(int it);
 
-        void Resize(int nw, int nh, int ox = 0, int oy = 0);
+        void Resize(int nw, int nh, int ox = 0, int oy = 0, bool creating = false);
 
         void ResizeAddTiles(int ax, int ay);
 
@@ -759,7 +829,7 @@ namespace WWD {
             return m_hTileAttribs[piTile];
         };
 
-        void SetTileAttribs(int piTile, TileAttrib *htaAttribs) { m_hTileAttribs[piTile]->SetTo(htaAttribs); };
+        void SetTileAttribs(int piTile, TileAttrib *htaAttribs);
 
         int GetTileAttribsCount() { return m_hTileAttribs.size(); };
 
@@ -778,196 +848,3 @@ namespace WWD {
 }
 
 #endif
-/**
-16b - naglowek
-F4 05 (244, 05) - sygnatura wwd
-na 8b flagi (za pomoca obrotu bitowego):
- 0x01 - use z coords
- 0x02 - compress
-na 16b - nazwa poziomu [64]
-na 80b - autor [64]
-na 144b - data utworzenia [64]
-na 204b - sciezka do reza [256]
-na 464b - sciezka do folderu z klockami w rezie [128b]
-na 592b - sciezka do palety w rezie [128b]
-na 720b - start x [4b]
-na 724b - start y [4b]
-na 728b - ? [b]
-na 732b - ilosc plane'ow [4b]
-na 736b - wskaznik na bajt na ktorym zaczynaja sie plane'y [4b]
-na 740b - wskaznik na bajt na ktorym koncza sie plane'y [4b]
-na 744b - checksuma tylko przy kompresji: ilosc bajtow po wypakowaniu [4b]
-na 748b - checksuma (szczeg. impl. funkcja CalculateChecksum) [4b]
-na 752b - ?
-
-na 756b - sciezka do exe clawa [128] //relatywna do pozycji .wwd na dysku
-na 884b - image set 1 [128]
-na 1012b - image set 2 [128]
-na 1140b - image set 3 [128]
-na 1268b - image set 4 [128]
-na 1396b - prefix 1 [32]
-na 1428b - prefix 2 [32]
-na 1460b - prefix 3 [32]
-na 1492b - prefix 4 [32]
-
-//jesli jest kompresja:
-na 1524b: 0x78 (120)
-na 1525b: 0x9C (156)
-
-//plany: [160b naglowek]
-na 0b: 0x20 (32)
-na 8b: flagi [1]:
- 0x01 - main plane
- 0x02 - no draw
- 0x04 - x wrapping
- 0x08 - y wrapping
- 0x16 - auto tile size
-na 16b: nazwa [64]
-na 80b: szerokosc w px [4]
-na 84b: wysokosc w px [4]
-na 88b: tile width int [4]
-na 92b: tile height int [4]
-na 96b: tiles wide int [4]
-na 100b: tiles high int [4]
-na 104b: nieznany int [4]------------!
-na 108b: nieznany int [4]------------!
-na 112b: move x percent int [4]
-na 116b: move y percent int [4]
-na 120b: fill color int [4]
-na 124b: ilosc image setow [4]
-na 128b: ilosc obiektow [4]
-na 132b: adres do klockow [4]
-na 136b: adres do stringow image sets [4]
-na 140b: adres do obiektow jesli main plane, inaczej 0 [4]
-na 144b: z coord [4]
-[12b - 3 inty?]
-
-//kafle planow [w*h*4] kolejnosc tak jak kolejnosc planow
-kazdy kafel 4b:
-id kafla = a+b*256, gdzie a to bajt pierwszy, a b to bajt drugi
-jesli niewidoczny, wszystkie cztery bajty 0xFF (255)
-jesli wypelniony, wszystkie cztery bajty 0xEE (238)
-
-na 160*ilosc planow + suma szerokosci * suma wysokosci * 4: image sets [stringi null terminated] w kolejnosci tak jak plany (ilosc predef)
-
-!note: recty sa zawsze podawane w kolejnosci lewo-gora-prawo-dol (clockwise od lewa)!
-//obiekty
-na 0b: ID obiektu int [4b]
-na 4b: dlugosc nazwy obiektu int [4b]
-na 8b: dlugosc nazwy logiki int [4b]
-na 12b: dlugosc nazwy imagesetu int [4b]
-na 16b: location - x int [4b]
-na 20b: location - y int [4b]
-na 24b: location - z int [4b]
-na 28b: location - i int [4b]
-na 32b: add flags [1b]
- 1 - difficult
- 2 - eye candy
- 4 - high detail
- 8 - multiplayer
- 16 - extra memory
- 32 - fast cpu
-[3b przerwy?]
-na 36b: dynamic flags [1b]:
- 1 - no hit
- 2 - always active
- 4 - safe
- 8 - auto hit damage
-[3b przerwy?]
-na 40b: draw flags [1b]:
- 1 - no draw
- 2 - mirror
- 4 - invert
- 8 - flash
-[3b przerwy?]
-na 44b: user flags p.1 [1b]:
- 1 - flag 1
- 2 - flag 2
- 4 - flag 3
- 8 - flag 4
- 16 - flag 5
- 32 - flag 6
- 64 - flag 7
- 128 - flag 8
-na 45b: user flags p.2 [1b]:
- 1 - flag 9
- 2 - flag 10
- 4 - flag 11
- 8 - flag 12
-[2b przerwy?]
-na 48b: atrybut score int [4b]
-na 52b: atrybut points int [4b]
-na 56b: atrybut powerup int [4b]
-na 60b: atrybut damage int [4b]
-na 64b: atrybut smarts int [4b]
-na 68b: atrybut health int [4b]
-
-na 72b: rect move 4xint [16b]
-na 86b: rect hit 4xint [16b]
-na 102b: rect attack 4xint [16b]
-na 118b: rect clip 4xint [16b]
-na 134b: rect user1 4xint [16b]
-na 150b: rect user2 4xint [16b]
-na 166b: user 1-8 8xint [32b]
-na 198b: atrybut x min int [4b]
-na 202b: atrybut y min int [4b]
-na 206b: atrybut x max int [4b]
-na 210b: atrybut y max int [4b]
-na 214b: atrybut speed x int [4b]
-na 218b: atrybut speed y int [4b]
-na 222b: x tweak int [4b]
-na 226b: y tweak int [4b]
-na 230b: counter int [4b]
-na 234b: speed int [4b]
-na 238b: width int [4b]
-na 242b: height int [4b]
-na 246b: direction int [4b]
-na 250b: face dir int [4b]
-na 254b: time delay int [4b]
-na 258b: frame delay int [4b]
-na 262b: flagi type [2b]
-[2b przerwy]
-na 266b: flagi hit type [2b]
-[2b przerwy]
-na 270b: x move res int [4b]
-na 274b: y move res int [4b]
-
-nastepnie stringi (not null terminated!!):
-- nazwa obiektu
-- logika
-- image set
-- animacja
-
-[naglowek? 8x4int=32b]
-0b: int ? - 32 [4b]
-4b: ? [4b]
-8b; ilosc atrybutow do klockow [4b]
-12b: ? [4b]
-16b: ? [4b]
-20b: ? [4b]
-24b: ? [4b]
-28b: ? [4b]
-
-dla kazdego klocka [20b lub 40b dla double]
-0b: typ [4b] (? 0 single 1 double 2 mask 3)
-4b: ? [4b]
-8b: szer [4b]
-12b: wys [4b]
-16b: atrib [4b] (outside dla double)
-(jesli double)
-20b: atrib [4b] (inside)
-24b: x1 [4b]
-28b: y1 [4b]
-32b: x2 [4b]
-36b: y2 [4b]
-
-atrib {
- clear - 0
- solid - 1
- ground - 2
- climb - 3
- death - 4
-
- ? - 54
-}
-**/

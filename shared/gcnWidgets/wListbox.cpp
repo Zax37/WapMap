@@ -1,3 +1,6 @@
+#include <hge.h>
+#include <hgefont.h>
+#include <guichan/hge/hgeimagefont.hpp>
 #include "wListbox.h"
 
 #include "guichan/basiccontainer.hpp"
@@ -40,14 +43,15 @@ namespace SHR {
     }
 
     void ListBox::draw(Graphics *graphics) {
-        graphics->setColor(0x131313);
-        graphics->fillRectangle(Rectangle(0, 0, getWidth(), getHeight()));
+        unsigned char alpha = getAlpha();
+        graphics->setColor(gcn::Color(0x131313, alpha));
+        graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
 
         if (mListModel == NULL) {
             return;
         }
 
-        graphics->setColor(0xbababa);
+        graphics->setColor(gcn::Color(0xbababa, alpha));
         graphics->setFont(getFont());
 
         // Check the current clip area so we don't draw unnecessary items
@@ -85,17 +89,18 @@ namespace SHR {
     }
 
     void ListBox::drawRow(Graphics *graphics, int i) {
+        unsigned char alpha = getAlpha();
         unsigned rowHeight = getRowHeight();
         int y = i * rowHeight;
         if (i == mSelected || i == mHighlighted) {
-            graphics->setColor(i == mSelected ? 0x1585e2 : 0x454545);
-            graphics->fillRectangle(Rectangle(0, y, getWidth(), rowHeight));
+            graphics->setColor(gcn::Color(i == mSelected ? 0x1585e2 : 0x454545, alpha));
+            graphics->fillRectangle(gcn::Rectangle(0, y, getWidth(), rowHeight));
         }
 
         if (i == mSelected)
-            graphics->setColor(0xffffff);
+            graphics->setColor(gcn::Color(0xffffff, alpha));
         else
-            graphics->setColor(i == mHighlighted ? 0xdcdcdc : 0xbababa);
+            graphics->setColor(gcn::Color(i == mHighlighted ? 0xdcdcdc : 0xbababa, alpha));
 
         // If the row height is greater than the font height we
         // draw the text with a center vertical alignment.
@@ -127,7 +132,7 @@ namespace SHR {
             }
         }
 
-        Rectangle scroll;
+        gcn::Rectangle scroll;
 
         if (mSelected < 0) {
             scroll.y = 0;

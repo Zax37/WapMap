@@ -1,9 +1,7 @@
 #include "wComboButton.h"
 #include "wButton.h"
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
-#include "guichan/key.hpp"
 #include "guichan/mouseevent.hpp"
 #include "guichan/mouseinput.hpp"
 #include "../../WapMap/cInterfaceSheet.h"
@@ -69,6 +67,7 @@ namespace SHR {
             size_t i = 0;
             for (; i < vEntries.size(); i++) {
                 int w = vEntries[i].GetWidth();
+                if (!i) w += 2;
                 if (sx < optx + w) {
                     vEntries[i].UpdateTooltip(true);
                     iFocused = i;
@@ -83,7 +82,7 @@ namespace SHR {
             }
         }
 
-        But::drawButton(hGfx, 2, x, y, getWidth(), getHeight(), 0xFFFFFFFF);
+        But::drawButton(hGfx, isEnabled() ? 2 : 0, x, y, getWidth(), getHeight(), 0xFFFFFFFF);
 
         int lx = x + 6;
         for (int i = 0; i < vEntries.size(); i++) {
@@ -93,7 +92,7 @@ namespace SHR {
             } else if (iSelectedID != i && vEntries[i].fTimer > 0.2f) {
                 vEntries[i].fTimer -= hge->Timer_GetDelta() * 2;
                 if (vEntries[i].fTimer < 0.2f) vEntries[i].fTimer = 0.2f;
-            } else if (iFocused == i && vEntries[i].fTimer < 0.2f) {
+            } else if (iFocused == i && vEntries[i].fTimer < 0.2f && isEnabled()) {
                 vEntries[i].fTimer += hge->Timer_GetDelta();
                 if (vEntries[i].fTimer > 0.2f) vEntries[i].fTimer = 0.2f;
             } else if (iFocused != i && iSelectedID != i && vEntries[i].fTimer > 0.0f) {
@@ -101,6 +100,9 @@ namespace SHR {
                 if (vEntries[i].fTimer < 0.0f) vEntries[i].fTimer = 0.0f;
             }
             unsigned char p = (vEntries[i].fTimer * 2.5f * 255.0f);
+            if (!isEnabled()) {
+                p /= 2;
+            }
 
             if (vEntries[i].fTimer > 0.0f) {
                 hge->Gfx_SetClipping(lx - (i == 0 ? 5 : 2), y, vEntries[i].GetWidth() + (i == 0 ? 2 : i == vEntries.size() - 1 ? 1 : 0), getHeight());
@@ -141,24 +143,10 @@ namespace SHR {
     }
 
     void ComboBut::mousePressed(MouseEvent &mouseEvent) {
-        if (mouseEvent.getButton() == MouseEvent::LEFT) {
-            int x, y;
-            getAbsolutePosition(x, y);
+        if (iFocused != -1 && mouseEvent.getButton() == MouseEvent::LEFT) {
             mMousePressed = true;
             mouseEvent.consume();
-            iSelectedID = -1;
-            float mx, my;
-            hge->Input_GetMousePos(&mx, &my);
-            int sx = mx - x;
-            int optx = 0;
-            for (size_t i = 0; i < vEntries.size(); i++) {
-                int w = vEntries[i].GetWidth();
-                if (sx < optx + w) {
-                    iSelectedID = i;
-                    break;
-                }
-                optx += w;
-            }
+            iSelectedID = iFocused;
             distributeActionEvent();
         }
     }
@@ -184,7 +172,7 @@ namespace SHR {
 
 
     bool ComboBut::showHand() {
-        return iFocused != iSelectedID;
+        return iFocused != iSelectedID && iFocused != -1;
     }
 
     void ComboBut::addEntry(ComboButEntry n) {

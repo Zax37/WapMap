@@ -105,7 +105,6 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         fObjContextY = fCamY;
                     }
                 }
-                //objContext->setVisible(1);
                 tilContext->setPosition(mx, my);
                 fObjContextX = fCamX;
                 fObjContextY = fCamY;
@@ -161,18 +160,19 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
         if ((iActiveTool == EWW_TOOL_BRUSH && !bVPfocused))
             vTileGhosting.clear();
         if (bVPfocused) {
-            int hx = Scr2WrdX(GetActivePlane(), mx) / GetActivePlane()->GetTileWidth();
-            int hy = Scr2WrdY(GetActivePlane(), my) / GetActivePlane()->GetTileHeight();
+            int hx = Scr2WrdX(GetActivePlane(), mx) / GetActivePlane()->GetTileWidth(),
+                hy = Scr2WrdY(GetActivePlane(), my) / GetActivePlane()->GetTileHeight(),
+                hxUnwrapped = hx, hyUnwrapped = hy;
 
             if (hx >= GetActivePlane()->GetPlaneWidth())
                 if ((GetActivePlane()->GetFlags() & WWD::Flag_p_XWrapping) == 0)
                     hx = -1;
-                else
+                else if (iTileDrawStartX == -1 && iTileDrawStartY == -1)
                     hx = hx % GetActivePlane()->GetPlaneWidth();
             if (hy >= GetActivePlane()->GetPlaneHeight())
                 if ((GetActivePlane()->GetFlags() & WWD::Flag_p_YWrapping) == 0)
                     hy = -1;
-                else
+                else if (iTileDrawStartX == -1 && iTileDrawStartY == -1)
                     hy = hy % GetActivePlane()->GetPlaneHeight();
 
             if (iActiveTool == EWW_TOOL_BRUSH && (hx != lastbrushx || hy != lastbrushy))
@@ -223,8 +223,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     if (iTileDrawMode == EWW_DRAW_RECT || iTileDrawMode == EWW_DRAW_LINE ||
                         iTileDrawMode == EWW_DRAW_ELLIPSE) {
                         if (iTileDrawStartX == -1 && iTileDrawStartY == -1 && hge->Input_KeyDown(HGEK_LBUTTON)) {
-                            iTileDrawStartX = hx;
-                            iTileDrawStartY = hy;
+                            iTileDrawStartX = hxUnwrapped;
+                            iTileDrawStartY = hyUnwrapped;
                         }
                         bPlacing = !hge->Input_GetKeyState(HGEK_LBUTTON);
                     } else {
@@ -249,6 +249,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                                          : iTilePicked;
                                 vTileGhosting.push_back(tg);
                             } else {
+                                hx = hxUnwrapped;
+                                hy = hyUnwrapped;
                                 pointsize--;
                                 for (int y = hy - pointsize; y <= hy + pointsize; y++)
                                     for (int x = hx - pointsize; x <= hx + pointsize; x++) {
@@ -256,9 +258,9 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                         //printf("testing %d,%d [%d,%d] %f/%d\n", )
                                         if (dist < (pointsize + 1)) {
                                             TileGhost tg;
-                                            tg.x = x;
-                                            tg.y = y;
                                             tg.pl = GetActivePlane();
+                                            tg.x = tg.pl->ClampX(x);
+                                            tg.y = tg.pl->ClampY(y);
                                             tg.id = iTilePicked >= 0 ? hTileset->GetSet(
                                                     GetActivePlane()->GetImageSet(0))->GetTileByIterator(
                                                     iTilePicked)->GetID()
@@ -278,59 +280,97 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
 
                         } else if (iTileDrawStartX != -1 && iTileDrawStartY != -1) {
                             int x1 = (iTileDrawStartX > hx ? hx : iTileDrawStartX),
-                                    y1 = (iTileDrawStartY > hy ? hy : iTileDrawStartY),
-                                    x2 = (iTileDrawStartX > hx ? iTileDrawStartX : hx),
-                                    y2 = (iTileDrawStartY > hy ? iTileDrawStartY : hy);
+                                y1 = (iTileDrawStartY > hy ? hy : iTileDrawStartY),
+                                x2 = (iTileDrawStartX > hx ? iTileDrawStartX : hx),
+                                y2 = (iTileDrawStartY > hy ? iTileDrawStartY : hy);
 
                             if (iTileDrawMode == EWW_DRAW_LINE) {
+                                int thickness = slitpiLineThickness->getValue();
+
+                                TileGhost tg;
+                                tg.pl = GetActivePlane();
+                                tg.id = iTilePicked >= 0 ? hTileset->GetSet(
+                                        GetActivePlane()->GetImageSet(0))->GetTileByIterator(iTilePicked)->GetID()
+                                                         : iTilePicked;
+
                                 x1 = iTileDrawStartX;
                                 y1 = iTileDrawStartY;
                                 x2 = hx;
                                 y2 = hy;
-                                int dx = x2 - x1;
-                                int dy = y2 - y1;
-                                int incXH, incXL;
-                                if (dx >= 0) incXH = incXL = 1;
-                                else {
-                                    dx = -dx;
-                                    incXH = incXL = -1;
-                                }
-                                int incYH, incYL;
-                                if (dy >= 0) incYH = incYL = 1;
-                                else {
-                                    dy = -dy;
-                                    incYH = incYL = -1;
-                                }
-                                int longD, shortD;
-                                if (dx >= dy) {
-                                    longD = dx;
-                                    shortD = dy;
-                                    incYL = 0;
-                                } else {
-                                    longD = dy;
-                                    shortD = dx;
-                                    incXL = 0;
-                                }
-                                int d = 2 * shortD - longD;
-                                int incDL = 2 * shortD;
-                                int incDH = 2 * shortD - 2 * longD;
-                                for (int i = 0; i <= longD; i++) {
-                                    TileGhost tg;
-                                    tg.x = x1;
-                                    tg.y = y1;
-                                    tg.pl = GetActivePlane();
-                                    tg.id = iTilePicked >= 0 ? hTileset->GetSet(
-                                            GetActivePlane()->GetImageSet(0))->GetTileByIterator(iTilePicked)->GetID()
-                                                             : iTilePicked;
-                                    vTileGhosting.push_back(tg);
-                                    if (d >= 0) {
-                                        x1 += incXH;
-                                        y1 += incYH;
-                                        d += incDH;
+
+                                auto bline = [&](int x1, int y1, int x2, int y2) {
+                                    int dx = x2 - x1;
+                                    int dy = y2 - y1;
+                                    int incXH, incXL;
+                                    if (dx >= 0) incXH = incXL = 1;
+                                    else {
+                                        dx = -dx;
+                                        incXH = incXL = -1;
+                                    }
+                                    int incYH, incYL;
+                                    if (dy >= 0) incYH = incYL = 1;
+                                    else {
+                                        dy = -dy;
+                                        incYH = incYL = -1;
+                                    }
+                                    int longD, shortD;
+                                    if (dx >= dy) {
+                                        longD = dx;
+                                        shortD = dy;
+                                        incYL = 0;
                                     } else {
-                                        x1 += incXL;
-                                        y1 += incYL;
-                                        d += incDL;
+                                        longD = dy;
+                                        shortD = dx;
+                                        incXL = 0;
+                                    }
+                                    int d = 2 * shortD - longD;
+                                    int incDL = 2 * shortD;
+                                    int incDH = 2 * shortD - 2 * longD;
+                                    for (int i = 0; i <= longD; i++) {
+                                        tg.x = tg.pl->ClampX(x1);
+                                        tg.y = tg.pl->ClampY(y1);
+                                        vTileGhosting.push_back(tg);
+                                        if (d >= 0) {
+                                            x1 += incXH;
+                                            y1 += incYH;
+                                            d += incDH;
+                                        } else {
+                                            x1 += incXL;
+                                            y1 += incYL;
+                                            d += incDL;
+                                        }
+                                    }
+                                };
+
+                                bline(x1, y1, x2, y2);
+                                if (thickness > 1) {
+                                    if (thickness > 2) thickness *= 2;
+                                    if (x1 == x2) {
+                                        thickness = thickness / 2 + 1;
+                                        for (int i = 0; i < thickness; i++) {
+                                            bline(x1 - i, y1, x2 - i, y2);
+                                            bline(x1 + i, y1, x2 + i, y2);
+                                        }
+                                    } else if (y1 == y2) {
+                                        thickness = thickness / 2 + 1;
+                                        for (int i = 0; i < thickness; i++) {
+                                            bline(x1, y1 - i, x2, y2 - i);
+                                            bline(x1, y1 + i, x2, y2 + i);
+                                        }
+                                    } else if (abs(y2 - y1) / abs(x2 - x1) < 1) {
+                                        double wy = thickness * sqrt(pow((x2 - x1), 2)
+                                                  + pow((y2 - y1), 2)) / (2 * fabs(x2 - x1));
+                                        for (int i = 0; i < wy; i++) {
+                                            bline(x1, y1 - i, x2, y2 - i);
+                                            bline(x1, y1 + i, x2, y2 + i);
+                                        }
+                                    } else {
+                                        double wx = thickness * sqrt(pow((x2 - x1), 2)
+                                                  + pow((y2 - y1), 2)) / (2 * fabs(y2 - y1));
+                                        for (int i = 0; i < wx; i++) {
+                                            bline(x1 - i, y1, x2 - i, y2);
+                                            bline(x1 + i, y1, x2 + i, y2);
+                                        }
                                     }
                                 }
                             } else if (iTileDrawMode == EWW_DRAW_RECT) {
@@ -340,9 +380,9 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                                                              (x == x1 || x == x2 || y == y1 ||
                                                                               y == y2)) {
                                             TileGhost tg;
-                                            tg.x = x;
-                                            tg.y = y;
                                             tg.pl = GetActivePlane();
+                                            tg.x = tg.pl->ClampX(x);
+                                            tg.y = tg.pl->ClampY(y);
                                             tg.id = iTilePicked >= 0 ? hTileset->GetSet(
                                                     GetActivePlane()->GetImageSet(0))->GetTileByIterator(
                                                     iTilePicked)->GetID()
@@ -356,6 +396,11 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                 int centerX = x1 + radiusX,
                                         centerY = y1 + radiusY;
                                 int x, y, changeX, changeY, e, twoASquare, twoBSquare, stoppingX, stoppingY;
+
+                                if (radiusX == 1 && radiusY > 3) {
+                                    bool test = true;
+                                    test = false;
+                                }
 
                                 twoASquare = 2 * radiusX * radiusX;
                                 twoBSquare = 2 * radiusY * radiusY;
@@ -373,24 +418,24 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                         GetActivePlane()->GetImageSet(0))->GetTileByIterator(iTilePicked)->GetID()
                                                          : iTilePicked;
                                 while (stoppingX >= stoppingY) {
-                                    tg.x = centerX + x;
-                                    tg.y = centerY + y;
+                                    tg.x = tg.pl->ClampX(centerX + x);
+                                    tg.y = tg.pl->ClampY(centerY + y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX - x;
-                                    tg.y = centerY - y;
+                                    tg.x = tg.pl->ClampX(centerX - x);
+                                    tg.y = tg.pl->ClampY(centerY - y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX + x;
-                                    tg.y = centerY - y;
+                                    tg.x = tg.pl->ClampX(centerX + x);
+                                    tg.y = tg.pl->ClampY(centerY - y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX - x;
-                                    tg.y = centerY + y;
+                                    tg.x = tg.pl->ClampX(centerX - x);
+                                    tg.y = tg.pl->ClampY(centerY + y);
                                     vTileGhosting.push_back(tg);
                                     if (cbtpiEllipseFilled->isSelected()) {
                                         for (int z = centerX - x; z < centerX + x; z++) {
-                                            tg.x = z;
-                                            tg.y = centerY - y;
+                                            tg.x = tg.pl->ClampX(z);
+                                            tg.y = tg.pl->ClampY(centerY - y);
                                             vTileGhosting.push_back(tg);
-                                            tg.y = centerY + y;
+                                            tg.y = tg.pl->ClampY(centerY + y);
                                             vTileGhosting.push_back(tg);
                                         }
                                     }
@@ -415,24 +460,24 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                 stoppingX = 0;
                                 stoppingY = twoASquare * radiusY;
                                 while (stoppingX <= stoppingY) {
-                                    tg.x = centerX + x;
-                                    tg.y = centerY + y;
+                                    tg.x = tg.pl->ClampX(centerX + x);
+                                    tg.y = tg.pl->ClampY(centerY + y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX - x;
-                                    tg.y = centerY - y;
+                                    tg.x = tg.pl->ClampX(centerX - x);
+                                    tg.y = tg.pl->ClampY(centerY - y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX + x;
-                                    tg.y = centerY - y;
+                                    tg.x = tg.pl->ClampX(centerX + x);
+                                    tg.y = tg.pl->ClampY(centerY - y);
                                     vTileGhosting.push_back(tg);
-                                    tg.x = centerX - x;
-                                    tg.y = centerY + y;
+                                    tg.x = tg.pl->ClampX(centerX - x);
+                                    tg.y = tg.pl->ClampY(centerY + y);
                                     vTileGhosting.push_back(tg);
                                     if (cbtpiEllipseFilled->isSelected()) {
                                         for (int z = centerX - x; z < centerX + x; z++) {
-                                            tg.x = z;
-                                            tg.y = centerY - y;
+                                            tg.x = tg.pl->ClampX(z);
+                                            tg.y = tg.pl->ClampY(centerY - y);
                                             vTileGhosting.push_back(tg);
-                                            tg.y = centerY + y;
+                                            tg.y = tg.pl->ClampY(centerY + y);
                                             vTileGhosting.push_back(tg);
                                         }
                                     }
@@ -455,22 +500,21 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
 
                     if (bPlacing) {
                         bool chng = 0;
-                        for (size_t t = 0; t < vTileGhosting.size(); t++) {
-                            WWD::Tile *tl = vTileGhosting.at(t).pl->GetTile(vTileGhosting.at(t).x,
-                                                                            vTileGhosting.at(t).y);
-                            if (vTileGhosting.at(t).id == EWW_TILE_ERASE) {
+                        for (auto &t : vTileGhosting) {
+                            WWD::Tile *tl = t.pl->GetTile(t.x, t.y);
+                            if (t.id == EWW_TILE_ERASE) {
                                 if (!tl->IsInvisible()) {
                                     tl->SetInvisible(1);
                                     chng = 1;
                                 }
-                            } else if (vTileGhosting.at(t).id == EWW_TILE_FILL) {
+                            } else if (t.id == EWW_TILE_FILL) {
                                 if (!tl->IsFilled()) {
                                     tl->SetFilled(1);
                                     chng = 1;
                                 }
                             } else {
-                                if (tl->GetID() != vTileGhosting.at(t).id) {
-                                    tl->SetID(vTileGhosting.at(t).id);
+                                if (tl->GetID() != t.id) {
+                                    tl->SetID(t.id);
                                     chng = 1;
                                 }
                             }
@@ -485,7 +529,6 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                             iTileDrawStartX = iTileDrawStartY = -1;
                         }
                     }
-
                 } else if (iActiveTool == EWW_TOOL_WRITEID && (hge->Input_KeyDown(HGEK_LBUTTON) ||
                                                                hge->Input_KeyDown(HGEK_ENTER) &&
                                                                !conWriteID->isVisible())) {
@@ -586,14 +629,14 @@ void State::EditingWW::FloodFill(int x, int y, int tile) {
     else
         base = t->GetID();
 
-    if (tile == base) return;
+    if (tile == base || tile == EWW_TILE_NONE) return;
 
     int width = GetActivePlane()->GetPlaneWidth(),
         height = GetActivePlane()->GetPlaneHeight(),
         size = width * height,
         it = y * width + x;
 
-    bool* bFloodFillBuf = new bool [size] {};
+    bool *bFloodFillBuf = new bool[size]{};
 
     std::function < bool() > checkTile;
     if (base == EWW_TILE_ERASE) {

@@ -158,15 +158,13 @@ void State::EditingWW::ObjectOverlay() {
         int diffx, diffy;
         if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
             diffx = GetUserDataFromObj(vObjectsPicked[0])->GetX() - vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
-            //Scr2WrdX(GetActivePlane(), mx)-iMoveRelX;
             diffy = GetUserDataFromObj(vObjectsPicked[0])->GetY() - vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
-            //Scr2WrdY(GetActivePlane(), my)-iMoveRelY;
         } else if (iActiveTool == EWW_TOOL_EDITOBJ) {
             diffx = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationX) - hEditObj->_iMoveInitX;
             diffy = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationY) - hEditObj->_iMoveInitY;
         }
-        GV->fntMyriad13->printf(mx + 26, my + 1, HGETEXT_LEFT, "~w~X: %+d", 0, diffx);
-        GV->fntMyriad13->printf(mx + 26, my + 21, HGETEXT_LEFT, "~w~Y: %+d", 0, diffy);
+        GV->fntMyriad13->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffx);
+        GV->fntMyriad13->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffy);
         GV->fntMyriad13->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffx);
         GV->fntMyriad13->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffy);
     }
@@ -179,13 +177,6 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         }
 
     if (iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->Kill()) {
-        /*if( bEditObjDelete && hEditObj->ObjectSaved() ){
-         SetTool(EWW_TOOL_MOVEOBJECTBATCH);
-         iMoveRelX = vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
-         iMoveRelY = vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
-         hge->Input_SetMousePos(Wrd2ScrX(GetActivePlane(), iMoveRelX),
-                                Wrd2ScrY(GetActivePlane(), iMoveRelY));
-        }else*/
         bool bAddNext = hEditObj->IsAddingNext();
         int objmoverelx, objmoverely;
         void *specialptr = NULL;

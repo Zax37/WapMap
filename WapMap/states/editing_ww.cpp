@@ -374,15 +374,14 @@ void State::EditingWW::Init() {
 
     sprintf(labtmp, "%s: 1", GETL2S("TilePicker", "LineThickness"));
     labtpiLineThickness = new SHR::Lab(labtmp);
-    labtpiLineThickness->setColor(0x5e5e5e);
     labtpiLineThickness->adjustSize();
     winTilePicker->add(labtpiLineThickness, 15 + 64, 45 + 30);
 
-    slitpiLineThickness = new SHR::Slider(25);
+    slitpiLineThickness = new SHR::Slider(1, 20);
     slitpiLineThickness->setOrientation(SHR::Slider::HORIZONTAL);
     slitpiLineThickness->setStyle(SHR::Slider::POINTER);
-    slitpiLineThickness->setEnabled(0);
     slitpiLineThickness->setDimension(gcn::Rectangle(0, 0, 150, 14));
+    slitpiLineThickness->addActionListener(al);
     winTilePicker->add(slitpiLineThickness, 15 + 64, 45 + 50);
 
     cbtpiRectFilled = new SHR::CBox(GV->hGfxInterface, GETL2S("TilePicker", "Filled"));
@@ -516,9 +515,9 @@ void State::EditingWW::Init() {
     winTileProp->setMovable(1);
     winTileProp->setClose(1);
     conMain->add(winTileProp, 300, 300);
-    buttpPrev = MakeButton(0, 10, Icon_Undo, winTileProp, 1, 1);
+    buttpPrev = MakeButton(0, 9, Icon_Undo, winTileProp, 1, 1);
     buttpPrev->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Previous));
-    buttpNext = MakeButton(264, 10, Icon_Redo, winTileProp, 1, 1);
+    buttpNext = MakeButton(264, 9, Icon_Redo, winTileProp, 1, 1);
     buttpNext->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Next));
     buttpZoom = MakeButton(264, 60, Icon_Zoom, winTileProp, 1, 1);
     buttpZoom->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Zoom));
@@ -533,14 +532,18 @@ void State::EditingWW::Init() {
     tftpTileID->addActionListener(al);
     winTileProp->add(tftpTileID, 100, 15);
 
-    rbtpSingle = new SHR::RadBut(GV->hGfxInterface, "", "atribtype");
+    rbtpSingle = new SHR::RadBut(GV->hGfxInterface, GETL(Lang_AttribSingle), "atribtype");
     rbtpSingle->adjustSize();
     rbtpSingle->addActionListener(al);
-    winTileProp->add(rbtpSingle, 145, 133);
-    rbtpDouble = new SHR::RadBut(GV->hGfxInterface, "", "atribtype");
+    winTileProp->add(rbtpSingle, 145, 120);
+    rbtpDouble = new SHR::RadBut(GV->hGfxInterface, GETL(Lang_AttribDouble), "atribtype");
     rbtpDouble->adjustSize();
     rbtpDouble->addActionListener(al);
-    winTileProp->add(rbtpDouble, 145, 155);
+    winTileProp->add(rbtpDouble, 145, 140);
+    rbtpMask = new SHR::RadBut(GV->hGfxInterface, GETL(Lang_Mask), "atribtype");
+    rbtpMask->adjustSize();
+    rbtpMask->addActionListener(al);
+    winTileProp->add(rbtpMask, 145, 160);
 
     for (int i = 0; i < 5; i++) {
         rbtpIn[i] = new SHR::RadBut(GV->hGfxInterface, "", "atribinside");
@@ -579,12 +582,12 @@ void State::EditingWW::Init() {
     tftpW = new SHR::TextField("0");
     tftpW->setDimension(gcn::Rectangle(0, 0, 35, 20));
     tftpW->addActionListener(al);
-    winTileProp->add(tftpW, 220, 50);
+    winTileProp->add(tftpW, 220, 48);
 
     tftpH = new SHR::TextField("0");
     tftpH->setDimension(gcn::Rectangle(0, 0, 35, 20));
     tftpH->addActionListener(al);
-    winTileProp->add(tftpH, 220, 76);
+    winTileProp->add(tftpH, 220, 73);
 
     itpSelectedTile = -1;
     vpTileProp = new WIDG::Viewport(vp, VP_TILEPROP);
@@ -2960,46 +2963,69 @@ void State::EditingWW::SyncAttribMenuWithTile() {
         hTempAttrib = nullptr;
         return;
     }
-    hTempAttrib = new WWD::TileAttrib(attrib);
+
     char tmp[64];
-    sprintf(tmp, "%d", attrib->GetW());
+    sprintf(tmp, "%d", attrib->getWidth());
     tftpW->setText(tmp);
-    sprintf(tmp, "%d", attrib->GetH());
+    sprintf(tmp, "%d", attrib->getHeight());
     tftpH->setText(tmp);
 
-    int inside = attrib->GetAtribInside();
-    if (inside < 5) {
-        rbtpIn[inside]->setSelected(1);
+    int inside = 0;
+
+    switch (attrib->getType()) {
+        case WWD::AttribType_Single: {
+            inside = ((WWD::SingleTileAttrib *) attrib)->getAttrib();
+            hTempAttrib = new WWD::SingleTileAttrib((WWD::SingleTileAttrib *) attrib);
+            rbtpSingle->setSelected(true);
+            tftpX1->setVisible(false);
+            tftpY1->setVisible(false);
+            tftpX2->setVisible(false);
+            tftpY2->setVisible(false);
+            for (auto &pRadBut : rbtpOut)
+                pRadBut->setVisible(false);
+            winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 260));
+            break;
+        }
+        case WWD::AttribType_Double: {
+            inside = ((WWD::DoubleTileAttrib *) attrib)->getInsideAttrib();
+            int outside = ((WWD::DoubleTileAttrib *) attrib)->getOutsideAttrib();
+            hTempAttrib = new WWD::DoubleTileAttrib((WWD::DoubleTileAttrib *) attrib);
+            rbtpDouble->setSelected(true);
+            tftpX1->setVisible(true);
+            tftpY1->setVisible(true);
+            tftpX2->setVisible(true);
+            tftpY2->setVisible(true);
+            for (int i = 0; i < 5; i++) {
+                rbtpOut[i]->setVisible(true);
+            }
+            rbtpOut[outside >= WWD::Attrib_Unknown ? 0 : outside]->setSelected(true);
+            auto mask = ((WWD::DoubleTileAttrib *) attrib)->getMask();
+            sprintf(tmp, "%d", mask.x1);
+            tftpX1->setText(tmp);
+            sprintf(tmp, "%d", mask.y1);
+            tftpY1->setText(tmp);
+            sprintf(tmp, "%d", mask.x2);
+            tftpX2->setText(tmp);
+            sprintf(tmp, "%d", mask.y2);
+            tftpY2->setText(tmp);
+            winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 350));
+            break;
+        }
+        case WWD::AttribType_Mask: {
+            hTempAttrib = new WWD::MaskTileAttrib((WWD::MaskTileAttrib *) attrib);
+            rbtpMask->setSelected(true);
+            tftpX1->setVisible(false);
+            tftpY1->setVisible(false);
+            tftpX2->setVisible(false);
+            tftpY2->setVisible(false);
+            for (auto &pRadBut : rbtpOut)
+                pRadBut->setVisible(false);
+            winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 260));
+            break;
+        }
     }
 
-    if (attrib->GetType() == WWD::AttribType_Single) {
-        rbtpSingle->setSelected(1);
-        tftpX1->setVisible(0);
-        tftpY1->setVisible(0);
-        tftpX2->setVisible(0);
-        tftpY2->setVisible(0);
-        for (int i = 0; i < 5; i++)
-            rbtpOut[i]->setVisible(0);
-        winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 260));
-    } else if (attrib->GetType() == WWD::AttribType_Double) {
-        rbtpDouble->setSelected(1);
-        tftpX1->setVisible(1);
-        tftpY1->setVisible(1);
-        tftpX2->setVisible(1);
-        tftpY2->setVisible(1);
-        for (int i = 0; i < 5; i++)
-            rbtpOut[i]->setVisible(1);
-        sprintf(tmp, "%d", attrib->GetMask().x1);
-        tftpX1->setText(tmp);
-        sprintf(tmp, "%d", attrib->GetMask().y1);
-        tftpY1->setText(tmp);
-        sprintf(tmp, "%d", attrib->GetMask().x2);
-        tftpX2->setText(tmp);
-        sprintf(tmp, "%d", attrib->GetMask().y2);
-        tftpY2->setText(tmp);
-        winTileProp->setDimension(gcn::Rectangle(dx, dy, 300, 350));
-        rbtpOut[attrib->GetAtribOutside()]->setSelected(1);
-    }
+    rbtpIn[inside >= WWD::Attrib_Unknown ? 0 : inside]->setSelected(true);
 }
 
 std::vector<WWD::Object *> State::EditingWW::GetObjectsInArea(WWD::Plane *plane, int x, int y, int w, int h) {
@@ -3129,6 +3155,7 @@ void State::EditingWW::DocumentSwitched() {
         for (cWindow* win : hWindows) {
             win->Close();
         }
+        winTileProp->setVisible(false);
         return;
     }
 
@@ -3212,8 +3239,9 @@ void State::EditingWW::DocumentSwitched() {
     hge->System_SetState(HGE_TITLE, tmp);
 
     itpSelectedTile = -1;
-    if (hTileset->GetSet("ACTION") != 0 && hTileset->GetSet("ACTION")->GetTilesCount() > 0)
-        itpSelectedTile = hTileset->GetSet("ACTION")->GetTileByIterator(0)->GetID();
+    auto tileSet = hTileset->GetSet(hParser->GetMainPlane()->GetImageSet(0));
+    if (tileSet && tileSet->GetTilesCount() > 0)
+        itpSelectedTile = tileSet->GetTileByIterator(0)->GetID();
     sprintf(tmp, "%d", itpSelectedTile);
     tftpTileID->setText(tmp);
     SyncAttribMenuWithTile();
@@ -3235,7 +3263,7 @@ void State::EditingWW::DocumentSwitched() {
     delete[] path;
     delete[] filename;
     delete[] filewithoutex;
-    tfmsSaveAs->setText(pathtemp, 1);
+    tfmsSaveAs->setText(pathtemp, true);
 
     hInvCtrl->MapSwitch();
     SwitchPlane();

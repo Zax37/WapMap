@@ -3,6 +3,7 @@
 #include "editing_ww.h"
 #include "../../shared/commonFunc.h"
 #include "../langID.h"
+#include "../shared/cWWD.h"
 
 extern HGE *hge;
 
@@ -67,19 +68,14 @@ void State::MapStats::Init() {
                         continue;
                     }
 
-                    unsigned int attr = int(atr->GetAtribInside());
-                    if (attr > 5) attr = 5;
-                    atrcount[attr]++;
-
-                    if (atr->GetType() == WWD::AttribType_Double) {
-                        attr = int(atr->GetAtribOutside());
-                        if (attr > 5) attr = 5;
-                        atrcount[attr]++;
+                    std::vector<WWD::TILE_ATTRIB> attribs = atr->getAttribSummary();
+                    for (auto attrib : attribs) {
+                        atrcount[attrib > WWD::Attrib_Unknown ? WWD::Attrib_Unknown : attrib]++;
                     }
                 }
             }
         if (atrcount[0] > 0)
-            statsPl[i].tileTypes->AddPart("puste", atrcount[0], 0xFFFFFFFF);
+            statsPl[i].tileTypes->AddPart("empty", atrcount[0], 0xFFFFFFFF);
         if (atrcount[1] > 0)
             statsPl[i].tileTypes->AddPart("solid", atrcount[1], COLOR_SOLID);
         if (atrcount[2] > 0)

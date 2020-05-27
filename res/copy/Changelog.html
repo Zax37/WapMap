@@ -1,21 +1,23 @@
 <h1 id="Whatsnew">What's new</h1>
 
-<h2>v0.4.0 (b33)</h2>
+<h2>v0.4.0 (b35)</h2>
 
 <ol>
-<li>Full polish translation(thanks Pejti, SchwarzerHund).</li>
+<li>Full polish translation (thanks Pejti, SchwarzerHund).</li>
 <li>Brought back basic support of Gruntz and GetMedieval.</li>
+<li>Added mask type support in tile attributes.</li>
 <li>New settings window, allowing configuring WapMap for different games.</li>
 <li>New easy editor for decoration elements.</li>
 <li>New easy editor for elevators.</li>
 <li>New easy editor for floor spikes / saw blade.</li>
 <li>Enhanced easy editor for checkpoints.</li>
 <li>Enhanced easy editor for crab nests.</li>
+<li>Enabled line thickness slider in pencil tool's line options.</li>
 <li>Allowed editing WaterRock logic with spring boards easy editor.</li>
 <li>Allowed creating empty crates in crate easy editor.</li>
 <li>Allowed closing current tool in tile mode / other open windows with escape key.</li>
 <li>Allowed opening MDI context menu at any position, not just on the tabs (so you can reopen closed tab even if you closed last one).</li>
-<li>Added hotkey for toggling invert flag(I). Allowed using M/I keys while easy editor is open.</li>
+<li>Added hotkey for toggling invert flag (I). Allowed using M/I keys while easy editor is open.</li>
 <li>Added hotkeys for saving (CTRL + S), saving as (CTRL + SHIFT + S) and closing (CTRL + W) current document tab.</li>
 <li>Added hotkey for reopening last closed (CTRL + SHIFT + T) document tab and creating new one (CTRL + N).</li>
 <li>Added hotkey for duplicating selected objects once (CTRL + D) or multiple times (ALT + D).</li>
@@ -32,6 +34,7 @@
 <li>Removed unused fields from map settings window.</li>
 <li>Rearranged object properties, removing additional flags section (not used by Claw engine).</li>
 <li>Rearranged tile properties, removed unused picker button.</li>
+<li>Changed minimum supported height from 768 to 600.</li>
 <li>Minor changes / fixes to object brush / duplicate window. Added option to recalculate rects when appliable.</li>
 <li>Fixes and improvements to tiles text edit(auto selecting next tile, F for filled tile...).</li>
 <li>Fixed bug with command menu "Z coordinate" option opening logic editor / crashing.</li>
@@ -65,6 +68,9 @@
 <li>Fixed tile selection staying after tool switch.</li>
 <li>Fixed multiple problems with tile / brush picker (scroll issues, brush options, brush reloading). Removed unused buttons from brush picker.</li>
 <li>Fixed multiple problems with layers resizing. Added recalculating rects with prompt when appliable.</li>
+<li>Fixed rendering order not changed after selecting options from Z-order context menu for multiple objects (thanks Thanos).</li>
+<li>Fixed scrolls in object imageset picker (thanks Pejti).</li>
+<li>Fixed tile draw preview on repeated layers (thanks Pejti) and other minor tweaks to tile mode tools.</li>
 </ol>
 
 <h2>v0.3.3 (b32)</h2>

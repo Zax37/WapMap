@@ -610,10 +610,10 @@ namespace State {
         SHR::Win *winTileProp;
         SHR::But *buttpPrev, *buttpNext, *buttpZoom, *buttpApply, *buttpShow;//, *buttpPipette;
         SHR::TextField *tftpTileID, *tftpW, *tftpH, *tftpX1, *tftpX2, *tftpY1, *tftpY2;
-        SHR::RadBut *rbtpSingle, *rbtpDouble, *rbtpIn[5], *rbtpOut[5];
+        SHR::RadBut *rbtpSingle, *rbtpDouble, *rbtpMask, *rbtpIn[5], *rbtpOut[5];
         WWD::TileAttrib *hTempAttrib = nullptr;
         bool btpDragDropMask;
-        int itpDDx1, itpDDy1;
+        int itpDDx1, itpDDy1, itpDDx2, itpDDy2;
         int itpSelectedTile;
         bool btpZoomTile;
 
@@ -735,7 +735,7 @@ namespace State {
 
         void FloodFill(int x, int y, int tile);
 
-        void DrawTileAtrib(int tileid, float posx, float posy, float width, float height);
+        void DrawTileAttributes(int tileId, float posX, float posY, float widthMod, float heightMod);
 
         char *ExportObject(WWD::Object *obj);
 
@@ -784,7 +784,7 @@ namespace State {
 
         std::vector<std::pair<int, int> > m_vMeasurePoints;
 
-        void DrawTileAtrib(WWD::TileAttrib *atrib, float posx, float posy, float width, float height);
+        void DrawTileAttributes(WWD::TileAttrib *attrib, float posX, float posY, float widthMod, float heightMod);
 
         std::vector<WWD::Object *> GetObjectsInArea(WWD::Plane *plane, int x, int y, int w, int h);
 

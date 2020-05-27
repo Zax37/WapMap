@@ -11,5 +11,6 @@ void SHR::IconListBox::drawRow(Graphics *graphics, int i) {
     getAbsolutePosition(dx, dy);
 
     unsigned rowHeight = getRowHeight();
+    ((IconListModel*)mListModel)->getIcon(i)->SetColor(SETA(0xffffff, getAlpha()));
     ((IconListModel*)mListModel)->getIcon(i)->Render(dx + 4, dy + i * rowHeight + 8);
 }

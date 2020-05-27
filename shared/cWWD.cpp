@@ -254,20 +254,23 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
     m_hTileAttribs.reserve(attribsCount);
 
     for (int i = 0; i < attribsCount; i++) {
-        m_hTileAttribs.push_back(new TileAttrib());
-        psSource->RINT(m_hTileAttribs[i]->m_iType);
-        if (m_hTileAttribs[i]->m_iType != 1 && m_hTileAttribs[i]->m_iType != 2) {
+        int type;
+        psSource->RINT(type);
+        switch (type) {
+        case AttribType_Single:
+            m_hTileAttribs.push_back(new SingleTileAttrib());
+            break;
+        case AttribType_Double:
+            m_hTileAttribs.push_back(new DoubleTileAttrib());
+            break;
+        case AttribType_Mask:
+            m_hTileAttribs.push_back(new MaskTileAttrib());
+            break;
+        default:
             throw WWD_EXCEPTION(Error_InvalidTileProperty);
         }
-        psSource->seekg(4, std::ios_base::cur);
-        psSource->RINT(m_hTileAttribs[i]->m_iW);
-        psSource->RINT(m_hTileAttribs[i]->m_iH);
-        psSource->RINT(m_hTileAttribs[i]->m_iAtribInside);
-        if (m_hTileAttribs[i]->m_iType == AttribType_Double) {
-            m_hTileAttribs[i]->m_iAtribOutside = m_hTileAttribs[i]->m_iAtribInside;
-            psSource->RINT(m_hTileAttribs[i]->m_iAtribInside);
-            ReadRect(&m_hTileAttribs[i]->m_rMask, psSource);
-        }
+
+        m_hTileAttribs[i]->readFromStream(psSource);
     }
     int at = psSource->tellg();
     psSource->seekg(0, std::ios_base::end);
@@ -292,15 +295,6 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
 void WWD::Parser::CleanStr(char *pszStr, int piSize) {
     for (int i = strlen(pszStr); i < piSize; i++)
         pszStr[i] = '\0';
-}
-
-WWD::TileAttrib::TileAttrib(int pW, int pH, TILE_ATTRIB_TYPE pType, TILE_ATTRIB pIns, TILE_ATTRIB pOut, Rect pMask) {
-    m_iW = pW;
-    m_iH = pH;
-    m_iType = pType;
-    m_iAtribInside = pIns;
-    m_iAtribOutside = pOut;
-    m_rMask = pMask;
 }
 
 void WWD::Parser::CompileToFile(const char *pszFilename, bool pbWithActualDate) {
@@ -426,20 +420,7 @@ void WWD::Parser::CompileToStream(std::iostream *psDestination) {
         psDestination->WLEN(&i, 4);
 
     for (size_t z = 0; z < m_hTileAttribs.size(); z++) {
-        //printf("wr %d@%d|", z, (int)psDestination->tellp());
-        //if( (int)psDestination->tellp() == 188545){
-        //printf("flag is %d (%d)\n", (int)m_hTileAttribs[z].m_iAtribInside, z);
-        //}
-        psDestination->WLEN(&m_hTileAttribs[z]->m_iType, 4);
-        psDestination->WLEN(&i, 4);
-        psDestination->WLEN(&m_hTileAttribs[z]->m_iW, 4);
-        psDestination->WLEN(&m_hTileAttribs[z]->m_iH, 4);
-        if (m_hTileAttribs[z]->m_iType == AttribType_Double) {
-            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribOutside, 4);
-            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribInside, 4);
-            WriteRect(&m_hTileAttribs[z]->m_rMask, psDestination);
-        } else
-            psDestination->WLEN(&m_hTileAttribs[z]->m_iAtribInside, 4);
+        m_hTileAttribs[z]->compileToStream(psDestination);
     }
     if (m_Header.m_iFlags & Flag_w_Compress) {
         //printf("original: 0x%p, uncompressed: 0x%p\n", psTrueDestination, psDestination);
@@ -825,10 +806,6 @@ WWD::Plane::~Plane() {
     delete[] m_hTiles;
 }
 
-WWD::TileAttrib::~TileAttrib() {
-
-}
-
 WWD::Parser::~Parser() {
     for (size_t i = 0; i < m_hPlanes.size(); i++)
         delete m_hPlanes[i];
@@ -1128,19 +1105,6 @@ void WWD::Parser::SetImageSet(int id, const char *npath) {
     strncpy(m_Header.m_szImageSets[id], npath, 128);
 }
 
-WWD::TileAttrib::TileAttrib(TileAttrib *src) {
-    SetTo(src);
-}
-
-void WWD::TileAttrib::SetTo(TileAttrib *src) {
-    m_iW = src->GetW();
-    m_iH = src->GetH();
-    m_iType = src->GetType();
-    m_iAtribInside = src->GetAtribInside();
-    m_iAtribOutside = src->GetAtribOutside();
-    m_rMask = src->GetMask();
-}
-
 WWD::TileAttrib::TileAttrib() {
     m_iW = m_iH = 0;
 }
@@ -1179,51 +1143,129 @@ bool WWD::Rect::Collide(WWD::Rect b) {
     return collide || overlap;
 }
 
-std::vector<WWD::CollisionRect> WWD::TileAttrib::GetColRects() {
-    std::vector<CollisionRect> r;
-    if (GetType() == WWD::AttribType_Single ||
-        GetType() == WWD::AttribType_Double && GetAtribInside() == GetAtribOutside()) {
-        if (GetAtribInside() == WWD::Attrib_Clear) return r;
-        CollisionRect n;
-        n.WWD_CR_TYPE = GetAtribInside();
-        n.WWD_CR_RECT = Rect(0, 0, 63, 63);
-        r.push_back(n);
-        return r;
+std::vector<WWD::TILE_ATTRIB> WWD::SingleTileAttrib::getAttribSummary()
+{
+    return { attrib };
+}
+
+bool WWD::SingleTileAttrib::operator!=(TileAttrib& other)
+{
+    return other.getType() != WWD::AttribType_Single || other.getWidth() != m_iW
+        || other.getHeight() != m_iH || ((WWD::SingleTileAttrib&)other).getAttrib() != attrib;
+}
+
+void WWD::SingleTileAttrib::readFromStream(std::istream *psSource) {
+    psSource->seekg(4, std::ios_base::cur);
+    psSource->RINT(m_iW);
+    psSource->RINT(m_iH);
+    psSource->RINT(attrib);
+}
+
+void WWD::SingleTileAttrib::compileToStream(std::iostream *psDestination) {
+    int temp = WWD::AttribType_Single;
+    psDestination->WLEN(&temp, 4);
+    temp = 0;
+    psDestination->WLEN(&temp, 4);
+    psDestination->WLEN(&m_iW, 4);
+    psDestination->WLEN(&m_iH, 4);
+    psDestination->WLEN(&attrib, 4);
+}
+
+std::vector<WWD::TILE_ATTRIB> WWD::DoubleTileAttrib::getAttribSummary()
+{
+    return { m_iAttribOutside, m_iAttribInside };
+}
+
+std::vector<WWD::TILE_ATTRIB> WWD::MaskTileAttrib::getAttribSummary()
+{
+    std::set<WWD::TILE_ATTRIB> set;
+    for (int i = 0; i < size; ++i) {
+        set.insert(data[i]);
     }
-    if (GetAtribInside() != WWD::Attrib_Clear) {
-        CollisionRect n;
-        n.WWD_CR_TYPE = GetAtribInside();
-        n.WWD_CR_RECT = GetMask();
-        r.push_back(n);
+    return std::vector<WWD::TILE_ATTRIB>(set.begin(), set.end());
+}
+
+WWD::MaskTileAttrib::~MaskTileAttrib()
+{
+    delete[] data;
+}
+
+bool WWD::MaskTileAttrib::operator!=(TileAttrib& other)
+{
+    if (other.getType() != WWD::AttribType_Mask || other.getWidth() != m_iW || other.getHeight() != m_iH)
+        return true;
+    
+    MaskTileAttrib& o = (MaskTileAttrib&)other;
+
+    auto otherData = o.getData();
+    for (int i = 0; i < size; ++i) {
+        if (otherData[i] != data[i])
+            return true;
     }
-    if (GetAtribOutside() != WWD::Attrib_Clear) {
-        Rect mask = GetMask();
-        if (mask.y1 != 0) {
-            CollisionRect n;
-            n.WWD_CR_TYPE = GetAtribOutside();
-            n.WWD_CR_RECT = Rect(0, 0, 63, mask.y1);
-            r.push_back(n);
-        }
-        if (mask.x1 != 0) {
-            CollisionRect n;
-            n.WWD_CR_TYPE = GetAtribOutside();
-            n.WWD_CR_RECT = Rect(0, 0, mask.x1, 63);
-            r.push_back(n);
-        }
-        if (mask.y2 != 63) {
-            CollisionRect n;
-            n.WWD_CR_TYPE = GetAtribOutside();
-            n.WWD_CR_RECT = Rect(0, mask.y2, 63, 63);
-            r.push_back(n);
-        }
-        if (mask.x2 != 63) {
-            CollisionRect n;
-            n.WWD_CR_TYPE = GetAtribOutside();
-            n.WWD_CR_RECT = Rect(mask.x2, 0, 63, 63);
-            r.push_back(n);
+    return false;
+}
+
+void WWD::MaskTileAttrib::setArea(int x1, int y1, int x2, int y2, WWD::TILE_ATTRIB attrib)
+{
+    int i = y1 * m_iW + x1;
+    for (int y = y1; y <= y2; ++y, i += m_iW - (x2 - x1 + 1)) {
+        for (int x = x1; x <= x2; ++x, ++i) {
+            data[i] = attrib;
         }
     }
-    return r;
+}
+
+void WWD::MaskTileAttrib::readFromStream(std::istream *psSource) {
+    psSource->seekg(4, std::ios_base::cur);
+    psSource->RINT(m_iW);
+    psSource->RINT(m_iH);
+    size = m_iW * m_iH;
+    int sizeFactor = 0;
+    for (int h = m_iH; h > 1; ++sizeFactor) h >>= 1;
+    if (1 << sizeFactor != m_iW) throw WWD_EXCEPTION(Error_InvalidTileProperty);
+    data = new TILE_ATTRIB[size];
+    psSource->RLEN(data, size);
+}
+
+void WWD::MaskTileAttrib::compileToStream(std::iostream *psDestination) {
+    int temp = WWD::AttribType_Mask;
+    psDestination->WLEN(&temp, 4);
+    temp = 0;
+    psDestination->WLEN(&temp, 4);
+    psDestination->WLEN(&m_iW, 4);
+    psDestination->WLEN(&m_iH, 4);
+    psDestination->WLEN(data, size);
+}
+
+bool WWD::DoubleTileAttrib::operator!=(TileAttrib& other)
+{
+    return other.getType() != WWD::AttribType_Double || other.getWidth() != m_iW
+        || other.getHeight() != m_iH || ((WWD::DoubleTileAttrib&)other).getInsideAttrib() != m_iAttribInside
+        || ((WWD::DoubleTileAttrib&)other).getOutsideAttrib() != m_iAttribOutside || ((WWD::DoubleTileAttrib&)other).getMask() != m_rMask;
+}
+
+void WWD::DoubleTileAttrib::readFromStream(std::istream *psSource) {
+    psSource->seekg(4, std::ios_base::cur);
+    psSource->RINT(m_iW);
+    psSource->RINT(m_iH);
+    psSource->RINT(m_iAttribOutside);
+    psSource->RINT(m_iAttribInside);
+    psSource->RINT(m_rMask.x1);
+    psSource->RINT(m_rMask.y1);
+    psSource->RINT(m_rMask.x2);
+    psSource->RINT(m_rMask.y2);
+}
+
+void WWD::DoubleTileAttrib::compileToStream(std::iostream *psDestination) {
+    int temp = WWD::AttribType_Double;
+    psDestination->WLEN(&temp, 4);
+    temp = 0;
+    psDestination->WLEN(&temp, 4);
+    psDestination->WLEN(&m_iW, 4);
+    psDestination->WLEN(&m_iH, 4);
+    psDestination->WLEN(&m_iAttribOutside, 4);
+    psDestination->WLEN(&m_iAttribInside, 4);
+    psDestination->WLEN(&m_rMask.x1, 16);
 }
 
 WWD::Tile &WWD::Tile::operator=(const WWD::Tile &src) {
@@ -1246,7 +1288,7 @@ bool WWD::Tile::operator!=(const WWD::Tile &src) {
     return !(*this == src);
 }
 
-void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
+void WWD::Plane::Resize(int nw, int nh, int ox, int oy, bool creating) {
     int s = nw * nh;
     Tile * newt = new Tile[s];
 
@@ -1267,8 +1309,6 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
             GetUserDataFromObj(GV->editState->hStartingPosObj)->SyncToObj();
             GV->editState->hParser->SetStartX(startX);
             GV->editState->hParser->SetStartY(startY);
-            GV->editState->MarkUnsaved();
-            GV->editState->vPort->MarkToRedraw(true);
         }
 
         int i = 0, y = 0;
@@ -1333,6 +1373,11 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy) {
     m_Header.m_iH = nh;
     m_Header.m_iWpx = m_Header.m_iW * m_Header.m_iTileW;
     m_Header.m_iHpx = m_Header.m_iH * m_Header.m_iTileH;
+
+    if (!creating) {
+        GV->editState->MarkUnsaved();
+        GV->editState->vPort->MarkToRedraw(true);
+    }
 }
 
 void WWD::Plane::ResizeAnchor(int nw, int nh, int anchor) {
@@ -1433,12 +1478,31 @@ void WWD::Plane::ClearImageSets() {
     m_vImageSets.clear();
 }
 
+void WWD::Parser::SetTileAttribs(int piTile, TileAttrib* htaAttribs)
+{
+    if (*m_hTileAttribs[piTile] != *htaAttribs) {
+        delete m_hTileAttribs[piTile];
+        switch (htaAttribs->getType()) {
+        case WWD::AttribType_Single:
+            m_hTileAttribs[piTile] = new WWD::SingleTileAttrib((WWD::SingleTileAttrib*)htaAttribs);
+            break;
+        case WWD::AttribType_Double:
+            m_hTileAttribs[piTile] = new WWD::DoubleTileAttrib((WWD::DoubleTileAttrib*)htaAttribs);
+            break;
+        case WWD::AttribType_Mask:
+            m_hTileAttribs[piTile] = new WWD::MaskTileAttrib((WWD::MaskTileAttrib*)htaAttribs);
+            break;
+        }
+        GV->editState->MarkUnsaved();
+    }
+}
+
 void WWD::Parser::SetTileAttribsCount(int i) {
     if (i == m_hTileAttribs.size()) return;
     if (i > m_hTileAttribs.size()) {
         int num = i - m_hTileAttribs.size();
         for (int x = 0; x < num; x++)
-            m_hTileAttribs.push_back(new TileAttrib(64, 64, AttribType_Single, Attrib_Clear));
+            m_hTileAttribs.push_back(nullptr);
         return;
     }
     int num = m_hTileAttribs.size() - i;

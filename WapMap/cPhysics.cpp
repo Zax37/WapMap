@@ -32,7 +32,7 @@ void cPhysicWorld::CompileTiles() {
             assigned[y * width + x] = 0;
         }
 
-    for (int y = 0; y < height; y++)
+    /*for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
             if (assigned[y * width + x]) continue;
             WWD::Tile* tile = hPl->GetTile(x, y);
@@ -117,7 +117,7 @@ void cPhysicWorld::CompileTiles() {
                     }
                 }
             }
-        }
+        }*/
     delete[] assigned;
 }
 

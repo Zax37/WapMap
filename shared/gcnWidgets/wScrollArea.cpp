@@ -344,7 +344,9 @@ namespace SHR {
 
     void ScrollArea::drawBackground(Graphics *graphics) {
         if (isOpaque()) {
-            graphics->setColor(getBackgroundColor());
+            Color color(getBackgroundColor());
+            color.a = getAlpha();
+            graphics->setColor(color);
             graphics->fillRectangle(getChildrenArea());
         }
     }

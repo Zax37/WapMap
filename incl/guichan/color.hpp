@@ -75,6 +75,7 @@ namespace gcn
          * @param color The color to initialise the object with.
          */
         Color(int color);
+        Color(int color, unsigned char alpha);
 
         /**
          * Constructor. The default alpha value is 255.

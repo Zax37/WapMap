@@ -118,9 +118,8 @@ namespace SHR {
     void But::draw(Graphics *graphics) {
         UpdateTooltip(mHasMouse);
 
-        if ((isPressed() || bBlinkState) && fTimer < 0.3f) {
-            fTimer += hge->Timer_GetDelta();
-            if (fTimer > 0.3f) fTimer = 0.3f;
+        if (isPressed() || bBlinkState) {
+            if ((fTimer += hge->Timer_GetDelta()) > 0.3f) fTimer = 0.3f;
         } else if (!(isPressed() || bBlinkState) && fTimer > 0.2f) {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.2f) fTimer = 0.2f;

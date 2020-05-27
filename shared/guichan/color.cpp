@@ -62,6 +62,13 @@ namespace gcn {
               a(255) {
     }
 
+    Color::Color(int color, unsigned char alpha)
+            : r((color >> 16) & 0xFF),
+              g((color >> 8) & 0xFF),
+              b(color & 0xFF),
+              a(alpha) {
+    }
+
     Color::Color(int ar, int ag, int ab, int aa)
             : r(ar),
               g(ag),

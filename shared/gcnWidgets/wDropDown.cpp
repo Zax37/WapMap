@@ -97,15 +97,14 @@ namespace SHR {
         highlightColor.a = alpha;
         shadowColor = faceColor - 0x303030;
         shadowColor.a = alpha;
+        alpha = getAlpha();
 
         ClipRectangle rect = graphics->getCurrentClipArea();
         int x, y;
         getAbsolutePosition(x, y);
 
-        //hge->Gfx_SetClipping();
-        /* hGfx->sprButDDL->RenderStretch(x, y, x+3, y+h);
-         hGfx->sprButDDC->RenderStretch(x+3, y, x+getWidth()-26, y+h);
-         hGfx->sprButDDR->RenderStretch(x+getWidth()-26, y, x+getWidth(), y+h);*/
+        for (auto & dropDownBar : _ghGfxInterface->sprDropDownBar)
+            dropDownBar->SetColor(SETA(0xFFFFFFFF, alpha));
 
         _ghGfxInterface->sprDropDownBar[0]->Render(x, y);
         _ghGfxInterface->sprDropDownBar[1]->RenderStretch(x + 13, y, x + getWidth() - 20, y + h);
@@ -137,30 +136,28 @@ namespace SHR {
             _ghGfxInterface->sprDropDownButtonFocused->Render(x + getWidth() - 21, y);
         }
 
-        _ghGfxInterface->sprDropDownBarArrow->SetColor(isEnabled() ? 0xFFFFFFFF : 0xFF5e5e5e);
+        _ghGfxInterface->sprDropDownBarArrow->SetColor(SETA(isEnabled() ? 0xFFFFFFFF : 0xFF5e5e5e, alpha));
         _ghGfxInterface->sprDropDownBarArrow->SetFlip(0, mDroppedDown);
         _ghGfxInterface->sprDropDownBarArrow->Render(x + getWidth() - 16, y + 7);
 
         // Push a clip area so the other drawings don't need to worry
         // about the border.
         graphics->pushClipArea(gcn::Rectangle(1, 1, getWidth() - 2, h - 2));
-        //hge->Gfx_SetClipping();
         const gcn::Rectangle currentClipArea = graphics->getCurrentClipArea();
 
         if (mListBox->getListModel()
             && mListBox->getSelected() >= 0) {
-            graphics->setColor(isEnabled() ? 0xa1a1a1 : 0x5e5e5e);
+            graphics->setColor(SETA(isEnabled() ? 0xa1a1a1 : 0x5e5e5e, alpha));
             graphics->setFont(getFont());
 
             graphics->drawText(mListBox->getListModel()->getElementAt(mListBox->getSelected()), 5, 0);
         }
 
-        //drawButton(graphics);
         graphics->popClipArea();
 
         if (mDroppedDown) {
             // Draw a border around the children.
-            graphics->setColor(0x000000);
+            graphics->setColor(SETA(0x000000, alpha));
             graphics->drawRectangle(gcn::Rectangle(0,
                                                    mFoldedUpHeight,
                                                    getWidth(),
