@@ -80,9 +80,9 @@ namespace State {
             return ret;
         } else if (m_iType == LMODEL_TILETYPE) {
             if (i == 0)
-                return GETL(Lang_AtribSingle);
+                return GETL(Lang_AttribSingle);
             else
-                return GETL(Lang_AtribDouble);
+                return GETL(Lang_AttribDouble);
         } else if (m_iType == LMODEL_TILEATRIB) {
             switch (i) {
                 case 0:
