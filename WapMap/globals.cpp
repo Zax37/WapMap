@@ -72,6 +72,15 @@ void cGlobals::UpdateMemUsage()
 }
 #endif
 
+void cGlobals::GetDesktopResolution(int& horizontal, int& vertical)
+{
+    RECT desktop;
+    const HWND hDesktop = GetDesktopWindow();
+    GetWindowRect(hDesktop, &desktop);
+    horizontal = desktop.right;
+    vertical = desktop.bottom;
+}
+
 cGlobals::cGlobals() {
 #ifdef SHOWMEMUSAGE
     fMemUsageTimer = 0.0f;
@@ -151,40 +160,55 @@ cGlobals::cGlobals() {
 
     {
         std::vector<SHR::DisplayMode> disp = SHR::GetDisplayModes();
-        int w = std::stoi(ini->GetValue("WapMap", "DisplayWidth", "1024")),
-            h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", "768"));
-        int smallw = 10000, smallh = 10000;
-        bool ok = 0, defok = 0;
-        for (int i = 0; i < disp.size(); i++) {
-            if (disp[i].iWidth < 1024 || disp[i].iHeight < 600) continue;
-            if (disp[i].iWidth * disp[i].iHeight < smallw * smallh) {
-                smallw = disp[i].iWidth;
-                smallh = disp[i].iHeight;
+        int w = std::stoi(ini->GetValue("WapMap", "DisplayWidth", STR(DEF_SCREEN_WIDTH))),
+            h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", STR(DEF_SCREEN_HEIGHT)));
+
+        int horizontal, vertical;
+        GetDesktopResolution(horizontal, vertical);
+        bFirstRun = atoi(ini->GetValue("WapMap", "FirstRun", "1"));
+
+        if (MIN_SUPPORTED_SCREEN_WIDTH > horizontal || MIN_SUPPORTED_SCREEN_HEIGHT > vertical) {
+            if (w != horizontal || h != vertical) {
+                w = horizontal;
+                h = vertical;
+                MessageBoxA(0, Lang->GetString("Strings", Lang_SmallScreenWarning_Message), Lang->GetString("Strings", Lang_SmallScreenWarning_Title), 0);
             }
-            if (disp[i].iWidth == w && disp[i].iHeight == h && disp[i].iDepth == 32)
-                ok = 1;
-            if (disp[i].iWidth == 1024 && disp[i].iHeight == 768 && disp[i].iDepth == 32)
-                defok = 1;
-            if (defok && ok)
-                break;
-        }
-        if (!ok && !defok) {
-            Console->Printf("~r~Settings and default display mode are unsupported, trying smallest %dx%d...~w~", smallw,
-                            smallh);
-            w = smallw;
-            h = smallh;
-        }
-        if (!ok) {
-            Console->Printf("~r~Settings display mode is unsupported, running in default 1024x768 mode.~w~");
-            w = 1024;
-            h = 768;
         } else {
-            Console->Printf("~g~Settings display mode valid; running in %dx%d mode.", w, h);
+            int smallw = 10000, smallh = 10000;
+            bool ok = 0, defok = 0;
+            for (int i = 0; i < disp.size(); i++) {
+                if (disp[i].iWidth < MIN_SUPPORTED_SCREEN_WIDTH || disp[i].iHeight < MIN_SUPPORTED_SCREEN_HEIGHT
+                    || disp[i].iWidth > horizontal || disp[i].iHeight > vertical) continue;
+                if (disp[i].iWidth * disp[i].iHeight < smallw * smallh) {
+                    smallw = disp[i].iWidth;
+                    smallh = disp[i].iHeight;
+                }
+                if (disp[i].iWidth == w && disp[i].iHeight == h && disp[i].iDepth == 32)
+                    ok = 1;
+                if (disp[i].iWidth == DEF_SCREEN_WIDTH && disp[i].iHeight == DEF_SCREEN_HEIGHT && disp[i].iDepth == 32)
+                    defok = 1;
+                if (defok && ok)
+                    break;
+            }
+
+            if (ok) {
+                Console->Printf("~g~Settings display mode valid; running in %dx%d mode.", w, h);
+            } else {
+                if (defok) {
+                    Console->Printf("~r~Settings display mode is unsupported, running in default " STR(DEF_SCREEN_WIDTH) "x" STR(DEF_SCREEN_HEIGHT) " mode.~w~");
+                    w = DEF_SCREEN_WIDTH;
+                    h = DEF_SCREEN_HEIGHT;
+                } else {
+                    Console->Printf("~r~Settings and default display mode are unsupported, trying smallest %dx%d...~w~", smallw, smallh);
+                    w = smallw;
+                    h = smallh;
+                }
+            }
         }
+        
         iScreenW = w;
         iScreenH = h;
 
-        bFirstRun = atoi(ini->GetValue("WapMap", "FirstRun", "1"));
         if (bFirstRun) {
             ini->SetValue("WapMap", "Language", lang);
             ini->SetValue("WapMap", "FirstRun", "0");

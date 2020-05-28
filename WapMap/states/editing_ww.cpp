@@ -280,11 +280,9 @@ void State::EditingWW::Init() {
     hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
 
     {
-        int w = atoi(GV->ini->GetValue("CrazyHook", "DisplayWidth", "1024")),
-            h = atoi(GV->ini->GetValue("CrazyHook", "DisplayHeight", "768"));
-        if (w == -1 && h == -1) {
-
-        } else {
+        int w = atoi(GV->ini->GetValue("CrazyHook", "DisplayWidth", "-1")),
+            h = atoi(GV->ini->GetValue("CrazyHook", "DisplayHeight", "-1"));
+        if (w != -1 && h != -1) {
             std::vector<SHR::DisplayMode> modes = SHR::GetDisplayModes();
             bool bfound = 0;
             for (size_t i = 0; i < modes.size(); i++)

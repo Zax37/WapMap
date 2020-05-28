@@ -354,6 +354,14 @@ enum Gfx128Icons {
     Icon128_WhatsNew
 };
 
+#define STR_IMPL_(x) #x      //stringify argument
+#define STR(x) STR_IMPL_(x)  //indirection to expand argument macros
+#define MIN_SUPPORTED_SCREEN_WIDTH 1024
+#define MIN_SUPPORTED_SCREEN_HEIGHT 600
+#define DEF_SCREEN_WIDTH 1024
+#define DEF_SCREEN_HEIGHT 768
+#define DEF_SCREEN_WIDTH_STR #DEF_SCREEN_WIDTH
+
 int Console_Panic(lua_State *L);
 
 class cGlobals {
@@ -363,6 +371,7 @@ public:
     ~cGlobals();
 
     void Init();
+    void GetDesktopResolution(int& horizontal, int& vertical);
 
     HTEXTURE texMain;
     HTEXTURE texLevels;

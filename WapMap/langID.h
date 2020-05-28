@@ -286,7 +286,9 @@ enum LangID {
     Lang_SelFromList,
     Lang_NewObjectCtx,
     Lang_ModeTile,
-    Lang_ModeObject
+    Lang_ModeObject,
+    Lang_SmallScreenWarning_Title,
+    Lang_SmallScreenWarning_Message
 };
 
 enum LangTooltipID {

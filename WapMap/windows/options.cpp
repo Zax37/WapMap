@@ -14,10 +14,16 @@ cListModelDisplay::cListModelDisplay(bool bCrazyHook) {
         const char *cptr = GETL2S("Options", "Default");
         m_vOpt.push_back(std::string(cptr));
     }
+
+    int horizontal, vertical;
+    GV->GetDesktopResolution(horizontal, vertical);
     std::vector<SHR::DisplayMode> displays = SHR::GetDisplayModes();
+
     for (int i = 0; i < displays.size(); i++) {
         if (displays[i].iDepth == 32 && ((bCrazyHook && displays[i].iWidth >= 640 && displays[i].iHeight >= 480) ||
-                                         (!bCrazyHook && displays[i].iWidth >= 1024 && displays[i].iHeight >= 768))) {
+                                        (!bCrazyHook && displays[i].iWidth >= MIN_SUPPORTED_SCREEN_WIDTH
+                                                     && displays[i].iHeight >= MIN_SUPPORTED_SCREEN_HEIGHT))
+                                        && (bCrazyHook || (displays[i].iWidth <= horizontal && displays[i].iHeight <= vertical))) {
             char tmp[256];
             sprintf(tmp, "%dx%d", displays[i].iWidth, displays[i].iHeight);
             bool already = 0;
@@ -29,6 +35,18 @@ cListModelDisplay::cListModelDisplay(bool bCrazyHook) {
             if (already) continue;
             m_vOpt.push_back(std::string(tmp));
         }
+    }
+
+    if (!bCrazyHook) {
+        std::string screenRes = std::to_string(horizontal) + 'x' + std::to_string(vertical);
+
+        bool already = 0;
+        for (int x = 0; x < m_vOpt.size(); x++)
+            if (screenRes == m_vOpt[x]) {
+                already = 1;
+                break;
+            }
+        if (!already) m_vOpt.push_back(screenRes);
     }
 }
 
@@ -97,13 +115,6 @@ winOptions::winOptions() {
             } while (FindNextFile(hFind, &fdata) != 0);
         }
 
-        for (int i = 0; i < lmLang->getNumberOfElements(); i++) {
-            if (!strcmp(lmLang->getElementAt(i).c_str(), GV->Lang->GetName())) {
-                ddoptLang->setSelected(i);
-                break;
-            }
-        }
-
         yOffset += 22;
 
         labChangesLang = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
@@ -126,17 +137,6 @@ winOptions::winOptions() {
         ddoptRes->adjustHeight();
         conWapMap->add(ddoptRes, xOffset + 130, yOffset - 1);
 
-        {
-            char actres[64];
-            sprintf(actres, "%dx%d", GV->iScreenW, GV->iScreenH);
-            for (int i = 0; i < ddoptRes->getListModel()->getNumberOfElements(); i++) {
-                if (!strcmp(ddoptRes->getListModel()->getElementAt(i).c_str(), actres)) {
-                    ddoptRes->setSelected(i);
-                    break;
-                }
-            }
-        }
-
         yOffset += 22;
 
         labChangesRes = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
@@ -150,21 +150,18 @@ winOptions::winOptions() {
         cbOptionsAlfaHigherPlanes = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AlphaOverlapping));
         cbOptionsAlfaHigherPlanes->adjustSize();
         cbOptionsAlfaHigherPlanes->addActionListener(this);
-        cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
         conWapMap->add(cbOptionsAlfaHigherPlanes, xOffset, yOffset);
 
         yOffset += 25;
 
         cboptSmoothZooming = new SHR::CBox(GV->hGfxInterface, GETL(Lang_UseSmoothZooming));
         cboptSmoothZooming->adjustSize();
-        cboptSmoothZooming->setSelected(GV->bSmoothZoom);
         conWapMap->add(cboptSmoothZooming, xOffset, yOffset);
 
         yOffset += 25;
 
         cboptAutoUpdate = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AutoUpdate));
         cboptAutoUpdate->adjustSize();
-        cboptAutoUpdate->setSelected(GV->bAutoUpdate);
         conWapMap->add(cboptAutoUpdate, xOffset, yOffset);
     }
     optionsForCategory.push_back(conWapMap);
@@ -230,40 +227,20 @@ winOptions::winOptions() {
 
         yOffset += 30;
 
-        {
-            char actres[64];
-            int w, h;
-            GV->editState->hNativeController->GetDisplayResolution(&w, &h);
-            if (w == -1 && h == -1) {
-                ddoptGameRes->setSelected(0);
-            } else {
-                sprintf(actres, "%dx%d", w, h);
-                for (int i = 0; i < ddoptGameRes->getListModel()->getNumberOfElements(); i++) {
-                    if (!strcmp(ddoptGameRes->getListModel()->getElementAt(i).c_str(), actres)) {
-                        ddoptGameRes->setSelected(i);
-                        break;
-                    }
-                }
-            }
-        }
-
         cboptCrazyHookDebugInfo = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "DebugInf"));
         cboptCrazyHookDebugInfo->adjustSize();
-        cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
         conClaw->add(cboptCrazyHookDebugInfo, xOffset, yOffset);
 
         yOffset += 25;
 
         cboptCrazyHookGodMode = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "GodMode"));
         cboptCrazyHookGodMode->adjustSize();
-        cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
         conClaw->add(cboptCrazyHookGodMode, xOffset, yOffset);
 
         yOffset += 25;
 
         cboptCrazyHookArmor = new SHR::CBox(GV->hGfxInterface, GETL2S("Options", "ArmorMode"));
         cboptCrazyHookArmor->adjustSize();
-        cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
         conClaw->add(cboptCrazyHookArmor, xOffset, yOffset);
     }
 
@@ -346,10 +323,53 @@ void winOptions::Open(WWD::GAME game) {
     for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
         optionsForCategory[i]->setVisible(game == i);
     }
+
+    std::string lang(GV->Lang->GetName()), res = std::to_string(GV->iScreenW) + 'x' + std::to_string(GV->iScreenH);
+    for (int i = 0; i < lmLang->getNumberOfElements(); ++i) {
+        if (lmLang->getElementAt(i) == lang) {
+            ddoptLang->setSelected(i);
+            break;
+        }
+    }
+    labChangesLang->setVisible(false);
+    for (int i = 0; i < ddoptRes->getListModel()->getNumberOfElements(); ++i) {
+        if (ddoptRes->getListModel()->getElementAt(i) == res) {
+            ddoptRes->setSelected(i);
+            break;
+        }
+    }
+    labChangesRes->setVisible(false);
+    cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
+    cboptSmoothZooming->setSelected(GV->bSmoothZoom);
+    cboptAutoUpdate->setSelected(GV->bAutoUpdate);
+
+    for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
+        pathTextFields[i - WWD::Games_First]->setText(GV->gamePaths[i]);
+    }
+    UpdatedClawExePath(true);
+
+    int w, h;
+    GV->editState->hNativeController->GetDisplayResolution(&w, &h);
+    if (w == -1 && h == -1) {
+        ddoptGameRes->setSelected(0);
+    } else {
+        res = std::to_string(w) + 'x' + std::to_string(h);
+        for (int i = 0; i < ddoptGameRes->getListModel()->getNumberOfElements(); i++) {
+            if (ddoptGameRes->getListModel()->getElementAt(i) == res) {
+                ddoptGameRes->setSelected(i);
+                break;
+            }
+        }
+    }
+
+    cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
+    cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
+    cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
 }
 
 void winOptions::Close() {
     myWin->setVisible(false);
+    GV->editState->hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
 }
 
 void winOptions::SyncWithExe() {
@@ -388,7 +408,6 @@ void winOptions::PickAndSetGameLocation(WWD::GAME game) {
     ofn.lpstrInitialDir = GV->szLastOpenPath;
     if (GetOpenFileName(&ofn) != 0) {
         char *path = SHR::GetDir(szFileopen);
-        GV->gamePaths[game] = path;
         pathTextFields[game - WWD::Games_First]->setText(path, true);
         GV->SetLastOpenPath(path);
         delete[] path;
@@ -396,7 +415,9 @@ void winOptions::PickAndSetGameLocation(WWD::GAME game) {
 }
 
 void winOptions::action(const ActionEvent &actionEvent) {
-    if (actionEvent.getSource() == settingsCategoriesList) {
+    if (actionEvent.getSource() == myWin) {
+        Close();
+    } else if (actionEvent.getSource() == settingsCategoriesList) {
         for (int i = 0; i < optionsForCategory.size(); ++i) {
             optionsForCategory[i]->setVisible(settingsCategoriesList->getSelected() == i);
         }
@@ -470,26 +491,7 @@ void winOptions::action(const ActionEvent &actionEvent) {
         GV->ini->SaveFile("settings.cfg");
         Close();
     } else if (actionEvent.getSource() == pathTextFields[WWD::Game_Claw - WWD::Games_First]) {
-        if (!GV->editState->hNativeController->IsValid() ||
-            GV->editState->hNativeController->GetPath() != pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText())
-            GV->editState->hNativeController->SetPath(pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText());
-        bool b = GV->editState->hNativeController->IsValid() && GV->editState->hNativeController->IsCrazyHookAvailable();
-        cboptCrazyHookDebugInfo->setEnabled(b);
-        cboptCrazyHookGodMode->setEnabled(b);
-        cboptCrazyHookArmor->setEnabled(b);
-        labCrazyHookSettings->setCaption(GETL2S("Options", (b ? "CrazyHook" : "CrazyHookNotFound")));
-        labCrazyHookSettings->adjustSize();
-        ddoptGameRes->setEnabled(b);
-
-        labGameRes->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
-        labCrazyHookSettings->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
-
-        if (GV->editState->hNativeController->IsValid()) {
-            labVersion->setCaption(std::string(GETL2S("Options", "DetectedVer")) + " " +
-                                   GV->editState->hNativeController->GetVersionStr());
-            labVersion->adjustSize();
-        }
-        labVersion->setVisible(GV->editState->hNativeController->IsValid());
+        UpdatedClawExePath();
     } else for (int i = 0; i < WWD::Games_Count; ++i) {
         if (actionEvent.getSource() == butPath[i]) {
             PickAndSetGameLocation((WWD::GAME)(i + WWD::Games_First));
@@ -511,5 +513,29 @@ hgeSprite *winOptions::getIcon(int i) {
         return GV->sprIcons[Icon_WapMap];
     } else {
         return GV->sprGamesBig[i];
+    }
+}
+
+void winOptions::UpdatedClawExePath(bool forceDetect) {
+    if (forceDetect || !GV->editState->hNativeController->IsValid() ||
+        GV->editState->hNativeController->GetPath() != pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText())
+        GV->editState->hNativeController->SetPath(pathTextFields[WWD::Game_Claw - WWD::Games_First]->getText());
+    bool b = GV->editState->hNativeController->IsValid() && GV->editState->hNativeController->IsCrazyHookAvailable();
+    cboptCrazyHookDebugInfo->setEnabled(b);
+    cboptCrazyHookGodMode->setEnabled(b);
+    cboptCrazyHookArmor->setEnabled(b);
+    labCrazyHookSettings->setCaption(GETL2S("Options", (b ? "CrazyHook" : "CrazyHookNotFound")));
+    labCrazyHookSettings->adjustSize();
+    ddoptGameRes->setEnabled(b);
+
+    labGameRes->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
+
+    if (GV->editState->hNativeController->IsValid()) {
+        labVersion->setCaption(std::string(GETL2S("Options", "DetectedVer")) + " " +
+                               GV->editState->hNativeController->GetVersionStr());
+        labVersion->adjustSize();
+        labVersion->setVisible(true);
+    } else {
+        labVersion->setVisible(false);
     }
 }

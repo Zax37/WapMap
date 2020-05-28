@@ -274,6 +274,7 @@ namespace SHR {
             if (desty + vElements[n]->GetCascade()->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
                 vElements[n]->GetCascade()->setY(desty - vElements[n]->GetCascade()->getHeight() + iRowHeight);
             vElements[n]->GetCascade()->requestMoveToTop();
+            vElements[n]->GetCascade()->bHide = false;
         }
         bool dist = (iSelectedIt != n);
         iSelected = vElements[n]->GetID();

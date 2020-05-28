@@ -34,7 +34,7 @@
 <li>Removed unused fields from map settings window.</li>
 <li>Rearranged object properties, removing additional flags section (not used by Claw engine).</li>
 <li>Rearranged tile properties, removed unused picker button.</li>
-<li>Changed minimum supported height from 768 to 600.</li>
+<li>Changed minimum supported resolution height from 768 to 600. Added warning for resolutions below minimal supported size.</li>
 <li>Minor changes / fixes to object brush / duplicate window. Added option to recalculate rects when appliable.</li>
 <li>Fixes and improvements to tiles text edit(auto selecting next tile, F for filled tile...).</li>
 <li>Fixed bug with command menu "Z coordinate" option opening logic editor / crashing.</li>
@@ -71,6 +71,7 @@
 <li>Fixed rendering order not changed after selecting options from Z-order context menu for multiple objects (thanks Thanos).</li>
 <li>Fixed scrolls in object imageset picker (thanks Pejti).</li>
 <li>Fixed tile draw preview on repeated layers (thanks Pejti) and other minor tweaks to tile mode tools.</li>
+<li>Fixed settings staying changed even after closing the window without saving them.</li>
 </ol>
 
 <h2>v0.3.3 (b32)</h2>

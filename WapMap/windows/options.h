@@ -64,6 +64,8 @@ public:
 
     void SyncWithExe();
 
+    void UpdatedClawExePath(bool forceDetect = false);
+
     void PickAndSetGameLocation(WWD::GAME);
 
     std::string getElementAt(int i) override;

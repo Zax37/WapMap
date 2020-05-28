@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <hge.h>
 #include "globals.h"
+#include <filesystem>
 
 extern HGE *hge;
 
@@ -12,7 +13,7 @@ cNativeController::cNativeController() {
     iVersion[0] = iVersion[1] = iVersion[2] = -1;
     iDisplayW = iDisplayH = -1;
     bGod = bArmor = bDebug = 0;
-    strVersion = std::string("");
+    strVersion = "";
 }
 
 cNativeController::cNativeController(std::string strPath) {
@@ -29,11 +30,12 @@ bool cNativeController::IsValid() {
 
 bool cNativeController::SetPath(std::string strPath) {
     std::string exepath = strPath + "/claw.exe";
-    FILE *f = fopen(exepath.c_str(), "rb");
-    if (!f) {
+    if (strPath.empty() || !std::filesystem::is_regular_file(exepath)) {
+        strVersion = "";
+        strNativePath = "";
+        bValid = 0;
         return 0;
     }
-    fclose(f);
 
     bool obtained = 0;
 
@@ -58,7 +60,12 @@ bool cNativeController::SetPath(std::string strPath) {
         }
         delete[] verData;
     }
-    if (!obtained) return 0;
+    if (!obtained) {
+        strVersion = "";
+        strNativePath = "";
+        bValid = 0;
+        return 0;
+    }
 
     strNativePath = strPath;
     char tmp[256];

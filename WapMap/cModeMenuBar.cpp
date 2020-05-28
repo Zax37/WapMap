@@ -351,33 +351,33 @@ void cmmbObject::DocumentSwitched() {
 
 void cmmbObject::RebuildContext() {
     conNewObject->ClearElements();
-    conNewObject->AddElement(NOBJCON_PREV, GETL2S("ContextNewObj", "Previous"), GV->sprIcons16[Icon16_Up]);
+    /*conNewObject->AddElement(NOBJCON_PREV, GETL2S("ContextNewObj", "Previous"), GV->sprIcons16[Icon16_Up]);
     if (iContextOffset == 0)
-        conNewObject->GetElementByID(NOBJCON_PREV)->SetEnabled(0);
+        conNewObject->GetElementByID(NOBJCON_PREV)->SetEnabled(0);*/
 
-    int passnum = 10;
-    for (int i = iContextOffset;
-         i < iContextOffset + passnum && i < vContextElements.size();
+    //int passnum = 10;
+    for (int i = 0; //iContextOffset;
+         /*i < iContextOffset + passnum &&*/ i < vContextElements.size();
          i++)
         if (vContextElements[i].hButton->getId() != "OFF")
             conNewObject->AddElement(vContextElements[i].iID, vContextElements[i].strCaption.c_str(),
                                      vContextElements[i].sprIcon);
-        else
-            passnum++;
+        /*else
+            passnum++;*/
 
-    conNewObject->AddElement(NOBJCON_NEXT, GETL2S("ContextNewObj", "Next"), GV->sprIcons16[Icon16_Down]);
+    //conNewObject->AddElement(NOBJCON_NEXT, GETL2S("ContextNewObj", "Next"), GV->sprIcons16[Icon16_Down]);
 
-    GV->editState->conmodAtEmpty->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 3 ? conNewObject : NULL);
-    GV->editState->conmodPaste->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 3 ? conNewObject : NULL);
+    GV->editState->conmodAtEmpty->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 1/*3*/ ? conNewObject : NULL);
+    GV->editState->conmodPaste->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 1/*3*/ ? conNewObject : NULL);
 
-    if (conNewObject->GetElementsCount() > 3) {
-        int passn = 0;
+    if (conNewObject->GetElementsCount() > 1/*3*/) {
+        /*int passn = 0;
         for (int acc = 0; acc < 10; passn++) {
             if (vContextElements.size() - 1 - passn < 0) break;
             if (vContextElements[vContextElements.size() - 1 - passn].hButton->getId() != "OFF") acc++;
         }
         if (iContextOffset == vContextElements.size() - passn)
-            conNewObject->GetElementByID(NOBJCON_NEXT)->SetEnabled(0);
+            conNewObject->GetElementByID(NOBJCON_NEXT)->SetEnabled(0);*/
 
         conNewObject->adjustSize();
     }

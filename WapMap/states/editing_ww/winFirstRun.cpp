@@ -26,7 +26,7 @@ void State::EditingWW::FirstRun_Open() {
     FirstRun_data->setClawDir->addActionListener(al);
     FirstRun_data->win->add(FirstRun_data->setClawDir, 12, height - 5);
 
-    FirstRun_data->website = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "VisitWebsite"));
+    FirstRun_data->website = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "JoinDiscord"));
     FirstRun_data->website->setDimension(gcn::Rectangle(0, 0, 150, 33));
     FirstRun_data->website->addActionListener(al);
     FirstRun_data->win->add(FirstRun_data->website, 225, height - 5);
@@ -61,6 +61,6 @@ void State::EditingWW::FirstRun_Action(bool but) {
         GV->editState->hwinOptions->Open(WWD::Game_Claw);
         GV->editState->hwinOptions->PickAndSetGameLocation(WWD::Game_Claw);
     } else {
-        ShellExecute(hge->System_GetState(HGE_HWND), "open", "http://captainclaw.net", NULL, NULL, SW_SHOWNORMAL);
+        ShellExecute(hge->System_GetState(HGE_HWND), "open", "http://discord.gg/tDRsAqg", NULL, NULL, SW_SHOWNORMAL);
     }
 }
