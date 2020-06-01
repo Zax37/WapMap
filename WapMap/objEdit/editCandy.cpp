@@ -42,24 +42,27 @@ namespace ObjEdit {
 
 	cEditObjCandy::cEditObjCandy(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         iType = ObjEdit::enCandy;
-		
-/*#ifdef BUILD_DEBUG
-		GV->Console->Printf("Listing standard imagesets for level %d:", hState->hParser->GetBaseLevel());
-#endif // BUILD_DEBUG*/
 
 		for (size_t i = 0; i < GV->editState->SprBank->GetAssetsCount(); i++) {
 			cSprBankAsset* imgSet = GV->editState->SprBank->GetAssetByIterator(i);
 			std::string name(imgSet->GetID());
 			if (name.starts_with("LEVEL_") && GV->vstrStandardImagesets.contains(name)) {
 				standardImgs.push_back(imgSet);
-/*#ifdef BUILD_DEBUG
-				GV->Console->Print(imgSet->GetID());
-#endif // BUILD_DEBUG*/
 			}
 			else if (name.starts_with("CUSTOM_")) {
 				customImgs.push_back(imgSet);
 			} else {
 				otherImgs.push_back(imgSet);
+			}
+
+			if (name == obj->GetImageSet()) {
+                asImageSetPick = imgSet;
+                int i = obj->GetI();
+                if (i == -1) {
+					asFramePick = imgSet->GetIMGByIterator(0);
+                } else {
+                    asFramePick = imgSet->GetIMGByID(i);
+                }
 			}
 		}
 		int height = ceil(standardImgs.size() / (float)IMAGE_TILES_PER_ROW) * IMAGE_TILE_HEIGHT;
@@ -194,7 +197,9 @@ namespace ObjEdit {
 			hTempObj->SetAnim(anim.c_str());
 		} else if (actionEvent.getSource() == highDetail || actionEvent.getSource() == animated) {
 			animation->setEnabled(animated->isSelected());
-			if (!animated->isSelected()) {
+			if (animated->isSelected() && animation->getText() != "GAME_CYCLE100") {
+				hTempObj->SetAnim(animation->getText().c_str());
+            } else {
 				hTempObj->SetAnim("");
 			}
 			UpdateLogic();
@@ -437,6 +442,12 @@ namespace ObjEdit {
 			UpdateLogic();
 			hTempObj->SetImageSet(asImageSetPick->GetID());
 			hState->vPort->MarkToRedraw(1);
+
+			if (animation->isEnabled() && animation->getText() != "GAME_CYCLE100") {
+				hTempObj->SetAnim(animation->getText().c_str());
+			} else {
+                hTempObj->SetAnim("");
+			}
 		}
 	}
 }
