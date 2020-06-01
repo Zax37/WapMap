@@ -361,10 +361,13 @@ namespace State {
                         hge->Gfx_RenderLine(x, y, x, y + 128, (bMouseOver ? 0xFFFFFF00 : 0xFF00FF00));
                         hge->Gfx_RenderLine(x + 128, y, x + 128, y + 128, (bMouseOver ? 0xFFFFFF00 : 0xFF00FF00));
                     }
-                    GV->fntMyriad10->SetColor(bMouseOver ? 0xFFFFFF00 : (condition ? 0xFF00FF00 : 0xFF000000));
-                    GV->fntMyriad10->Render(x + 64, y + 130, HGETEXT_CENTER,
-                                            (z ? m_hOwn->asImageSetPick->GetIMGByIterator(i)->GetName()
-                                               : GV->editState->SprBank->GetAssetByIterator(i)->GetID()), 0);
+                    GV->fntMyriad13->SetColor(bMouseOver ? 0xFFFFFF00 : (condition ? 0xFF00FF00 : 0xFF000000));
+                    std::string text = z ? m_hOwn->asImageSetPick->GetIMGByIterator(i)->GetName()
+                                         : GV->editState->SprBank->GetAssetByIterator(i)->GetID();
+                    while (GV->fntMyriad13->GetStringWidth(text.c_str()) > 135) {
+                        text.replace(text.size() / 2 - 2, 4, "...");
+                    }
+                    GV->fntMyriad13->Render(x + 64, y + 130, HGETEXT_CENTER, text.c_str(), 0);
                 }
             }
             hge->Gfx_SetClipping();

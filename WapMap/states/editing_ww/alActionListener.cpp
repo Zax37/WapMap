@@ -163,7 +163,11 @@ namespace State {
             } else if (m_hOwn->sliZoom->getValue() < 1) {
                 sliz += m_hOwn->sliZoom->getValue() / 5.0f * 0.9f;
             }
-            m_hOwn->fDestZoom = sliz;
+            if (GV->bSmoothZoom) {
+                m_hOwn->fDestZoom = sliz;
+            } else {
+                m_hOwn->fZoom = sliz;
+            }
         } else if (actionEvent.getSource() == m_hOwn->cbutActiveMode) {
             if (m_hOwn->cbutActiveMode->getSelectedEntryID() == 1) {
                 if (!(m_hOwn->GetActivePlane()->GetFlags() & WWD::Flag_p_MainPlane)) {
