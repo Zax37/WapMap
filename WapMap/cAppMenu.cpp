@@ -148,12 +148,12 @@ cAppMenu::cAppMenu() {
     workcon = hEntries[AppMenu_WapMap]->GetContext();
     workcon->AddElement(APPMEN_WM_SETTINGS, GETL2S("AppMenu", "About_Settings"), GV->sprIcons16[Icon16_Settings]);
     workcon->AddElement(APPMEN_WM_ABOUT, GETL2S("AppMenu", "About_About"), GV->sprIcons16[Icon16_Info]);
-    workcon->AddElement(APPMEN_WM_UPDATE, GETL2S("AppMenu", "About_Update"), GV->sprIcons16[Icon16_AutoUpdate]);
+    /*workcon->AddElement(APPMEN_WM_UPDATE, GETL2S("AppMenu", "About_Update"), GV->sprIcons16[Icon16_AutoUpdate]);
     workcon->GetElementByID(APPMEN_WM_UPDATE)->SetEnabled(0);
     workcon->AddElement(APPMEN_WM_README, GETL2S("AppMenu", "About_Readme"), GV->sprIcons16[Icon16_Readme]);
     workcon->GetElementByID(APPMEN_WM_README)->SetEnabled(0);
     workcon->AddElement(APPMEN_WM_SITE, GETL2S("AppMenu", "About_Website"), GV->sprIcons16[Icon16_RSS]);
-    workcon->GetElementByID(APPMEN_WM_SITE)->SetEnabled(0);
+    workcon->GetElementByID(APPMEN_WM_SITE)->SetEnabled(0);*/
     workcon->adjustSize();
 
     iOverallWidth = 0;
