@@ -688,6 +688,10 @@ namespace State {
 
         virtual void GfxRestore();
 
+        virtual void FileDraggedIn();
+
+        virtual void FileDraggedOut();
+
         virtual void FileDropped();
 
         virtual void AppFocus(bool bGain);
@@ -839,6 +843,8 @@ namespace State {
         float fSimFoldY;
 
         float fCameraMoveTimer;
+
+        bool draggedFilesIn = false;
 
 #ifdef BUILD_DEBUG
         bool bShowConsole;
@@ -1003,6 +1009,7 @@ namespace State {
         void DrawCrashRetrieve();
 
         std::vector<std::string> vstrMapsToLoad;
+		byte iDraggedFileIcon[10];
 
         //MRU
         cMruList *hMruList;
@@ -1032,6 +1039,7 @@ namespace State {
 
         bool OpenDocuments();
         void SaveAs();
+        void Export();
 
         int iTileDrawStartX, iTileDrawStartY;
 

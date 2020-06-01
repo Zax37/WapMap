@@ -1,5 +1,4 @@
 #include "../editing_ww.h"
-
 #include "../loadmap.h"
 #include "../../globals.h"
 #include "../../version.h"
@@ -7,7 +6,7 @@
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../error.h"
-#include <math.h>
+#include <cmath>
 #include <hgevector.h>
 #include "../../objEdit/editEnemy.h"
 #include "../../objEdit/editElevPath.h"
@@ -2660,8 +2659,57 @@ bool State::EditingWW::Render() {
                                     hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 21, HGETEXT_RIGHT, WA_VERSTRING, 0);
         }
     }
+    if (draggedFilesIn) {
+        hgeQuad q;
+        q.tex = 0;
+        q.blend = BLEND_DEFAULT;
+        SHR::SetQuad(&q, 0xEE000000,
+                     0, 110, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
+        hge->Gfx_RenderQuad(&q);
+
+        auto& files = hge->System_GetDraggedFiles();
+
+        int x = hge->System_GetState(HGE_SCREENWIDTH) / 2, y = hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 18;
+
+        if (files.size()) {
+            y -= std::min(files.size(), 10u) * 9;
+            GV->fntMyriad13->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_MapsToOpen), 0);
+
+            int maxW = 0;
+            for (auto filepath : files) {
+                int w = GV->fntMyriad13->GetStringWidth(filepath.c_str(), false);
+                if (w > maxW) {
+                    maxW = w;
+                }
+            }
+
+            x -= maxW / 2 + 10;
+            y += 18 * 2;
+
+            int i = 0;
+            for (auto filepath : files) {
+                byte icon = iDraggedFileIcon[i++];
+                if (icon < 50)
+                    GV->sprGamesSmall[icon]->Render(x, y);
+                else
+                    GV->sprLevelsMicro16[icon - 51]->Render(x, y);
+
+                GV->fntMyriad13->Render(x + 20, y, HGETEXT_LEFT, filepath.c_str(), 0);
+
+                y += 18;
+
+                if (i == 10) {
+                    GV->fntMyriad13->printf(x + maxW / 2, y, HGETEXT_CENTER,
+                                            GETL(Lang_FilesDragged_AndMore), 0, files.size() - i);
+                    break;
+                }
+            }
+        } else {
+            GV->fntMyriad13->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_Unsupported), 0);
+        }
+    }
 #ifdef CONF_WATERMARK
-                                                                                                                            GV->fntMyriad80->SetColor(ARGB(64, 255, 255, 255));
+    GV->fntMyriad80->SetColor(ARGB(64, 255, 255, 255));
 	GV->fntMyriad80->Render(vPort->GetX() + vPort->GetWidth() - 5, vPort->GetY() + vPort->GetHeight() - 80, HGETEXT_RIGHT, CONF_WATERMARK);
 #endif
     return 0;

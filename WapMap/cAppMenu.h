@@ -11,8 +11,9 @@
 #define APPMEN_FILE_CLOSED      4
 #define APPMEN_FILE_SAVE        5
 #define APPMEN_FILE_SAVEAS      6
-#define APPMEN_FILE_CLOSE       7
-#define APPMEN_FILE_CLOSEALL    8
+#define APPMEN_FILE_EXPORT      7
+#define APPMEN_FILE_CLOSE       8
+#define APPMEN_FILE_CLOSEALL    9
 //file mru positions as ID
 //file closed as mdi
 

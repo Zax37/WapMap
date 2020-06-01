@@ -2458,7 +2458,8 @@ bool State::EditingWW::Think() {
 
     if (bConstRedraw)
         vPort->MarkToRedraw(1);
-    return 0;
+
+    return false;
 }
 
 void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
@@ -2849,6 +2850,27 @@ void State::EditingWW::SaveAs() {
             delete[] fl;
             MDI->UpdateCrashList();
         }
+        char *lastSave = SHR::GetDir(szFileopen);
+        GV->SetLastSavePath(lastSave);
+        delete[] lastSave;
+    }
+}
+
+void State::EditingWW::Export() {
+    OPENFILENAME ofn;
+    char szFileopen[512] = "\0";
+    ZeroMemory((&ofn), sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hge->System_GetState(HGE_HWND);
+    ofn.lpstrFilter = "Wszystkie pliki (*.*)\0*.*\0\0";
+    ofn.lpstrFile = szFileopen;
+    ofn.nMaxFile = sizeof(szFileopen);
+    ofn.lpstrInitialDir = GV->szLastSavePath;
+    if (GetSaveFileName(&ofn)) {
+        std::ofstream ofs(szFileopen, std::ofstream::out);
+        WMD::ExportTileProperties(hParser, ofs);
+        ofs.close();
+
         char *lastSave = SHR::GetDir(szFileopen);
         GV->SetLastSavePath(lastSave);
         delete[] lastSave;
@@ -3285,16 +3307,45 @@ void State::EditingWW::SetZoom(float fZ) {
     }
 }
 
-void State::EditingWW::FileDropped() {
-    for (auto filepath : hge->System_GetDroppedFiles()) {
-        char *ext = SHR::ToLower(strrchr(filepath, '.') + 1);
-        if (!strcmp(ext, "wwd")) {
-            GV->StateMgr->Push(new State::LoadMap(filepath));
+void State::EditingWW::FileDraggedIn() {
+    draggedFilesIn = true;
+
+    int i = 0;
+    auto& files = hge->System_GetDraggedFiles();
+    for (auto it = files.begin(); it != files.end();) {
+        char* ext = SHR::ToLower(strrchr(it->c_str(), '.') + 1);
+        if (strcmp(ext, "wwd") != 0) {
+            it = files.erase(it);
+        } else {
+            if (i < 10) {
+                int base = 0;
+                try {
+                    iDraggedFileIcon[i] = WWD::GetGameTypeFromFile(it->c_str(), &base);
+                }
+                catch (...) {
+                    iDraggedFileIcon[i] = WWD::Game_Unknown;
+                }
+                if (base > 0 && base < 15 && iDraggedFileIcon[i] == WWD::Game_Claw) {
+                    iDraggedFileIcon[i] = 50 + base;
+                }
+            }
+
+            ++it;
+            ++i;
         }
         delete[] ext;
     }
-    //if( butIconOpen->isEnabled() )
-    // GV->StateMgr->Push(new State::LoadMap(szPath));
+}
+
+void State::EditingWW::FileDraggedOut() {
+    draggedFilesIn = false;
+}
+
+void State::EditingWW::FileDropped() {
+    for (auto filepath : hge->System_GetDraggedFiles()) {
+        vstrMapsToLoad.push_back(filepath.c_str());
+    }
+    draggedFilesIn = false;
 }
 
 void State::EditingWW::ApplicationStartup() {
@@ -3503,6 +3554,7 @@ void State::EditingWW::MruListUpdated() {
             int iSignStart = 0;
             char tmp[MAX_PATH];
             strcpy(tmp, hMruList->GetRecentlyUsedFile(i));
+            std::string pathname(tmp);
             while (GV->fntMyriad13->GetStringWidth(tmp) > 370) {
                 int len = strlen(tmp);
                 if (bAddSign) {
@@ -3524,7 +3576,7 @@ void State::EditingWW::MruListUpdated() {
             WWD::GAME gt;
             int ibase = 0;
             try {
-                gt = WWD::GetGameTypeFromFile(tmp, &ibase);
+                gt = WWD::GetGameTypeFromFile(pathname.c_str(), &ibase);
             }
             catch (...) {
                 gt = WWD::Game_Unknown;

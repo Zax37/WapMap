@@ -288,7 +288,10 @@ enum LangID {
     Lang_ModeTile,
     Lang_ModeObject,
     Lang_SmallScreenWarning_Title,
-    Lang_SmallScreenWarning_Message
+    Lang_SmallScreenWarning_Message,
+    Lang_FilesDragged_Unsupported,
+    Lang_FilesDragged_MapsToOpen,
+    Lang_FilesDragged_AndMore
 };
 
 enum LangTooltipID {

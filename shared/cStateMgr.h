@@ -36,6 +36,10 @@ namespace SHR {
 
         virtual void GfxRestore() {};
 
+        virtual void FileDraggedIn() {};
+
+        virtual void FileDraggedOut() {};
+
         virtual void FileDropped() {};
 
         virtual void AppFocus(bool bGain) {};
@@ -90,6 +94,10 @@ namespace SHR {
         bool ExitFunc();
 
         void GfxRestore();
+
+        void FileDraggedIn();
+
+        void FileDraggedOut();
 
         void FileDropped();
 

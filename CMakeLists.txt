@@ -86,6 +86,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/shared/cREZ.cpp
 	${PROJECT_SOURCE_DIR}/shared/cSFS.cpp
 	${PROJECT_SOURCE_DIR}/shared/cStateMgr.cpp
+	${PROJECT_SOURCE_DIR}/shared/cWMD.cpp
 	${PROJECT_SOURCE_DIR}/shared/cWWD.cpp
 	${PROJECT_SOURCE_DIR}/shared/ZipLib/detail/EndOfCentralDirectoryBlock.cpp
 	${PROJECT_SOURCE_DIR}/shared/ZipLib/detail/ZipCentralDirectoryFileHeader.cpp

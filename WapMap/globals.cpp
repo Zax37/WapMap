@@ -742,7 +742,7 @@ void cGlobals::Init() {
 
     for (int i = 0; i < 5; i++) {
         sprGamesBig[i] = new hgeSprite(texMain, 190, 135 + 32 * i, 32, 32);
-        sprGamesSmall[i] = new hgeSprite(texMain, 78 + 16 * i, 215, 16, 16);
+        sprGamesSmall[i] = new hgeSprite(texMain, 80 + 16 * i, 215, 16, 16);
     }
 
     sprTile = new hgeSprite(texMain, 384, 640, 64, 64);

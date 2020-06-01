@@ -380,7 +380,7 @@ public:
     hgeSprite *sprShadeBar;
     hgeSprite *sprIconGoodSmall, *sprIconBadSmall, *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count], *sprIcons128[Gfx128IconsCnt];
     hgeSprite *sprMicroVert, *sprMicroHor, *sprMicroZoom, *sprSmiley;
-    hgeSprite *sprGamesBig[WWD::Games_Last], *sprGamesSmall[WWD::Games_Last], *sprBlank;
+    hgeSprite *sprGamesBig[WWD::Games_Count + 1], *sprGamesSmall[WWD::Games_Count + 1], *sprBlank;
     hgeSprite *sprMicroIcons[2];
 
     hgeSprite *sprCaptionMinimalize[2], *sprCaptionClose[2];

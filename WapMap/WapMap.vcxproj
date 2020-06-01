@@ -197,6 +197,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="..\shared\cREZ.cpp" />
     <ClCompile Include="..\shared\cSFS.cpp" />
     <ClCompile Include="..\shared\cStateMgr.cpp" />
+    <ClCompile Include="..\shared\cWMD.cpp" />
     <ClCompile Include="..\shared\cWWD.cpp" />
     <ClCompile Include="..\shared\gcnwidgets\cTooltip.cpp" />
     <ClCompile Include="..\shared\gcnwidgets\wButton.cpp" />
@@ -386,6 +387,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClInclude Include="..\shared\cREZ.h" />
     <ClInclude Include="..\shared\cSFS.h" />
     <ClInclude Include="..\shared\cStateMgr.h" />
+    <ClInclude Include="..\shared\cWMD.h" />
     <ClInclude Include="..\shared\cWWD.h" />
     <ClInclude Include="..\shared\gcnwidgets\cTooltip.h" />
     <ClInclude Include="..\shared\gcnwidgets\wButton.h" />

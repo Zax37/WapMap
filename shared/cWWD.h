@@ -22,6 +22,7 @@
 #include <vector>
 #include <ostream>
 #include <map>
+#include "cWMD.h"
 
 #ifndef byte
 typedef unsigned char byte;
@@ -325,6 +326,7 @@ namespace WWD {
         void setHeight(int h) { m_iH = h; }
 
         virtual TILE_ATTRIB_TYPE getType() = 0;
+        virtual std::string toString() = 0;
         virtual void readFromStream(std::istream* psSource) = 0;
         virtual void compileToStream(std::iostream* psDestination) = 0;
         virtual std::vector<TILE_ATTRIB> getAttribSummary() = 0;
@@ -348,6 +350,7 @@ namespace WWD {
 
         void setAttrib(TILE_ATTRIB atr) { attrib = atr; }
 
+        std::string toString() override;
         void readFromStream(std::istream* psSource) override;
         void compileToStream(std::iostream* psDestination) override;
         std::vector<TILE_ATTRIB> getAttribSummary() override;
@@ -373,6 +376,7 @@ namespace WWD {
 
         TILE_ATTRIB_TYPE getType() override { return AttribType_Double; }
 
+        std::string toString() override;
         void readFromStream(std::istream* psSource) override;
         void compileToStream(std::iostream* psDestination) override;
 
@@ -423,6 +427,7 @@ namespace WWD {
 
         void setArea(int x1, int y1, int x2, int y2, WWD::TILE_ATTRIB attrib);
 
+        std::string toString() override;
         void readFromStream(std::istream* psSource) override;
         void compileToStream(std::iostream* psDestination) override;
 
@@ -842,6 +847,8 @@ namespace WWD {
         GAME GetGame() { return m_iGame; };
 
         CustomMetaSerializer *GetCustomMetaSerializer() { return hMetaSerializer; };
+
+        friend void WMD::ExportTileProperties(WWD::Parser* hParser, std::ofstream& ofstream);
     };
 
     GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL) throw(Exception);

@@ -219,6 +219,18 @@ void SHR::cStateMgr::OS_Notify() {
 	return m_hStateStack.back()->OS_Notify();
 }
 
+void SHR::cStateMgr::FileDraggedIn() {
+	if (m_hStateStack.size() == 0)
+		return;
+	return m_hStateStack.back()->FileDraggedIn();
+}
+
+void SHR::cStateMgr::FileDraggedOut() {
+	if (m_hStateStack.size() == 0)
+		return;
+	return m_hStateStack.back()->FileDraggedOut();
+}
+
 void SHR::cStateMgr::FileDropped() {
 	if (m_hStateStack.size() == 0)
 		return;

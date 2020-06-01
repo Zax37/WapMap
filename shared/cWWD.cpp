@@ -1154,11 +1154,21 @@ bool WWD::SingleTileAttrib::operator!=(TileAttrib& other)
         || other.getHeight() != m_iH || ((WWD::SingleTileAttrib&)other).getAttrib() != attrib;
 }
 
+std::string WWD::SingleTileAttrib::toString()
+{
+    std::ostringstream osstream;
+    osstream << m_iW << 'x' << m_iH << " Attribute: " << (int)attrib;
+
+    return osstream.str();
+}
+
 void WWD::SingleTileAttrib::readFromStream(std::istream *psSource) {
     psSource->seekg(4, std::ios_base::cur);
     psSource->RINT(m_iW);
     psSource->RINT(m_iH);
-    psSource->RINT(attrib);
+    int temp;
+    psSource->RINT(temp);
+    attrib = (WWD::TILE_ATTRIB)temp;
 }
 
 void WWD::SingleTileAttrib::compileToStream(std::iostream *psDestination) {
@@ -1168,7 +1178,8 @@ void WWD::SingleTileAttrib::compileToStream(std::iostream *psDestination) {
     psDestination->WLEN(&temp, 4);
     psDestination->WLEN(&m_iW, 4);
     psDestination->WLEN(&m_iH, 4);
-    psDestination->WLEN(&attrib, 4);
+    temp = attrib;
+    psDestination->WLEN(&temp, 4);
 }
 
 std::vector<WWD::TILE_ATTRIB> WWD::DoubleTileAttrib::getAttribSummary()
@@ -1215,6 +1226,22 @@ void WWD::MaskTileAttrib::setArea(int x1, int y1, int x2, int y2, WWD::TILE_ATTR
     }
 }
 
+std::string WWD::MaskTileAttrib::toString()
+{
+    std::ostringstream osstream;
+    osstream << m_iW << 'x' << m_iH << '\n';
+
+    for (int i = 0, y = 0; y < m_iH; ++y) {
+        osstream << '\t';
+        for (int x = 0; x < m_iW; ++x, ++i) {
+            osstream << (int)data[i] << ' ';
+        }
+        osstream << '\n';
+    }
+
+    return osstream.str();
+}
+
 void WWD::MaskTileAttrib::readFromStream(std::istream *psSource) {
     psSource->seekg(4, std::ios_base::cur);
     psSource->RINT(m_iW);
@@ -1244,12 +1271,24 @@ bool WWD::DoubleTileAttrib::operator!=(TileAttrib& other)
         || ((WWD::DoubleTileAttrib&)other).getOutsideAttrib() != m_iAttribOutside || ((WWD::DoubleTileAttrib&)other).getMask() != m_rMask;
 }
 
+std::string WWD::DoubleTileAttrib::toString()
+{
+    std::ostringstream osstream;
+    osstream << m_iW << 'x' << m_iH << " Inside: " << (int)m_iAttribInside << " Outside: " << (int)m_iAttribOutside
+             << " Mask: " << m_rMask.x1 << ' ' << m_rMask.y1 << ' ' << m_rMask.x2 << ' ' << m_rMask.y2;
+
+    return osstream.str();
+}
+
 void WWD::DoubleTileAttrib::readFromStream(std::istream *psSource) {
     psSource->seekg(4, std::ios_base::cur);
     psSource->RINT(m_iW);
     psSource->RINT(m_iH);
-    psSource->RINT(m_iAttribOutside);
-    psSource->RINT(m_iAttribInside);
+    int temp;
+    psSource->RINT(temp);
+    m_iAttribOutside = (WWD::TILE_ATTRIB)temp;
+    psSource->RINT(temp);
+    m_iAttribInside = (WWD::TILE_ATTRIB)temp;
     psSource->RINT(m_rMask.x1);
     psSource->RINT(m_rMask.y1);
     psSource->RINT(m_rMask.x2);
@@ -1263,8 +1302,10 @@ void WWD::DoubleTileAttrib::compileToStream(std::iostream *psDestination) {
     psDestination->WLEN(&temp, 4);
     psDestination->WLEN(&m_iW, 4);
     psDestination->WLEN(&m_iH, 4);
-    psDestination->WLEN(&m_iAttribOutside, 4);
-    psDestination->WLEN(&m_iAttribInside, 4);
+    temp = m_iAttribOutside;
+    psDestination->WLEN(&temp, 4);
+    temp = m_iAttribInside;
+    psDestination->WLEN(&temp, 4);
     psDestination->WLEN(&m_rMask.x1, 16);
 }
 

@@ -40,6 +40,16 @@ bool GfxRestoreFunc() {
     return 1;
 }
 
+bool FileDraggedInFunc() {
+    GV->StateMgr->FileDraggedIn();
+    return 1;
+}
+
+bool FileDraggedOutFunc() {
+    GV->StateMgr->FileDraggedOut();
+    return 1;
+}
+
 bool FileDroppedFunc() {
     GV->StateMgr->FileDropped();
     return 1;
@@ -158,16 +168,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
     hge->System_SetState(HGE_EXITFUNC, ExitFunc);
     hge->System_SetState(HGE_GFXRESTOREFUNC, GfxRestoreFunc);
+    hge->System_SetState(HGE_FILEDRAGINFUNC, FileDraggedInFunc);
+    hge->System_SetState(HGE_FILEDRAGOUTFUNC, FileDraggedOutFunc);
     hge->System_SetState(HGE_FILEDROPFUNC, FileDroppedFunc);
     hge->System_SetState(HGE_FOCUSLOSTFUNC, AppFocusOffFunc);
     hge->System_SetState(HGE_FOCUSGAINFUNC, AppFocusOnFunc);
-    if (!strncmp(cmdline, "-updateBM", 9)) {
-        hge->System_SetState(HGE_SCREENWIDTH, 320);
-        hge->System_SetState(HGE_SCREENHEIGHT, 140);
-    } else {
-        hge->System_SetState(HGE_SCREENWIDTH, GV->iScreenW);
-        hge->System_SetState(HGE_SCREENHEIGHT, GV->iScreenH);
-    }
+    hge->System_SetState(HGE_SCREENWIDTH, GV->iScreenW);
+    hge->System_SetState(HGE_SCREENHEIGHT, GV->iScreenH);
     hge->System_SetState(HGE_ACCEPTFILES, 1);
     hge->System_SetState(HGE_TITLE, WA_TITLEBAR);
     hge->System_SetState(HGE_WINDOWED, 1);
@@ -177,8 +184,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     hge->System_SetState(HGE_ICON, MAKEINTRESOURCE(100));
     hge->System_SetState(HGE_TEXTUREFILTER, 0);
     //hge->System_SetState(HGE_FPS, 60);
-
-    //if( !strncmp(cmdline, "-updateBM", 9) )
     hge->System_SetState(HGE_WINDOWCAPTION, 0);
 
     if (hge->System_Initiate()) {

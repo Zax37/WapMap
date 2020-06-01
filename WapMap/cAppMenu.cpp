@@ -55,6 +55,9 @@ cAppMenu::cAppMenu() {
     workcon->AddElement(APPMEN_FILE_OPEN, GETL2S("AppMenu", "File_Open"), GV->sprIcons16[Icon16_Open]);
     workcon->AddElement(APPMEN_FILE_SAVE, GETL2S("AppMenu", "File_Save"), GV->sprIcons16[Icon16_Save]);
     workcon->AddElement(APPMEN_FILE_SAVEAS, GETL2S("AppMenu", "File_SaveAs"), GV->sprIcons16[Icon16_SaveAs]);
+#ifdef _DEBUG
+    workcon->AddElement(APPMEN_FILE_EXPORT, GETL2S("AppMenu", "File_Export"), GV->sprIcons16[Icon16_Export]);
+#endif
     workcon->AddElement(APPMEN_FILE_CLOSE, GETL2S("AppMenu", "File_Close"), GV->sprIcons16[Icon16_XTransparent]);
     workcon->AddElement(APPMEN_FILE_CLOSEALL, GETL2S("AppMenu", "File_CloseAll"), GV->sprIcons16[Icon16_X]);
     workcon->adjustSize();
@@ -165,6 +168,9 @@ cAppMenu::~cAppMenu() {
 void cAppMenu::SyncDocumentSwitched() {
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVE)->SetEnabled(GV->editState->hParser != NULL);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(GV->editState->hParser != NULL);
+#ifdef _DEBUG
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_EXPORT)->SetEnabled(GV->editState->hParser != NULL);
+#endif
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSE)->SetEnabled(GV->editState->hParser != NULL);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSEALL)->SetEnabled(GV->editState->hParser != NULL);
     hEntries[AppMenu_Edit]->SetEnabled(GV->editState->hParser != NULL);
@@ -189,6 +195,10 @@ void cAppMenu::SyncDocumentClosed() {
             GV->editState->MDI->GetDocsCount() >= 1);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(
             GV->editState->MDI->GetDocsCount() >= 1);
+#ifdef _DEBUG
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_EXPORT)->SetEnabled(
+            GV->editState->MDI->GetDocsCount() >= 1);
+#endif
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSEALL)->SetEnabled(
             GV->editState->MDI->GetDocsCount() > 1);
 
@@ -215,6 +225,9 @@ void cAppMenu::SyncDocumentOpened() {
             GV->editState->MDI->GetDocsCount() > 1);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVE)->SetEnabled(1);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(1);
+#ifdef _DEBUG
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_EXPORT)->SetEnabled(1);
+#endif
     SyncMRU();
     hEntries[AppMenu_Edit]->SetEnabled(1);
     hEntries[AppMenu_Plane]->SetEnabled(1);
@@ -458,6 +471,8 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
                 GV->editState->NewMap_Open();
         } else if (id == APPMEN_FILE_OPEN) {
             GV->editState->OpenDocuments();
+        } else if (id == APPMEN_FILE_EXPORT) {
+            GV->editState->Export();
         } else if (id == APPMEN_FILE_SAVEAS ||
                    (id == APPMEN_FILE_SAVE && strlen(GV->editState->hParser->GetFilePath()) == 0)) {
             GV->editState->SaveAs();
