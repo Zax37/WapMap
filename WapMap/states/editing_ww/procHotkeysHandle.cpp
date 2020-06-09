@@ -181,19 +181,9 @@ void State::EditingWW::HandleHotkeys() {
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_G)) {
         hPlaneData[GetActivePlaneID()]->bDrawGrid = !hPlaneData[GetActivePlaneID()]->bDrawGrid;
         vPort->MarkToRedraw(1);
-        if (hPlaneData[GetActivePlaneID()]->bDrawGrid) {
-            SetHint(GETL(Lang_GridOn), GetActivePlane()->GetName());
-        } else {
-            SetHint(GETL(Lang_GridOff), GetActivePlane()->GetName());
-        }
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_B)) {
         hPlaneData[GetActivePlaneID()]->bDrawBoundary = !hPlaneData[GetActivePlaneID()]->bDrawBoundary;
         vPort->MarkToRedraw(1);
-        if (hPlaneData[GetActivePlaneID()]->bDrawBoundary) {
-            SetHint(GETL(Lang_BoundaryOn), GetActivePlane()->GetName());
-        } else {
-            SetHint(GETL(Lang_BoundaryOff), GetActivePlane()->GetName());
-        }
     } else if (bFocus && iMode == EWW_MODE_OBJECT && vObjectsPicked.size() == 1) {
         if (hge->Input_KeyDown(HGEK_C)) {
             fCamX = GetUserDataFromObj(vObjectsPicked[0])->GetX() - vPort->GetWidth() / 2 / fZoom;

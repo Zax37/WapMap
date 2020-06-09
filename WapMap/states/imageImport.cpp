@@ -186,7 +186,6 @@ namespace State {
             DeleteFile(iFileToDelete);
             iFileToDelete = -1;
         }
-        GV->Console->Think();
         try {
             gui->logic();
         }
@@ -205,8 +204,6 @@ namespace State {
             GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(),
                                 exc.getFilename().c_str(), exc.getLine());
         }
-        GV->IF->Render();
-        GV->Console->Render();
         return 0;
     }
 
@@ -436,10 +433,10 @@ namespace State {
                     GV->hGfxInterface->sprMainBackground->Render(drx + x * 128, dry + y * 128);
 
             if (vImages.empty()) {
-                GV->fntMyriad13->SetColor(0xFFa1a1a1);
-                GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 - 7, HGETEXT_CENTER,
+                GV->fntMyriad16->SetColor(0xFFe1e1e1);
+                GV->fntMyriad16->Render(drx + drw / 2, dry + drh / 2 - 7, HGETEXT_CENTER,
                                         GETL2S("Win_ImageImport", "NoFiles"), 0);
-                GV->fntMyriad13->Render(drx + drw / 2, dry + drh / 2 + 7, HGETEXT_CENTER,
+                GV->fntMyriad16->Render(drx + drw / 2, dry + drh / 2 + 7, HGETEXT_CENTER,
                                         GETL2S("Win_ImageImport", "DragDropHint"), 0);
             } else {
                 int scroll = saFileList->getVerticalScrollAmount();
@@ -483,9 +480,6 @@ namespace State {
             }
 
             hge->Gfx_SetClipping();
-        } else if (piCode == 1) {
-            hge->Gfx_SetClipping();
-            GV->hGfxInterface->sprMainShadeBar->RenderStretch(drx, dry, drx + drw, dry + 9);
         }
     }
 

@@ -47,20 +47,20 @@ namespace SHR {
 
     void cTooltip::_RenderTooltip() {
         if (!HasTooltip() || !IsTooltipVisible()) return;
-        int w = GV->fntMyriad13->GetStringWidth(m_szTooltip),
-            h = GV->fntMyriad13->GetHeight() * m_iTooltipLC;
+        int w = GV->fntMyriad16->GetStringWidth(m_szTooltip),
+            h = GV->fntMyriad16->GetHeight() * m_iTooltipLC;
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
         q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0xFFf1edd7;
         int rx = m_iTooltipX, ry = m_iTooltipY;
-        rx += GV->IF->GetCursor()->GetWidth();
+        rx += 24;
         w += 6;
         h += 6;
         if (rx + w > hge->System_GetState(HGE_SCREENWIDTH)) {
             rx -= w + 12;
-            rx -= GV->IF->GetCursor()->GetWidth();
+            rx -= 24;
         }
         if (ry + h > hge->System_GetState(HGE_SCREENHEIGHT))
             ry -= h;
@@ -77,8 +77,8 @@ namespace SHR {
         hge->Gfx_RenderLine(q.v[1].x, q.v[1].y, q.v[2].x, q.v[2].y, 0xFF000000);
         hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFF000000);
         hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFF000000);
-        GV->fntMyriad13->SetColor(0xFF000000);
-        GV->fntMyriad13->Render(rx + 3, ry + 3, HGETEXT_LEFT, m_szTooltip, 0);
+        GV->fntMyriad16->SetColor(0xFF000000);
+        GV->fntMyriad16->Render(rx + 3, ry + 3, HGETEXT_LEFT, m_szTooltip, 0);
     }
 
     void cTooltip::UpdateTooltip(bool hasmouse) {

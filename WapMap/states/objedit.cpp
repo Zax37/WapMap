@@ -159,7 +159,6 @@ namespace ObjEdit {
             r.y2 += r.y1;
             if (wmx > r.x1 && wmx < r.x2 && wmy > r.y1 && wmy < r.y2) {
                 if (bAllowDragging) {
-                    GV->editState->bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         _bDragging = 1;
                         if (_iMoveInitX == -1)

@@ -14,7 +14,7 @@ void State::EditingWW::FirstRun_Open() {
     }
     FirstRun_data = new win_FirstRun;
     FirstRun_data->win = new SHR::Win(&GV->gcnParts, GETL2S("FirstRun", "Caption"));
-    int height = GV->fntMyriad13->GetHeightb(370, GETL2S("FirstRun", "Text")) + 50;
+    int height = GV->fntMyriad16->GetHeightb(370, GETL2S("FirstRun", "Text")) + 80;
     FirstRun_data->win->setDimension(gcn::Rectangle(0, 0, 400, height + 60));
     FirstRun_data->win->setClose(1);
     FirstRun_data->win->addActionListener(al);
@@ -51,8 +51,8 @@ void State::EditingWW::FirstRun_Think() {
     hge->Input_GetMousePos(&mx, &my);
     int wx, wy;
     FirstRun_data->win->getAbsolutePosition(wx, wy);
-    GV->fntMyriad13->SetColor(0xFF000000);
-    GV->fntMyriad13->printfb(wx + 15, wy + 35, 370, 500, HGETEXT_LEFT | HGETEXT_TOP, 0, GETL2S("FirstRun", "Text"));
+    GV->fntMyriad16->SetColor(0xFF000000);
+    GV->fntMyriad16->printfb(wx + 15, wy + 35, 370, 500, HGETEXT_LEFT | HGETEXT_TOP, 0, GETL2S("FirstRun", "Text"));
 }
 
 void State::EditingWW::FirstRun_Action(bool but) {

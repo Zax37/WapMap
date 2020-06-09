@@ -3,7 +3,6 @@
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
-#include "guichan/mouseinput.hpp"
 
 #include <hgeSprite.h>
 #include "../../WapMap/cInterfaceSheet.h"
@@ -18,38 +17,29 @@ namespace SHR {
         setFocusable(true);
         addMouseListener(this);
         addKeyListener(this);
+        addFocusListener(this);
         hGfx = NULL;
         fTimer = 0;
-        bMouseOver = 0;
+        bMouseOver = false;
+        mKeyboardFocus = false;
     }
 
-    CBox::CBox(cInterfaceSheet *Parts, const std::string &caption, bool selected) {
+    CBox::CBox(cInterfaceSheet *Parts, const std::string &caption, bool selected) : CBox() {
         setCaption(caption);
         setSelected(selected);
-
-        setFocusable(true);
-        addMouseListener(this);
-        addKeyListener(this);
-
         adjustSize();
 
         hGfx = Parts;
-        fTimer = 0;
-        bMouseOver = 0;
-    }
-
-    bool CBox::showHand() {
-        return (isEnabled() && bMouseOver);
     }
 
     void CBox::draw(Graphics *graphics) {
         int x, y;
         getAbsolutePosition(x, y);
-        int buty = y + getHeight() / 2 - 8;
+        int buttonY = y + getHeight() / 2 - 8;
 
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
-        bool hl = (mx > x && mx < x + 16 && my > buty && my < buty + 16 && isVisible());
+        bool hl = (mx > x && mx < x + 16 && my > buttonY && my < buttonY + 16 && isVisible());
         if (hl && fTimer < 0.1f) {
             fTimer += hge->Timer_GetDelta();
             if (fTimer > 0.1f) fTimer = 0.1f;
@@ -62,27 +52,31 @@ namespace SHR {
 
         graphics->popClipArea();
 
-        DWORD defcol = SETA(0xFFFFFFFF, getAlpha());
+        DWORD defcol = SETA(0xFFFFFF, getAlpha());
 
         if (isEnabled()) {
             hGfx->sprControl[1][2]->SetColor(defcol);
-            hGfx->sprControl[1][2]->Render(x, buty);
+            hGfx->sprControl[1][2]->Render(x, buttonY);
             if (fTimer > 0.0f) {
                 hGfx->sprControl[1][3]->SetColor(
-                        SETA(0xFFFFFFFF, (unsigned char) (fTimer * 10.0f * 255.0f * getAlphaModifier())));
-                hGfx->sprControl[1][3]->Render(x, buty);
+                        SETA(0xFFFFFF, (unsigned char) (fTimer * 10.0f * 255.0f * getAlphaModifier())));
+                hGfx->sprControl[1][3]->Render(x, buttonY);
+            }
+
+            if (mKeyboardFocus) {
+                hGfx->sprControl[1][5]->Render(x - 1, buttonY - 1);
             }
         } else {
             hGfx->sprControl[1][4]->SetColor(defcol);
-            hGfx->sprControl[1][4]->Render(x, buty);
+            hGfx->sprControl[1][4]->Render(x, buttonY);
         }
         if (mSelected) {
             hGfx->sprControl[1][isEnabled() ? 0 : 1]->SetColor(defcol);
-            hGfx->sprControl[1][isEnabled() ? 0 : 1]->Render(x, buty);
+            hGfx->sprControl[1][isEnabled() ? 0 : 1]->Render(x, buttonY);
         }
 
         graphics->setFont(getFont());
-        graphics->setColor(isEnabled() ? 0xa1a1a1 : 0x5e5e5e);
+        graphics->setColor(gcn::Color(0xe1e1e1, isEnabled() ? 0xFF : 0x77));
 
         graphics->pushClipArea(getDimension());
         graphics->drawText(getCaption(), 18, 0);
@@ -142,6 +136,14 @@ namespace SHR {
 
     void CBox::mouseExited(MouseEvent &mouseEvent) {
         bMouseOver = 0;
+    }
+
+    void CBox::focusGained(const FocusEvent &event) {
+        mKeyboardFocus = event.isKeyboardFocus();
+    }
+
+    void CBox::focusLost(const FocusEvent &event) {
+        mKeyboardFocus = false;
     }
 }
 

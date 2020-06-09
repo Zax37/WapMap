@@ -92,7 +92,7 @@ namespace SHR {
 
         virtual void draw(Graphics *graphics);
 
-        virtual void focusLost(const Event &event);
+        virtual void focusLost(const FocusEvent &event);
 
         virtual void mouseMoved(MouseEvent &mouseEvent);
 

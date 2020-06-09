@@ -37,20 +37,20 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             tg.pl = GetActivePlane();
             tg.id = EWW_TILE_PIPETTE;
             vTileGhosting.push_back(tg);
-            int posx = iTileWriteIDx * GetActivePlane()->GetTileWidth(),
-                posy = iTileWriteIDy * GetActivePlane()->GetTileHeight();
-            posx = Wrd2ScrX(GetActivePlane(), posx);
-            posy = Wrd2ScrY(GetActivePlane(), posy);
-            int tileh = GetActivePlane()->GetTileHeight() * fZoom;
-            int tilew = (GetActivePlane()->GetTileWidth() * fZoom - 48.0f) / 2.0f;
-            conWriteID->setPosition(posx + tilew, posy + tileh / 2 - 10);
+            int posX = iTileWriteIDx * GetActivePlane()->GetTileWidth(),
+                posY = iTileWriteIDy * GetActivePlane()->GetTileHeight();
+            posX = Wrd2ScrX(GetActivePlane(), posX);
+            posY = Wrd2ScrY(GetActivePlane(), posY);
+            int tileW = (GetActivePlane()->GetTileWidth() * fZoom - 48.0f) / 2.0f,
+                tileH = GetActivePlane()->GetTileHeight() * fZoom;
+            conWriteID->setPosition(posX + tileW, posY + tileH / 2 - 10);
         }
     }
 
     if (iActiveTool == EWW_TOOL_NONE) {
         if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON) &&
             !bObjDragSelection) {
-            bObjDragSelection = 1;
+            bObjDragSelection = true;
             iObjDragOrigX = Scr2WrdX(GetActivePlane(), mx);
             iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
             iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
@@ -76,8 +76,8 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                   mx < tilContext->getX() + tilContext->getWidth() &&
                   my > tilContext->getY() &&
                   my < tilContext->getY() + tilContext->getHeight())) {
-                tilContext->setVisible(0);
-                return 0;
+                tilContext->setVisible(false);
+                return false;
             }
         }
 

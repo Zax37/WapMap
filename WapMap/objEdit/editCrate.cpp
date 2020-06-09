@@ -262,7 +262,7 @@ namespace ObjEdit {
             for (int i = 0; i < 9; i++) invTabs[i]->setEnabled(!bPick);
             _butSave->setEnabled(!bPick);
             ddDurability->setEnabled(!bPick && iCratesCount <= 2);
-            labDurability->setColor(ddDurability->isEnabled() ? 0xFFa1a1a1 : 0xFFb2b2b2);
+            labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
             butWarpPick->setCaption(GETL2S("EditObj_Warp", (bPick ? "Unpick" : "Pick")));
         } else if (actionEvent.getSource() == butRandomize) {
             int iRandNum = 1;
@@ -372,9 +372,9 @@ namespace ObjEdit {
         if (bShowWarpOptions) {
             hge->Gfx_RenderLine(dx, dy + 101 + 75, dx + win->getWidth(), dy + 101 + 75, GV->colLineDark);
             hge->Gfx_RenderLine(dx, dy + 102 + 75, dx + win->getWidth(), dy + 102 + 75, GV->colLineBright);
-            GV->fntMyriad13->SetColor(0xFFa1a1a1);
-            GV->fntMyriad13->Render(dx + 7, dy + 122, HGETEXT_LEFT, "X:", 0);
-            GV->fntMyriad13->Render(dx + 7, dy + 149, HGETEXT_LEFT, "Y:", 0);
+            GV->fntMyriad16->SetColor(0xFFe1e1e1);
+            GV->fntMyriad16->Render(dx + 7, dy + 122, HGETEXT_LEFT, "X:", 0);
+            GV->fntMyriad16->Render(dx + 7, dy + 149, HGETEXT_LEFT, "Y:", 0);
         }
 
         if (bStackable) {
@@ -406,7 +406,7 @@ namespace ObjEdit {
             hTempObj->SetLogic("FrontStackedCrates");
             ddDurability->setEnabled(0);
         }
-        labDurability->setColor(ddDurability->isEnabled() ? 0xFFa1a1a1 : 0xFFb2b2b2);
+        labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
     }
 
     void cEditObjCrate::RebuildWindow() {
@@ -445,7 +445,7 @@ namespace ObjEdit {
         ddDurability->setEnabled(iCratesCount <= 2);
         if (!ddDurability->isEnabled())
             ddDurability->setSelected(0);
-        labDurability->setColor(ddDurability->isEnabled() ? 0xFFa1a1a1 : 0xFFb2b2b2);
+        labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
     }
 
     void cEditObjCrate::ApplyInventoryToObject() {

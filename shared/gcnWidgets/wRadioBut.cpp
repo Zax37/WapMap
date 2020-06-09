@@ -20,27 +20,22 @@ namespace SHR {
         setFocusable(true);
         addMouseListener(this);
         addKeyListener(this);
-        bAllowDisselect = 0;
+        addFocusListener(this);
+        bAllowDisselect = false;
         fTimer = 0;
-        bMouseOver = 0;
+        bMouseOver = false;
+        mKeyboardFocus = false;
     }
 
     RadBut::RadBut(cInterfaceSheet *Parts, const std::string &caption,
                    const std::string &group,
-                   bool selected) {
+                   bool selected) : RadBut() {
         hGfx = Parts;
         setCaption(caption);
         setGroup(group);
         setSelected(selected);
 
-        setFocusable(true);
-        addMouseListener(this);
-        addKeyListener(this);
-
         adjustSize();
-        bAllowDisselect = 0;
-        fTimer = 0;
-        bMouseOver = 0;
     }
 
     RadBut::~RadBut() {
@@ -56,7 +51,7 @@ namespace SHR {
 
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
-        bool bmo = bMouseOver && mx < x + 17 && my > dy && my < dy + 17;
+        bool bmo = isSelected() || (bMouseOver && mx < x + 17 && my > dy && my < dy + 17);
 
         if (bmo && fTimer < 0.1f) {
             fTimer += hge->Timer_GetDelta();
@@ -68,20 +63,24 @@ namespace SHR {
 
         int st = 4;
         if (isEnabled()) {
-            st = (fTimer == 0.1f ? 3 : 2);
+            st = 2;
         }
         hGfx->sprControl[0][st]->Render(x, dy);
 
-        if (isEnabled() && fTimer != 0 && fTimer != 0.1f) {
-            hGfx->sprControl[0][3]->SetColor(SETA(0xFFFFFFFF, (unsigned char) (fTimer * 10.0f * 255.0f)));
+        if (isEnabled() && fTimer != 0) {
+            hGfx->sprControl[0][3]->SetColor(SETA(0xFFFFFF, (unsigned char) (fTimer * 10.0f * 255.0f)));
             hGfx->sprControl[0][3]->Render(x, dy);
         }
 
         if (isSelected())
             hGfx->sprControl[0][!isEnabled()]->Render(x, dy);
 
+        if (mKeyboardFocus) {
+            hGfx->sprControl[0][5]->Render(x - 1, dy - 1);
+        }
+
         graphics->setFont(getFont());
-        graphics->setColor(isEnabled() ? 0xa1a1a1 : 0x222222);
+        graphics->setColor(gcn::Color(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * getAlpha() / 255.f));
 
         int h = getHeight() + getHeight() / 2;
 
@@ -118,6 +117,7 @@ namespace SHR {
     }
 
     void RadBut::keyPressed(KeyEvent &keyEvent) {
+        if (isSelected()) return;
         Key key = keyEvent.getKey();
 
         if (key.getValue() == Key::ENTER ||
@@ -137,24 +137,15 @@ namespace SHR {
         bMouseOver = 0;
     }
 
-    bool RadBut::showHand() {
-        int x, y;
-        getAbsolutePosition(x, y);
-        int dy = y + getHeight() / 2 - 8;
-
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-
-        return (isEnabled() && !(isSelected() && !bAllowDisselect) && mx < x + 17 && my > dy && my < dy + 17);
-    }
-
     void RadBut::mouseClicked(MouseEvent &mouseEvent) {
         if (mouseEvent.getButton() == MouseEvent::LEFT) {
-            if (isSelected() && bAllowDisselect)
+            bool selected = isSelected();
+            if (selected && bAllowDisselect)
                 setSelected(false);
             else
                 setSelected(true);
-            distributeActionEvent();
+            if (selected != isSelected())
+                distributeActionEvent();
         }
     }
 
@@ -195,5 +186,13 @@ namespace SHR {
 
         setHeight(height);
         setWidth(getFont()->getWidth(getCaption()) + height + height / 2);
+    }
+
+    void RadBut::focusGained(const FocusEvent &event) {
+        mKeyboardFocus = event.isKeyboardFocus();
+    }
+
+    void RadBut::focusLost(const FocusEvent &event) {
+        mKeyboardFocus = false;
     }
 }

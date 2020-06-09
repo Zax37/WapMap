@@ -92,8 +92,6 @@ namespace SHR {
 
         virtual void mouseDragged(MouseEvent &mouseEvent);
 
-        virtual bool showHand();
-
     protected:
         /**
          * Holds the caption of the Link.

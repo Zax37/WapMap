@@ -208,7 +208,6 @@ namespace ObjEdit {
                     mx < dx + 37 + i * 73 + 13 + float(r.x2) * fscale &&
                     my > dy + 56 + 8 + float(r.y1) * fscale && my < dy + 56 + 8 + float(r.y2) * fscale &&
                     hState->conMain->getWidgetAt(mx, my) == win) {
-                    hState->bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         rbType[i]->setSelected(1);
                         Action(gcn::ActionEvent(rbType[i], ""));

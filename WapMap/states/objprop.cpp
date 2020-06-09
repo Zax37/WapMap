@@ -295,10 +295,12 @@ namespace State {
             hgeQuad q;
             q.tex = 0;
             q.blend = BLEND_DEFAULT;
-            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 25, dx + w - 5, dy + 182);
+            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 30, dx + w - 5, dy + 187);
             hge->Gfx_RenderQuad(&q);
-            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 233, dx + w - 5, dy + 390);
+            SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 238, dx + w - 5, dy + 395);
             hge->Gfx_RenderQuad(&q);
+
+            dy += 7;
 
             for (int z = 0; z < 2; z++) {
                 int move = (z ? m_hOwn->sliisFrame->getValue() : m_hOwn->sliisPick->getValue());
@@ -335,7 +337,6 @@ namespace State {
                     bool bMouseOver = (mx > x && mx < x + 128 && my > y && my < y + 128) &&
                                       (mx > dx + 5 && mx < dx + w + -5);
                     if (bMouseOver) {
-                        ((ObjProp *) GV->StateMgr->GetState())->bRenderHand = 1;
                         if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                             if (z) {
                                 m_hOwn->asimgImageSetFrame = m_hOwn->asImageSetPick->GetIMGByIterator(i);
@@ -361,28 +362,15 @@ namespace State {
                         hge->Gfx_RenderLine(x, y, x, y + 128, (bMouseOver ? 0xFFFFFF00 : 0xFF00FF00));
                         hge->Gfx_RenderLine(x + 128, y, x + 128, y + 128, (bMouseOver ? 0xFFFFFF00 : 0xFF00FF00));
                     }
-                    GV->fntMyriad13->SetColor(bMouseOver ? 0xFFFFFF00 : (condition ? 0xFF00FF00 : 0xFF000000));
+                    GV->fntMyriad16->SetColor(bMouseOver ? 0xFFFFFF00 : (condition ? 0xFF00FF00 : 0xFF000000));
                     std::string text = z ? m_hOwn->asImageSetPick->GetIMGByIterator(i)->GetName()
                                          : GV->editState->SprBank->GetAssetByIterator(i)->GetID();
-                    while (GV->fntMyriad13->GetStringWidth(text.c_str()) > 135) {
+                    while (GV->fntMyriad16->GetStringWidth(text.c_str()) > 135) {
                         text.replace(text.size() / 2 - 2, 4, "...");
                     }
-                    GV->fntMyriad13->Render(x + 64, y + 130, HGETEXT_CENTER, text.c_str(), 0);
+                    GV->fntMyriad16->Render(x + 64, y + 130, HGETEXT_CENTER, text.c_str(), 0);
                 }
             }
-            hge->Gfx_SetClipping();
-
-            GV->sprShadeBar->SetFlip(0, 0);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 25, dx + w - 5, dy + 31);
-            GV->sprShadeBar->SetFlip(0, 1);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 182 - 6, dx + w - 5, dy + 182);
-            GV->sprShadeBar->SetFlip(0, 0);
-
-            GV->sprShadeBar->SetFlip(0, 0);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 233, dx + w - 5, dy + 239);
-            GV->sprShadeBar->SetFlip(0, 1);
-            GV->sprShadeBar->RenderStretch(dx + 5, dy + 390 - 6, dx + w - 5, dy + 390);
-            GV->sprShadeBar->SetFlip(0, 0);
         }
     }
 
@@ -1626,7 +1614,7 @@ bool State::ObjProp::Think() {
         _flipMe((int) rc);
         hProp->SwapDone();
     }
-    return 0;
+    return false;
 }
 
 bool State::ObjProp::Render() {
@@ -1637,10 +1625,8 @@ bool State::ObjProp::Render() {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
     }
-    GV->IF->Render(bRenderHand);
     GV->Console->Render();
-    bRenderHand = 0;
-    return 0;
+    return false;
 }
 
 void State::ObjProp::GainFocus(int iReturnCode, bool bFlipped) {

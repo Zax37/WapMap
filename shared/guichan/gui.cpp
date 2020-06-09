@@ -446,10 +446,14 @@ namespace gcn {
         int sourceWidgetX, sourceWidgetY;
         sourceWidget->getAbsolutePosition(sourceWidgetX, sourceWidgetY);
 
-        if ((mFocusHandler->getModalFocused() != NULL
-             && sourceWidget->isModalFocused())
-            || mFocusHandler->getModalFocused() == NULL) {
-            sourceWidget->requestFocus();
+        if (sourceWidget->isFocusable()) {
+            if ((mFocusHandler->getModalFocused() != NULL
+                 && sourceWidget->isModalFocused())
+                || mFocusHandler->getModalFocused() == NULL) {
+                sourceWidget->requestFocus();
+            }
+        } else {
+            focusNone();
         }
 
         if (mouseInput.getTimeStamp() - mLastMousePressTimeStamp < 250

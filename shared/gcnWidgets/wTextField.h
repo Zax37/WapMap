@@ -6,13 +6,14 @@
 #include "guichan/platform.hpp"
 #include "guichan/widget.hpp"
 #include "guichan/focuslistener.hpp"
-
+#include "cField.h"
 #include <string>
 
 using namespace gcn;
 
 namespace SHR {
     class GCN_CORE_DECLSPEC TextField :
+            public Field,
             public gcn::Widget,
             public MouseListener,
             public KeyListener,
@@ -22,9 +23,9 @@ namespace SHR {
 
         TextField(const std::string &text);
 
-        void setText(const std::string &text, bool bGenerateActionEvent = 0);
+        void setText(const std::string &text, bool bGenerateActionEvent = false);
 
-        const std::string &getText() const;
+        const std::string& getText() const;
 
         void adjustSize();
 
@@ -34,15 +35,17 @@ namespace SHR {
 
         unsigned int getCaretPosition() const;
 
-        virtual void fontChanged();
+        void fontChanged() override;
 
-        virtual void draw(Graphics *graphics);
+        void draw(Graphics *graphics) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void mouseMoved(MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void keyPressed(KeyEvent &keyEvent);
+        void mouseDragged(MouseEvent &mouseEvent) override;
+
+        void keyPressed(KeyEvent &keyEvent) override;
 
         bool IsNumericalOnly() { return bNumerical; };
 
@@ -57,15 +60,11 @@ namespace SHR {
 
         void setMarkedInvalid(bool b) { bMarkedInvalid = b; };
 
-        virtual void focusGained(const Event &event);
+        void focusGained(const FocusEvent &event) override;
 
-        virtual void focusLost(const Event &event);
-
-        static void renderFrame(int dx, int dy, int w, int h, unsigned char alpha, bool version);
+        void focusLost(const FocusEvent &event) override;
 
     protected:
-        virtual void drawCaret(Graphics *graphics, int x);
-
         void fixScroll();
 
         float fFocusTimer;

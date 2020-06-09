@@ -74,8 +74,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>NOMINMAX
-;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -91,16 +91,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;d3d9.lib;d3dx9d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;libcurl-d_imp.lib;lua.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;lua.lib;zlibd.lib;libcurl-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
       <Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
-copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -112,8 +113,8 @@ copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>NOMINMAX
-;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -130,15 +131,16 @@ copy ..\..\curl\build\lib\Debug\libcurl-d.dll $(TargetDir)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;libcurl_imp.lib;lua.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
       <Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
-copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -150,8 +152,8 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>NOMINMAX
-;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -167,15 +169,16 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;libcurl_imp.lib;lua.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
       <Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r
-copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -230,6 +233,7 @@ copy ..\..\curl\build\lib\$(Configuration)\libcurl.dll $(TargetDir)</Command>
     <ClCompile Include="..\shared\guichan\defaultfont.cpp" />
     <ClCompile Include="..\shared\guichan\event.cpp" />
     <ClCompile Include="..\shared\guichan\exception.cpp" />
+    <ClCompile Include="..\shared\guichan\focusevent.cpp" />
     <ClCompile Include="..\shared\guichan\focushandler.cpp" />
     <ClCompile Include="..\shared\guichan\font.cpp" />
     <ClCompile Include="..\shared\guichan\genericinput.cpp" />

@@ -169,7 +169,7 @@ bool cAutoUpdater::Think() {
             if (response.empty()) {
                 GV->Console->Print("~r~Failed to check for updates!");
                 return true;
-            } else {
+            } else try {
                 auto parsed = nlohmann::json::parse(response);
                 auto tag_name = parsed["tag_name"].get<std::string>();
                 int majorVersion, minorVersion, patchVersion;
@@ -200,6 +200,9 @@ bool cAutoUpdater::Think() {
                     return true;
                 }
                 GV->Console->Printf("All up to date!");
+                return true;
+            } catch (...) {
+                GV->Console->Print("~r~Failed to check for updates!");
                 return true;
             }
             break;
@@ -235,7 +238,7 @@ void cAutoUpdater::PopupQuestion(SHR::Container *dest) {
     else
         winActualize->setCaption(GETL(Lang_ActualizeCaption));
     winActualize->setDimension(
-            gcn::Rectangle(0, 0, 400, 80 + GV->fntMyriad13->GetHeightb(390, GETL(Lang_ActualizeQuestion))));
+            gcn::Rectangle(0, 0, 400, 80 + GV->fntMyriad16->GetHeightb(390, GETL(Lang_ActualizeQuestion))));
     winActualize->setMovable(false);
     if (labActualize == NULL)
         labActualize = new SHR::Lab(GETL(Lang_ActualizeQuestion));

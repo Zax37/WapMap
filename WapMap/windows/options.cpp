@@ -82,7 +82,7 @@ winOptions::winOptions() {
     scrollAreaCategories->setDimension(settingsCategoriesList->getDimension());
     scrollAreaCategories->setOpaque(false);
     myWin->add(scrollAreaCategories, 0, 8);
-    myWin->setHeight(24 + settingsCategoriesList->getHeight());
+    myWin->setHeight(26 + settingsCategoriesList->getHeight());
 
     auto* conWapMap = new SHR::Container();
     conWapMap->setOpaque(false);
@@ -100,7 +100,7 @@ winOptions::winOptions() {
         ddoptLang->addActionListener(this);
         ddoptLang->SetGfx(&GV->gcnParts);
         ddoptLang->adjustHeight();
-        conWapMap->add(ddoptLang, xOffset + 130, yOffset - 1);
+        conWapMap->add(ddoptLang, xOffset + 130, yOffset - 2);
 
         HANDLE hFind = INVALID_HANDLE_VALUE;
         WIN32_FIND_DATA fdata;
@@ -119,7 +119,6 @@ winOptions::winOptions() {
 
         labChangesLang = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
         labChangesLang->adjustSize();
-        labChangesLang->setColor(0x5e5e5e);
         labChangesLang->setVisible(false);
         conWapMap->add(labChangesLang, xOffset, yOffset);
 
@@ -135,14 +134,13 @@ winOptions::winOptions() {
         ddoptRes->addActionListener(this);
         ddoptRes->SetGfx(&GV->gcnParts);
         ddoptRes->adjustHeight();
-        conWapMap->add(ddoptRes, xOffset + 130, yOffset - 1);
+        conWapMap->add(ddoptRes, xOffset + 130, yOffset - 2);
 
         yOffset += 22;
 
         labChangesRes = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
         labChangesRes->adjustSize();
         labChangesRes->setVisible(0);
-        labChangesRes->setColor(0x5e5e5e);
         conWapMap->add(labChangesRes, xOffset, yOffset);
 
         yOffset += 30;
@@ -223,7 +221,7 @@ winOptions::winOptions() {
         ddoptGameRes->addActionListener(this);
         ddoptGameRes->SetGfx(&GV->gcnParts);
         ddoptGameRes->adjustHeight();
-        conClaw->add(ddoptGameRes, xOffset + 5 + labGameRes->getWidth(), yOffset - 1);
+        conClaw->add(ddoptGameRes, xOffset + 5 + labGameRes->getWidth(), yOffset - 2);
 
         yOffset += 30;
 
@@ -528,7 +526,7 @@ void winOptions::UpdatedClawExePath(bool forceDetect) {
     labCrazyHookSettings->adjustSize();
     ddoptGameRes->setEnabled(b);
 
-    labGameRes->setColor(b ? 0xa1a1a1 : 0x5e5e5e);
+    labGameRes->setColor(SETA(0xe1e1e1, b ? 0xFF : 0x77));
 
     if (GV->editState->hNativeController->IsValid()) {
         labVersion->setCaption(std::string(GETL2S("Options", "DetectedVer")) + " " +

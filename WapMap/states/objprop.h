@@ -173,7 +173,6 @@ namespace State {
         virtual void GainFocus(int iReturnCode, bool bFlipped);
         //virtual void GainFocus(int iReturnCode);
 
-        bool bRenderHand;
         WWD::Object *hObj;
         gcn::Gui *gui;
         cObjectProp *hProp;

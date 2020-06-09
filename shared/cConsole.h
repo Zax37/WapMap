@@ -74,7 +74,7 @@ namespace SHR {
         std::vector<cConsoleVar *> m_vVars;
 
         int m_iScroll;
-        char m_szInput[256];
+        std::string m_szInput;
         bool m_bAnimSet;
     public:
         cConsole(hgeSprite *psprBG = NULL);
@@ -123,6 +123,8 @@ namespace SHR {
         void ListVars();
 
         const char *GetLine(int i);
+
+        void FixPos();
     };
 
 }

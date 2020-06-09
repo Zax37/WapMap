@@ -1,14 +1,10 @@
 #include "cMDI.h"
-
 #include "../shared/commonFunc.h"
 #include "globals.h"
-
 #include "states/editing_ww.h"
 #include "cObjectUserData.h"
-
 #include "langID.h"
 #include "cAppMenu.h"
-#include "cInterfaceSheet.h"
 #include "io/cWWDx.h"
 #include "version.h"
 #include "states/loadmap.h"
@@ -45,13 +41,13 @@ cMDI::cMDI() {
     bBlock = 0;
     bReloadingMap = 0;
     bUpdateCrashList = 1;
-    hContextClosed = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    hContextClosed = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     hContextClosed->adjustSize();
     hContextClosed->addActionListener(this);
     hContextClosed->hide();
     GV->editState->conMain->add(hContextClosed, 400, 400);
 
-    hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     hContext->addActionListener(this);
     hContext->hide();
     GV->editState->conMain->add(hContext, 400, 400);
@@ -219,8 +215,7 @@ void cMDI::RebuildContext(bool bForceRebuildBase) {
     }
     if (!vstrRecentlyClosed.size()) return;
     if (!prevclosed) {
-        hContext->AddElement(MDI_CONTEXT_PREVIOUSLYCLOSED, GETL2S("MDI", "Context_PreviouslyClosed"),
-                             GV->sprIcons16[Icon16_Diamonds]);
+        hContext->AddElement(MDI_CONTEXT_PREVIOUSLYCLOSED, GETL2S("MDI", "Context_PreviouslyClosed"));
         hContext->adjustSize();
         prevclosed = hContext->GetElementByID(MDI_CONTEXT_PREVIOUSLYCLOSED);
     }
@@ -319,7 +314,6 @@ void cMDI::DeleteDocByPtr(DocumentData *hdd) {
 }
 
 void cMDI::Think(bool bConsumed) {
-    bMouseHand = 0;
     if (bBlock) return;
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
@@ -338,27 +332,13 @@ void cMDI::Think(bool bConsumed) {
 
     if (my > m_iPosY && my < m_iPosY + 25 && !bConsumed) {
         int xoff = 0;
-        for (int i = -1; i < int(m_vhDoc.size()); i++) {
-            cTabMDI *tab = (i == -1 ? hDefTab : m_vhDoc[i]->hTab);
+        for (int i = 0;/*-1;*/ i < int(m_vhDoc.size()); i++) {
+            cTabMDI *tab = /*(i == -1 ? hDefTab : */m_vhDoc[i]->hTab;
             int w = tab->GetWidth();
             if (mx > xoff && mx <= xoff + w) {
                 bool reject = 0;
-                if (i > -1 && mx - xoff <= 9) {
-                    int x = mx - xoff, y = my - m_iPosY - 1;
-                    if (y > 15) y -= 15;
-                    if (y > x) {
-                        reject = 1;
-                        cTabMDI *ntab = (i == 0 ? hDefTab : m_vhDoc[i - 1]->hTab);
-                        ntab->bFocused = 1;
-                        if (i - 1 != m_iActiveDoc)
-                            bMouseHand = 1;
-                        iFocus = i - 1;
-                    }
-                }
                 tab->bFocused = !reject;
                 if (!reject) {
-                    if (i != m_iActiveDoc)
-                        bMouseHand = 1;
                     iFocus = i;
                 }
                 if (hge->Input_KeyDown(HGEK_LBUTTON) && i != -1) {
@@ -478,20 +458,17 @@ bool cMDI::CloseDocByIt(int i) {
 void cMDI::Render() {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
-    hge->Gfx_RenderLine(0, m_iPosY - 1, hge->System_GetState(HGE_SCREENWIDTH), m_iPosY - 1, 0xFF1d1d1d);
-    hgeQuad q;
+    hge->Gfx_RenderLine(0, m_iPosY, hge->System_GetState(HGE_SCREENWIDTH), m_iPosY, GV->colOutline);
+    /*hgeQuad q;
     q.tex = 0;
     q.blend = BLEND_DEFAULT;
     hge->Gfx_SetClipping(0, m_iPosY - 1, hge->System_GetState(HGE_SCREENWIDTH) - 3, 26);
     for (int x = 0; x < hge->System_GetState(HGE_SCREENWIDTH) / 128; x++)
-        GV->hGfxInterface->sprMainBackground->Render(x * 128, m_iPosY - (m_iPosY % 128));
+        GV->hGfxInterface->sprMainBackground->Render(x * 128, m_iPosY - (m_iPosY % 128));*/
     hge->Gfx_SetClipping();
-    int xoffset = hDefTab->Render(0, m_iPosY, bBlock, m_iActiveDoc == -1, m_vhDoc.size() == 0) + 3;
+    int xoffset = 0; //hDefTab->Render(0, m_iPosY, bBlock, m_iActiveDoc == -1, true);
     for (int i = 0; i < m_vhDoc.size(); i++)
-        xoffset += m_vhDoc[i]->hTab->Render(xoffset, m_iPosY, bBlock, m_iActiveDoc == i, (i == m_vhDoc.size() - 1)) - 1;
-
-    if (bMouseHand)
-        GV->editState->bShowHand = 1;
+        xoffset += m_vhDoc[i]->hTab->Render(xoffset, m_iPosY, bBlock, m_iActiveDoc == i, true);
 }
 
 void cMDI::SetActiveDoc(DocumentData *doc) {
@@ -529,8 +506,6 @@ void cMDI::SaveCurrent() {
             GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
 #endif
         }
-    } else {
-        GV->editState->SetHint(GETL2S("Hints", "NothingToSave"));
     }
 };
 
@@ -546,19 +521,19 @@ cTabMDI::~cTabMDI() {
 }
 
 void cTabMDI::Update() {
-    if (bSelected && fTimer < 0.5f) {
+    /*if (bSelected && fTimer < 0.5f) {
         fTimer += hge->Timer_GetDelta();
         if (fTimer > 0.5f) fTimer = 0.5f;
         return;
     } else if (!bSelected && fTimer > 0.25f) {
         fTimer -= hge->Timer_GetDelta();
         if (fTimer < 0.25f) fTimer = 0.25f;
-    }
+    }*/
 
-    if (bFocused && fTimer < 0.25f) {
+    if (!bSelected && bFocused && fTimer < 0.25f) {
         fTimer += hge->Timer_GetDelta();
         if (fTimer > 0.25f) fTimer = 0.25f;
-    } else if (!bFocused && fTimer > 0) {
+    } else if ((bSelected || !bFocused) && fTimer > 0) {
         fTimer -= hge->Timer_GetDelta();
         if (fTimer < 0) fTimer = 0;
     }
@@ -566,60 +541,67 @@ void cTabMDI::Update() {
 
 int cTabMDI::GetWidth() {
     if (dd == 0)
-        return 28;
+        return 36 ;
 
     std::string desc(dd->szFileName);
     if (!dd->bSaved) desc.push_back('*');
-    return GV->fntMyriad13->GetStringWidth(desc.c_str()) + 54;
+    return GV->fntMyriad16->GetStringWidth(desc.c_str()) + 55;
 }
 
 int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
     bSelected = bselected;
     int st = 1;
     if (bselected) st = 3;
-    if (bdisabled) st = 0;
-    if (dd == 0) {
-        for (int i = 0; i < 5; i++)
-            GV->hGfxInterface->sprBreadcrumb[st][i]->SetColor(0xFFFFFFFF);
-        RenderBG(x, y, 36, st, 1, blast);
+    //if (bdisabled) st = 0;
+    /*if (dd == 0) {
+        int tabw = GetWidth();
+        if (!bselected) {
+            for (int i = 0; i < 5; i++)
+                GV->hGfxInterface->sprBreadcrumb[st][i]->SetColor(0xFFFFFFFF);
+
+            RenderBG(x, y, tabw, st, 1, blast);
+        }
 
         if (st == 1 && fTimer > 0) {
             for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFFFF, int(fTimer
+                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFF, int(fTimer
                         *4.0f * 125.0f)));
-            RenderBG(x, y, 36, 3, 1, blast);
+            RenderBG(x, y, tabw, 3, 1, blast);
         }
-        GV->sprIcons[Icon_Home]->RenderStretch(x + 6, y, x + 4 + 26, y + 26);
+        GV->sprIcons[Icon_Home]->RenderStretch(x + 7, y, x + 4 + 26, y + 26);
         if (fTimer > 0.0f) {
             GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
-            GV->sprIcons[Icon_Home]->SetColor(SETA(0xFFFFFFFF, (unsigned char) (fTimer * 4.0f * 125.0f)));
-            GV->sprIcons[Icon_Home]->RenderStretch(x + 6, y, x + 4 + 26, y + 26);
+            GV->sprIcons[Icon_Home]->SetColor(SETA(0xFFFFFF, (unsigned char) (fTimer * 4.0f * 125.0f)));
+            GV->sprIcons[Icon_Home]->RenderStretch(x + 7, y, x + 4 + 26, y + 26);
             GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_DEFAULT);
             GV->sprIcons[Icon_Home]->SetColor(0xFFFFFFFF);
         }
 
-        return 28;
-    } else {
+        return tabw;
+    } else {*/
         std::string desc(dd->szFileName);
         if (!dd->bSaved) desc.push_back('*');
-        int sw = GV->fntMyriad13->GetStringWidth(desc.c_str());
+        int sw = GV->fntMyriad16->GetStringWidth(desc.c_str());
         int tabw = GetWidth();
 
-        for (int i = 0; i < 5; i++)
-            GV->hGfxInterface->sprBreadcrumb[st][i == 5 ? 1 : i]->SetColor(0xFFFFFFFF);
-        RenderBG(x, y, tabw, st, 0, blast);
+        if (!bselected) {
+            for (int i = 0; i < 5; i++)
+                GV->hGfxInterface->sprBreadcrumb[st][i]->SetColor(0xFFFFFFFF);
+
+            RenderBG(x, y, tabw, st, 1, blast);
+        }
 
         if (st == 1 && fTimer > 0) {
             for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFFFF, int(fTimer
+                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFF, int(fTimer
                         *4.0f * 125.0f)));
-            RenderBG(x, y, tabw, 3, 0, blast);
+            RenderBG(x, y, tabw, 3, 1, blast);
         }
 
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
 
-        bCloseFocused = (!bdisabled && mx > x + sw + 31 && my > y + 4 && mx < x + sw + 31 + 16 && my < y + 20 &&
+        bCloseFocused = (!bdisabled && mx > x + sw + 38 && my > y + 4 && mx < x + sw + 31 + 16 && my < y + 20 &&
                              GV->editState->conMain->getWidgetAt(mx, my) == NULL);
 
         if (bCloseFocused && fCloseTimer < 0.2f) {
@@ -630,39 +612,31 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
             if (fCloseTimer < 0.0f) fCloseTimer = 0.0f;
         }
 
-        GV->sprIcons16[Icon16_X]->SetColor(0xFFFFFFFF);
-        GV->sprIcons16[Icon16_X]->Render(x + sw + 34, y + 4);
-        if (fCloseTimer > 0.0f) {
-            GV->sprIcons16[Icon16_X]->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
-            GV->sprIcons16[Icon16_X]->SetColor(SETA(0xFFFFFFFF, (unsigned char) (fCloseTimer * 5.0f * 255.0f)));
-            GV->sprIcons16[Icon16_X]->Render(x + sw + 34, y + 4);
-            GV->editState->bShowHand = 1;
-            GV->sprIcons16[Icon16_X]->SetColor(0xFFFFFFFF);
-            GV->sprIcons16[Icon16_X]->SetBlendMode(BLEND_DEFAULT);
-        }
+        GV->sprTabCloseButton->SetColor(SETA(0xFFFFFF, bdisabled ? 0x77 : 0xFF));
+        GV->sprTabCloseButton->Render(x + sw + 38, y + 8);
 
         if (dd->hParser->GetGame() == WWD::Game_Claw && dd->hParser->GetBaseLevel() != 0)
-            GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->Render(x + 13, y + 4);
+            GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->Render(x + 9, y + 4);
         else
-            GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 13, y + 4);
-        GV->fntMyriad13->SetColor(0xFF000000);
-        GV->fntMyriad13->Render(x + 31, y + 5, HGETEXT_LEFT, desc.c_str(), 0);
+            GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 9, y + 4);
+        GV->fntMyriad16->SetColor(SETA(0xe1e1e1, bdisabled ? 0x77 : 0xFF));
+        GV->fntMyriad16->Render(x + 31, y + 5, HGETEXT_LEFT, desc.c_str(), 0);
         return tabw;
-    }
+    //}
 }
 
 void cTabMDI::RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed) {
     int xoff = 0;
-    if (bfirst) {
+    /*if (bfirst) {
         GV->hGfxInterface->sprBreadcrumb[st][0]->Render(x, y);
         xoff = 5;
     } else {
         GV->hGfxInterface->sprBreadcrumb[st][3]->Render(x, y);
         xoff = 14;
-    }
-    GV->hGfxInterface->sprBreadcrumb[st][1]->RenderStretch(x + xoff, y, x + w - (bclosed || bfirst) * 4 - 4, y + 26);
-    if (bclosed)
+    }*/
+    GV->hGfxInterface->sprBreadcrumb[st][1]->RenderStretch(x/* + xoff*/, y, x + w - 1 /*- (bclosed || bfirst) * 4 - 4*/, y + 26);
+    /*if (bclosed)
         GV->hGfxInterface->sprBreadcrumb[st][4]->Render(x + w - 8, y);
     else
-        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w - (bfirst * 4) - 4, y);
+        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w - (bfirst * 4) - 4, y);*/
 }

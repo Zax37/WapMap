@@ -58,7 +58,6 @@ bool State::LoadMap::Opaque() {
 }
 
 void State::LoadMap::Init() {
-    hge->System_SetState(HGE_HIDEMOUSE, 0);
     gui = new gcn::Gui();
     gui->setGraphics(GV->gcnGraphics);
     gui->setInput(GV->gcnInput);
@@ -105,8 +104,6 @@ void State::LoadMap::Init() {
     labDesc = new SHR::Lab("");
     labDesc->adjustSize();
     winLoad->add(labDesc, 5, 140);
-
-    GV->IF->EnableCursor(1);
 
     DocumentData *dd = new DocumentData;
     dd->iWapMapBuild = -1;
@@ -300,7 +297,6 @@ void State::LoadMap::Init() {
 }
 
 void State::LoadMap::Destroy() {
-    hge->System_SetState(HGE_HIDEMOUSE, 1);
     delete winLoad;
     delete barWhole, barAction;
     delete labWhole, labAction, labDesc;
@@ -315,6 +311,7 @@ void State::LoadMap::Destroy() {
 }
 
 bool State::LoadMap::Think() {
+    GV->Console->Think();
     try {
         gui->logic();
     }
@@ -333,9 +330,8 @@ bool State::LoadMap::Render() {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
     }
-    //GV->IF->Render();
     GV->Console->Render();
-    return 0;
+    return false;
 }
 
 void State::LoadMap::GainFocus(int iReturnCode, bool bFlipped) {

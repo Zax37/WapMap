@@ -84,7 +84,7 @@ namespace ObjEdit {
         if (bPicking) return;
         for (int i = 0; i < 4; i++) {
             tf[i]->setEnabled(b);
-            lab[i]->setColor(b ? 0xFFa1a1a1 : 0xEE000000);
+            lab[i]->setColor(SETA(GV->colFontWhite, b ? 0xFF : 0x77));
         }
         butPick->setEnabled(b);
     }

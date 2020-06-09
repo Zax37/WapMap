@@ -2,11 +2,6 @@
 #include "hge.h"
 #include "wTextField.h"
 
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
-#include "guichan/key.hpp"
-#include "guichan/mouseinput.hpp"
-
 #ifdef WAP_MAP
 
 #include "../../WapMap/globals.h"
@@ -74,38 +69,6 @@ namespace SHR {
         }
     }
 
-    void TextField::renderFrame(int dx, int dy, int w, int h, unsigned char alpha, bool version) {
-        for (int i = 0; i < 8; i++)
-            _ghGfxInterface->sprTextField[version][i]->SetColor(SETA(0xFFFFFFFF, alpha));
-
-        _ghGfxInterface->sprTextField[version][0]->Render(dx - 3, dy - 3);
-        _ghGfxInterface->sprTextField[version][1]->RenderStretch(dx + 4, dy - 3, dx + w - 4, dy + 4);
-        _ghGfxInterface->sprTextField[version][2]->Render(dx + w - 4, dy - 3);
-
-        _ghGfxInterface->sprTextField[version][3]->RenderStretch(dx - 3, dy + 4, dx + 1, dy + h - 4);
-        _ghGfxInterface->sprTextField[version][4]->RenderStretch(dx + w - 1, dy + 4, dx + w + 3, dy + h - 4);
-
-        _ghGfxInterface->sprTextField[version][5]->Render(dx - 3, dy + h - 4);
-        _ghGfxInterface->sprTextField[version][6]->RenderStretch(dx + 4, dy + h - 4, dx + w - 4, dy + h + 3);
-        _ghGfxInterface->sprTextField[version][7]->Render(dx + w - 4, dy + h - 4);
-
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
-        for (int i = 0; i < 4; i++) q.v[i].z = 0;
-        q.v[0].col = q.v[1].col = SETA(0xFF0b0b0b, alpha);
-        q.v[2].col = q.v[3].col = SETA((version ? 0xFF141414 : 0xFF282828), alpha);
-        q.v[0].x = dx + 1;
-        q.v[0].y = dy + 4;
-        q.v[1].x = dx + w - 1;
-        q.v[1].y = dy + 4;
-        q.v[2].x = dx + w - 1;
-        q.v[2].y = dy + h - 4;
-        q.v[3].x = dx + 1;
-        q.v[3].y = dy + h - 4;
-        hge->Gfx_RenderQuad(&q);
-    }
-
     void TextField::draw(Graphics *graphics) {
         if (isFocused() && fFocusTimer < 0.2f) {
             fFocusTimer += hge->Timer_GetDelta();
@@ -120,7 +83,12 @@ namespace SHR {
         getAbsolutePosition(dx, dy);
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
-        UpdateTooltip(mx > dx && my > dy && mx < dx + getWidth() && my < dy + getHeight());
+        bool hasMouse = mx > dx && my > dy && mx < dx + getWidth() && my < dy + getHeight();
+        UpdateTooltip(hasMouse);
+
+        if (hasMouse && isEnabled()) {
+            GV->SetCursor(TEXT);
+        }
 
         renderFrame(dx, dy, getWidth(), getHeight(), getAlpha(), 0);
         if (fFocusTimer > 0)
@@ -129,13 +97,8 @@ namespace SHR {
         graphics->pushClipArea(gcn::Rectangle(2, 2, getWidth() - 4, getHeight() - 4));
 
         hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
-        DWORD fntcol = (isEnabled() ? 0xFF8a8a8a : 0xFF414141);
-        if (fFocusTimer > 0) {
-            unsigned char p = (138.0f + 117.0f * fFocusTimer * 5.0f);
-            fntcol = ARGB(getAlpha(), p, p, p);
-        }
-        fnt->SetColor(fntcol);
-        fnt->Render(dx + 5 - mXScroll, dy + 1, HGETEXT_LEFT, mText.c_str(), 0);
+        fnt->SetColor(SETA(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * getAlpha() / 255.f));
+        fnt->Render(dx + 5 - mXScroll, ceil(dy + getHeight() / 2) - 1, HGETEXT_LEFT | HGETEXT_MIDDLE, mText.c_str(), true);
 
         if (mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
             hgeQuad q;
@@ -149,29 +112,17 @@ namespace SHR {
                 starti = mSelectionPosition;
                 endi = mCaretPosition;
             }
-            int startx = dx + getFont()->getWidth(mText.substr(0, starti)) - mXScroll + 4;
-            int endx = dx + getFont()->getWidth(mText.substr(0, endi)) - mXScroll + 4;
-            SHR::SetQuad(&q, 0x553393e6, startx, dy + 3,
-                         endx, dy + getFont()->getHeight() + 1);
+            int startX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 4;
+            int endX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 4;
+            SHR::SetQuad(&q, 0x553393e6, startX, dy + 3, endX, dy + getFont()->getHeight() + 1);
             hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(startx, dy + 3, startx, dy + getFont()->getHeight() + 1, 0xFF3393e6);
-            hge->Gfx_RenderLine(endx, dy + 3, endx, dy + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(startX, dy + 3, startX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(endX, dy + 3, endX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
         } else if (isFocused()) {
-            drawCaret(graphics, getFont()->getWidth(mText.substr(0, mCaretPosition)) - mXScroll);
+            drawCaret(graphics, GV->fntMyriad16->GetStringWidth(mText.substr(0, mCaretPosition).c_str(), false, true) - mXScroll);
         }
 
         graphics->popClipArea();
-    }
-
-    void TextField::drawCaret(Graphics *graphics, int x) {
-        // Check the current clip area as a clip area with a different
-        // size than the widget might have been pushed (which is the
-        // case in the draw method when we push a clip area after we have
-        // drawn a border).
-        const gcn::Rectangle clipArea = graphics->getCurrentClipArea();
-
-        graphics->setColor(0x3393e6);
-        graphics->drawLine(x + 2, clipArea.height - 2, x + 2, 1);
     }
 
     void TextField::mousePressed(MouseEvent &mouseEvent) {
@@ -203,26 +154,32 @@ namespace SHR {
         Key key = keyEvent.getKey();
         bool bSelection = mSelectionPosition != -1 && mSelectionPosition != mCaretPosition;
 
-        if (key.getValue() == Key::LEFT && mCaretPosition > 0) {
+        if (key.getValue() == Key::LEFT) {
             if (keyEvent.isShiftPressed()) {
                 if (mSelectionPosition > 0)
                     mSelectionPosition--;
                 else if (mSelectionPosition == -1 && mCaretPosition != 0)
                     mSelectionPosition = mCaretPosition - 1;
-            } else {
-                --mCaretPosition;
-                mSelectionPosition = -1;
-            }
-        } else if (key.getValue() == Key::RIGHT && mCaretPosition < mText.size()) {
+            } else if (mCaretPosition > 0) {
+                if (mSelectionPosition == -1) --mCaretPosition;
+                else {
+                    if (mSelectionPosition < mCaretPosition) mCaretPosition = mSelectionPosition;
+                    mSelectionPosition = -1;
+                }
+            } else mSelectionPosition = -1;
+        } else if (key.getValue() == Key::RIGHT) {
             if (keyEvent.isShiftPressed()) {
                 if (mSelectionPosition < mText.length() && mSelectionPosition != -1)
                     mSelectionPosition++;
                 else if (mSelectionPosition == -1 && mCaretPosition < mText.length())
                     mSelectionPosition = mCaretPosition + 1;
-            } else {
-                ++mCaretPosition;
-                mSelectionPosition = -1;
-            }
+            } else if (mCaretPosition < mText.size()) {
+                if (mSelectionPosition == -1) ++mCaretPosition;
+                else {
+                    if (mSelectionPosition > mCaretPosition) mCaretPosition = mSelectionPosition;
+                    mSelectionPosition = -1;
+                }
+            } else mSelectionPosition = -1;
         } else if (key.getValue() == Key::DELETE && (mCaretPosition < mText.size() || bSelection)) {
             if (bSelection) {
                 deleteSelection();
@@ -244,11 +201,19 @@ namespace SHR {
             setActionEventId("ENTER");
             distributeActionEvent();
         } else if (key.getValue() == Key::HOME) {
-            mCaretPosition = 0;
-            mSelectionPosition = -1;
+            if (keyEvent.isShiftPressed()) {
+                mSelectionPosition = 0;
+            } else {
+                mCaretPosition = 0;
+                mSelectionPosition = -1;
+            }
         } else if (key.getValue() == Key::END) {
-            mCaretPosition = mText.size();
-            mSelectionPosition = -1;
+            if (keyEvent.isShiftPressed()) {
+                mSelectionPosition = mText.size();
+            } else {
+                mCaretPosition = mText.size();
+                mSelectionPosition = -1;
+            }
         } else if (key.getValue() == 'v' && keyEvent.isControlPressed()) { //paste
             if (bSelection) deleteSelection();
             int pastepos = mCaretPosition;
@@ -333,10 +298,10 @@ namespace SHR {
         setHeight(getFont()->getHeight() + 4);
     }
 
-    void TextField::focusGained(const Event &event) {
+    void TextField::focusGained(const FocusEvent &event) {
     }
 
-    void TextField::focusLost(const Event &event) {
+    void TextField::focusLost(const FocusEvent &event) {
         mSelectionPosition = -1;
 
         if (bNumerical && mText.empty()) {
@@ -384,5 +349,11 @@ namespace SHR {
 
     void TextField::setMaxLength(int n) {
         iMaxLength = n;
+    }
+
+    void TextField::mouseMoved(MouseEvent &mouseEvent) {
+        if (isEnabled()) {
+            GV->SetCursor(TEXT);
+        }
     }
 }

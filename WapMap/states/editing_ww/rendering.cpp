@@ -1,6 +1,5 @@
 #include "../editing_ww.h"
 #include "../loadmap.h"
-#include "../../globals.h"
 #include "../../version.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
@@ -15,12 +14,12 @@
 #include "../../objEdit/editStatue.h"
 #include "../../objEdit/editSpringboard.h"
 #include "../../cAppMenu.h"
-#include "../../cInterfaceSheet.h"
 #include "../../rendering/cRenderableItem.h"
 #include "../../databanks/imageSets.h"
 #include "../../databanks/anims.h"
 #include "../../databanks/tiles.h"
 #include "../../cBrush.h"
+#include "../../globals.h"
 
 extern HGE *hge;
 
@@ -243,24 +242,24 @@ void State::EditingWW::DrawDB() {
             cSprBankAssetIMG *img = SprBank->GetAssetByIterator(dbAssetsImg->getSelected())->GetIMGByIterator(
                     dbFramesImg->getSelected());
 
-            GV->fntMyriad13->printf(dx + 650, dy + 99, HGETEXT_RIGHT, "~y~%d", 0, dbFramesImg->getSelected());
-            GV->fntMyriad13->printf(dx + 650, dy + 119, HGETEXT_RIGHT, "~y~%d", 0, img->GetID());
-            /*GV->fntMyriad13->printf(dx+650, dy+139, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileID());
+            GV->fntMyriad16->printf(dx + 650, dy + 99, HGETEXT_RIGHT, "~y~%d", 0, dbFramesImg->getSelected());
+            GV->fntMyriad16->printf(dx + 650, dy + 119, HGETEXT_RIGHT, "~y~%d", 0, img->GetID());
+            /*GV->fntMyriad16->printf(dx+650, dy+139, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileID());
 			char * fl = SHR::FormatSize(img->GetFileSize());
-			GV->fntMyriad13->printf(dx+650, dy+159, HGETEXT_RIGHT, "~y~%s", 0, fl);
+			GV->fntMyriad16->printf(dx+650, dy+159, HGETEXT_RIGHT, "~y~%s", 0, fl);
 			delete [] fl;
-			GV->fntMyriad13->printf(dx+650, dy+179, HGETEXT_RIGHT, "~y~%d~l~x~y~%d", 0, img->GetFileDimX(), img->GetFileDimY());
-			GV->fntMyriad13->printf(dx+650, dy+199, HGETEXT_RIGHT, "~y~%d~l~x~y~%d", 0, img->GetFileOffsetX(), img->GetFileOffsetY());
-			GV->fntMyriad13->printf(dx+570, dy+239, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileUserData(0));
-			GV->fntMyriad13->printf(dx+650, dy+239, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileUserData(1));
-			GV->fntMyriad13->SetColor(0xFF000000);
-			GV->fntMyriad13->Render(dx+790, dy+80, HGETEXT_RIGHT, img->GetFileHash().c_str());*/
+			GV->fntMyriad16->printf(dx+650, dy+179, HGETEXT_RIGHT, "~y~%d~l~x~y~%d", 0, img->GetFileDimX(), img->GetFileDimY());
+			GV->fntMyriad16->printf(dx+650, dy+199, HGETEXT_RIGHT, "~y~%d~l~x~y~%d", 0, img->GetFileOffsetX(), img->GetFileOffsetY());
+			GV->fntMyriad16->printf(dx+570, dy+239, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileUserData(0));
+			GV->fntMyriad16->printf(dx+650, dy+239, HGETEXT_RIGHT, "~y~%d", 0, img->GetFileUserData(1));
+			GV->fntMyriad16->SetColor(0xFF000000);
+			GV->fntMyriad16->Render(dx+790, dy+80, HGETEXT_RIGHT, img->GetFileHash().c_str());*/
 
             /*int flagn = 1;
 			for(int i=0;i<8;i++){
 			 char ident[32];
 			 sprintf(ident, "Flag_%d", i+1);
-			 GV->fntMyriad13->Render(dx+676, dy+99+i*20, HGETEXT_LEFT, GETL2S("WinDatabase", ident));
+			 GV->fntMyriad16->Render(dx+676, dy+99+i*20, HGETEXT_LEFT, GETL2S("WinDatabase", ident));
 			 hgeSprite * spr = (img->GetFileFlags() & flagn ? GV->gcnParts.sprCBoxOn : GV->gcnParts.sprCBox);
 			 spr->Render(dx+658, dy+102+i*20);
 			 flagn *= 2;
@@ -323,7 +322,7 @@ void State::EditingWW::DrawDB() {
 
     if (!sadbFramesImg->isVisible() && tabindex == 1 ||
         !sadbFramesAni->isVisible() && tabindex == 2) {
-        GV->fntMyriad13->printf(dx + 700, dy + 100, HGETEXT_CENTER, GETL(Lang_SelectResourceFromList), 0);
+        GV->fntMyriad16->printf(dx + 700, dy + 100, HGETEXT_CENTER, GETL(Lang_SelectResourceFromList), 0);
     }
 
     if (tabindex == 2 && dbAssetsAni->getSelected() != -1) {
@@ -354,7 +353,7 @@ void State::EditingWW::DrawDB() {
             as->GetIMGByID(ani->GetFrame(dbFramesAni->getSelected())->GetImageID()) != 0)
             spr = as->GetIMGByID(ani->GetFrame(dbFramesAni->getSelected())->GetImageID())->GetSprite();
 
-        GV->fntMyriad13->printf(dx + 780, dy + 220, HGETEXT_RIGHT, "%d/%dms (%d)", 0,
+        GV->fntMyriad16->printf(dx + 780, dy + 220, HGETEXT_RIGHT, "%d/%dms (%d)", 0,
                                 int(fdbAniTimer), ani->GetFrame(dbFramesAni->getSelected())->GetDuration(),
                                 ani->GetFrame(dbFramesAni->getSelected())->GetImageID());
 
@@ -427,34 +426,34 @@ void State::EditingWW::DrawTileProperties() {
     hge->Gfx_RenderLine(dx + 9 + !btpZoomTile * 32, dy + 130 + btpZoomTile * 32 + 32, dx + 75 + btpZoomTile * 32 + 32,
                         dy + 130 + btpZoomTile * 32 + 32, GV->colLineBright);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 66, HGETEXT_LEFT, (std::string(GETL(Lang_Width)) + ':').c_str(), 0);
-    GV->fntMyriad13->Render(dx + 145, dy + 91, HGETEXT_LEFT, (std::string(GETL(Lang_Height)) + ':').c_str(), 0);
+    GV->fntMyriad16->Render(dx + 145, dy + 66, HGETEXT_LEFT, (std::string(GETL(Lang_Width)) + ':').c_str(), 0);
+    GV->fntMyriad16->Render(dx + 145, dy + 91, HGETEXT_LEFT, (std::string(GETL(Lang_Height)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 145, dy + 114, HGETEXT_LEFT, (std::string(GETL(Lang_Type)) + ':').c_str(), 0);
+    GV->fntMyriad16->Render(dx + 145, dy + 114, HGETEXT_LEFT, (std::string(GETL(Lang_Type)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 8, dy + 208, HGETEXT_LEFT, (
+    GV->fntMyriad16->Render(dx + 8, dy + 208, HGETEXT_LEFT, (
             std::string(GETL(rbtpMask->isSelected() ? Lang_AttribMaskType : Lang_AttribInside)) + ':').c_str(), 0);
 
-    GV->fntMyriad13->Render(dx + 130, dy + 208, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
-    GV->fntMyriad13->Render(dx + 230, dy + 208, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
+    GV->fntMyriad16->Render(dx + 130, dy + 208, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
+    GV->fntMyriad16->Render(dx + 230, dy + 208, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
 
-    GV->fntMyriad13->Render(dx + 30, dy + 238, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
-    GV->fntMyriad13->Render(dx + 130, dy + 238, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
-    GV->fntMyriad13->Render(dx + 230, dy + 238, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
+    GV->fntMyriad16->Render(dx + 30, dy + 238, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
+    GV->fntMyriad16->Render(dx + 130, dy + 238, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
+    GV->fntMyriad16->Render(dx + 230, dy + 238, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
 
     if (rbtpDouble->isSelected()) {
-        GV->fntMyriad13->Render(dx + 130, dy + 268, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
-        GV->fntMyriad13->Render(dx + 230, dy + 268, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
+        GV->fntMyriad16->Render(dx + 130, dy + 268, HGETEXT_LEFT, GETL(Lang_PropClear), 0);
+        GV->fntMyriad16->Render(dx + 230, dy + 268, HGETEXT_LEFT, GETL(Lang_PropSolid), 0);
 
-        GV->fntMyriad13->Render(dx + 30, dy + 298, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
-        GV->fntMyriad13->Render(dx + 130, dy + 298, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
-        GV->fntMyriad13->Render(dx + 230, dy + 298, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
+        GV->fntMyriad16->Render(dx + 30, dy + 298, HGETEXT_LEFT, GETL(Lang_PropGround), 0);
+        GV->fntMyriad16->Render(dx + 130, dy + 298, HGETEXT_LEFT, GETL(Lang_PropClimb), 0);
+        GV->fntMyriad16->Render(dx + 230, dy + 298, HGETEXT_LEFT, GETL(Lang_PropDeath), 0);
 
-        GV->fntMyriad13->Render(dx + 8, dy + 268, HGETEXT_LEFT, (std::string(GETL(Lang_AttribOutside)) + ':').c_str(), 0);
-        GV->fntMyriad13->Render(dx + 105, dy + 327, HGETEXT_RIGHT, GETL(Lang_Mask), 0);
-        GV->fntMyriad13->Render(dx + 150, dy + 327, HGETEXT_LEFT, "x", 0);
-        GV->fntMyriad13->Render(dx + 202, dy + 325, HGETEXT_LEFT, "-", 0);
-        GV->fntMyriad13->Render(dx + 250, dy + 327, HGETEXT_LEFT, "x", 0);
+        GV->fntMyriad16->Render(dx + 8, dy + 268, HGETEXT_LEFT, (std::string(GETL(Lang_AttribOutside)) + ':').c_str(), 0);
+        GV->fntMyriad16->Render(dx + 105, dy + 327, HGETEXT_RIGHT, GETL(Lang_Mask), 0);
+        GV->fntMyriad16->Render(dx + 150, dy + 327, HGETEXT_LEFT, "x", 0);
+        GV->fntMyriad16->Render(dx + 202, dy + 325, HGETEXT_LEFT, "-", 0);
+        GV->fntMyriad16->Render(dx + 250, dy + 327, HGETEXT_LEFT, "x", 0);
     }
 
     double widthMod = 64.f / hParser->GetMainPlane()->GetTileWidth(),
@@ -690,8 +689,8 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                             GV->sprTile->RenderEx(posx, posy, 0, fZoom);
                             char tmp[32];
                             sprintf(tmp, "ID#%d", plane->GetTile(x, y)->GetID());
-                            GV->fntMyriad13->SetColor(0x99FFFFFF);
-                            GV->fntMyriad13->Render(posx + plane->GetTileWidth() / 2 * fZoom,
+                            GV->fntMyriad16->SetColor(0x99FFFFFF);
+                            GV->fntMyriad16->Render(posx + plane->GetTileWidth() / 2 * fZoom,
                                                     posy + plane->GetTileHeight() * 0.75 * fZoom - 10,
                                                     HGETEXT_CENTER,
                                                     tmp, 0);
@@ -762,10 +761,10 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                 sprintf(text, "ID: FILL");
             else
                 sprintf(text, "ID: %d", highlight.id);
-            GV->fntMyriad13->SetColor(0xFF000000);
-            GV->fntMyriad13->Render(posX + tw / 2 + 1, posY + th / 2 + 1 - 8, HGETEXT_CENTER, text, 0);
-            GV->fntMyriad13->SetColor(0xFFFFFFFF);
-            GV->fntMyriad13->Render(posX + tw / 2, posY + th / 2 - 8, HGETEXT_CENTER, text, 0);
+            GV->fntMyriad16->SetColor(0xFF000000);
+            GV->fntMyriad16->Render(posX + tw / 2 + 1, posY + th / 2 + 1 - 8, HGETEXT_CENTER, text, 0);
+            GV->fntMyriad16->SetColor(0xFFFFFFFF);
+            GV->fntMyriad16->Render(posX + tw / 2, posY + th / 2 - 8, HGETEXT_CENTER, text, 0);
         }
     }
 
@@ -774,13 +773,13 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
 }
 
 void State::EditingWW::RenderToViewportBuffer() {
-    //3e3e3e
     if (hParser == NULL) {
-        int ox = vPort->GetX() % 128, oy = vPort->GetY() % 128;
-        for (int y = 0; y <= vPort->GetHeight() / 128 + 1; y++)
-            for (int x = 0; x <= vPort->GetWidth() / 128 + 1; x++) {
-                GV->hGfxInterface->sprMainBackground->Render(x * 128 - ox, y * 128 - oy);
-            }
+        hgeQuad q;
+        q.tex = 0;
+        q.blend = BLEND_DEFAULT;
+        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
+        SHR::SetQuad(&q, 0xFF0b0b0b, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
+        hge->Gfx_RenderQuad(&q);
         return;
     } else {
         for (int y = 0; y <= vPort->GetHeight() / 120; y++)
@@ -824,7 +823,7 @@ void State::EditingWW::RenderToViewportBuffer() {
         vRenderOrders.erase(vRenderOrders.begin());
     }
 #ifdef DEBUG_DRAW
-                                                                                                                            hge->Gfx_RenderLine(0, 0, vPort->GetWidth(), 0, 0xFFFF00FF);
+    hge->Gfx_RenderLine(0, 0, vPort->GetWidth(), 0, 0xFFFF00FF);
 	hge->Gfx_RenderLine(0, 0, 0, vPort->GetHeight(), 0xFFFF00FF);
 	hge->Gfx_RenderLine(vPort->GetWidth(), vPort->GetHeight(), vPort->GetWidth(), 0, 0xFFFF00FF);
 	hge->Gfx_RenderLine(vPort->GetWidth(), vPort->GetHeight(), 0, vPort->GetHeight(), 0xFFFF00FF);
@@ -850,100 +849,6 @@ void State::EditingWW::DrawViewport() {
     hge->Gfx_SetClipping();
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
-
-    GV->hGfxInterface->sprMainFrameLU->Render(0, 0);
-    hge->Gfx_SetClipping(0, 0, hge->System_GetState(HGE_SCREENWIDTH) - 10, 50);
-    for (int x = 10; x < hge->System_GetState(HGE_SCREENWIDTH) - 10; x += 96)
-        GV->hGfxInterface->sprMainFrameU->Render(x, 0);
-    hge->Gfx_SetClipping();
-    GV->hGfxInterface->sprMainFrameRU->Render(hge->System_GetState(HGE_SCREENWIDTH) - 10, 0);
-
-    hge->Gfx_SetClipping(hge->System_GetState(HGE_SCREENWIDTH) - 10, 10, 0,
-                         hge->System_GetState(HGE_SCREENHEIGHT) - 26);
-    for (int y = 26; y < hge->System_GetState(HGE_SCREENHEIGHT) - 26; y += 26)
-        GV->hGfxInterface->sprMainFrameR->Render(hge->System_GetState(HGE_SCREENWIDTH) - 3, y);
-    hge->Gfx_SetClipping();
-
-    GV->hGfxInterface->sprMainFrameRD->Render(hge->System_GetState(HGE_SCREENWIDTH) - 26,
-                                              hge->System_GetState(HGE_SCREENHEIGHT) - 26);
-    GV->hGfxInterface->sprMainFrameLD->Render(0, hge->System_GetState(HGE_SCREENHEIGHT) - 5);
-    GV->hGfxInterface->sprMainFrameD->RenderStretch(15, hge->System_GetState(HGE_SCREENHEIGHT) - 3,
-                                                    hge->System_GetState(HGE_SCREENWIDTH) - 26,
-                                                    hge->System_GetState(HGE_SCREENHEIGHT));
-
-    /*GV->gcnParts.sprGcnWinBarL->RenderStretch(0, 0, 2, 24);
-	GV->gcnParts.sprGcnWinBarM->RenderStretch(2, 0, hge->System_GetState(HGE_SCREENWIDTH)-2, 24);
-	GV->gcnParts.sprGcnWinBarR->RenderStretch(hge->System_GetState(HGE_SCREENWIDTH)-2, 0, hge->System_GetState(HGE_SCREENWIDTH), 24);*/
-
-    hgeQuad q;
-    q.blend = BLEND_DEFAULT;
-    q.tex = 0;
-    q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
-    q.v[0].x = 1;
-    q.v[0].y = LAY_APPMENU_Y;
-    q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH) - 4;
-    q.v[1].y = LAY_APPMENU_Y;
-    q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH) - 4;
-    q.v[2].y = LAY_APPMENU_Y + LAY_APPMENU_H + LAY_MODEBAR_H + 2;
-    q.v[3].x = 0;
-    q.v[3].y = LAY_APPMENU_Y + LAY_APPMENU_H + LAY_MODEBAR_H + 3;
-    q.v[0].col = q.v[1].col = 0xFF2b2b2b;
-    q.v[2].col = q.v[3].col = 0xFF141414;
-    hge->Gfx_RenderQuad(&q);
-
-    GV->sprIconCaption->Render(4, 2);
-    GV->hGfxInterface->sprMiniLogo->Render(25, 3);
-
-    for (int i = 0; i < 2; i++) {
-        int x = hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 + (-22 * (i == 0));
-        bool mouseover = (mx > x && mx < x + 20 && my > 4 && my < 4 + 19 && conMain->getWidgetAt(mx, my) == NULL);
-
-        if (mouseover && fAppBarTimers[i] < 0.2f) {
-            fAppBarTimers[i] += hge->Timer_GetDelta();
-            if (fAppBarTimers[i] > 0.2f) fAppBarTimers[i] = 0.2f;
-        } else if (!mouseover && fAppBarTimers[i] > 0.0f) {
-            fAppBarTimers[i] -= hge->Timer_GetDelta();
-            if (fAppBarTimers[i] < 0.0f) fAppBarTimers[i] = 0.0f;
-        }
-
-        GV->hGfxInterface->sprAppBar[i]->SetColor(
-                SETA(0xFFFFFFFF, (unsigned char) (125.0f + 130.0f * fAppBarTimers[i] * 5.0f)));
-        GV->hGfxInterface->sprAppBar[i]->Render(x, 4);
-    }
-
-    hge->Gfx_SetClipping(0, 110, hge->System_GetState(HGE_SCREENWIDTH) - 3,
-                         hge->System_GetState(HGE_SCREENHEIGHT) - 113);
-    for (int y = 0; y <= hge->System_GetState(HGE_SCREENHEIGHT) / 128; y++)
-        for (int x = 0; x <= hge->System_GetState(HGE_SCREENWIDTH) / 128; x++) {
-            GV->hGfxInterface->sprMainBackground->Render(x * 128, y * 128);
-        }
-    hge->Gfx_SetClipping();
-
-    MDI->Render();
-    hAppMenu->Render();
-
-    //if( !hAppMenu->IsFolded() ){
-    //mode bar underlay
-    hge->Gfx_RenderLine(1, 50, hge->System_GetState(HGE_SCREENWIDTH) - 4, 50, 0xFF0e0e0e);
-    hge->Gfx_RenderLine(1, 51, hge->System_GetState(HGE_SCREENWIDTH) - 4, 51, 0xFF2b2b2b);
-
-    //hge->Gfx_RenderLine(0, LAY_MDI_Y-1, hge->System_GetState(HGE_SCREENWIDTH)-4, LAY_MDI_Y-1, 0xFF1d1d1d);
-    //hge->Gfx_RenderLine(0, 41+24+24, hge->System_GetState(HGE_SCREENWIDTH), 41+24+24, GV->colLineBright);
-
-    if (hmbActive != 0)
-        for (int i = 0; i < hmbActive->vSeparators.size(); i++) {
-            int x = hmbActive->vSeparators[i];
-            hge->Gfx_RenderLine(x, 3 + 24 + 23,
-                                x, 4 + 24 + 23 + 32,
-                                GV->colLineDark);
-            hge->Gfx_RenderLine(x + 1, 3 + 23 + 24,
-                                x + 1, 4 + 23 + 24 + 32,
-                                GV->colLineBright);
-        }
-
-    /*hge->Gfx_RenderLine(800+34, 24+24, 800+34, 40+24+24, GV->colLineDark);
-	hge->Gfx_RenderLine(801+34, 24+24, 801+34, 40+23+24, GV->colLineBright);*/
-    //}
 
     vPort->Render();
 
@@ -971,11 +876,11 @@ void State::EditingWW::DrawViewport() {
                     hge->Gfx_RenderLine(val, vPort->GetY(), val, vPort->GetY() + vPort->GetHeight(), 0xFF30DBD9);
                 }
                 if (i == iManipulatedGuide && gl.iPos >= 0) {
-                    GV->fntMyriad13->SetColor(0xFF000000);
-                    GV->fntMyriad13->printf(mx + 14, my + 16, HGETEXT_LEFT,
+                    GV->fntMyriad16->SetColor(0xFF000000);
+                    GV->fntMyriad16->printf(mx + 14, my + 16, HGETEXT_LEFT,
                                             (gl.bOrient == GUIDE_HORIZONTAL ? "Y: %d" : "X: %d"), 0, gl.iPos);
-                    GV->fntMyriad13->SetColor(0xFFFFFFFF);
-                    GV->fntMyriad13->printf(mx + 15, my + 15, HGETEXT_LEFT,
+                    GV->fntMyriad16->SetColor(0xFFFFFFFF);
+                    GV->fntMyriad16->printf(mx + 15, my + 15, HGETEXT_LEFT,
                                             (gl.bOrient == GUIDE_HORIZONTAL ? "Y: %d" : "X: %d"), 0, gl.iPos);
                 }
             }
@@ -1157,10 +1062,10 @@ void State::EditingWW::DrawViewport() {
                         RenderAreaRect(r[i], WWD::Rect(1, 1, 1, 1), 0, bmulticolor ? dwCols[i] : 0xAAFFFFFF, 1,
                                        bmulticolor ? dwfCols[i] : 0x20FFFFFF);
                         if (bmulticolor) {
-                            GV->fntMyriad13->printf(cx + 11, cy + 11, HGETEXT_LEFT, "~l~%s", 0,
+                            GV->fntMyriad16->printf(cx + 11, cy + 11, HGETEXT_LEFT, "~l~%s", 0,
                                                     GETL2S("EditObj_Dialog", szRectID[i]));
-                            GV->fntMyriad13->SetColor(SETA(dwCols[i], 255));
-                            GV->fntMyriad13->printf(cx + 10, cy + 10, HGETEXT_LEFT, "%s", 0,
+                            GV->fntMyriad16->SetColor(SETA(dwCols[i], 255));
+                            GV->fntMyriad16->printf(cx + 10, cy + 10, HGETEXT_LEFT, "%s", 0,
                                                     GETL2S("EditObj_Dialog", szRectID[i]));
                         }
                     }
@@ -1301,10 +1206,10 @@ void State::EditingWW::DrawViewport() {
 
                             vPort->ClipScreen();
                             if (iSpringboardValue != 0) {
-                                GV->fntMyriad13->printf(posx - cammx, mmd_ymin - 13, HGETEXT_CENTER, "~l~%s: %d", 0,
+                                GV->fntMyriad16->printf(posx - cammx, mmd_ymin - 13, HGETEXT_CENTER, "~l~%s: %d", 0,
                                                         GETL2S("EditObj_SpringBoard", "OverlayValue"),
                                                         iSpringboardValue);
-                                GV->fntMyriad13->printf(posx - cammx - 1, mmd_ymin - 14, HGETEXT_CENTER, "~w~%s: ~y~%d",
+                                GV->fntMyriad16->printf(posx - cammx - 1, mmd_ymin - 14, HGETEXT_CENTER, "~w~%s: ~y~%d",
                                                         0, GETL2S("EditObj_SpringBoard", "OverlayValue"),
                                                         iSpringboardValue);
                             }
@@ -1412,12 +1317,12 @@ void State::EditingWW::DrawViewport() {
                         if (arrowbodylen > 0) {
                             GV->sprArrowVerticalM->SetColor(0xFFFFFFFF);
                             GV->sprArrowVerticalU->SetColor(0xFFFFFFFF);
-                            GV->fntMyriad13->SetColor(0xFF000000);
-                            GV->fntMyriad13->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 + 1 - 10,
+                            GV->fntMyriad16->SetColor(0xFF000000);
+                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 + 1 - 10,
                                                     HGETEXT_CENTER, "%s: %d, %d", 0, GETL2S("ObjProp", "Movement"),
                                                     dist[s] * modx, dist[s] * mody);
-                            GV->fntMyriad13->SetColor(0xFFFFFFFF);
-                            GV->fntMyriad13->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 - 10,
+                            GV->fntMyriad16->SetColor(0xFFFFFFFF);
+                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 - 10,
                                                     HGETEXT_CENTER, "%s: ~y~%d~w~, ~y~%d", 0,
                                                     GETL2S("ObjProp", "Movement"), dist[s] * modx, dist[s] * mody);
                         }
@@ -1800,9 +1705,9 @@ void State::EditingWW::DrawViewport() {
                             spr2->RenderEx(wOutX, wOutY, 0, fZoom);
 
                             wOutX += (spr2->GetWidth() / 2 + 15) * fZoom;
-                            GV->fntMyriad13->printf(wOutX + 1, wOutY + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
+                            GV->fntMyriad16->printf(wOutX + 1, wOutY + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
                                                     GETL2S("EditObj_Enemy", "GemDest"), outX, outY);
-                            GV->fntMyriad13->printf(wOutX, wOutY, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
+                            GV->fntMyriad16->printf(wOutX, wOutY, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
                                                     GETL2S("EditObj_Enemy", "GemDest"), outX, outY);
                         }
                     }
@@ -1840,9 +1745,9 @@ void State::EditingWW::DrawViewport() {
                             drx = obj->GetParam(WWD::Param_SpeedX);
                             dry = obj->GetParam(WWD::Param_SpeedY);
                         }
-                        GV->fntMyriad13->printf(outX + spr2->GetWidth() / 2 + 1, outY + 1, HGETEXT_LEFT,
+                        GV->fntMyriad16->printf(outX + spr2->GetWidth() / 2 + 1, outY + 1, HGETEXT_LEFT,
                                                 "~l~%s: %d, %d", 0, GETL2S("EditObj_Warp", "SpawnPos"), drx, dry);
-                        GV->fntMyriad13->printf(outX + spr2->GetWidth() / 2, outY, HGETEXT_LEFT,
+                        GV->fntMyriad16->printf(outX + spr2->GetWidth() / 2, outY, HGETEXT_LEFT,
                                                 "~w~%s: ~y~%d~w~, ~y~%d", 0, GETL2S("EditObj_Warp", "SpawnPos"), drx,
                                                 dry);
                     }
@@ -1854,19 +1759,19 @@ void State::EditingWW::DrawViewport() {
                     bDrawObjProperties = 0;
 
                 if (obj == hStartingPosObj) {
-                    GV->fntMyriad13->SetColor(0);
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
+                    GV->fntMyriad16->SetColor(0);
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
                                             HGETEXT_LEFT, "%s", 0, GETL(Lang_StartingPlace));
-                    GV->fntMyriad13->SetColor(0xFFFFFF);
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
+                    GV->fntMyriad16->SetColor(0xFFFFFF);
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
                                             "%s", 0, GETL(Lang_StartingPlace));
 
-                    GV->fntMyriad13->SetColor(0);
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh + 15,
+                    GV->fntMyriad16->SetColor(0);
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh + 15,
                                             HGETEXT_LEFT, "X: %d Y: %d", 0, obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY));
-                    GV->fntMyriad13->SetColor(0xFFFFFF);
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh + 15,
+                    GV->fntMyriad16->SetColor(0xFFFFFF);
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh + 15,
                                             HGETEXT_LEFT, "X: ~y~%d ~w~Y: ~y~%d", 0,
                                             obj->GetParam(WWD::Param_LocationX), obj->GetParam(WWD::Param_LocationY));
                 } else if (bDrawObjProperties) {
@@ -1875,14 +1780,14 @@ void State::EditingWW::DrawViewport() {
                     if (iActiveTool == EWW_TOOL_EDITOBJ) {
                         iid = hEditObj->GetOrigObj()->GetParam(WWD::Param_ID);
                     }
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
                                             HGETEXT_LEFT, "~l~%s: %d", 0, GETL(Lang_ID), iid);
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
                                             "~w~%s: ~y~%d", 0, GETL(Lang_ID), iid);
                     if (obj->GetName()[0] != '\0' && strcmp(obj->GetLogic(), "CustomLogic") != 0) {
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Name), obj->GetName());
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Name), obj->GetName());
                         ioff += 15;
                     }
@@ -1894,41 +1799,41 @@ void State::EditingWW::DrawViewport() {
                         if (customlogic) {
                             GV->sprIcons16[Icon16_CrazyHook]->SetColor(0xFFFFFFFF);
                             GV->sprIcons16[Icon16_CrazyHook]->Render(
-                                    posx - cammx + sprw + 7 + GV->fntMyriad13->GetStringWidth(GETL(Lang_Logic)),
+                                    posx - cammx + sprw + 7 + GV->fntMyriad16->GetStringWidth(GETL(Lang_Logic)),
                                     posy + vPort->GetY() - cammy + ioff - sprh);
                         }
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, (customlogic ? "~l~%s:    %s" : "~l~%s: %s"), 0,
                                                 GETL(Lang_Logic), logicval);
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, (customlogic ? "~w~%s:    ~y~%s" : "~w~%s: ~y~%s"), 0,
                                                 GETL(Lang_Logic), logicval);
                         ioff += 15;
                     }
 
                     if (obj->GetImageSet()[0] != '\0') {
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Graphic), obj->GetImageSet());
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Graphic),
                                                 obj->GetImageSet());
                         ioff += 15;
                     }
 
                     if (obj->GetAnim()[0] != '\0') {
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Anim), obj->GetAnim());
-                        GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Anim), obj->GetAnim());
                         ioff += 15;
                     }
 
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
                                             HGETEXT_LEFT, "~l~%s: %dx%d, Z: %d", 0,
                                             GETL(Lang_Location), obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY),
                                             obj->GetParam(WWD::Param_LocationZ));
-                    GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                             HGETEXT_LEFT, "~w~%s: ~y~%d~w~x~y~%d~w~, Z: ~y~%d", 0,
                                             GETL(Lang_Location), obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY),
@@ -1936,29 +1841,29 @@ void State::EditingWW::DrawViewport() {
                     ioff += 15;
                     if (obj->GetParam(WWD::Param_MinX) != 0 || obj->GetParam(WWD::Param_MaxX) != 0) {
                         if (obj->GetParam(WWD::Param_MinX) != 0 && obj->GetParam(WWD::Param_MaxX) != 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d. %s: %d.", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX), GETL(Lang_MaxX),
                                                     obj->GetParam(WWD::Param_MaxX));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d~w~. %s: ~y~%d~w~.", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX), GETL(Lang_MaxX),
                                                     obj->GetParam(WWD::Param_MaxX));
                         } else if (obj->GetParam(WWD::Param_MinX) != 0 && obj->GetParam(WWD::Param_MaxX) == 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX));
                         } else if (obj->GetParam(WWD::Param_MinX) == 0 && obj->GetParam(WWD::Param_MaxX) != 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MaxX), obj->GetParam(WWD::Param_MaxX));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MaxX), obj->GetParam(WWD::Param_MaxX));
                         }
@@ -1966,29 +1871,29 @@ void State::EditingWW::DrawViewport() {
                     }
                     if (obj->GetParam(WWD::Param_MinY) != 0 || obj->GetParam(WWD::Param_MaxY) != 0) {
                         if (obj->GetParam(WWD::Param_MinY) != 0 && obj->GetParam(WWD::Param_MaxY) != 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d. %s: %d.", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY), GETL(Lang_MaxY),
                                                     obj->GetParam(WWD::Param_MaxY));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d~w~. %s: ~y~%d~w~.", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY), GETL(Lang_MaxY),
                                                     obj->GetParam(WWD::Param_MaxY));
                         } else if (obj->GetParam(WWD::Param_MinY) != 0 && obj->GetParam(WWD::Param_MaxY) == 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY));
                         } else if (obj->GetParam(WWD::Param_MinY) == 0 && obj->GetParam(WWD::Param_MaxY) != 0) {
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 5,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
                                                     posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MaxY), obj->GetParam(WWD::Param_MaxY));
-                            GV->fntMyriad13->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MaxY), obj->GetParam(WWD::Param_MaxY));
                         }
@@ -2100,9 +2005,9 @@ void State::EditingWW::DrawViewport() {
 
                                     wOutX += (spr2->GetWidth() / 2 + 15) * fZoom;
 
-                                    GV->fntMyriad13->printf(wOutX + 1, wOutY + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
+                                    GV->fntMyriad16->printf(wOutX + 1, wOutY + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
                                                             GETL2S("EditObj_Enemy", "WarpDest"), outX, outY);
-                                    GV->fntMyriad13->printf(wOutX, wOutY, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
+                                    GV->fntMyriad16->printf(wOutX, wOutY, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
                                                             GETL2S("EditObj_Enemy", "WarpDest"), outX, outY);
                                 }
                             }
@@ -2110,7 +2015,7 @@ void State::EditingWW::DrawViewport() {
                     }
 
                 }
-                GV->fntMyriad13->SetColor(0xFF000000);
+                GV->fntMyriad16->SetColor(0xFF000000);
             }
             if (iActiveTool == EWW_TOOL_EDITOBJ) {
                 hEditObj->RenderObjectOverlay();
@@ -2142,12 +2047,12 @@ void State::EditingWW::DrawViewport() {
 				if (y < 0) continue;
 				hge->Gfx_RenderLine(vPort->GetX(), y, vPort->GetX() + vPort->GetWidth(), y, 0xFF00FF00);
 			}
-			GV->fntMyriad13->SetColor(0xFFFFFFFF);
+			GV->fntMyriad16->SetColor(0xFFFFFFFF);
 			float gmx, gmy;
 			hge->Input_GetMousePos(&gmx, &gmy);
 			gmx = Scr2WrdX(GetActivePlane(), gmx);
 			gmy = Scr2WrdY(GetActivePlane(), gmy);
-			GV->fntMyriad13->printf(vPort->GetX(), vPort->GetY() + 20, HGETEXT_LEFT, "mouse cell 0x~y~%p ~w~(~y~%d~w~x~y~%d~w~)", 0,
+			GV->fntMyriad16->printf(vPort->GetX(), vPort->GetY() + 20, HGETEXT_LEFT, "mouse cell 0x~y~%p ~w~(~y~%d~w~x~y~%d~w~)", 0,
 				hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetCellByCoords(gmx, gmy),
 				int(gmx / cellw), int(gmy / cellh));
 		}
@@ -2171,10 +2076,10 @@ void State::EditingWW::DrawViewport() {
                 m_vMeasurePoints[i - 1].second < m_vMeasurePoints[i].second ||
                 m_vMeasurePoints[i].first < m_vMeasurePoints[i - 1].first &&
                 m_vMeasurePoints[i].second < m_vMeasurePoints[i - 1].second)
-                GV->fntMyriad13->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
+                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
                                         len);
             else
-                GV->fntMyriad13->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0, len);
+                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0, len);
         }
 
         if (iActiveTool == EWW_TOOL_MEASURE && m_vMeasurePoints.size() != 0 &&
@@ -2221,10 +2126,10 @@ void State::EditingWW::DrawViewport() {
                                m_vMeasurePoints[m_vMeasurePoints.size() - 1].second, Scr2WrdX(GetActivePlane(), scrx),
                                Scr2WrdY(GetActivePlane(), scry));
             if (x1 < scrx && y1 < scry || scrx < x1 && scry < y1)
-                GV->fntMyriad13->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px",
+                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px",
                                         0, len);
             else
-                GV->fntMyriad13->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
+                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
                                         len);
         }
 
@@ -2263,28 +2168,28 @@ void State::EditingWW::DrawViewport() {
         hge->Gfx_SetClipping();
 
         if (bDrawTileProperties) {
-            GV->fntMyriad13->SetColor(0xFF000000);
-            GV->fntMyriad13->printf(vPort->GetX() + 11, vPort->GetY() + vPort->GetHeight() - 99, HGETEXT_LEFT,
+            GV->fntMyriad16->SetColor(0xFF000000);
+            GV->fntMyriad16->printf(vPort->GetX() + 11, vPort->GetY() + vPort->GetHeight() - 99, HGETEXT_LEFT,
                                     GETL(Lang_Legend), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 79, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 79, HGETEXT_LEFT,
                                     GETL(Lang_PropSolid), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 59, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 59, HGETEXT_LEFT,
                                     GETL(Lang_PropGround), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 39, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 39, HGETEXT_LEFT,
                                     GETL(Lang_PropClimb), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 19, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 61, vPort->GetY() + vPort->GetHeight() - 19, HGETEXT_LEFT,
                                     GETL(Lang_PropDeath), 0);
 
-            GV->fntMyriad13->SetColor(0xFFFFFFFF);
-            GV->fntMyriad13->printf(vPort->GetX() + 10, vPort->GetY() + vPort->GetHeight() - 100, HGETEXT_LEFT,
+            GV->fntMyriad16->SetColor(0xFFFFFFFF);
+            GV->fntMyriad16->printf(vPort->GetX() + 10, vPort->GetY() + vPort->GetHeight() - 100, HGETEXT_LEFT,
                                     GETL(Lang_Legend), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 80, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 80, HGETEXT_LEFT,
                                     GETL(Lang_PropSolid), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 60, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 60, HGETEXT_LEFT,
                                     GETL(Lang_PropGround), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 40, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 40, HGETEXT_LEFT,
                                     GETL(Lang_PropClimb), 0);
-            GV->fntMyriad13->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 20, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(vPort->GetX() + 60, vPort->GetY() + vPort->GetHeight() - 20, HGETEXT_LEFT,
                                     GETL(Lang_PropDeath), 0);
 
             hgeQuad q;
@@ -2310,160 +2215,30 @@ void State::EditingWW::DrawViewport() {
 
     ViewportOverlay();
 
-    GV->hGfxInterface->sprMainShadeBar->RenderStretch(vPort->GetX(), vPort->GetY(),
-                                                      hge->System_GetState(HGE_SCREENWIDTH) - 3, vPort->GetY() + 9);
-    //GV->sprShadeBar->RenderStretch(vPort->GetX(), vPort->GetY(), vPort->GetX()+vPort->GetWidth(), vPort->GetY()+6);
-
-    /*if( cScrollOrientation == 0 ){
-	 GV->sprMicroVert->Render(hge->System_GetState(HGE_SCREENWIDTH)-8, hge->System_GetState(HGE_SCREENHEIGHT)-31);
-	}else if( cScrollOrientation == 1 ){
-	 GV->sprMicroHor->Render(hge->System_GetState(HGE_SCREENWIDTH)-10, hge->System_GetState(HGE_SCREENHEIGHT)-28);
-	}else if( cScrollOrientation == 2 ){
-	 GV->sprMicroZoom->Render(hge->System_GetState(HGE_SCREENWIDTH)-11, hge->System_GetState(HGE_SCREENHEIGHT)-31);
-	}*/
-
-    if (fHintTime >= 0) {
-        fHintTime += hge->Timer_GetDelta();
-        if (fHintTime > HINT_TIME)
-            fHintTime = -1;
-        GV->fntMyriad10->printf(45, hge->System_GetState(HGE_SCREENHEIGHT) - 18, HGETEXT_LEFT, szHint, 0);
-    }
-
     if (iActiveTool == EWW_TOOL_ALIGNOBJ) {
-        GV->fntMyriad13->printf(vPort->GetX() + 14, vPort->GetY() + vPort->GetHeight() - 31, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 14, vPort->GetY() + vPort->GetHeight() - 31, HGETEXT_LEFT,
                                 "~l~%s", 0, GETL2S("Various", "AlignObj_Info"));
-        GV->fntMyriad13->printf(vPort->GetX() + 15, vPort->GetY() + vPort->GetHeight() - 30, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 15, vPort->GetY() + vPort->GetHeight() - 30, HGETEXT_LEFT,
                                 "~w~%s", 0, GETL2S("Various", "AlignObj_Info"));
     } else if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
         int yoffset = vPort->GetY() + vPort->GetHeight();
 
-        GV->fntMyriad13->printf(vPort->GetX() + 14, yoffset - 61, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 14, yoffset - 61, HGETEXT_LEFT,
                                 "~l~Shift - %s.", 0, GETL2S("Various", "MoveObj_Info1"));
-        GV->fntMyriad13->printf(vPort->GetX() + 15, yoffset - 60, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 15, yoffset - 60, HGETEXT_LEFT,
                                 "~y~Shift ~w~- %s.", 0, GETL2S("Various", "MoveObj_Info1"));
 
-        GV->fntMyriad13->printf(vPort->GetX() + 14, yoffset - 46, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 14, yoffset - 46, HGETEXT_LEFT,
                                 "~l~Ctrl - %s.", 0, GETL2S("Various", "MoveObj_Info2"));
-        GV->fntMyriad13->printf(vPort->GetX() + 15, yoffset - 45, HGETEXT_LEFT,
+        GV->fntMyriad16->printf(vPort->GetX() + 15, yoffset - 45, HGETEXT_LEFT,
                                 "~y~Ctrl ~w~- %s.", 0, GETL2S("Various", "MoveObj_Info2"));
 
-        GV->fntMyriad13->printf(vPort->GetX() + 14, yoffset - 31, HGETEXT_LEFT, "~l~Esc - %s.", 0,
+        GV->fntMyriad16->printf(vPort->GetX() + 14, yoffset - 31, HGETEXT_LEFT, "~l~Esc - %s.", 0,
                                 GETL2S("Various", "MoveObj_Info3"));
-        GV->fntMyriad13->printf(vPort->GetX() + 15, yoffset - 30, HGETEXT_LEFT, "~y~Esc ~w~- %s.", 0,
+        GV->fntMyriad16->printf(vPort->GetX() + 15, yoffset - 30, HGETEXT_LEFT, "~y~Esc ~w~- %s.", 0,
                                 GETL2S("Various", "MoveObj_Info3"));
 
     }
-
-    //lower bar
-    hge->Gfx_RenderLine(1, hge->System_GetState(HGE_SCREENHEIGHT) - 29, hge->System_GetState(HGE_SCREENWIDTH) - 2,
-                        hge->System_GetState(HGE_SCREENHEIGHT) - 29, 0xFF333333);
-    hge->Gfx_RenderLine(1, hge->System_GetState(HGE_SCREENHEIGHT) - 3, hge->System_GetState(HGE_SCREENWIDTH) - 2,
-                        hge->System_GetState(HGE_SCREENHEIGHT) - 3, 0xFF333333);
-
-    q.v[0].x = 1;
-    q.v[0].y = hge->System_GetState(HGE_SCREENHEIGHT) - 29;
-    q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH) - 2;
-    q.v[1].y = hge->System_GetState(HGE_SCREENHEIGHT) - 29;
-    q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH) - 2;
-    q.v[2].y = hge->System_GetState(HGE_SCREENHEIGHT) - 4;
-    q.v[3].x = 1;
-    q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT) - 4;
-    q.v[0].col = q.v[1].col = 0xFF2a2a2a;
-    q.v[2].col = q.v[3].col = 0xFF151515;
-    hge->Gfx_RenderQuad(&q);
-
-    if (hParser != NULL) {
-        int wx = -1, wy = -1, tx = -1, ty = -1;
-        if (conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
-            wx = Scr2WrdX(GetActivePlane(), mx);
-            wy = Scr2WrdY(GetActivePlane(), my);
-            tx = (wx / GetActivePlane()->GetTileWidth()) % GetActivePlane()->GetPlaneWidth();
-            ty = (wy / GetActivePlane()->GetTileHeight()) % GetActivePlane()->GetPlaneHeight();
-        }
-        int x = butMicroObjectCB->getX() + 10 + butMicroObjectCB->getWidth();
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        const char *text = GETL2S("Various", "TilesOnScreen");
-        GV->fntMyriad13->Render(x, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad13->GetStringWidth(text);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(x + 50, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%d", 0,
-                                iTilesOnScreen);
-        x += 55;
-        hge->Gfx_RenderLine(x - 3, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 3,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 2, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 2,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
-        text = GETL2S("Various", "ObjectsOnScreen");
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        GV->fntMyriad13->Render(x, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad13->GetStringWidth(text);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(x + 50, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%d", 0,
-                                iObjectsOnScreen);
-        x += 55;
-        hge->Gfx_RenderLine(x - 3, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 3,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 2, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 2,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
-        text = GETL2S("Various", "WorldMousePosition");
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        GV->fntMyriad13->Render(x, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad13->GetStringWidth(text);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(x + 85, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%dx%d", 0, wx, wy);
-        x += 90;
-        hge->Gfx_RenderLine(x - 3, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 3,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 2, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 2,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
-        text = GETL2S("Various", "TileMousePosition");
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        GV->fntMyriad13->Render(x, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad13->GetStringWidth(text);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(x + 65, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%dx%d", 0, tx, ty);
-        x += 70;
-        hge->Gfx_RenderLine(x - 3, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 3,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 2, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 2,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
-        GV->fntMyriad13->Render(x, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_LEFT, "FPS:", 0);
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        x += GV->fntMyriad13->GetStringWidth("FPS:", 0);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(x + 30, hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%d", 0,
-                                hge->Timer_GetFPS());
-        x += 35;
-
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        GV->fntMyriad13->Render(hge->System_GetState(HGE_SCREENWIDTH) - 195,
-                                hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, GETL2S("Various", "Zoom"),
-                                0);
-        GV->fntMyriad13->SetColor(0xFFeeeeee);
-        GV->fntMyriad13->printf(hge->System_GetState(HGE_SCREENWIDTH) - 167,
-                                hge->System_GetState(HGE_SCREENHEIGHT) - 26, HGETEXT_RIGHT, "%.1fx", 0, fZoom);
-
-        /*GV->fntMyriad10->printf(hge->System_GetState(HGE_SCREENWIDTH)-350, hge->System_GetState(HGE_SCREENHEIGHT)-18, HGETEXT_RIGHT,
-								GETL(Lang_InfoBar), 0,
-								fZoom, wx, wy, tx, ty, hge->Timer_GetFPS());*/
-    }
-#ifdef SHOWMEMUSAGE
-                                                                                                                            GV->UpdateMemUsage();
-	EnterCriticalSection(&GV->csMemUsage);
-	//GV->fntMyriad13->printf(840, 25, HGETEXT_LEFT, "~l~Mem: ~y~%s~l~MB", 0, GV->szMemUsage);
-	LeaveCriticalSection(&GV->csMemUsage);
-#endif
-
-    hge->Gfx_RenderLine(1, 0, 1, hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
-    hge->Gfx_RenderLine(hge->System_GetState(HGE_SCREENWIDTH), 0, hge->System_GetState(HGE_SCREENWIDTH),
-                        hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
-
-    hge->Gfx_RenderLine(0, hge->System_GetState(HGE_SCREENHEIGHT), hge->System_GetState(HGE_SCREENWIDTH),
-                        hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
 }
 
 void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, bool setColors, bool twoSided) {
@@ -2521,6 +2296,162 @@ void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, 
 }
 
 bool State::EditingWW::Render() {
+    hgeQuad q;
+    q.tex = 0;
+    q.blend = BLEND_DEFAULT;
+    SHR::SetQuad(&q, 0xFF2f2f2f, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), vPort->GetY());
+    hge->Gfx_RenderQuad(&q);
+
+    GV->sprLogoCaption->Render(8, 5);
+
+    float mx, my;
+    hge->Input_GetMousePos(&mx, &my);
+
+    {
+        // MINIMIZE AND CLOSE BUTTONS
+        int x = hge->System_GetState(HGE_SCREENWIDTH) - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - bMaximized * 2;
+        for (int i = 0; i < LAY_APP_BUTTONS_COUNT; i++) {
+            if (mx > x && mx < x + LAY_APP_BUTTON_W && my > 0 && my < LAY_APPMENU_H) {
+                if (fAppBarTimers[i] < 0.2f) {
+                    fAppBarTimers[i] += hge->Timer_GetDelta();
+                    if (fAppBarTimers[i] > 0.2f) fAppBarTimers[i] = 0.2f;
+                }
+            } else if (fAppBarTimers[i] > 0.0f) {
+                fAppBarTimers[i] -= hge->Timer_GetDelta();
+                if (fAppBarTimers[i] < 0.0f) fAppBarTimers[i] = 0.0f;
+            }
+
+            SHR::SetQuad(&q, SETA(0xFFFFFF, fAppBarTimers[i] * 5.0f * 20.f), x, 0, x + LAY_APP_BUTTON_W, LAY_APPMENU_H);
+            hge->Gfx_RenderQuad(&q);
+
+            int j = (bMaximized && i == 1) ? 3 : i;
+            GV->hGfxInterface->sprAppBar[j]->SetColor(
+                    SETA(0xFFFFFF, (unsigned char) (127.f + fAppBarTimers[i] * 5.0f * 128.f)));
+            GV->hGfxInterface->sprAppBar[j]->Render(x + 10, 5);
+            x += LAY_APP_BUTTON_W;
+        }
+    }
+
+    if (hParser != NULL) {
+        SHR::SetQuad(&q, 0xFF0b0b0b,
+                     0, vPort->GetY() + vPort->GetHeight(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
+        hge->Gfx_RenderQuad(&q);
+        SHR::SetQuad(&q, 0xFF0b0b0b,
+                     vPort->GetWidth(), vPort->GetY(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
+        hge->Gfx_RenderQuad(&q);
+
+        hRulers->Render();
+        MDI->Render();
+
+        //mode bar underlay
+        hge->Gfx_RenderLine(1, LAY_APPMENU_Y + LAY_APPMENU_H, hge->System_GetState(HGE_SCREENWIDTH) - 1,
+                            LAY_APPMENU_Y + LAY_APPMENU_H, GV->colOutline);
+
+        if (hmbActive != 0)
+            for (int x : hmbActive->vSeparators) {
+                hge->Gfx_RenderLine(x, LAY_MODEBAR_Y + 2,
+                                    x, LAY_MODEBAR_Y + LAY_MODEBAR_H - 3,
+                                    GV->colBaseDark);
+            }
+
+    } else {
+
+    }
+
+    //lower bar
+    SHR::SetQuad(&q, 0xFF2f2f2f,
+                 0, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
+    hge->Gfx_RenderQuad(&q);
+
+    hge->Gfx_RenderLine(0, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, hge->System_GetState(HGE_SCREENWIDTH),
+                        hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, GV->colOutline);
+
+    if (hParser != NULL) {
+        int wx = -1, wy = -1, tx = -1, ty = -1;
+        if (conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
+            wx = Scr2WrdX(GetActivePlane(), mx);
+            wy = Scr2WrdY(GetActivePlane(), my);
+            tx = (wx / GetActivePlane()->GetTileWidth()) % GetActivePlane()->GetPlaneWidth();
+            ty = (wy / GetActivePlane()->GetTileHeight()) % GetActivePlane()->GetPlaneHeight();
+        }
+        int x = butMicroObjectCB->getX() + butMicroObjectCB->getWidth() + 6, y = hge->System_GetState(HGE_SCREENHEIGHT) - 25;
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        const char *text = GETL2S("Various", "TilesOnScreen");
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
+        x += GV->fntMyriad16->GetStringWidth(text);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(x + 50, y, HGETEXT_RIGHT, "%d", 0,
+                                iTilesOnScreen);
+        x += 60;
+        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
+        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
+
+        text = GETL2S("Various", "ObjectsOnScreen");
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
+        x += GV->fntMyriad16->GetStringWidth(text);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(x + 50, y, HGETEXT_RIGHT, "%d", 0,
+                                iObjectsOnScreen);
+        x += 60;
+        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
+        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
+
+        text = GETL2S("Various", "WorldMousePosition");
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
+        x += GV->fntMyriad16->GetStringWidth(text);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(x + 85, y, HGETEXT_RIGHT, "%dx%d", 0, wx, wy);
+        x += 95;
+        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
+        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
+
+        text = GETL2S("Various", "TileMousePosition");
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
+        x += GV->fntMyriad16->GetStringWidth(text);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(x + 65, y, HGETEXT_RIGHT, "%dx%d", 0, tx, ty);
+        x += 75;
+        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
+        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
+                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
+
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, "FPS:", 0);
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        x += GV->fntMyriad16->GetStringWidth("FPS:", 0);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(x + 30, y, HGETEXT_RIGHT, "%d", 0,
+                                hge->Timer_GetFPS());
+        x += 40;
+
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        GV->fntMyriad16->Render(hge->System_GetState(HGE_SCREENWIDTH) - 195,
+                                y, HGETEXT_RIGHT, GETL2S("Various", "Zoom"),
+                                0);
+        GV->fntMyriad16->SetColor(0xFFeeeeee);
+        GV->fntMyriad16->printf(hge->System_GetState(HGE_SCREENWIDTH) - 167,
+                                y, HGETEXT_RIGHT, "%.1fx", 0, fZoom);
+
+        /*GV->fntMyriad10->printf(hge->System_GetState(HGE_SCREENWIDTH)-350, hge->System_GetState(HGE_SCREENHEIGHT)-18, HGETEXT_RIGHT,
+								GETL(Lang_InfoBar), 0,
+								fZoom, wx, wy, tx, ty, hge->Timer_GetFPS());*/
+    }
+#ifdef SHOWMEMUSAGE
+    GV->UpdateMemUsage();
+	EnterCriticalSection(&GV->csMemUsage);
+	//GV->fntMyriad16->printf(840, 25, HGETEXT_LEFT, "~l~Mem: ~y~%s~l~MB", 0, GV->szMemUsage);
+	LeaveCriticalSection(&GV->csMemUsage);
+#endif
+
     try {
         gui->draw();
     }
@@ -2529,142 +2460,60 @@ bool State::EditingWW::Render() {
                             exc.getLine());
     }
 
+    if (!bMaximized) {
+        hge->Gfx_RenderLine(1, 1, hge->System_GetState(HGE_SCREENWIDTH) - 1, 1, GV->colOutline);
+        hge->Gfx_RenderLine(1, 1, 1, hge->System_GetState(HGE_SCREENHEIGHT) - 1, GV->colOutline);
+        hge->Gfx_RenderLine(1, hge->System_GetState(HGE_SCREENHEIGHT), hge->System_GetState(HGE_SCREENWIDTH) - 1, hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
+        hge->Gfx_RenderLine(hge->System_GetState(HGE_SCREENWIDTH), 1, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - 1, GV->colOutline);
+    }
+
     if (_isOnTop()) {
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-
-        if (conMain->getWidgetAt(mx, my) == NULL) {
-            if (my >= 3 && my < 24 && (mx > hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 - 22 &&
-                                       mx < hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 - 2 ||
-                                       mx > hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 &&
-                                       mx < hge->System_GetState(HGE_SCREENWIDTH) - 5)) //caption control icons
-                bShowHand = 1;
-        } else {
-            gcn::Widget *w = conMain, *last = NULL;
-            while (w != NULL) {
-                last = w;
-                int x, y;
-                w->getAbsolutePosition(x, y);
-                w = w->getWidgetAt(mx - x, my - y);
-            }
-            if (last != NULL) {
-                if (last->showHand()) {
-                    bShowHand = 1;
-                }
-            }
-        }
-
         if (butMicroTileCB->mouseOver() || bForceTileClipbPreview)
             RenderTileClipboardPreview();
         else if (butMicroObjectCB->mouseOver() || bForceObjectClipbPreview)
             RenderObjectClipboardPreview();
 
         hInvCtrl->DrawDraggedObject();
-        if (GV->StateMgr->IsAppFocused())
-            GV->IF->Render(bShowHand, dwCursorColor);
-        bShowHand = 0;
-        dwCursorColor = 0xFFFFFFFF;
-        GV->Console->Render();
     } else {
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77000000;
 
-        q.v[0].x = 0;
-        q.v[0].y = 0;
-        q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[1].y = 0;
-        q.v[2].x = q.v[1].x;
-        q.v[2].y = hge->System_GetState(HGE_SCREENHEIGHT);
-        q.v[3].x = 0;
-        q.v[3].y = q.v[2].y;
+        q.v[0].x = q.v[3].x = 0;
+        q.v[0].y = q.v[1].y = 0;
+        q.v[1].x = q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
+        q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
 
         hge->Gfx_RenderQuad(&q);
     }
 
     if (fade_iAction < 2) {
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0xFF000000;
-        q.v[0].x = 0;
-        q.v[0].y = 24;
-        q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[1].y = 24;
-        q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[2].y = hge->System_GetState(HGE_SCREENHEIGHT);
-        q.v[3].x = 0;
-        q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
+        q.v[0].x = q.v[3].x = 0;
+        q.v[0].y = q.v[1].y = LAY_MODEBAR_Y;
+        q.v[1].x = q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
+        q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
         hge->Gfx_RenderQuad(&q);
 
-        GV->sprLogoBig->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 151,
-                               hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 38);
-        GV->fntMyriad10->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 35,
-                                hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 21, HGETEXT_RIGHT, WA_VERSTRING, 0);
+        GV->RenderLogoWithVersion(hge->System_GetState(HGE_SCREENWIDTH) / 2, hge->System_GetState(HGE_SCREENHEIGHT) / 2);
 
         if (fade_iAction == 0) {
-            hgeQuad q;
-            q.tex = 0;
-            q.blend = BLEND_DEFAULT;
-            q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
             q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = ARGB(int(fade_fAlpha), 0, 0, 0);
-            q.v[0].x = 0;
-            q.v[0].y = 24;
-            q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH);
-            q.v[1].y = 24;
-            q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
-            q.v[2].y = hge->System_GetState(HGE_SCREENHEIGHT);
-            q.v[3].x = 0;
-            q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
 
             hge->Gfx_RenderQuad(&q);
         }
         return 0;
     } else if (fade_iAction == 2) {
-        //hge->Gfx_Clear(0xFF000000);
-
-        if (hge->System_GetState(HGE_SCREENWIDTH) > 1102) {
-            GV->sprLogoBig->SetColor(ARGB(255 - int(fade_fAlpha), 255, 255, 255));
-            GV->fntMyriad10->SetColor(ARGB(255 - int(fade_fAlpha), 255, 255, 255));
-            GV->sprLogoBig->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 151,
-                                   hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 38);
-            GV->fntMyriad10->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 35,
-                                    hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 21, HGETEXT_RIGHT, WA_VERSTRING, 0);
-            GV->sprLogoBig->SetColor(0xFFFFFFFF);
-            GV->fntMyriad10->SetColor(0xFFFFFFFF);
-        }
-
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = ARGB(255 - int(fade_fAlpha), 0, 0, 0);
-        q.v[0].x = 0;
-        q.v[0].y = 24;
-        q.v[1].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[1].y = 24;
-        q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[2].y = hge->System_GetState(HGE_SCREENHEIGHT);
-        q.v[3].x = 0;
-        q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
+        q.v[0].x = q.v[3].x = 0;
+        q.v[0].y = q.v[1].y = LAY_MODEBAR_Y;
+        q.v[1].x = q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
+        q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
         hge->Gfx_RenderQuad(&q);
 
-        if (hge->System_GetState(HGE_SCREENWIDTH) < 1102) {
-            GV->sprLogoBig->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 151,
-                                   hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 38);
-            GV->fntMyriad10->Render(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 35,
-                                    hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 21, HGETEXT_RIGHT, WA_VERSTRING, 0);
-        }
+        GV->RenderLogoWithVersion(hge->System_GetState(HGE_SCREENWIDTH) / 2, hge->System_GetState(HGE_SCREENHEIGHT) / 2, 255 - int(fade_fAlpha));
     }
     if (draggedFilesIn) {
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
         SHR::SetQuad(&q, 0xEE000000,
-                     0, 110, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
+                     0, LAY_VIEWPORT_Y, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
         hge->Gfx_RenderQuad(&q);
 
         auto& files = hge->System_GetDraggedFiles();
@@ -2673,11 +2522,11 @@ bool State::EditingWW::Render() {
 
         if (files.size()) {
             y -= std::min(files.size(), 10u) * 9;
-            GV->fntMyriad13->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_MapsToOpen), 0);
+            GV->fntMyriad16->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_MapsToOpen), 0);
 
             int maxW = 0;
             for (auto filepath : files) {
-                int w = GV->fntMyriad13->GetStringWidth(filepath.c_str(), false);
+                int w = GV->fntMyriad16->GetStringWidth(filepath.c_str(), false);
                 if (w > maxW) {
                     maxW = w;
                 }
@@ -2694,18 +2543,18 @@ bool State::EditingWW::Render() {
                 else
                     GV->sprLevelsMicro16[icon - 51]->Render(x, y);
 
-                GV->fntMyriad13->Render(x + 20, y, HGETEXT_LEFT, filepath.c_str(), 0);
+                GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, filepath.c_str(), 0);
 
                 y += 18;
 
                 if (i == 10) {
-                    GV->fntMyriad13->printf(x + maxW / 2, y, HGETEXT_CENTER,
+                    GV->fntMyriad16->printf(x + maxW / 2, y, HGETEXT_CENTER,
                                             GETL(Lang_FilesDragged_AndMore), 0, files.size() - i);
                     break;
                 }
             }
         } else {
-            GV->fntMyriad13->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_Unsupported), 0);
+            GV->fntMyriad16->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_Unsupported), 0);
         }
     }
 #ifdef CONF_WATERMARK
@@ -2763,45 +2612,40 @@ void State::EditingWW::DrawObjSearch() {
             fScale = 130 / (spr->GetWidth() > spr->GetHeight() ? spr->GetWidth() : spr->GetHeight());
         GV->sprCheckboard->RenderStretch(fx, fy + i * 140 - fSliVal, fx + 130, fy + 130 + i * 140 - fSliVal);
         spr->RenderEx(fx + 65, fy + i * 140 - fSliVal + 65, 0, fScale);
-        GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal, HGETEXT_LEFT, "%s: ~y~%d ~l~(#~y~%i~l~)", 0,
+        GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal, HGETEXT_LEFT, "~w~%s: ~y~%d ~w~(#~y~%i~w~)", 0,
                                 GETL2S("ObjectSearch", "ID"), obj->GetParam(WWD::Param_ID), i + 1);
         int yoffset = 20;
         if (strlen(obj->GetName()) > 0) {
-            GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+            GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~w~", 0,
                                     GETL2S("ObjectSearch", "Name"), obj->GetName());
             yoffset += 20;
         }
         if (strlen(obj->GetLogic()) > 0) {
-            GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+            GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~w~", 0,
                                     GETL2S("ObjectSearch", "Logic"), obj->GetLogic());
             yoffset += 20;
         }
         if (strlen(obj->GetImageSet()) > 0) {
-            GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+            GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~w~", 0,
                                     GETL2S("ObjectSearch", "ImageSet"), obj->GetImageSet());
             yoffset += 20;
         }
         if (strlen(obj->GetAnim()) > 0) {
-            GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+            GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%s~w~", 0,
                                     GETL2S("ObjectSearch", "Anim"), obj->GetAnim());
             yoffset += 20;
         }
-        GV->fntMyriad13->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%d~l~x~y~%d~l~", 0,
+        GV->fntMyriad16->printf(fx + 135, fy + i * 140 - fSliVal + yoffset, HGETEXT_LEFT, "%s: ~y~%d~w~x~y~%d~w~", 0,
                                 GETL2S("ObjectSearch", "Pos"), obj->GetParam(WWD::Param_LocationX),
                                 obj->GetParam(WWD::Param_LocationY));
         yoffset += 20;
 
-        int butx = fx + 135, buty = fy + i * 140 - fSliVal + 97, butw =
-                GV->fntMyriad13->GetStringWidth(GETL2S("ObjectSearch", "GoToObject")) + 8;
+        int butx = fx + 135, buty = fy + i * 140 - fSliVal + 97, butw = butObjSearchSelect->getWidth(), buth = 33;
         if (bHasMouse && mx > butx && mx < butx + butw && my > buty && my < buty + 33 && my > fy && my < fy + 386) {
             if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
-                GV->gcnParts.sprButBarP[0][0]->RenderStretch(butx, buty, butx + 4, buty + 33);
-                GV->gcnParts.sprButBarP[0][1]->RenderStretch(butx + 4, buty, butx + butw - 4, buty + 33);
-                GV->gcnParts.sprButBarP[0][2]->RenderStretch(butx + butw - 4, buty, butx + butw, buty + 33);
+                butObjSearchSelect->drawButton(GV->hGfxInterface, 3, butx, buty, butw, buth, 0xFFFFFFFF);
             } else {
-                GV->gcnParts.sprButBarH[0][0]->RenderStretch(butx, buty, butx + 4, buty + 33);
-                GV->gcnParts.sprButBarH[0][1]->RenderStretch(butx + 4, buty, butx + butw - 4, buty + 33);
-                GV->gcnParts.sprButBarH[0][2]->RenderStretch(butx + butw - 4, buty, butx + butw, buty + 33);
+                butObjSearchSelect->drawButton(GV->hGfxInterface, 3, butx, buty, butw, buth, 0x77FFFFFF);
             }
             if (hge->Input_KeyUp(HGEK_LBUTTON)) {
                 WWD::Object *obj = GetActivePlane()->GetObjectByIterator(vObjSearchResults[i].first);
@@ -2812,11 +2656,9 @@ void State::EditingWW::DrawObjSearch() {
                 vPort->MarkToRedraw(1);
             }
         } else {
-            GV->gcnParts.sprButBar[0][0]->RenderStretch(butx, buty, butx + 4, buty + 33);
-            GV->gcnParts.sprButBar[0][1]->RenderStretch(butx + 4, buty, butx + butw - 4, buty + 33);
-            GV->gcnParts.sprButBar[0][2]->RenderStretch(butx + butw - 4, buty, butx + butw, buty + 33);
+            butObjSearchSelect->drawButton(GV->hGfxInterface, 2, butx, buty, butw, buth, 0xFFFFFFFF);
         }
-        GV->fntMyriad13->Render(butx + butw / 2, buty + 8, HGETEXT_CENTER, GETL2S("ObjectSearch", "GoToObject"), 0);
+        GV->fntMyriad16->Render(butx + butw / 2, buty + 8, HGETEXT_CENTER, GETL2S("ObjectSearch", "GoToObject"), 0);
 
         hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 135, fx + 424, fy + i * 140 - fSliVal + 135, GV->colLineDark);
         hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 136, fx + 424, fy + i * 140 - fSliVal + 136,
@@ -2995,11 +2837,11 @@ void State::EditingWW::DrawSelectFillColor() {
         }
     int previewcol;
     if (selx == -1 && sely == -1) {
-        GV->fntMyriad13->printf(baseX + 5, baseY + 229, HGETEXT_LEFT, "~l~%s: #~y~%d", 0, GETL(Lang_ActualFillColor),
+        GV->fntMyriad16->printf(baseX + 5, baseY + 229, HGETEXT_LEFT, "~l~%s: #~y~%d", 0, GETL(Lang_ActualFillColor),
                                 GetActivePlane()->GetFillColor());
         previewcol = GetActivePlane()->GetFillColor();
     } else {
-        GV->fntMyriad13->printf(baseX + 5, baseY + 229, HGETEXT_LEFT, "~l~%s: #~y~%d", 0, GETL(Lang_SelectedFillColor),
+        GV->fntMyriad16->printf(baseX + 5, baseY + 229, HGETEXT_LEFT, "~l~%s: #~y~%d", 0, GETL(Lang_SelectedFillColor),
                                 sely * 16 + selx);
         previewcol = sely * 16 + selx;
     }
@@ -3056,16 +2898,11 @@ void State::EditingWW::DrawPlaneOverlay(WWD::Plane *hPl) {
 }
 
 void State::EditingWW::ViewportOverlay() {
-#ifdef BUILD_DEBUG
-    if (bShowConsole) {
-		for (int i = 1; i < (int(vPort->GetHeight() / 15) + 1); i++) {
-			const char * line = GV->Console->GetLine(i);
-			if (line == NULL) break;
-			GV->fntSystem17->SetColor(0xFFFFFFFF);
-			GV->fntSystem17->Render(5, vPort->GetY() + vPort->GetHeight() - i * 15, HGETEXT_LEFT, line, 0);
-		}
-	}
-#endif
+    hge->Gfx_SetClipping(vPort->GetX(), vPort->GetY(), vPort->GetWidth() - (hParser == NULL) * 2, vPort->GetHeight());
+    GV->Console->Render();
+    hge->Gfx_SetClipping();
+    hge->Gfx_RenderLine(vPort->GetX(), vPort->GetY() + 1, vPort->GetX() + vPort->GetWidth(), vPort->GetY() + 1, SETA(0, 0xFF));
+    hge->Gfx_RenderLine(vPort->GetX(), vPort->GetY() + 2, vPort->GetX() + vPort->GetWidth(), vPort->GetY() + 2, SETA(0, 0x77));
 }
 
 void State::EditingWW::RenderCloudTip(int x, int y, int w, int h, int ax, int ay) {
@@ -3106,10 +2943,10 @@ void State::EditingWW::RenderCloudTip(int x, int y, int w, int h, int ax, int ay
 void State::EditingWW::RenderTileClipboardPreview() {
     if (MDI->GetActiveDoc() == NULL) return;
     if (MDI->GetActiveDoc()->hTileClipboard == NULL) {
-        int len = GV->fntMyriad13->GetStringWidth(GETL2S("ClipboardPreview", "TileClipboardEmpty"));
+        int len = GV->fntMyriad16->GetStringWidth(GETL2S("ClipboardPreview", "TileClipboardEmpty"));
         RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroTileCB->getX() + 9,
                        butMicroTileCB->getY() - 3);
-        GV->fntMyriad13->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
+        GV->fntMyriad16->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
                                 GETL2S("ClipboardPreview", "TileClipboardEmpty"), 0);
         return;
     }
@@ -3142,10 +2979,10 @@ void State::EditingWW::RenderTileClipboardPreview() {
 void State::EditingWW::RenderObjectClipboardPreview() {
     if (MDI->GetActiveDoc() == NULL) return;
     if (vObjectClipboard.empty()) {
-        int len = GV->fntMyriad13->GetStringWidth(GETL2S("ClipboardPreview", "ObjectClipboardEmpty"));
+        int len = GV->fntMyriad16->GetStringWidth(GETL2S("ClipboardPreview", "ObjectClipboardEmpty"));
         RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroObjectCB->getX() + 9,
                        butMicroObjectCB->getY() - 3);
-        GV->fntMyriad13->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
+        GV->fntMyriad16->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
                                 GETL2S("ClipboardPreview", "ObjectClipboardEmpty"), 0);
         return;
     }
@@ -3209,12 +3046,18 @@ void State::EditingWW::DrawWelcomeScreen() {
     winWelcome->getAbsolutePosition(dx, dy);
     hge->Gfx_SetClipping();
 
-    for (int i = 0; i < 4; i++) {
-        GV->sprIcons128[i]->Render(dx + i * 150 + 11, dy);
-    }
 
-    hge->Gfx_RenderLine(dx + 1, dy + 180, dx + winWelcome->getWidth() - 1, dy + 180, GV->colLineDark);
-    hge->Gfx_RenderLine(dx + 1, dy + 181, dx + winWelcome->getWidth() - 1, dy + 181, GV->colLineBright);
+
+    static const char *welcome = GETL2S("HomeScreen", "Welcome"),
+                      *whatAreWeDoing = GETL2S("HomeScreen", "WhatAreWeDoing");
+
+    GV->fntMyriad20->Render(dx, dy, HGETEXT_LEFT, welcome, true);
+    dy += 30;
+    GV->fntMyriad16->Render(dx, dy, HGETEXT_LEFT, whatAreWeDoing, true);
+    dy += 40;
+    hge->Gfx_RenderLine(dx, dy, dx + winWelcome->getWidth() - 1, dy, GV->colLineBright);
+    dy += 120;
+    hge->Gfx_RenderLine(dx, dy, dx + winWelcome->getWidth() - 1, dy, GV->colLineBright);
 }
 
 void State::EditingWW::RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill, DWORD hwFillCol) {
@@ -3247,8 +3090,8 @@ void State::EditingWW::RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWO
 void State::EditingWW::DrawCrashRetrieve() {
     int dx, dy;
     conCrashRetrieve->getAbsolutePosition(dx, dy);
-    GV->fntMyriad13->SetColor(0xFFa1a1a1);
-    GV->fntMyriad13->Render(dx + 5, dy + 3, HGETEXT_LEFT, GETL2S("WinCrashRetrieve", "Label"), 0);
+    GV->fntMyriad16->SetColor(0xFFe1e1e1);
+    GV->fntMyriad16->Render(dx + 5, dy + 3, HGETEXT_LEFT, GETL2S("WinCrashRetrieve", "Label"), 0);
     int c = 0;
     for (int i = 0; i < 10; i++) {
         if (szCrashRetrieve[i] == NULL) break;
@@ -3256,11 +3099,11 @@ void State::EditingWW::DrawCrashRetrieve() {
             GV->sprGamesSmall[iCrashRetrieveIcon[i]]->Render(dx + 2, dy + 25 + 25 * i);
         else
             GV->sprLevelsMicro16[iCrashRetrieveIcon[i] - 51]->Render(dx + 2, dy + 25 + 25 * i);
-        GV->fntMyriad13->Render(dx + 20, dy + 25 + 25 * i, HGETEXT_LEFT, szCrashRetrieve[i], 0);
+        GV->fntMyriad16->Render(dx + 20, dy + 25 + 25 * i, HGETEXT_LEFT, szCrashRetrieve[i], 0);
         c++;
     }
     if (szCrashRetrieveMore != NULL)
-        GV->fntMyriad13->Render(dx + 5, dy + 25 + 25 * c, HGETEXT_LEFT, szCrashRetrieveMore, 0);
+        GV->fntMyriad16->Render(dx + 5, dy + 25 + 25 * c, HGETEXT_LEFT, szCrashRetrieveMore, 0);
 }
 
 void State::EditingWW::DrawTilePicker() {
@@ -3308,8 +3151,8 @@ void State::EditingWW::DrawTilePicker() {
             int ioldsel = iTilePicked;
             int loopst = scroll / 57, loopen = slitpiPicker->getHeight() / 57 + 2;
             if (set->GetBrushesCount() == 0) {
-                GV->fntMyriad13->SetColor(0xFFa1a1a1);
-                GV->fntMyriad13->printf(itpx + 115, itpy + slitpiPicker->getHeight() / 2, HGETEXT_CENTER,
+                GV->fntMyriad16->SetColor(0xFFe1e1e1);
+                GV->fntMyriad16->printf(itpx + 115, itpy + slitpiPicker->getHeight() / 2, HGETEXT_CENTER,
                                         GETL(Lang_NoBrushes), 0);
             }
             for (int i = 0; i < set->GetBrushesCount() && i < (loopst + loopen); i++) {
@@ -3337,11 +3180,10 @@ void State::EditingWW::DrawTilePicker() {
                 DWORD colBorder = GV->colLineBright;
                 if (hasMouse &&
                     (mx > drx && my > dry && mx < drx + 48 && my < dry + 48 ||
-                     mx > drx + 55 && mx < drx + 55 + GV->fntMyriad13->GetStringWidth(brush->GetName()) &&
+                     mx > drx + 55 && mx < drx + 55 + GV->fntMyriad16->GetStringWidth(brush->GetName()) &&
                      my > dry + 14 && my < dry + 34)
                     && my > itpy && my < itpy + slitpiPicker->getHeight()) {
                     colBorder = TILE_HIGHLIGHT_COLOR;
-                    bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON))
                         iTilePicked = i;
                 } else if (i == iTilePicked) {
@@ -3352,8 +3194,8 @@ void State::EditingWW::DrawTilePicker() {
                 hge->Gfx_RenderLine(drx, dry, drx, dry + 49, colBorder);
                 hge->Gfx_RenderLine(drx + 49, dry, drx + 49, dry + 49, colBorder);
 
-                GV->fntMyriad13->SetColor(colBorder == GV->colLineBright ? 0xFFa1a1a1 : colBorder);
-                GV->fntMyriad13->Render(drx + 55, dry + 14, HGETEXT_LEFT, brush->GetName(), 0);
+                GV->fntMyriad16->SetColor(colBorder == GV->colLineBright ? 0xFFe1e1e1 : colBorder);
+                GV->fntMyriad16->Render(drx + 55, dry + 14, HGETEXT_LEFT, brush->GetName(), 0);
             }
             if (ioldsel != iTilePicked) {
                 HandleBrushSwitch(ioldsel, iTilePicked);
@@ -3385,10 +3227,10 @@ void State::EditingWW::DrawTilePicker() {
                         DrawTileAttributes(tile->GetID(), drx, dry, 0.75f, 0.75f);
                     }
                     if (cbtpiShowTileID->isSelected()) {
-                        GV->fntMyriad13->SetColor(0xFF000000);
-                        GV->fntMyriad13->printf(drx + 24 + 1, dry + 1 + 32, HGETEXT_CENTER, "%d", 0, tile->GetID());
-                        GV->fntMyriad13->SetColor(0xFFFFFFFF);
-                        GV->fntMyriad13->printf(drx + 24, dry + 32, HGETEXT_CENTER, "%d", 0, tile->GetID());
+                        GV->fntMyriad16->SetColor(0xFF000000);
+                        GV->fntMyriad16->printf(drx + 24 + 1, dry + 1 + 32, HGETEXT_CENTER, "%d", 0, tile->GetID());
+                        GV->fntMyriad16->SetColor(0xFFFFFFFF);
+                        GV->fntMyriad16->printf(drx + 24, dry + 32, HGETEXT_CENTER, "%d", 0, tile->GetID());
                     }
                 }
                 hge->Gfx_RenderLine(drx - 2, dry - 1, drx + 50, dry - 1, GV->colLineDark);
@@ -3403,7 +3245,6 @@ void State::EditingWW::DrawTilePicker() {
                 if (mx > drx && my > dry && mx < drx + 48 && my < dry + 48 && hasMouse && my > itpy &&
                     my < itpy + slitpiPicker->getHeight()) {
                     colBorder = TILE_HIGHLIGHT_COLOR;
-                    bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         iTilePicked = (i < 0 ? i - 1 : i);
                         if (i == -1) {
@@ -3420,11 +3261,6 @@ void State::EditingWW::DrawTilePicker() {
                 hge->Gfx_RenderLine(drx + 49, dry, drx + 49, dry + 49, colBorder);
             }
         }
-        GV->sprShadeBar->RenderStretch(itpx, itpy, itpx + 230, itpy + 6);
-        GV->sprShadeBar->SetFlip(0, 1);
-        GV->sprShadeBar->RenderStretch(itpx, itpy + slitpiPicker->getHeight() - 6, itpx + 230,
-                                       itpy + slitpiPicker->getHeight());
-        GV->sprShadeBar->SetFlip(0, 0);
     }
 
 }

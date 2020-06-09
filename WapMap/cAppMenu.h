@@ -7,19 +7,21 @@
 
 #define APPMEN_FILE_NEW         1
 #define APPMEN_FILE_OPEN        2
-#define APPMEN_FILE_MRU         3
+#define APPMEN_FILE_RECENT      3
 #define APPMEN_FILE_CLOSED      4
 #define APPMEN_FILE_SAVE        5
 #define APPMEN_FILE_SAVEAS      6
 #define APPMEN_FILE_EXPORT      7
 #define APPMEN_FILE_CLOSE       8
 #define APPMEN_FILE_CLOSEALL    9
+#define APPMEN_FILE_EXIT       10
 //file mru positions as ID
 //file closed as mdi
 
 #define APPMEN_EDIT_WORLD       1
-#define APPMEN_EDIT_TILEPROP    2
-#define APPMEN_EDIT_WORLDSCRIPT 3
+#define APPMEN_EDIT_PLANES      2
+#define APPMEN_EDIT_TILEPROP    3
+#define APPMEN_EDIT_WORLDSCRIPT 4
 
 #define APPMEN_EDITT_PENCIL   100
 #define APPMEN_EDITT_BRUSH    101
@@ -33,9 +35,6 @@
 #define APPMEN_VIEW_PLANES     2
 #define APPMEN_VIEW_TILEPROP   3
 #define APPMEN_VIEW_GUIDELINES 4
-
-#define APPMEN_PLANE_MGR    1
-#define APPMEN_PLANE_ACTIVE 2
 
 #define APPMEN_PLANEVIS_BORDER  1
 #define APPMEN_PLANEVIS_GRID    2
@@ -58,12 +57,18 @@
 #define APPMEN_WM_README   4
 #define APPMEN_WM_SITE     5
 
-#define LAY_APPMENU_Y  27
-#define LAY_APPMENU_H  23
-#define LAY_MODEBAR_Y  54
-#define LAY_MODEBAR_H  31
-#define LAY_MDI_Y      85
-#define LAY_VIEWPORT_Y 109
+#define LAY_APP_CUT_Y  168
+#define LAY_APPMENU_X  36
+#define LAY_APPMENU_Y  1
+#define LAY_APPMENU_H  30
+#define LAY_MODEBAR_Y  LAY_APPMENU_Y + LAY_APPMENU_H
+#define LAY_MODEBAR_H  33
+#define LAY_MDI_Y      LAY_MODEBAR_Y + LAY_MODEBAR_H
+#define LAY_MDI_H      25
+#define LAY_VIEWPORT_Y LAY_MDI_Y + LAY_MDI_H
+#define LAY_STATUS_H   29
+#define LAY_APP_BUTTONS_COUNT 3
+#define LAY_APP_BUTTON_W (LAY_APPMENU_H + 10)
 
 class cAppMenu_Entry {
 private:
@@ -99,7 +104,6 @@ public:
 enum enAppMenu_Entries {
     AppMenu_File = 0,
     AppMenu_Edit,
-    AppMenu_Plane,
     AppMenu_View,
     AppMenu_Tools,
     AppMenu_Assets,
@@ -107,14 +111,16 @@ enum enAppMenu_Entries {
     AppMenu_EntryCount
 };
 
-class cAppMenu : public gcn::ActionListener, gcn::SelectionListener {
+class cAppMenu : public gcn::Widget,
+                        gcn::MouseListener,
+                        gcn::KeyListener,
+                        gcn::FocusListener,
+                        gcn::ActionListener,
+                        gcn::SelectionListener {
 private:
     cAppMenu_Entry *hEntries[AppMenu_EntryCount];
-    int iHeight;
-    SHR::Context *conOpen, *conOpenMRU, *conActivePlane, *conPlanesVisibilityList, *conPlaneVisibility;
-    int iOpened;
-    int iOverallWidth;
-    cRulers *hRulers;
+    SHR::Context *conOpenMRU, *conPlanesVisibilityList, *conPlaneVisibility;
+    int iSelected, iHovered, iOpened;
     bool bEnabled;
 
 public:
@@ -122,21 +128,33 @@ public:
 
     ~cAppMenu();
 
-    void Think(bool bConsumed);
+    void setSelected(int i) { iSelected = i; }
 
-    void Render();
+    void switchTo(int i);
 
-    //bool IsFolded(){ return bFolded; };
-    //void SetFolded(bool b);
+    void closeCurrent();
+
+    void draw(Graphics* graphics) override;
+
+    void keyPressed(KeyEvent& keyEvent) override;
+
+    void mouseMoved(MouseEvent& mouseEvent) override;
+
+    void mousePressed(MouseEvent& mouseEvent) override;
+
+    void mouseExited(MouseEvent& mouseEvent) override;
+
     bool IsEnabled() { return bEnabled; };
 
     void SetEnabled(bool b) { bEnabled = b; };
 
-    int GetHeight() { return iHeight; };
+    int GetHeight() { return mDimension.height; };
 
-    void action(const gcn::ActionEvent &actionEvent);
+    void action(const gcn::ActionEvent &actionEvent) override;
 
-    void valueChanged(const SelectionEvent &event);
+    void focusLost(const FocusEvent& event) override;
+
+    void valueChanged(const SelectionEvent &event) override;
 
     SHR::Context *GetContext(enAppMenu_Entries x) { return hEntries[x]->GetContext(); };
 
@@ -163,11 +181,7 @@ public:
 
     void SyncPlaneSelectedVisibility();
 
-    void FixInterfacePositions();
-
     void SetToolSpecificEnabled(bool b);
-
-    cRulers *GetRulers() { return hRulers; };
 };
 
 #endif

@@ -66,8 +66,8 @@ enum EnumGfxIcons {
     Icon_DeleteFile,
     Icon_Stats,
     Icon_Settings,
+    Icon_InfoCloud,
     Icon_Info,
-    Icon_Help,
     Icon_Test,
     Icon_Mapshot,
     Icon_Pause,
@@ -105,13 +105,11 @@ enum EnumGfxIcons {
     Icon_Properties,
     Icon_Text,
     Icon_Reload,
-    Icon_TileProperties,
     Icon_Apply,
     Icon_RSS,
     Icon_Pipette,
     Icon_Simulation,
     Icon_Select,
-    Icon_Navigator,
     Icon_AddDown,
     Icon_AddUp,
     Icon_AddRight,
@@ -128,23 +126,20 @@ enum EnumGfxIcons {
     Icon_Up,
     Icon_Down,
     Icon_CrumblinPeg,
-    Icon_Elevator,
     Icon_Rope,
     Icon_TogglePeg,
-    Icon_SlidingPeg,
+    Icon_Elevator,
+    Icon_ElevatorPath,
     Icon_CannonWall,
     Icon_BossWarp,
     Icon_Statue,
     Icon_BreakPlank,
     Icon_SpringBoard,
-    Icon_DoNothing,
-    Icon_Animated,
+    Icon_Decoration,
     Icon_PowderKeg,
-    Icon_ElevatorPath,
-    Icon_Cannon,
     Icon_Projectile,
-    Icon_Catnip,
-    Icon_NPC_Rat,
+    Icon_PowerUp,
+    Icon_Enemy,
     Icon_Measure,
     Icon_Zoom,
     Icon_Anchor,
@@ -155,36 +150,8 @@ enum EnumGfxIcons {
     Icon_Shake,
     Icon_Stalactite,
     Icon_Laser,
-    Icon_Tentacle,
-    Icon_LaRauxe,
-    Icon_Catherine,
-    Icon_Wolvington,
-    Icon_Gabriel,
-    Icon_Marrow,
-    Icon_Aquatis,
-    Icon_RedTail,
-    Icon_Omar,
-    Icon_NPC_TownGuard1,
-    Icon_NPC_TownGuard2,
-    Icon_NPC_RedTailPirate,
-    Icon_NPC_BearSailor,
-    Icon_NPC_Soldier,
-    Icon_NPC_Officer,
-    Icon_NPC_CutThroat,
-    Icon_NPC_RobberThief,
-    Icon_NPC_Merkat,
-    Icon_NPC_Siren,
-    Icon_NPC_Fish,
-    Icon_NPC_TigerGuard1,
-    Icon_NPC_Crab,
-    Icon_NPC_Seagull,
-    Icon_NPC_Pegleg,
-    Icon_NPC_CrazyHook,
-    Icon_NPC_TigerGuard2,
-    Icon_NPC_Chameleon,
     Icon_Music,
     Icon_XTransparent,
-    Icon_Diamonds,
     Icon_TextAlign_Justify,
     Icon_TextAlign_Left,
     Icon_TextAlign_Right,
@@ -197,14 +164,13 @@ enum EnumGfxIcons {
     Icon_Trash,
     Icon_Warning,
     Icon_WriteID,
-    Icon_CrazyHook,
-    Icon_WapMap,
     Icon_Animation,
     Icon_Code,
+    Icon_Lock,
+    Icon_WapMap,
     Icon_HardDrive,
     Icon_Package,
     Icon_Spray,
-    Icon_Lock,
     GfxIcons_Count
 };
 
@@ -227,15 +193,15 @@ enum Gfx16Icons {
     Icon16_Curse,
     Icon16_Flag,
     Icon16_CrumblingPeg,
-    Icon16_Elevator,
     Icon16_Rope,
     Icon16_TogglePeg,
-    Icon16_SlidingPeg,
+    Icon16_Elevator,
+    Icon16_ElevatorPath,
     Icon16_CannonWall,
     Icon16_BossWarp,
     Icon16_Map,
     Icon16_Spikes,
-    Icon16_NPC_Rat,
+    Icon16_Enemy,
     Icon16_Flip,
     Icon16_FlipY,
     Icon16_FlipX,
@@ -249,13 +215,10 @@ enum Gfx16Icons {
     Icon16_Statue,
     Icon16_BreakPlank,
     Icon16_SpringBoard,
-    Icon16_DoNothing,
-    Icon16_Animated,
+    Icon16_Decoration,
     Icon16_PowderKeg,
-    Icon16_ElevatorPath,
-    Icon16_Cannon,
     Icon16_Projectile,
-    Icon16_Catnip,
+    Icon16_PowerUp,
     Icon16_SubDouble,
     Icon16_SubTriple,
     Icon16_PlaneFront,
@@ -270,42 +233,14 @@ enum Gfx16Icons {
     Icon16_Shake,
     Icon16_Stalactite,
     Icon16_Laser,
-    Icon16_Tentacle,
-    Icon16_LaRauxe,
-    Icon16_Catherine,
-    Icon16_Wolvington,
-    Icon16_Gabriel,
-    Icon16_Marrow,
-    Icon16_Aquatis,
-    Icon16_RedTail,
-    Icon16_Omar,
-    Icon16_NPC_CutThroat,
-    Icon16_NPC_RobberThief,
-    Icon16_NPC_Merkat,
-    Icon16_NPC_Siren,
-    Icon16_NPC_Fish,
-    Icon16_NPC_TigerGuard1,
-    Icon16_NPC_Crab,
-    Icon16_NPC_Seagull,
-    Icon16_NPC_Pegleg,
-    Icon16_NPC_CrazyHook,
-    Icon16_NPC_TigerGuard2,
-    Icon16_NPC_TownGuard1,
-    Icon16_NPC_TownGuard2,
-    Icon16_NPC_RedTailPirate,
-    Icon16_NPC_BearSailor,
-    Icon16_NPC_Soldier,
-    Icon16_NPC_Officer,
-    Icon16_NPC_Chameleon,
     Icon16_Music,
     Icon16_XTransparent,
-    Icon16_Diamonds,
     Icon16_New,
     Icon16_Open,
     Icon16_Save,
     Icon16_SaveAs,
     Icon16_Settings,
-    Icon16_Info,
+    Icon16_InfoCloud,
     Icon16_AutoUpdate,
     Icon16_Readme,
     Icon16_ModeTile,
@@ -324,14 +259,12 @@ enum Gfx16Icons {
     Icon16_ViewNo,
     Icon16_Camera,
     Icon16_Play,
-    Icon16_TileProp,
     Icon16_Search,
-    Icon16_Home,
     Icon16_Mapshot,
     Icon16_World,
     Icon16_Stats,
     Icon16_Flags,
-    Icon16_i,
+    Icon16_Info,
     Icon16_Trash,
     Icon16_Warning,
     Icon16_WriteID,
@@ -346,12 +279,18 @@ enum Gfx16Icons {
     Gfx16Icons_Count
 };
 
-#define Gfx128IconsCnt 4
-enum Gfx128Icons {
-    Icon128_NewDocument,
-    Icon128_OpenDocument,
-    Icon128_RecentlyUsed,
-    Icon128_WhatsNew
+enum APP_CURSOR {
+    DEFAULT = 0,
+    TEXT,
+
+    CURSORS_COUNT
+};
+
+enum WelcomeScreenOptions {
+    NewDocument,
+    OpenExisting,
+    WhatsNew,
+    WelcomeScreenOptions_Count
 };
 
 #define STR_IMPL_(x) #x      //stringify argument
@@ -371,24 +310,22 @@ public:
     ~cGlobals();
 
     void Init();
+
     void GetDesktopResolution(int& horizontal, int& vertical);
+
+    void RenderLogoWithVersion(int x, int y, int alpha = 255);
 
     HTEXTURE texMain;
     HTEXTURE texLevels;
     hgeSprite *sprLevels[18];
-    hgeSprite *sprConsoleBG, *sprLogoBig;
-    hgeSprite *sprShadeBar;
-    hgeSprite *sprIconGoodSmall, *sprIconBadSmall, *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count], *sprIcons128[Gfx128IconsCnt];
-    hgeSprite *sprMicroVert, *sprMicroHor, *sprMicroZoom, *sprSmiley;
-    hgeSprite *sprGamesBig[WWD::Games_Count + 1], *sprGamesSmall[WWD::Games_Count + 1], *sprBlank;
-    hgeSprite *sprMicroIcons[2];
+    hgeSprite *sprLogoBig, *sprLogoCaption;
+    hgeSprite *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count];
+    hgeSprite *sprSmiley;
+    hgeSprite *sprGamesBig[WWD::Games_Count + 1], *sprGamesSmall[WWD::Games_Count + 1], *sprBlank, *sprConsoleBG;
 
-    hgeSprite *sprCaptionMinimalize[2], *sprCaptionClose[2];
-    hgeSprite *sprLogoMini;
-    hgeSprite *sprIconCaption;
+    hgeSprite *sprCaptionMinimze[2], *sprCaptionClose[2];
 
     hgeSprite *sprDottedLineHorizontal, *sprDottedLineVertical;
-    hgeSprite *sprArrowHorizontalL, *sprArrowHorizontalC, *sprArrowHorizontalR;
     hgeSprite *sprArrowVerticalU, *sprArrowVerticalM, *sprArrowVerticalD;
 
     hgeSprite *sprLevelsMicro16[14];
@@ -401,16 +338,17 @@ public:
 
     hgeSprite *sprCloudTip[4];
     hgeSprite *sprContextCascadeArrow;
+    hgeSprite *sprTabCloseButton;
 
     hgeSprite *sprTile;
-    hgeFont *fntMyriad10, *fntMyriad20, *fntSystem17, *fntMyriad13, *fntMyriad80, *fntMinimal;
+    hgeFont *fntMyriad10, *fntMyriad20, *fntSystem17, *fntMyriad16, *fntMyriad80, *fntMinimal;
 
     gcn::HGEInput *gcnInput;
     gcn::HGEGraphics *gcnGraphics;
     gcn::HGEImageLoader *gcnImageLoader;
 
-    bool bKijan, bNapo;
-    hgeSprite *sprKijan, *sprNapo;
+    bool bKijan, bZax;
+    hgeSprite *sprKijan, *sprZax;
 
     char *szLastOpenPath, *szLastSavePath;
     char *szUrlTCR;
@@ -444,6 +382,10 @@ public:
     State::EditingWW *editState;
     int iScreenW, iScreenH;
 
+    HCURSOR cursors[CURSORS_COUNT];
+
+    void SetCursor(APP_CURSOR cursor);
+
     WindowsVer iOS;
     char szNameOS[256];
 
@@ -454,14 +396,6 @@ public:
     hgeSprite *sprCheckboard;
 
     DWORD dwProcID;
-
-    hgeSprite *sprDropShadowCorner, *sprDropShadowLeft, *sprDropShadowUp, *sprDropShadowVert, *sprDropShadowHor;
-
-    hgeSprite *sprUsedLibs;
-
-    hgeSprite *sprThumbtack;
-
-    hgeSprite *sprFeedIcon[2], *sprTabs[3], *sprFrameGrad, *sprFrame;
 
     cInterfaceSheet *hGfxInterface;
 
@@ -479,12 +413,7 @@ public:
     void UpdateMemUsage();
 #endif
 
-    DWORD colBase, colBaseDark, colLineDark, colLineBright, colOutline,
-            colBaseGCN, colBaseDarkGCN, colLineDarkGCN, colLineBrightGCN, colOutlineGCN;
-
-    void RenderDropShadow(int x, int y, int w, int h, unsigned char alpha = 255);
-
-    void RenderFrame(int x, int y, int w, int h);
+    DWORD colBase, colBaseDark, colLineDark, colLineBright, colOutline, colFontWhite;
 };
 
 extern cGlobals *GV;

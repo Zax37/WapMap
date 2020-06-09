@@ -1,20 +1,13 @@
 #include "wTextDropDown.h"
-
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
-#include "guichan/listmodel.hpp"
-#include "guichan/mouseinput.hpp"
 #include "wListbox.h"
 #include "wScrollArea.h"
 #include "../../WapMap/cInterfaceSheet.h"
 #include "../commonFunc.h"
 
 #ifdef WAP_MAP
-
 #include "../../WapMap/states/editing_ww.h"
-
 #endif
 
 
@@ -105,6 +98,10 @@ namespace SHR {
         bool buttonfoc = (isEnabled() && mHasMouse && mx > x + getWidth() - 20 && mx < x + getWidth() && my > y &&
                           my < y + h);
 
+        if (isEnabled() && mHasMouse && !buttonfoc) {
+            GV->SetCursor(TEXT);
+        }
+
         if (mDroppedDown && fButtonTimer < 0.4f) {
             fButtonTimer += hge->Timer_GetDelta();
             if (fButtonTimer > 0.4f) fButtonTimer = 0.4f;
@@ -118,28 +115,19 @@ namespace SHR {
             fButtonTimer -= hge->Timer_GetDelta();
             if (fButtonTimer < 0.0f) fButtonTimer = 0.0f;
         }
-        if (isFocused() && bTextFocused && fFocusTimer < 0.2f) {
+        if (isFocused() && fFocusTimer < 0.2f) {
             fFocusTimer += hge->Timer_GetDelta();
             if (fFocusTimer > 0.2f) fFocusTimer = 0.2f;
-        } else if ((!isFocused() || !bTextFocused) && fFocusTimer > 0.0f) {
+        } else if (!isFocused() && fFocusTimer > 0.0f) {
             fFocusTimer -= hge->Timer_GetDelta();
             if (fFocusTimer < 0.0f) fFocusTimer = 0.0;
         }
 
         ClipRectangle rect = graphics->getCurrentClipArea();
 
-        hge->Gfx_SetClipping(x - 5, y - 5, getWidth() - 16, h + 10);
-        TextField::renderFrame(x, y, getWidth(), h, getAlpha(), 0);
+        renderFrame(x, y, getWidth(), h, getAlpha(), 0);
         if (fFocusTimer > 0)
-            TextField::renderFrame(x, y, getWidth(), h, (fFocusTimer * 5.0f * 255.0f) * getAlphaModifier(), 1);
-        hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
-
-        _ghGfxInterface->sprDropDownBar[2]->Render(x + getWidth() - 21, y);
-        if (fButtonTimer > 0.0f) {
-            _ghGfxInterface->sprDropDownButtonFocused->SetColor(
-                    SETA(0xFFFFFFFF, (unsigned char) (fButtonTimer * 2.5f * 255.0f)));
-            _ghGfxInterface->sprDropDownButtonFocused->Render(x + getWidth() - 21, y);
-        }
+            renderFrame(x, y, getWidth(), h, (fFocusTimer * 5.0f * 255.0f) * getAlphaModifier(), 1);
 
         _ghGfxInterface->sprDropDownBarArrow->SetColor(isEnabled() ? 0xFFFFFFFF : 0xFF5e5e5e);
         _ghGfxInterface->sprDropDownBarArrow->SetFlip(0, mDroppedDown);
@@ -148,13 +136,8 @@ namespace SHR {
         graphics->pushClipArea(gcn::Rectangle(4, 0, getWidth() - 23, getHeight()));
 
         hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
-        DWORD fntcol = (isEnabled() ? 0xFF8a8a8a : 0xFF414141);
-        if (fFocusTimer > 0) {
-            unsigned char p = (138.0f + 117.0f * fFocusTimer * 5.0f);
-            fntcol = ARGB(getAlpha(), p, p, p);
-        }
-        fnt->SetColor(fntcol);
-        fnt->Render(x + 5 - mXScroll, y + 1, HGETEXT_LEFT, mText.c_str(), 0);
+        fnt->SetColor(SETA(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * getAlpha() / 255.f));
+        fnt->Render(x + 5 - mXScroll, ceil(y + h / 2) - 1, HGETEXT_LEFT | HGETEXT_MIDDLE, mText.c_str(), true);
 
         if (bTextFocused && mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
             hgeQuad q;
@@ -168,18 +151,14 @@ namespace SHR {
                 starti = mSelectionPosition;
                 endi = mCaretPosition;
             }
-            int startx = x + getFont()->getWidth(mText.substr(0, starti)) - mXScroll + 4;
-            int endx = x + getFont()->getWidth(mText.substr(0, endi)) - mXScroll + 4;
-            SHR::SetQuad(&q, 0x553393e6, startx, y + 3,
-                         endx, y + getFont()->getHeight() + 1);
+            int startX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 4,
+                endX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 4;
+            SHR::SetQuad(&q, 0x553393e6, startX, y + 3, endX, y + getFont()->getHeight() + 1);
             hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(startx, y + 3, startx, y + getFont()->getHeight() + 1, 0xFF3393e6);
-            hge->Gfx_RenderLine(endx, y + 3, endx, y + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(startX, y + 3, startX, y + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(endX, y + 3, endX, y + getFont()->getHeight() + 1, 0xFF3393e6);
         } else if (bTextFocused && mCaretPosition != -1) {
-            ClipRectangle clipArea = graphics->getCurrentClipArea();
-            graphics->setColor(0x3393e6);
-            graphics->drawLine(getFont()->getWidth(mText.substr(0, mCaretPosition)) - mXScroll, clipArea.height - 2,
-                               getFont()->getWidth(mText.substr(0, mCaretPosition)) - mXScroll, 1);
+            drawCaret(graphics, GV->fntMyriad16->GetStringWidth(mText.substr(0, mCaretPosition).c_str(), false, true) - mXScroll);
         }
         graphics->popClipArea();
 
@@ -208,26 +187,35 @@ namespace SHR {
             return;
         }
 
-        if (key.getValue() == Key::LEFT && mCaretPosition > 0) {
+        if (key.getValue() == Key::DOWN) {
+            dropDown();
+            keyEvent.consume();
+        } else if (key.getValue() == Key::LEFT) {
             if (keyEvent.isShiftPressed()) {
                 if (mSelectionPosition > 0)
                     mSelectionPosition--;
                 else if (mSelectionPosition == -1 && mCaretPosition != 0)
                     mSelectionPosition = mCaretPosition - 1;
-            } else {
-                --mCaretPosition;
-                mSelectionPosition = -1;
-            }
-        } else if (key.getValue() == Key::RIGHT && mCaretPosition < mText.size()) {
+            } else if (mCaretPosition > 0) {
+                if (mSelectionPosition == -1) --mCaretPosition;
+                else {
+                    if (mSelectionPosition < mCaretPosition) mCaretPosition = mSelectionPosition;
+                    mSelectionPosition = -1;
+                }
+            } else mSelectionPosition = -1;
+        } else if (key.getValue() == Key::RIGHT) {
             if (keyEvent.isShiftPressed()) {
                 if (mSelectionPosition < mText.length() && mSelectionPosition != -1)
                     mSelectionPosition++;
                 else if (mSelectionPosition == -1 && mCaretPosition < mText.length())
                     mSelectionPosition = mCaretPosition + 1;
-            } else {
-                ++mCaretPosition;
-                mSelectionPosition = -1;
-            }
+            } else if (mCaretPosition < mText.size()) {
+                if (mSelectionPosition == -1) ++mCaretPosition;
+                else {
+                    if (mSelectionPosition > mCaretPosition) mCaretPosition = mSelectionPosition;
+                    mSelectionPosition = -1;
+                }
+            } else mSelectionPosition = -1;
         } else if (key.getValue() == Key::DELETE && (mCaretPosition < mText.size() || bSelection)) {
             if (bSelection) {
                 deleteSelection();
@@ -245,20 +233,24 @@ namespace SHR {
             }
             setActionEventId("");
             distributeActionEvent();
-        }
-
-            /*else if (key.getValue() == Key::ENTER)
-            {
-                distributeActionEvent();
-            }*/
-
-        else if (key.getValue() == Key::HOME) {
-            mCaretPosition = 0;
-            mSelectionPosition = -1;
+        } else if (key.getValue() == Key::ENTER) {
+            setActionEventId("ENTER");
+            distributeActionEvent();
+        } else if (key.getValue() == Key::HOME) {
+            if (keyEvent.isShiftPressed()) {
+                mSelectionPosition = 0;
+            } else {
+                mCaretPosition = 0;
+                mSelectionPosition = -1;
+            }
         } else if (key.getValue() == Key::END) {
-            mCaretPosition = mText.size();
-            mSelectionPosition = -1;
-        } else if (key.getValue() == 22 && keyEvent.isControlPressed()) { //paste
+            if (keyEvent.isShiftPressed()) {
+                mSelectionPosition = mText.size();
+            } else {
+                mCaretPosition = mText.size();
+                mSelectionPosition = -1;
+            }
+        } else if (key.getValue() == 'v' && keyEvent.isControlPressed()) { //paste
             if (bSelection) deleteSelection();
             int pastepos = mCaretPosition;
             char *cb = SHR::GetClipboard();
@@ -266,7 +258,7 @@ namespace SHR {
                 char *nlfix = new char[strlen(cb) + 1];
                 int offset = 0;
                 for (int i = 0; i <= strlen(cb); i++) {
-                    if (cb[i] != 0 && cb[i] == 13 && cb[i + 1] == 10) {
+                    if (cb[i] == 13 && cb[i + 1] == 10) {
                         i += 2;
                         offset += 2;
                     }
@@ -277,17 +269,21 @@ namespace SHR {
                 mCaretPosition += strlen(nlfix);
                 delete[] nlfix;
                 delete[] cb;
+                setActionEventId("");
+                distributeActionEvent();
             }
-        } else if (key.getValue() == 3 && keyEvent.isControlPressed() && bSelection) { //copy
+        } else if (key.getValue() == 'c' && keyEvent.isControlPressed() && bSelection) { //copy
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
                     end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
-        } else if (key.getValue() == 24 && keyEvent.isControlPressed() && bSelection) { //cut
+        } else if (key.getValue() == 'x' && keyEvent.isControlPressed() && bSelection) { //cut
             int start = (mSelectionPosition < mCaretPosition ? mSelectionPosition : mCaretPosition),
                     end = (mSelectionPosition < mCaretPosition ? mCaretPosition : mSelectionPosition);
             SHR::SetClipboard(mText.substr(start, end - start).c_str());
             deleteSelection();
-        } else if (key.getValue() == 1 && keyEvent.isControlPressed()) { //select all
+            setActionEventId("");
+            distributeActionEvent();
+        } else if (key.getValue() == 'a' && keyEvent.isControlPressed()) { //select all
             mCaretPosition = 0;
             mSelectionPosition = mText.length();
         } else if (key.isCharacter() && key.getValue() != Key::TAB ||
@@ -299,6 +295,7 @@ namespace SHR {
             }
             mText.insert(mCaretPosition, std::string(1, (char) key.getValue()));
             ++mCaretPosition;
+            setActionEventId("");
             distributeActionEvent();
         }
 
@@ -389,6 +386,16 @@ namespace SHR {
             mSelectionPosition = getFont()->getStringIndexAt(mText, mouseEvent.getX() + mXScroll);
             fixScroll();
         }
+
+        int h = (mDroppedDown ? mFoldedUpHeight : getHeight());
+        int x, y;
+        getAbsolutePosition(x, y);
+
+        if (isEnabled() && mHasMouse && !(mouseEvent.getX() > x + getWidth() - 20
+                && mouseEvent.getX() < x + getWidth() && mouseEvent.getY() > y && mouseEvent.getY() < y + h)) {
+            GV->SetCursor(TEXT);
+        }
+
         mouseEvent.consume();
     }
 
@@ -470,12 +477,16 @@ namespace SHR {
         }
     }
 
-    void TextDropDown::focusLost(const Event &event) {
+    void TextDropDown::focusLost(const FocusEvent& event) {
         Widget* source = event.getSource();
         foldUp();
         mInternalFocusHandler.focusNone();
+        bTextFocused = false;
     }
 
+    void TextDropDown::focusGained(const FocusEvent& event) {
+        bTextFocused = true;
+    }
 
     void TextDropDown::death(const Event &event) {
         if (event.getSource() == mScrollArea) {
@@ -647,16 +658,6 @@ namespace SHR {
 
     void TextDropDown::mouseExited(MouseEvent &mouseEvent) {
         mHasMouse = false;
-    }
-
-    bool TextDropDown::showHand() {
-        if (!mHasMouse || !isEnabled()) return false;
-        int x, y;
-        getAbsolutePosition(x, y);
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-
-        return (mx > x + getWidth() - 20 && mx < x + getWidth() && my > y && my < y + getHeight());
     }
 
     void TextDropDown::deleteSelection() {

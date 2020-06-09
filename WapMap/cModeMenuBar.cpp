@@ -36,28 +36,28 @@ cmmbTile::cmmbTile(int startX) : cModeMenuBar(startX) {
     ddActivePlane->SetGfx(&GV->gcnParts);
     ddActivePlane->adjustHeight();
     ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
-    GV->editState->conMain->add(ddActivePlane, startX + 5, LAY_MODEBAR_Y + 3);
+    GV->editState->conMain->add(ddActivePlane, startX + 5, LAY_MODEBAR_Y + 4);
 
     startX += 160;
     vSeparators.push_back(startX);
 
-    butIconSelect = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Select, GV->editState->conMain);
+    butIconSelect = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Select, GV->editState->conMain);
     butIconSelect->setRenderBG(0);
     butIconSelect->SetTooltip(GETL2("Tooltip", Lang_TT_Select));
     startX += 32;
-    butIconPencil = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Pencil, GV->editState->conMain);
+    butIconPencil = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Pencil, GV->editState->conMain);
     butIconPencil->setRenderBG(0);
     butIconPencil->SetTooltip(GETL2("Tooltip", Lang_TT_Pencil));
     startX += 32;
-    butIconBrush = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Brush, GV->editState->conMain);
+    butIconBrush = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Brush, GV->editState->conMain);
     butIconBrush->setRenderBG(0);
     butIconBrush->SetTooltip(GETL2("Tooltip", Lang_TT_Brush));
     startX += 32;
-    butIconFill = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_Fill, GV->editState->conMain);
+    butIconFill = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Fill, GV->editState->conMain);
     butIconFill->setRenderBG(0);
     butIconFill->SetTooltip(GETL2("Tooltip", Lang_TT_Fill));
     startX += 32;
-    butIconWriteID = GV->editState->MakeButton(startX, LAY_MODEBAR_Y - 3, Icon_WriteID, GV->editState->conMain);
+    butIconWriteID = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_WriteID, GV->editState->conMain);
     butIconWriteID->setRenderBG(0);
     butIconWriteID->SetTooltip(GETL2("Tooltip", Lang_TT_WriteID));
     startX += 32;
@@ -91,11 +91,11 @@ void cmmbTile::_setEnabled(bool bEn) {
 }
 
 cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
-    conNewObject = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    conNewObject = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     conNewObject->hide();
     conNewObject->addActionListener(this);
 
-    int yOff = LAY_MODEBAR_Y - 3;
+    int yOff = LAY_MODEBAR_Y;
 
     butIconSearchObject = GV->editState->MakeButton(69, yOff, Icon_Zoom, GV->editState->conMain, 1, 0);
     butIconSearchObject->SetTooltip(GETL2("Tooltip", Lang_TT_SearchObject));
@@ -111,7 +111,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     butIconBreakPlank->SetTooltip(GETL2("Tooltip", Lang_TT_NewBreakPlank));
     butIconTogglePeg = GV->editState->MakeButton(xOff, yOff, Icon_TogglePeg, GV->editState->conMain, 1, 0);
     butIconTogglePeg->SetTooltip(GETL2("Tooltip", Lang_TT_NewTogglePeg));
-    butIconElevator = GV->editState->MakeButton(xOff, yOff, Icon_SlidingPeg, GV->editState->conMain, 1, 0);
+    butIconElevator = GV->editState->MakeButton(xOff, yOff, Icon_Elevator, GV->editState->conMain, 1, 0);
     butIconElevator->SetTooltip(GETL2("Tooltip", Lang_TT_NewElevator));
     butIconPathElevator = GV->editState->MakeButton(xOff, yOff, Icon_ElevatorPath, GV->editState->conMain, 1, 0);
     butIconPathElevator->SetTooltip(GETL2("Tooltip", Lang_TT_NewPathElevator));
@@ -124,7 +124,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     butIconTreasure->SetTooltip(GETL2("Tooltip", Lang_TT_NewTreasure));
     butIconHealth = GV->editState->MakeButton(xOff, yOff, Icon_Health, GV->editState->conMain, 1, 0);
     butIconHealth->SetTooltip(GETL2("Tooltip", Lang_TT_NewPickup));
-    butIconCatnip = GV->editState->MakeButton(xOff, yOff, Icon_Catnip, GV->editState->conMain, 1, 0);
+    butIconCatnip = GV->editState->MakeButton(xOff, yOff, Icon_PowerUp, GV->editState->conMain, 1, 0);
     butIconCatnip->SetTooltip(GETL2("Tooltip", Lang_TT_NewPowerup));
     butIconCurse = GV->editState->MakeButton(xOff, yOff, Icon_Curse, GV->editState->conMain, 1, 0);
     butIconCurse->SetTooltip(GETL2("Tooltip", Lang_TT_NewCurse));
@@ -133,7 +133,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     butIconStatue = GV->editState->MakeButton(xOff, yOff, Icon_Statue, GV->editState->conMain, 1, 0);
     butIconStatue->SetTooltip(GETL2("Tooltip", Lang_TT_NewStatue));
 
-    butIconEnemy = GV->editState->MakeButton(xOff, yOff, Icon_NPC_Rat, GV->editState->conMain, 1, 0);
+    butIconEnemy = GV->editState->MakeButton(xOff, yOff, Icon_Enemy, GV->editState->conMain, 1, 0);
     butIconEnemy->SetTooltip(GETL2("Tooltip", Lang_TT_Enemy));
     butIconPowderKeg = GV->editState->MakeButton(xOff, yOff, Icon_PowderKeg, GV->editState->conMain, 1, 0);
     butIconPowderKeg->SetTooltip(GETL2("Tooltip", Lang_TT_PowderKeg));
@@ -150,7 +150,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     butIconLaser = GV->editState->MakeButton(xOff, yOff, Icon_Laser, GV->editState->conMain, 1, 0);
     butIconLaser->SetTooltip(GETL2("Tooltip", Lang_TT_Laser));
 
-    butIconEyeCandy = GV->editState->MakeButton(xOff, yOff, Icon_Animated, GV->editState->conMain, 1, 0);
+    butIconEyeCandy = GV->editState->MakeButton(xOff, yOff, Icon_Decoration, GV->editState->conMain, 1, 0);
     butIconEyeCandy->SetTooltip(GETL2("Tooltip", Lang_TT_Decor));
     butIconText = GV->editState->MakeButton(xOff, yOff, Icon_Text, GV->editState->conMain, 1, 0);
     butIconText->SetTooltip(GETL2("Tooltip", Lang_TT_AddText));
@@ -199,14 +199,15 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     vButtons.push_back(butIconSound);
     vButtons.push_back(butIconMapPiece); //35
 
-    for (int i = 0; i < vButtons.size(); i++)
-        vButtons[i]->setRenderBG(0);
+    for (auto & vButton : vButtons)
+        vButton->setRenderBG(false);
 
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_ADV, GETL2S("ContextNewObj", "Empty"), GV->sprIcons16[Icon16_Star],
                              butIconNewObjEmpty));
-    vContextElements.push_back(cNewObjContextEl(NOBJCON_CRUMBLE, GETL2S("ContextNewObj", "CrumblingPeg"),
-                                                GV->sprIcons16[Icon16_CrumblingPeg], butIconCrumblinPeg));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_CRUMBLE, GETL2S("ContextNewObj", "CrumblingPeg"), GV->sprIcons16[Icon16_CrumblingPeg],
+                             butIconCrumblinPeg));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_BREAKPL, GETL2S("ContextNewObj", "BreakPlank"), GV->sprIcons16[Icon16_BreakPlank],
                              butIconBreakPlank));
@@ -214,14 +215,17 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
             cNewObjContextEl(NOBJCON_TOGGLE, GETL2S("ContextNewObj", "TogglePeg"), GV->sprIcons16[Icon16_TogglePeg],
                              butIconTogglePeg));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_ELEVATOR, GETL2S("ContextNewObj", "Elevator"), GV->sprIcons16[Icon16_SlidingPeg],
+            cNewObjContextEl(NOBJCON_ELEVATOR, GETL2S("ContextNewObj", "Elevator"), GV->sprIcons16[Icon16_Elevator],
                              butIconElevator));
-    vContextElements.push_back(cNewObjContextEl(NOBJCON_PATHELEV, GETL2S("ContextNewObj", "PathElevator"),
-                                                GV->sprIcons16[Icon16_ElevatorPath], butIconPathElevator));
-    vContextElements.push_back(cNewObjContextEl(NOBJCON_SPRINGBRD, GETL2S("ContextNewObj", "SpringBoard"),
-                                                GV->sprIcons16[Icon16_SpringBoard], butIconSpringBoard));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_ROPE, GETL2S("ContextNewObj", "Rope"), GV->sprIcons16[Icon16_Rope], butIconRope));
+            cNewObjContextEl(NOBJCON_PATHELEV, GETL2S("ContextNewObj", "PathElevator"), GV->sprIcons16[Icon16_ElevatorPath],
+                             butIconPathElevator));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_SPRINGBRD, GETL2S("ContextNewObj", "SpringBoard"), GV->sprIcons16[Icon16_SpringBoard],
+                             butIconSpringBoard));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_ROPE, GETL2S("ContextNewObj", "Rope"), GV->sprIcons16[Icon16_Rope],
+                             butIconRope));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_TREASURE, GETL2S("ContextNewObj", "Treasure"), GV->sprIcons16[Icon16_Treasure],
                              butIconTreasure));
@@ -229,7 +233,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
             cNewObjContextEl(NOBJCON_HEALTH, GETL2S("ContextNewObj", "Health"), GV->sprIcons16[Icon16_Health],
                              butIconHealth));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_CATNIP, GETL2S("ContextNewObj", "Catnip"), GV->sprIcons16[Icon16_Catnip],
+            cNewObjContextEl(NOBJCON_CATNIP, GETL2S("ContextNewObj", "Catnip"), GV->sprIcons16[Icon16_PowerUp],
                              butIconCatnip));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_CURSE, GETL2S("ContextNewObj", "Curse"), GV->sprIcons16[Icon16_Curse],
@@ -240,7 +244,9 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_STATUE, GETL2S("ContextNewObj", "Statue"), GV->sprIcons16[Icon16_Statue],
                              butIconStatue));
-    //vContextElements.push_back(cNewObjContextEl(NOBJCON_NPC,        GETL2S("ContextNewObj", "Enemy"), GV->sprIcons16[Icon16_NPC_Rat], butIconNPC));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_NPC, GETL2S("ContextNewObj", "Enemy"), GV->sprIcons16[Icon16_Enemy],
+                             butIconEnemy));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_POWDER, GETL2S("ContextNewObj", "PowderKeg"), GV->sprIcons16[Icon16_PowderKeg],
                              butIconPowderKeg));
@@ -250,21 +256,24 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_SPIKES, GETL2S("ContextNewObj", "Spikes"), GV->sprIcons16[Icon16_Spikes],
                              butIconSpikes));
-    vContextElements.push_back(cNewObjContextEl(NOBJCON_PROJECTILE, GETL2S("ContextNewObj", "Projectile"),
-                                                GV->sprIcons16[Icon16_Projectile], butIconProjectile));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_PROJECTILE, GETL2S("ContextNewObj", "Projectile"), GV->sprIcons16[Icon16_Projectile],
+                             butIconProjectile));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_CRABNEST, GETL2S("ContextNewObj", "CrabNest"), GV->sprIcons16[Icon16_CrabNest],
                              butIconCrabNest));
-    vContextElements.push_back(cNewObjContextEl(NOBJCON_STALACTITE, GETL2S("ContextNewObj", "Stalactite"),
-                                                GV->sprIcons16[Icon16_Stalactite], butIconStalactite));
+    vContextElements.push_back(
+            cNewObjContextEl(NOBJCON_STALACTITE, GETL2S("ContextNewObj", "Stalactite"), GV->sprIcons16[Icon16_Stalactite],
+                             butIconStalactite));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_LASER, GETL2S("ContextNewObj", "Laser"), GV->sprIcons16[Icon16_Laser],
                              butIconLaser));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_EYECANDY, GETL2S("ContextNewObj", "EyeCandy"), GV->sprIcons16[Icon16_Animated],
+            cNewObjContextEl(NOBJCON_EYECANDY, GETL2S("ContextNewObj", "EyeCandy"), GV->sprIcons16[Icon16_Decoration],
                              butIconEyeCandy));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_TEXT, GETL2S("ContextNewObj", "Text"), GV->sprIcons16[Icon16_Text], butIconText));
+            cNewObjContextEl(NOBJCON_TEXT, GETL2S("ContextNewObj", "Text"), GV->sprIcons16[Icon16_Text],
+                             butIconText));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_SHAKE, GETL2S("ContextNewObj", "Shake"), GV->sprIcons16[Icon16_Shake],
                              butIconShake));
@@ -272,7 +281,8 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
             cNewObjContextEl(NOBJCON_CPOINT, GETL2S("ContextNewObj", "Checkpoint"), GV->sprIcons16[Icon16_Flag],
                              butIconCheckpoint));
     vContextElements.push_back(
-            cNewObjContextEl(NOBJCON_WARP, GETL2S("ContextNewObj", "Warp"), GV->sprIcons16[Icon16_Warp], butIconWarp));
+            cNewObjContextEl(NOBJCON_WARP, GETL2S("ContextNewObj", "Warp"), GV->sprIcons16[Icon16_Warp],
+                             butIconWarp));
     vContextElements.push_back(
             cNewObjContextEl(NOBJCON_DIALOG, GETL2S("ContextNewObj", "Dialog"), GV->sprIcons16[Icon16_Exclamation],
                              butIconDialog));
@@ -287,7 +297,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
 void cmmbObject::DocumentSwitched() {
     WWD::GAME game = GV->editState->hParser->GetGame();
     int base = GV->editState->hParser->GetBaseLevel();
-    int xOff = GV->editState->cbutActiveMode->getWidth() + 12;
+    int xOff = GV->editState->cbutActiveMode->getWidth() + 14;
 
     vSeparators.resize(1);
     for (auto but : vButtons) {
@@ -299,10 +309,10 @@ void cmmbObject::DocumentSwitched() {
     button->setId(""); \
     button->setVisible(bVisible); \
     button->setX(xOff); \
-    xOff += 32; \
+    xOff += 34; \
 }
 
-#define ADD_SEPARATOR() vSeparators.push_back(xOff + 3); xOff += 7;
+#define ADD_SEPARATOR() vSeparators.push_back(xOff + 5); xOff += 10;
 
     ADD_BUTTON(butIconSearchObject, true);
     ADD_SEPARATOR();

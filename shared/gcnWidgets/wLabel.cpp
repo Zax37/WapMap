@@ -9,7 +9,7 @@
 namespace SHR {
     Lab::Lab() {
         mAlignment = Graphics::LEFT;
-        mColor = 0xFFa1a1a1;
+        mColor = 0xFFe1e1e1;
     }
 
     Lab::Lab(const std::string &caption) {
@@ -25,7 +25,7 @@ namespace SHR {
 
         setWidth(getFont()->getWidth(caption));
         setHeight(getFont()->getHeight() + 2);
-        mColor = 0xFFa1a1a1;
+        mColor = 0xFFe1e1e1;
     }
 
     const std::string &Lab::getCaption() const {

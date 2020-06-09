@@ -41,7 +41,6 @@ cProcPickXYLockable::cProcPickXYLockable(const char *textMain, const char *textX
     lockBut = new SHR::But(GV->hGfxInterface, GV->sprIcons16[Icon16_Lock]);
     lockBut->setDimension(gcn::Rectangle(0, 0, 20, 20));
     lockBut->addActionListener(this);
-    lockBut->setFocusable(false);
     lockBut->SetTooltip(lockButTooltip);
     SHR::Container::add(lockBut, fieldsX + 81, 46);
 
@@ -164,21 +163,21 @@ void cProcPickXYLockable::setValueY(int val, bool generatesChangeEvent) {
 
 void cProcPickXYLockable::setEnabled(bool enabled) {
     enabledMaster = enabled;
-    labMain->setColor(enabledMaster ? 0xFFa1a1a1 : 0xFF000000);
+    labMain->setColor(SETA(GV->colFontWhite, enabledMaster ? 0xFF : 0x77));
     tfX->setEnabled(enabledMaster && xEnabled);
-    labX->setColor(enabledMaster && xEnabled ? 0xFFa1a1a1 : 0xFF000000);
+    labX->setColor(SETA(GV->colFontWhite, enabledMaster && xEnabled ? 0xFF : 0x77));
     tfY->setEnabled(enabledMaster && yEnabled);
-    labY->setColor(enabledMaster && yEnabled ? 0xFFa1a1a1 : 0xFF000000);
+    labY->setColor(SETA(GV->colFontWhite, enabledMaster && yEnabled ? 0xFF : 0x77));
 }
 
 void cProcPickXYLockable::setEnabledX(bool enabled) {
     xEnabled = enabled;
     tfX->setEnabled(enabledMaster && xEnabled);
-    labX->setColor(enabledMaster && enabled ? 0xFFa1a1a1 : 0xFF000000);
+    labX->setColor(SETA(GV->colFontWhite, enabledMaster && xEnabled ? 0xFF : 0x77));
 }
 
 void cProcPickXYLockable::setEnabledY(bool enabled) {
     yEnabled = enabled;
     tfY->setEnabled(enabledMaster && yEnabled);
-    labY->setColor(enabledMaster && enabled ? 0xFFa1a1a1 : 0xFF000000);
+    labY->setColor(SETA(GV->colFontWhite, enabledMaster && yEnabled ? 0xFF : 0x77));
 }

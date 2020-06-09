@@ -103,8 +103,8 @@ void cSoundPlayer::Render() {
         act = hge->Channel_GetPos(hChannel);
         sliTime->setValue(act);
     }
-    GV->fntMyriad13->SetColor(0xFFa1a1a1);
-    GV->fntMyriad13->printf(dx + 73, dy + 46, HGETEXT_LEFT, "%02d:%02d / %02d:%02d", 0, int(int(act) / 60),
+    GV->fntMyriad16->SetColor(0xFFe1e1e1);
+    GV->fntMyriad16->printf(dx + 73, dy + 46, HGETEXT_LEFT, "%02d:%02d / %02d:%02d", 0, int(int(act) / 60),
                             int(act) % 60, int(int(fDuration) / 60), int(fDuration) % 60);
     if (hChannel != NULL && !hge->Channel_IsPlaying(hChannel) && butPlay->getIcon() == GV->sprIcons[Icon_Pause]) {
         hge->Channel_Stop(hChannel);

@@ -114,7 +114,6 @@ namespace ObjEdit {
                 if (mx > dx + 12 + x * 71 + 35 - 24 && mx < dx + 12 + x * 71 + 35 + 24 &&
                     my > dy + 28 + y * 60 + 30 - 4 - 24 && my < dy + 28 + y * 60 + 30 - 4 + 24) {
                     picked = i;
-                    hState->bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         rbType[i]->setSelected(1);
                         Action(gcn::ActionEvent(rbType[i], ""));
@@ -124,8 +123,8 @@ namespace ObjEdit {
 
         char tmp[64];
         sprintf(tmp, "E_%d", hState->hInvCtrl->GetItemByID(iHealthID[picked]).second);
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
-        GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 - 90 + 15, HGETEXT_LEFT, "%s: ~y~%s", 0,
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
+        GV->fntMyriad16->printf(dx + 5, dy + 28 + 267 - 90 + 15, HGETEXT_LEFT, "%s: ~y~%s", 0,
                                 GETL2S("EditObj_Inventory", "Effect"), GETL2S("EditObj_Inventory", tmp));
     }
 }

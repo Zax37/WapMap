@@ -91,7 +91,7 @@ namespace State {
             GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(),
                                 exc.getFilename().c_str(), exc.getLine());
         }
-        return 0;
+        return false;
     }
 
     bool ImageDetails::Render() {
@@ -102,9 +102,8 @@ namespace State {
             GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(),
                                 exc.getFilename().c_str(), exc.getLine());
         }
-        GV->IF->Render();
         GV->Console->Render();
-        return 0;
+        return false;
     }
 
     void ImageDetails::GainFocus(int iReturnCode, bool bFlipped) {

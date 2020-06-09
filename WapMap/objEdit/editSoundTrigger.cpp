@@ -543,7 +543,7 @@ namespace ObjEdit {
             rbActivate[0]->setEnabled(!cbDialog->isSelected());
             rbActivate[1]->setEnabled(!cbDialog->isSelected());
             rbActivate[2]->setEnabled(!cbDialog->isSelected());
-            labActivateMode->setColor(cbDialog->isSelected() ? 0xFF222222 : 0xFFa1a1a1);
+            labActivateMode->setColor(cbDialog->isSelected() ? 0xFF222222 : 0xFFe1e1e1);
         }
     }
 
@@ -573,11 +573,11 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 359, dx + win->getWidth(), dy + 359, GV->colLineBright);
 
         for (int i = 0; i < 2; i++) {
-            GV->fntMyriad13->SetColor(0xFFa1a1a1);
-            GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73, HGETEXT_LEFT, "X 1:", 0);
-            GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 21, HGETEXT_LEFT, "Y 1:", 0);
-            GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 42, HGETEXT_LEFT, "X 2:", 0);
-            GV->fntMyriad13->Render(dx + 754 + 137 * i, dy + 73 + 63, HGETEXT_LEFT, "Y 2:", 0);
+            GV->fntMyriad16->SetColor(0xFFe1e1e1);
+            GV->fntMyriad16->Render(dx + 754 + 137 * i, dy + 73, HGETEXT_LEFT, "X 1:", 0);
+            GV->fntMyriad16->Render(dx + 754 + 137 * i, dy + 73 + 21, HGETEXT_LEFT, "Y 1:", 0);
+            GV->fntMyriad16->Render(dx + 754 + 137 * i, dy + 73 + 42, HGETEXT_LEFT, "X 2:", 0);
+            GV->fntMyriad16->Render(dx + 754 + 137 * i, dy + 73 + 63, HGETEXT_LEFT, "Y 2:", 0);
         }
     }
 

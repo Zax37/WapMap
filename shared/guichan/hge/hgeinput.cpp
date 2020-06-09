@@ -127,6 +127,8 @@ namespace gcn {
         rightBtn = mHGE->Input_GetKeyState(HGEK_RBUTTON);
         centerBtn = mHGE->Input_GetKeyState(HGEK_MBUTTON);
 
+        int time = mHGE->Timer_GetDeltaRealtime();
+
         // Check mouse movement
         if (mMouseX != curMouseX
             || mMouseY != curMouseY) {
@@ -134,7 +136,7 @@ namespace gcn {
                                              MouseInput::MOVED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
 
             mMouseX = curMouseX;
             mMouseY = curMouseY;
@@ -146,13 +148,13 @@ namespace gcn {
                                              MouseInput::WHEEL_MOVED_UP,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (mouseWheel < 0) {
             mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
                                              MouseInput::WHEEL_MOVED_DOWN,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         }
 
         //check mouse buttons
@@ -161,37 +163,37 @@ namespace gcn {
                                              MouseInput::PRESSED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (mLeftMouseButtonDown && !leftBtn) {
             mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
                                              MouseInput::RELEASED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (!mRightMouseButtonDown && rightBtn) {
             mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
                                              MouseInput::PRESSED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (mRightMouseButtonDown && !rightBtn) {
             mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
                                              MouseInput::RELEASED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (!mMiddleMouseButtonDown && centerBtn) {
             mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
                                              MouseInput::PRESSED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         } else if (mMiddleMouseButtonDown && !centerBtn) {
             mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
                                              MouseInput::RELEASED,
                                              curMouseX,
                                              curMouseY,
-                                             0));
+                                             time));
         }
 
         mLeftMouseButtonDown = leftBtn;
@@ -377,8 +379,6 @@ namespace gcn {
             default:
                 if (chr >= 'A' && chr <= 'Z') {
                     keysym = chr;
-                } else if (key >= HGEK_0 && key <= HGEK_9) {
-                    keysym = '0' + key - HGEK_0;
                 } else if (key >= HGEK_A && key <= HGEK_Z) {
                     keysym = 'a' + key - HGEK_A;
                 } else {

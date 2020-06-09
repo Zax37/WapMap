@@ -176,6 +176,7 @@ void State::MapStats::Destroy() {
 }
 
 bool State::MapStats::Think() {
+    GV->Console->Think();
     try {
         gui->logic();
     }
@@ -213,13 +214,12 @@ bool State::MapStats::Render() {
             q.blend = BLEND_DEFAULT;
             SHR::SetQuad(&q, el.iColor, dx, dy + 5, dx + 10, dy + 15);
             hge->Gfx_RenderQuad(&q);
-            GV->fntMyriad13->printf(dx + 15, dy, HGETEXT_LEFT, "%s ~l~(~y~%d~l~)", 0, el.szDesc, el.iPart);
+            GV->fntMyriad16->printf(dx + 15, dy, HGETEXT_LEFT, "%s ~l~(~y~%d~l~)", 0, el.szDesc, el.iPart);
         }
     } else if (tabbedArea->getSelectedTabIndex() > 1) {
         int plid = tabbedArea->getSelectedTabIndex() - 2;
         statsPl[plid].tileTypes->GetSprite()->Render(500, 500);
     }
-    GV->IF->Render();
     GV->Console->Render();
-    return 1;
+    return true;
 }

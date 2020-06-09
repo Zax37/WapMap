@@ -326,7 +326,6 @@ namespace ObjEdit {
                     wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
             bool mouseOver = (wmx > areaX && wmy > areaY && wmx < areaX + areaW && wmy < areaY + areaH);
             if (mouseOver) {
-                GV->editState->bShowHand = 1;
                 if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                     _bDragging = 1;
                     _iMoveInitX = wmx;

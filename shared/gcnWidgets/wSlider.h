@@ -199,8 +199,6 @@ namespace SHR {
 
         virtual void keyPressed(KeyEvent &keyEvent);
 
-        virtual bool showHand();
-
         void addKeyValue(double f);
 
         void clearKeyValues();

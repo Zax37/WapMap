@@ -277,13 +277,11 @@ std::vector<WWD::Object *> cObjectQuadTree::GetObjectsByArea(int x, int y, int w
             y > m_iY+m_iCellH ) return NULL;*/
         std::vector<WWD::Object *> ret;
 
-        for (int i = 0; i < m_vObjects.size(); i++) {
-            WWD::Object *obj = m_vObjects[i];
-
-            WWD::Rect box = GetBank()->GetObjectRenderRect(obj);
+        for (auto it = m_vObjects.begin(); it != m_vObjects.end(); ++it) {
+            WWD::Rect box = GetBank()->GetObjectRenderRect(*it);
 
             if (RectsCollideOrOverlap(x, y, w, h, box.x1, box.y1, box.x2, box.y2))
-                ret.push_back(obj);
+                ret.push_back(*it);
         }
         return ret;
     } else {

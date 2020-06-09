@@ -54,7 +54,6 @@ namespace ObjEdit {
                     if (hge->Input_KeyDown(HGEK_LBUTTON))
                         GV->editState->hInvCtrl->SetItemInClipboard(GV->editState->hInvCtrl->GetItemByIt(pickedid),
                                                                     restx - 30, resty - 30);
-                    GV->editState->bShowHand = 1;
                 }
             }
         }
@@ -126,15 +125,15 @@ namespace ObjEdit {
             }
         }
         if (pickedid != -1) {
-            GV->fntMyriad13->SetColor(0xFFFFFFFF);
-            GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 5, HGETEXT_LEFT,
+            GV->fntMyriad16->SetColor(0xFFFFFFFF);
+            GV->fntMyriad16->printf(dx + 5, dy + 28 + 267 + 5, HGETEXT_LEFT,
                                     "%s: (%s #~y~%d~w~)", 0,
                                     GETL2S("EditObj_Inventory", "Effect"),
                                     GETL2S("EditObj_Inventory", "ItemID"),
                                     pickedid);
             char tmp[32];
             sprintf(tmp, "E_%d", pickedid);
-            GV->fntMyriad13->printf(dx + 5, dy + 28 + 267 + 7 + 15, HGETEXT_LEFT,
+            GV->fntMyriad16->printf(dx + 5, dy + 28 + 267 + 7 + 15, HGETEXT_LEFT,
                                     "~y~%s~w~", 0,
                                     GETL2S("EditObj_Inventory", tmp));
         }

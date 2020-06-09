@@ -88,7 +88,6 @@ private:
     std::vector<std::string> vstrRecentlyClosed;
     int m_iActiveDoc, m_iContextMenuFocusedDoc;
     bool bBlock;
-    bool bMouseHand;
     bool bUpdateCrashList;
     SHR::Context *hContext;
     SHR::Context *hContextClosed;

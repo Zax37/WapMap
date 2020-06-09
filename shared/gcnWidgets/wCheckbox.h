@@ -2,7 +2,7 @@
 #define SHR_CBOX_H
 
 #include <string>
-
+#include "guichan/focuslistener.hpp"
 #include "guichan/keylistener.hpp"
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
@@ -16,8 +16,8 @@ namespace SHR {
     class GCN_CORE_DECLSPEC CBox :
             public gcn::Widget,
             public MouseListener,
-            public KeyListener
-        //public FocusListener
+            public KeyListener,
+            public FocusListener
     {
     public:
         CBox();
@@ -48,10 +48,8 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual bool showHand();
-
-        /*virtual void focusGained(const Event& event);
-        virtual void focusLost(const Event& event);*/
+        virtual void focusGained(const FocusEvent& event);
+        virtual void focusLost(const FocusEvent& event);
 
         void SetGfx(cInterfaceSheet *Parts) { hGfx = Parts; };
 
@@ -68,6 +66,7 @@ namespace SHR {
         cInterfaceSheet *hGfx;
         float fTimer;
         bool bMouseOver;
+        bool mKeyboardFocus;
     };
 }
 

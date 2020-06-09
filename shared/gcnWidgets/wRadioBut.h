@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-
+#include "guichan/focuslistener.hpp"
 #include "guichan/keylistener.hpp"
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
@@ -17,7 +17,8 @@ namespace SHR {
     class GCN_CORE_DECLSPEC RadBut :
             public gcn::Widget,
             public MouseListener,
-            public KeyListener {
+            public KeyListener,
+            public FocusListener {
     public:
         RadBut();
 
@@ -65,7 +66,8 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual bool showHand();
+        virtual void focusGained(const FocusEvent& event);
+        virtual void focusLost(const FocusEvent& event);
 
     protected:
         cInterfaceSheet *hGfx;
@@ -79,6 +81,7 @@ namespace SHR {
 
         float fTimer;
         bool bMouseOver;
+        bool mKeyboardFocus;
     };
 }
 

@@ -140,7 +140,6 @@ namespace ObjEdit {
             if (hState->conMain->getWidgetAt(mx, my) == win)
                 if (mx > dx + 12 + x * 71 + 35 - 24 && mx < dx + 12 + x * 71 + 35 + 24 &&
                     my > dy + 28 + y * 60 + 30 - 4 - 24 && my < dy + 28 + y * 60 + 30 - 4 + 24) {
-                    hState->bShowHand = 1;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         rbType[i]->setSelected(1);
                         Action(gcn::ActionEvent(rbType[i], ""));

@@ -110,7 +110,7 @@ void State::Error::Init() {
     ErrorActionListener *al = new ErrorActionListener(this);
 
     winError = new SHR::Win(&GV->gcnParts, szTitle);
-    int height = 100;//GV->fntMyriad13->GetHeightb(330, szErrorString)+75;
+    int height = 100;//GV->fntMyriad16->GetHeightb(330, szErrorString)+75;
     winError->setDimension(gcn::Rectangle(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200,
                                           hge->System_GetState(HGE_SCREENHEIGHT) / 2 - height / 2, 400, height));
     winError->setMovable(0);
@@ -146,8 +146,6 @@ void State::Error::Init() {
     }
 
     gui->setTop(winError);
-
-    GV->IF->EnableCursor(1);
 }
 
 void State::Error::Destroy() {
@@ -173,8 +171,7 @@ bool State::Error::Think() {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
     }
-    if (stop) return 1;
-    return 0;
+    return stop;
 }
 
 bool State::Error::Render() {
@@ -198,11 +195,10 @@ bool State::Error::Render() {
             GV->gcnParts.sprIconError->Render(winError->getX() + 5, winError->getY() + 25);
             break;
     }
-    GV->fntMyriad13->printfb(winError->getX() + 75, winError->getY() + 25, 330, 100, HGETEXT_LEFT | HGETEXT_TOP, 0,
+    GV->fntMyriad16->printfb(winError->getX() + 75, winError->getY() + 25, 330, 100, HGETEXT_LEFT | HGETEXT_TOP, 0,
                              szErrorString);
-    GV->IF->Render();
     GV->Console->Render();
-    return 0;
+    return false;
 }
 
 void State::Error::GainFocus(int iReturnCode, bool bFlipped) {

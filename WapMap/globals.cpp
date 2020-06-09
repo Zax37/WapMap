@@ -8,11 +8,8 @@
 #include "langID.h"
 #include "cInterfaceSheet.h"
 #include "cBrush.h"
-
-#include <sys/types.h>
 #include <direct.h>
 #include "globlua.h"
-#include <windows.h>
 #include <sstream>
 #include <process.h>
 #include <string>
@@ -112,7 +109,7 @@ cGlobals::cGlobals() {
     Console->Print("                           )  _`-.");
     Console->Print("                          .  : `. .");
     Console->Print("                          : _   '  \\");
-    Console->Print("Wap~g~Map~w~                   ; *` _.   `*-._");
+    Console->Print("~g~WapMap~w~                   ; *` _.   `*-._");
     Console->Printf("%-26s`-.-'          `-.", WA_VERSTRING);
     Console->Print("                            ;       `       `.");
     Console->Print("Type '~y~help~w~' to view list    :.       .        \\");
@@ -225,14 +222,13 @@ cGlobals::~cGlobals() {
 #endif
     delete StateMgr;
     delete Console;
-    delete sprConsoleBG;
     delete sprLogoBig;
     delete sprBlank;
     delete gcnParts.gcnfntMyriad10;
     delete gcnParts.gcnfntMyriad13;
     delete gcnParts.gcnfntSystem;
     delete fntMyriad10;
-    delete fntMyriad13;
+    delete fntMyriad16;
     delete fntMyriad20;
     delete fntMyriad80;
     delete fntSystem17;
@@ -242,26 +238,21 @@ cGlobals::~cGlobals() {
     delete IF;
     delete[] szLastOpenPath;
     for (int i = 0; i < 2; i++) {
-        delete sprCaptionMinimalize[i];
+        delete sprCaptionMinimze[i];
         delete sprCaptionClose[i];
     }
-    delete sprLogoMini;
-    delete sprIconCaption;
-
-    for (int x = 0; x < 2; x++)
-        for (int y = 0; y < 3; y++) {
-            delete gcnParts.sprButBar[x][y];
-            delete gcnParts.sprButBarH[x][y];
-            delete gcnParts.sprButBarD[x][y];
-            delete gcnParts.sprButBarP[x][y];
-        }
+    delete sprLogoCaption;
 
     delete sprCheckboard;
-
-    delete gcnParts.sprWindowBG;
-    delete gcnParts.sprGcnWinBarL, gcnParts.sprGcnWinBarM, gcnParts.sprGcnWinBarR, gcnParts.sprCur, gcnParts.sprPBarEL, gcnParts.sprPBarEM,
-            gcnParts.sprPBarER, gcnParts.sprPBarFL, gcnParts.sprPBarFM, gcnParts.sprPBarFR, gcnParts.sprIconInfo, gcnParts.sprIconError,
-            gcnParts.sprIconWarning, gcnParts.sprButDDL, gcnParts.sprButDDR, gcnParts.sprButDDC;
+    delete gcnParts.sprPBarEL;
+    delete gcnParts.sprPBarEM;
+    delete gcnParts.sprPBarER;
+    delete gcnParts.sprPBarFL;
+    delete gcnParts.sprPBarFM;
+    delete gcnParts.sprPBarFR;
+    delete gcnParts.sprIconInfo;
+    delete gcnParts.sprIconError;
+    delete gcnParts.sprIconWarning;
 }
 
 int Console_Panic(lua_State *L) {
@@ -452,13 +443,6 @@ void cGlobals::Init() {
     hGfxInterface = new cInterfaceSheet;
     _ghGfxInterface = hGfxInterface;
     hGfxInterface->sprMainBackground = new hgeSprite(texMain, 896, 896, 128, 128);
-    hGfxInterface->sprMainFrameLU = new hgeSprite(texMain, 224, 0, 10, 26);
-    hGfxInterface->sprMainFrameU = new hgeSprite(texMain, 224, 26, 96, 26);
-    hGfxInterface->sprMainFrameRU = new hgeSprite(texMain, 234, 0, 10, 26);
-    hGfxInterface->sprMainFrameR = new hgeSprite(texMain, 244, 0, 3, 26);
-    hGfxInterface->sprMainFrameRD = new hgeSprite(texMain, 247, 0, 26, 26);
-    hGfxInterface->sprMainFrameD = new hgeSprite(texMain, 273, 0, 26, 3);
-    hGfxInterface->sprMainFrameLD = new hgeSprite(texMain, 299, 0, 15, 5);
 
     for (int state = 0; state < 4; state++) {
         hGfxInterface->sprBreadcrumb[state][0] = new hgeSprite(texMain, 950, 792 + 26 * state, 5, 26);
@@ -470,15 +454,16 @@ void cGlobals::Init() {
 
     for (int x = 0; x < 2; x++) {
         int px = (x == 0 ? 918 : 934),
-                oy = (x == 0 ? 17 : 16);
+            oy = (x == 0 ? 17 : 16);
         for (int i = 0; i < 5; i++) {
             hGfxInterface->sprControl[x][i] = new hgeSprite(texMain, px, 789 + oy * i, 16, oy);
         }
+        hGfxInterface->sprControl[x][5] = new hgeSprite(texMain, 898, x == 0 ? 851 : 869, 18, 18);
     }
 
-    hGfxInterface->sprMiniLogo = new hgeSprite(texMain, 384, 19, 110, 30);
-    hGfxInterface->sprAppBar[0] = new hgeSprite(texMain, 384, 0, 20, 19);
-    hGfxInterface->sprAppBar[1] = new hgeSprite(texMain, 404, 0, 20, 19);
+    for (int i = 0; i < LAY_APP_BUTTONS_COUNT + 1; ++i) {
+        hGfxInterface->sprAppBar[i] = new hgeSprite(texMain, 928 + i * 20, 0, 20, 20);
+    }
 
     for (int y = 0; y < 4; y++) {
         int py = 792 + y * 26;
@@ -494,16 +479,6 @@ void cGlobals::Init() {
         hGfxInterface->sprButton[y][7] = new hgeSprite(texMain, 954, py + 22, 25, 4);
         hGfxInterface->sprButton[y][8] = new hgeSprite(texMain, 1020, py + 22, 4, 4);
     }
-
-    for (int y = 0; y < 2; y++)
-        for (int x = 0; x < 2; x++)
-            hGfxInterface->sprWindow[y * 2 + x] = new hgeSprite(texMain, 918 + 6 * x, 874 + 6 * y, 5, 5);
-
-    for (int s = 0; s < 2; s++)
-        for (int i = 0; i < 2; i++)
-            for (int p = 0; p < 3; p++) {
-                hGfxInterface->sprDropDown[i][s][p] = new hgeSprite(texMain, 933 + 6 * p, 876 + 5 * i + 10 * s, 5, 5);
-            }
 
     for (int y = 0; y < 2; y++)
         for (int x = 0; x < 4; x++)
@@ -536,58 +511,41 @@ void cGlobals::Init() {
         hGfxInterface->sprTextField[z][7] = new hgeSprite(texMain, 994 + z * 23, 782, 7, 7);
     }
 
-    hGfxInterface->sprDropDownBar[0] = new hgeSprite(texMain, 846, 736, 13, 22);
-    hGfxInterface->sprDropDownBar[1] = new hgeSprite(texMain, 860, 736, 22, 22);
-    hGfxInterface->sprDropDownBar[2] = new hgeSprite(texMain, 883, 736, 21, 22);
-    hGfxInterface->sprDropDownButtonFocused = new hgeSprite(texMain, 883, 736 + 22, 21, 22);
-    hGfxInterface->sprDropDownBarArrow = new hgeSprite(texMain, 846, 758, 9, 7);
-
-    hGfxInterface->sprMainShadeBar = new hgeSprite(texMain, 896, 887, 37, 9);
+    hGfxInterface->sprDropDownBarArrow = new hgeSprite(texMain, 917, 768, 9, 7);
 
     Console->Print("   Various...");
 
-    sprConsoleBG = new hgeSprite(texMain, 512, 0, 128, 128);
+    sprConsoleBG = new hgeSprite(texMain, 672, 192, 128, 128);
     Console->SetBG(sprConsoleBG);
 
     SYSTEMTIME time;
     GetLocalTime(&time);
-    if (time.wMonth == 12 && time.wDay > 15 || time.wMonth == 1 && time.wDay < 3)
-        sprLogoBig = new hgeSprite(texMain, 0, 640, 299, 81);
-    else
-        sprLogoBig = new hgeSprite(texMain, 512, 151, 302, 76);
+    int variant = 0;
+    if ((time.wMonth == 8 && time.wDay == 24) || (time.wMonth == 2 && time.wDay == 28)
+    || (time.wMonth == 12 && time.wDay == 31) || (time.wMonth == 1 && time.wDay == 1))
+        variant = 2;
+    else if ((time.wMonth == 12 && time.wDay > 15) || (time.wMonth == 1 && time.wDay < 3))
+        variant = 1;
 
-    sprBlank = new hgeSprite(texMain, 26, 0, 6, 6);
+    sprLogoBig = new hgeSprite(texMain, 0, 640 + variant * 80, 300, 80);
+    sprLogoCaption = new hgeSprite(texMain, 768, 160, 19, 22);
 
-    sprLogoMini = new hgeSprite(texMain, 0, 487, 99, 25);
-    sprIconCaption = new hgeSprite(texMain, 160, 231, 19, 22);
+    sprBlank = new hgeSprite(texMain, 640, 120, 6, 6);
 
-    sprCaptionMinimalize[0] = new hgeSprite(texMain, 50, 306, 20, 20);
+    sprCaptionMinimze[0] = new hgeSprite(texMain, 50, 306, 20, 20);
     sprCaptionClose[0] = new hgeSprite(texMain, 70, 306, 21, 20);
-    sprCaptionMinimalize[1] = new hgeSprite(texMain, 50, 346, 20, 20);
+    sprCaptionMinimze[1] = new hgeSprite(texMain, 50, 346, 20, 20);
     sprCaptionClose[1] = new hgeSprite(texMain, 70, 346, 21, 20);
 
     sprCheckboard = new hgeSprite(texMain, 640, 0, 120, 120);
 
-    sprThumbtack = new hgeSprite(texMain, 448, 640, 64, 111);
-
-    for (int i = 0; i < 2; i++)
-        sprMicroIcons[i] = new hgeSprite(texMain, 80 + 18 * i, 250, 18, 18);
-
     for (int i = 0; i < 14; i++)
-        sprLevelsMicro16[i] = new hgeSprite(texMain, 512 + 16 * i, 512, 16, 16);
+        sprLevelsMicro16[i] = new hgeSprite(texMain, 416 + 16 * i, 0, 16, 16);
 
-    /*int desclen;
-    char * desc = (char*)repo.GetFileAsRawData("fonts/myriad/80px.fnt", &desclen);
-    ptr = repo.GetFileAsRawData("fonts/myriad/80px.png", &size);
-    HTEXTURE tex = hge->Texture_Load((const char*)ptr, size);
-    printf("hge %d, tex %d\n", (int)hge, tex);
-    printf("desc: %s\n", desc);
-    fnt = new hgeFont(desc, desclen, tex, 1, 0, 0);
-    test = new hgeSprite(tex, 0, 0, 512, 512);*/
     if (!strcmp(Lang->GetCode(), "RU")) {
-        fntMyriad13 = SHR::LoadFontFromSFS(&repo, "16px_r.fnt", "16px_r.png");
+        fntMyriad16 = SHR::LoadFontFromSFS(&repo, "16px_r.fnt", "16px_r.png");
     } else {
-        fntMyriad13 = SHR::LoadFontFromSFS(&repo, "16px.fnt", "16px.png");
+        fntMyriad16 = SHR::LoadFontFromSFS(&repo, "16px.fnt", "16px.png");
     }
     fntMyriad10 = SHR::LoadFontFromSFS(&repo, "10px.fnt", "10px.png");
     fntMyriad20 = SHR::LoadFontFromSFS(&repo, "20px.fnt", "20px.png");
@@ -608,7 +566,7 @@ void cGlobals::Init() {
     gcnInput = new gcn::HGEInput();
 
     Console->Print("   Fonts...");
-    gcnParts.gcnfntMyriad13 = new gcn::HGEImageFont(fntMyriad13, 0);
+    gcnParts.gcnfntMyriad13 = new gcn::HGEImageFont(fntMyriad16, 0);
     gcnParts.gcnfntMyriad10 = new gcn::HGEImageFont(fntMyriad10, 0);
     gcnParts.gcnfntSystem = new gcn::HGEImageFont(fntSystem17, 0);
 
@@ -616,94 +574,31 @@ void cGlobals::Init() {
 
     Console->Print("   UI assets...");
 
-    gcnParts.sprWindowBG = new hgeSprite(texMain, 736, 256, 256, 256);
+    int offX = 992, offY = 704;
+    gcnParts.sprPBarFL = new hgeSprite(texMain, offX, offY, 3, 31);
+    gcnParts.sprPBarFM = new hgeSprite(texMain, offX + 3, offY, 3, 31);
+    gcnParts.sprPBarFR = new hgeSprite(texMain, offX + 9, offY, 3, 31);
 
-    gcnParts.sprGcnWinBarL = new hgeSprite(texMain, 0, 275, 3, 24);
-    gcnParts.sprGcnWinBarM = new hgeSprite(texMain, 3, 275, 3, 24);
-    gcnParts.sprGcnWinBarR = new hgeSprite(texMain, 47, 275, 3, 24);
-
-    gcnParts.sprButBar[0][0] = new hgeSprite(texMain, 0, 6, 4, 33);
-    gcnParts.sprButBar[0][1] = new hgeSprite(texMain, 4, 6, 4, 33);
-    gcnParts.sprButBar[0][2] = new hgeSprite(texMain, 136, 6, 4, 33);
-    gcnParts.sprButBarD[0][0] = new hgeSprite(texMain, 34, 39, 4, 33);
-    gcnParts.sprButBarD[0][1] = new hgeSprite(texMain, 38, 39, 4, 33);
-    gcnParts.sprButBarD[0][2] = new hgeSprite(texMain, 64, 39, 4, 33);
-    gcnParts.sprButBarH[0][0] = new hgeSprite(texMain, 102, 39, 4, 33);
-    gcnParts.sprButBarH[0][1] = new hgeSprite(texMain, 106, 39, 4, 33);
-    gcnParts.sprButBarH[0][2] = new hgeSprite(texMain, 132, 39, 4, 33);
-    gcnParts.sprButBarP[0][0] = new hgeSprite(texMain, 68, 39, 4, 33);
-    gcnParts.sprButBarP[0][1] = new hgeSprite(texMain, 72, 39, 4, 33);
-    gcnParts.sprButBarP[0][2] = new hgeSprite(texMain, 98, 39, 4, 33);
-
-    gcnParts.sprButBar[1][0] = new hgeSprite(texMain, 92, 303, 4, 18);
-    gcnParts.sprButBar[1][1] = new hgeSprite(texMain, 96, 303, 4, 18);
-    gcnParts.sprButBar[1][2] = new hgeSprite(texMain, 106, 303, 4, 18);
-    gcnParts.sprButBarD[1][0] = new hgeSprite(texMain, 110, 303, 4, 18);
-    gcnParts.sprButBarD[1][1] = new hgeSprite(texMain, 114, 303, 4, 18);
-    gcnParts.sprButBarD[1][2] = new hgeSprite(texMain, 124, 303, 4, 18);
-    gcnParts.sprButBarH[1][0] = new hgeSprite(texMain, 146, 303, 4, 18);
-    gcnParts.sprButBarH[1][1] = new hgeSprite(texMain, 150, 303, 4, 18);
-    gcnParts.sprButBarH[1][2] = new hgeSprite(texMain, 160, 303, 4, 18);
-    gcnParts.sprButBarP[1][0] = new hgeSprite(texMain, 128, 303, 4, 18);
-    gcnParts.sprButBarP[1][1] = new hgeSprite(texMain, 132, 303, 4, 18);
-    gcnParts.sprButBarP[1][2] = new hgeSprite(texMain, 142, 303, 4, 18);
-
-    gcnParts.sprCur = new hgeSprite(texMain, 175, 135, 15, 22);
-    gcnParts.sprCurHand = new hgeSprite(texMain, 158, 135, 17, 24);
-    gcnParts.sprCurHand->SetHotSpot(6, 1);
-
-    gcnParts.sprPBarFL = new hgeSprite(texMain, 50, 275, 3, 31);
-    gcnParts.sprPBarFM = new hgeSprite(texMain, 53, 275, 3, 31);
-    gcnParts.sprPBarFR = new hgeSprite(texMain, 59, 275, 3, 31);
-
-    gcnParts.sprPBarEL = new hgeSprite(texMain, 72, 275, 3, 31);
-    gcnParts.sprPBarEM = new hgeSprite(texMain, 64, 275, 3, 31);
-    gcnParts.sprPBarER = new hgeSprite(texMain, 69, 275, 3, 31);
-
-    gcnParts.sprButDDL = new hgeSprite(texMain, 48, 108, 3, 27);
-    gcnParts.sprButDDC = new hgeSprite(texMain, 51, 108, 50, 27);
-    gcnParts.sprButDDR = new hgeSprite(texMain, 196, 108, 26, 27);
+    gcnParts.sprPBarEL = new hgeSprite(texMain, offX + 22, offY, 3, 31);
+    gcnParts.sprPBarEM = new hgeSprite(texMain, offX + 14, offY, 3, 31);
+    gcnParts.sprPBarER = new hgeSprite(texMain, offX + 19, offY, 3, 31);
 
     gcnParts.sprIconInfo = new hgeSprite(texMain, 320, 0, 64, 64);
     gcnParts.sprIconError = new hgeSprite(texMain, 384, 69, 64, 64);
     gcnParts.sprIconWarning = new hgeSprite(texMain, 320, 69, 64, 64);
 
-    gcnParts.sprArrowWhiteDD = new hgeSprite(texMain, 48, 146, 9, 6);
-    gcnParts.sprArrowGrayDD = new hgeSprite(texMain, 57, 146, 9, 6);
-
-    gcnParts.sprIconClose = new hgeSprite(texMain, 153, 39, 20, 20);
-
-    gcnParts.sprCBox = new hgeSprite(texMain, 0, 105, 13, 13);
-    gcnParts.sprCBoxOn = new hgeSprite(texMain, 0, 118, 14, 13);
-
-    gcnParts.sprRadio = new hgeSprite(texMain, 0, 131, 13, 14);
-    gcnParts.sprRadioChecked = new hgeSprite(texMain, 0, 145, 13, 14);
-
-    sprShadeBar = new hgeSprite(texMain, 24, 0, 2, 6);
-
-    sprIconGoodSmall = new hgeSprite(texMain, 126, 74, 16, 16);
-    sprIconBadSmall = new hgeSprite(texMain, 126, 90, 16, 16);
-
-    sprMicroVert = new hgeSprite(texMain, 27, 138, 5, 9);
-    sprMicroHor = new hgeSprite(texMain, 32, 138, 9, 5);
-    sprMicroZoom = new hgeSprite(texMain, 32, 143, 10, 10);
-
-    sprSmiley = new hgeSprite(texMain, 992, 193, 32, 32);
+    sprSmiley = new hgeSprite(texMain, 736, 128, 32, 32);
     sprSmiley->SetHotSpot(16, 16);
 
     sprDottedLineHorizontal = new hgeSprite(texMain, 765, 0, 102, 5);
     sprDottedLineVertical = new hgeSprite(texMain, 760, 0, 5, 102);
 
-    sprArrowHorizontalL = new hgeSprite(texMain, 765, 5, 35, 49);
-    sprArrowHorizontalC = new hgeSprite(texMain, 800, 5, 8, 49);
-    sprArrowHorizontalR = new hgeSprite(texMain, 805, 5, 39, 49);
-
     sprArrowVerticalU = new hgeSprite(texMain, 867, 0, 48, 37);
     sprArrowVerticalM = new hgeSprite(texMain, 867, 37, 48, 128);
     sprArrowVerticalD = new hgeSprite(texMain, 867, 165, 48, 38);
 
-    sprArrowVerticalM->SetHotSpot(22, 128);
     sprArrowVerticalU->SetHotSpot(22, 37);
+    sprArrowVerticalM->SetHotSpot(22, 128);
     sprArrowVerticalD->SetHotSpot(22, 0);
 
     for (int i = 0; i < 4; i++)
@@ -711,64 +606,40 @@ void cGlobals::Init() {
 
     Console->Print("   Fancy icons...");
 
-    for (int y = 0; y < 2; y++)
-        for (int x = 0; x < 6; x++)
-            sprIcons[y * 6 + x] = new hgeSprite(texMain, 320 + x * 32, 133 + y * 32, 32, 32);
-    for (int y = 0; y < 2; y++)
-        for (int x = 0; x < 9; x++)
-            sprIcons[y * 9 + x + 12] = new hgeSprite(texMain, 224 + x * 32, 197 + y * 32, 32, 32);
-    for (int y = 0; y < 6; y++)
-        for (int x = 0; x < 14; x++)
-            sprIcons[x + 30 + y * 14] = new hgeSprite(texMain, 224 + x * 32, 261 + y * 32, 32, 32);
+    offY = 16;
 
-    for (int y = 0; y < 3; y++)
-        for (int x = 0; x < 16; x++) {
-            if (114 + x + y * 16 >= GfxIcons_Count) break;
-            sprIcons[114 + x + y * 16] = new hgeSprite(texMain, 512 + x * 32, 528 + y * 32, 32, 32);
+    for (int i = 0, y = 0; y < 3; ++y) {
+        for (int x = 0; x < 40 && i < Gfx16Icons_Count; ++x, ++i) {
+            sprIcons16[i] = new hgeSprite(texMain, x * 16, offY, 16, 16);
         }
-
-    for (int y = 0; y < 3; y++) {
-        for (int i = 0; i < 27; i++)
-            if (y * 27 + i < Gfx16Icons_Count)
-                sprIcons16[y * 27 + i] = new hgeSprite(texMain, 240 + i * 16, 453 + 16 * y, 16, 16);
+        offY += 16;
     }
-    for (int x = 0; x < 18; x++)
-        sprIcons16[81 + x] = new hgeSprite(texMain, 736 + 16 * x, 512, 16, 16);
-    for (int x = 0; x < 32; x++)
-        sprIcons16[99 + x] = new hgeSprite(texMain, 512 + 16 * x, 720, 16, 16);
-    for (int x = 0; x < Gfx16Icons_Count - Icon16_Package; x++) {
-        sprIcons16[131 + x] = new hgeSprite(texMain, 512 + 16 * x, 736, 16, 16);
+
+    for (int i = 0, y = 0; y < 7; ++y) {
+        for (int x = 0; x < 20 && i < GfxIcons_Count; ++x, ++i) {
+            sprIcons[i] = new hgeSprite(texMain, x * 32, offY, 32, 32);
+        }
+        offY += 32;
     }
 
     for (int i = 0; i < 5; i++) {
-        sprGamesBig[i] = new hgeSprite(texMain, 190, 135 + 32 * i, 32, 32);
-        sprGamesSmall[i] = new hgeSprite(texMain, 80 + 16 * i, 215, 16, 16);
+        sprGamesBig[i] = new hgeSprite(texMain, 640, 128 + 32 * i, 32, 32);
+        sprGamesSmall[i] = new hgeSprite(texMain, 16 * i, 0, 16, 16);
     }
 
-    sprTile = new hgeSprite(texMain, 384, 640, 64, 64);
+    sprTile = new hgeSprite(texMain, 672, 128, 64, 64);
     sprTile->SetColor(0x99FFFFFF);
 
-    for (int i = 0; i < 4; i++)
-        sprIcons128[i] = new hgeSprite(texMain, i * 128, 512, 128, 128);
-
-    sprUsedLibs = new hgeSprite(texMain, 673, 269, 351, 243);
-
-    sprContextCascadeArrow = new hgeSprite(texMain, 153, 79, 14, 16);
-
-    sprDropShadowCorner = new hgeSprite(texMain, 26, 455, 11, 12);
-    sprDropShadowLeft = new hgeSprite(texMain, 0, 455, 11, 7);
-    sprDropShadowUp = new hgeSprite(texMain, 45, 455, 9, 10);
-    sprDropShadowVert = new hgeSprite(texMain, 38, 455, 6, 6);
-    sprDropShadowHor = new hgeSprite(texMain, 12, 455, 13, 7);
+    sprContextCascadeArrow = new hgeSprite(texMain, 905, 756, 10, 12);
+    sprTabCloseButton = new hgeSprite(texMain, 917, 756, 9, 9);
 
     IF = new SHR::Interface(&gcnParts);
 
     for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
-        gamePaths[i] = ini->GetValue("Paths", WWD::GAME_NAMES[i], gamePaths[i].c_str());
+        gamePaths[i] = ini->GetValue("Paths", WWD::GAME_NAMES[i], "");
     }
 
-    const char *pVal = NULL;
-    pVal = ini->GetValue("Paths", "Claw", "");
+    const char *pVal = gamePaths[WWD::Game_Claw].c_str();
 
 #ifndef SFS_COMPILER
     WIN32_FIND_DATA fdata;
@@ -819,8 +690,6 @@ void cGlobals::Init() {
             }
             RegCloseKey(key);
         }
-    } else {
-        gamePaths[WWD::Game_Claw] = pVal;
     }
 
     if (gamePaths[WWD::Game_Claw].empty()) {
@@ -891,17 +760,17 @@ void cGlobals::Init() {
     bAutoUpdate = atoi(ini->GetValue("WapMap", "AutoUpdate", "1"));
     bAlphaHigherPlanes = atoi(ini->GetValue("WapMap", "AlphaOverlapping ", "0"));
 
-    bool enableconsole = atoi(ini->GetValue("WapMap", "Console", "0"));
-    Console->Enable(enableconsole);
+    bool enableConsole = atoi(ini->GetValue("WapMap", "Console", "0"));
+    Console->Enable(enableConsole);
 
-    sprKijan = new hgeSprite(texMain, 939, 0, 80, 105);
-    sprKijan->SetHotSpot(40, 52);
-    sprNapo = new hgeSprite(texMain, 961, 106, 63, 86);
-    sprNapo->SetHotSpot(31, 43);
+    sprKijan = new hgeSprite(texMain, 736, 160, 32, 32);
+    sprKijan->SetHotSpot(16, 16);
+    sprZax = new hgeSprite(texMain, 768, 128, 32, 32);
+    sprZax->SetHotSpot(16, 16);
 
-    bKijan = bNapo = 0;
+    bKijan = bZax = false;
     Console->AddModifiableBool("kijan", &bKijan);
-    Console->AddModifiableBool("napoleon", &bNapo);
+    Console->AddModifiableBool("zax", &bZax);
     Console->AddModifiableBool("realsim", &bRealSim);
 
     //SprBank = NULL;
@@ -913,25 +782,14 @@ void cGlobals::Init() {
 
     delete[] myDIR;
 
-    //ini.SetValue("section", "key", "newvalue");
-
-    //font = new gcn::ImageFont("data/fixedfont.png", " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-    //font = new gcn::HGEImageFont(fntSystem17);
-    //font->getFont()->SetColor(0xFF000000);
-    //gcn::Widget::setGlobalFont(font);
-
     colBase = 0xff4d4d4d;//0xff989898;
     colBaseDark = colBase - 0x000F0F0F;
 
     colLineDark = 0x7F070707;
     colLineBright = 0x7F565656;
-    colOutline = colBase - 0x004d4d4d;
+    colOutline = 0xFF585858;
 
-    colBaseGCN = 0x4d4d4d;//0x989898;
-    colBaseDarkGCN = colBaseGCN - 0x0f0f0f;
-    colLineDarkGCN = colBaseGCN - 0x2e2e2e;
-    colLineBrightGCN = colBaseGCN + 0x0f0f0f;
-    colOutlineGCN = colBaseGCN - 0x4d4d4d;
+    colFontWhite = 0xFFe1e1e1;
 }
 
 void cGlobals::ResetWD() {
@@ -1004,16 +862,13 @@ void cGlobals::ReloadLua() {
     lua_register(conL, "wmGetTile", wmGetTile);
 }
 
-void cGlobals::RenderDropShadow(int x, int y, int w, int h, unsigned char alpha) {
-    sprDropShadowLeft->SetColor(SETA(0xFFFFFFFF, alpha));
-    sprDropShadowHor->SetColor(SETA(0xFFFFFFFF, alpha));
-    sprDropShadowCorner->SetColor(SETA(0xFFFFFFFF, alpha));
-    sprDropShadowUp->SetColor(SETA(0xFFFFFFFF, alpha));
-    sprDropShadowVert->SetColor(SETA(0xFFFFFFFF, alpha));
+void cGlobals::RenderLogoWithVersion(int x, int y, int alpha) {
+    sprLogoBig->SetColor(SETA(0xFFFFFF, alpha));
+    sprLogoBig->Render(x - 151, y - 32);
+    fntMyriad16->SetColor(SETA(0xFFFFFF, alpha));
+    fntMyriad16->Render(x - 55, y + 20, HGETEXT_LEFT, WA_VERSTRING, 0);
+}
 
-    sprDropShadowLeft->Render(x, y + h);
-    sprDropShadowHor->RenderStretch(x + 11, y + h, x + w - 5, y + h + 6);
-    sprDropShadowCorner->Render(x + w - 5, y + h - 5);
-    sprDropShadowUp->Render(x + w, y);
-    sprDropShadowVert->RenderStretch(x + w, y + 10, x + w + 6, y + h - 5);
+void cGlobals::SetCursor(APP_CURSOR cursor) {
+    ::SetCursor(cursors[cursor]);
 }

@@ -33,7 +33,7 @@ namespace ObjEdit {
         type->addEntry(SHR::ComboButEntry(0, "Trigger", GETL2S("EditObj_Elevator", "Trigger_TT")));
         type->addActionListener(hAL);
         type->adjustSize();
-        win->add(type, 16 + labType->getWidth(), 20);
+        win->add(type, 16 + labType->getWidth(), 19);
 
         cbOneWay = new SHR::CBox(GV->hGfxInterface, GETL2S("EditObj_Elevator", "OneWay"));
         cbOneWay->adjustSize();
@@ -113,7 +113,6 @@ namespace ObjEdit {
         automatic = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Elevator", "Automatic"), group, bAutomatic);
         automatic->adjustSize();
         automatic->addActionListener(hAL);
-        win->add(automatic, 10, AREA_SECTION_Y + 40);
 
         hTravelDistPick = new cProcPickXYLockable(GETL2S("EditObj_Elevator", "Distance"),
                 GETL2S("EditObj_Elevator", "Horizontal"), width,
@@ -121,7 +120,6 @@ namespace ObjEdit {
                 width != 0 && width == height, GETL2S("EditObj_Elevator", "LockAspect_TT"));
         hTravelDistPick->addActionListener(hAL);
         hTravelDistPick->setEnabled(bAutomatic);
-        win->add(hTravelDistPick, 10, AREA_SECTION_Y + 70);
 
         manual = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Elevator", "Manual"), group, !bAutomatic);
         manual->adjustSize();
@@ -135,7 +133,9 @@ namespace ObjEdit {
 
         int manualX = win->getWidth() - hRectPick->getWidth() - 15;
 
+        win->add(automatic, 10, AREA_SECTION_Y + 40);
         win->add(manual, manualX, AREA_SECTION_Y + 40);
+        win->add(hTravelDistPick, 10, AREA_SECTION_Y + 70);
         win->add(hRectPick, manualX, AREA_SECTION_Y + 70);
 
 #define SPEED_SECTION_Y 260

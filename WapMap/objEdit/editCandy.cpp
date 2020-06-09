@@ -354,14 +354,14 @@ namespace ObjEdit {
 				}
 			} while (nani && add-- > 0);
 
-			//GV->fntMyriad13->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFa1a1a1));
-			//GV->fntMyriad13->printf(drawX + IMAGE_TILE_WIDTH * 0.5, drawY + IMAGE_TILE_HEIGHT - 13, HGETEXT_CENTER, "%s", 0, imgSet->GetID());
+			//GV->fntMyriad16->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFe1e1e1));
+			//GV->fntMyriad16->printf(drawX + IMAGE_TILE_WIDTH * 0.5, drawY + IMAGE_TILE_HEIGHT - 13, HGETEXT_CENTER, "%s", 0, imgSet->GetID());
 		}
 
 		if (!count) {
 		    static const char* noImagesStr = GETL2S("EditObj_Candy", "NoImages");
-            GV->fntMyriad13->SetColor(0xFFa1a1a1);
-            GV->fntMyriad13->Render(dx + (CONTAINER_WIDTH - GV->fntMyriad13->GetStringWidth(noImagesStr)) / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_MIDDLE, noImagesStr);
+            GV->fntMyriad16->SetColor(0xFFe1e1e1);
+            GV->fntMyriad16->Render(dx + CONTAINER_WIDTH / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_CENTER | HGETEXT_MIDDLE, noImagesStr);
 		}
 
 		hge->Gfx_SetClipping();

@@ -51,7 +51,9 @@ namespace SHR {
 
         virtual void draw(Graphics *graphics);
 
-        virtual void focusLost(const Event &event);
+        virtual void focusGained(const FocusEvent &event);
+
+        virtual void focusLost(const FocusEvent &event);
 
         virtual void mousePressed(MouseEvent &mouseEvent);
 
@@ -79,8 +81,6 @@ namespace SHR {
 
         bool isHighlighted() { return bBlinkState; };
 
-        virtual bool showHand() { return isEnabled(); };
-
         bool mouseOver() { return mHasMouse; };
 
         void setIconColor(DWORD col) { colIcon = col; };
@@ -101,7 +101,7 @@ namespace SHR {
         DWORD colIcon;
         bool bBlinkState;
         bool mHasMouse;
-        bool mKeyPressed;
+        bool mKeyboardFocus;
         bool mMousePressed;
         Graphics::Alignment mAlignment;
         unsigned int mSpacing;

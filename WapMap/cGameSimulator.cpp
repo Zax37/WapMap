@@ -1276,7 +1276,6 @@ void cGameSimulator::Think() {
                 break;
             }
         if (obj != NULL) {
-            GV->editState->bShowHand = 1;
             if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                 eSimEntity type = ((stObjUserDataSimEntity *) GetUserDataFromObj(obj)->GetSpecialData())->enType;
                 if (type == SE_Elevator) {

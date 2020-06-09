@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -46,7 +46,7 @@
 
 #include <string>
 
-#include "guichan/event.hpp"
+#include "guichan/focusevent.hpp"
 #include "guichan/platform.hpp"
 
 namespace gcn
@@ -55,7 +55,7 @@ namespace gcn
      * Interface for listening for focus events from widgets.
      *
      * @see Widget::addFocusListener, Widget::removeFocusListener
-     * @author Olof Naessén
+     * @author Olof Naessï¿½n
      * @since 0.7.0
      */
     class GCN_CORE_DECLSPEC FocusListener
@@ -72,14 +72,14 @@ namespace gcn
          *
          * @param event Discribes the event.
          */
-        virtual void focusGained(const Event& event) { };
+        virtual void focusGained(const FocusEvent& event) { };
 
         /**
          * Called when a widget loses focus. 
          *
          * @param event Discribes the event.
          */
-        virtual void focusLost(const Event& event) { };
+        virtual void focusLost(const FocusEvent& event) { };
         
     protected:
         /**

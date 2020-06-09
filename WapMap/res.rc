@@ -15,10 +15,10 @@ BEGIN
 			VALUE "FileVersion", APP_VERSION
 			VALUE "ProductVersion", APP_VERSION
 			VALUE "CompanyName", "kijanek6 & Zax37"
-            VALUE "FileDescription", "WAP32 World Document(WWD) Editor."
+            VALUE "FileDescription", "WapMap Editor"
 			VALUE "ProductName", PRODUCT_NAME
             VALUE "InternalName", INTERNAL_NAME
-            VALUE "LegalCopyright", "Copyright © 2010-2020 kijanek6 & Zax37"
+            VALUE "LegalCopyright", "Copyright 2010-2020 kijanek6 & Zax37"
             VALUE "OriginalFilename", INTERNAL_NAME
         END
     END

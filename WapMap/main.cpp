@@ -65,6 +65,16 @@ bool AppFocusOffFunc() {
     return 0;
 }
 
+bool AppResizeFunc() {
+    GV->editState->OnResize();
+    return 0;
+}
+
+bool AppToggleFullscreenFunc() {
+    GV->editState->ToggleFullscreen();
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     std::string command;
     for (int i = 1; i < argc; i++) {
@@ -173,18 +183,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
     hge->System_SetState(HGE_FILEDROPFUNC, FileDroppedFunc);
     hge->System_SetState(HGE_FOCUSLOSTFUNC, AppFocusOffFunc);
     hge->System_SetState(HGE_FOCUSGAINFUNC, AppFocusOnFunc);
+    hge->System_SetState(HGE_RESIZEFUNC, AppResizeFunc);
+    hge->System_SetState(HGE_FULLSCREENTOGGLEFUNC, AppToggleFullscreenFunc);
     hge->System_SetState(HGE_SCREENWIDTH, GV->iScreenW);
     hge->System_SetState(HGE_SCREENHEIGHT, GV->iScreenH);
-    hge->System_SetState(HGE_ACCEPTFILES, 1);
+    hge->System_SetState(HGE_ACCEPTFILES, true);
     hge->System_SetState(HGE_TITLE, WA_TITLEBAR);
-    hge->System_SetState(HGE_WINDOWED, 1);
-    hge->System_SetState(HGE_USESOUND, 1);
-    hge->System_SetState(HGE_SHOWSPLASH, 0);
-    hge->System_SetState(HGE_DONTSUSPEND, 1);
+    hge->System_SetState(HGE_WINDOWED, true);
+    hge->System_SetState(HGE_USESOUND, true);
+    hge->System_SetState(HGE_SHOWSPLASH, false);
+    hge->System_SetState(HGE_DONTSUSPEND, true);
     hge->System_SetState(HGE_ICON, MAKEINTRESOURCE(100));
-    hge->System_SetState(HGE_TEXTUREFILTER, 0);
+    hge->System_SetState(HGE_TEXTUREFILTER, false);
     //hge->System_SetState(HGE_FPS, 60);
-    hge->System_SetState(HGE_WINDOWCAPTION, 0);
+    hge->System_SetState(HGE_WINDOWCAPTION, false);
+    hge->System_SetState(HGE_HIDEMOUSE, false);
 
     if (hge->System_Initiate()) {
         GV->Init();

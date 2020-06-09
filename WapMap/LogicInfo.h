@@ -96,69 +96,6 @@ public:
         return enemy == YES;
     }
 
-    static void GetEnemyButtonIcons(std::vector<int>& enemyButtons, int base) {
-        if (base < 5 || base == 6 || base == 8) {
-            enemyButtons.push_back(Icon_NPC_Rat);
-        }
-
-        if (base == 7) {
-            enemyButtons.push_back(Icon_NPC_Crab);
-        }
-
-        if (base > 4 && base < 11) {
-            enemyButtons.push_back(Icon_NPC_Seagull);
-        }
-
-        if (base == 1 || base == 2) {
-            enemyButtons.push_back(Icon_NPC_Officer);
-            enemyButtons.push_back(Icon_NPC_Soldier);
-            if (base == 2) {
-                enemyButtons.push_back(Icon_LaRauxe);
-            }
-        } else if (base == 3 || base == 4) {
-            enemyButtons.push_back(Icon_NPC_RobberThief);
-            enemyButtons.push_back(Icon_NPC_CutThroat);
-            if (base == 4) {
-                enemyButtons.push_back(Icon_Catherine);
-            }
-        } else if (base == 5 || base == 6) {
-            enemyButtons.push_back(Icon_NPC_TownGuard1);
-            enemyButtons.push_back(Icon_NPC_TownGuard2);
-            if (base == 6) {
-                enemyButtons.push_back(Icon_Wolvington);
-            }
-        } else if (base == 7 || base == 8) {
-            enemyButtons.push_back(Icon_NPC_RedTailPirate);
-            enemyButtons.push_back(Icon_NPC_BearSailor);
-            if (base == 8) {
-                enemyButtons.push_back(Icon_Gabriel);
-            }
-        } else if (base == 9 || base == 10) {
-            enemyButtons.push_back(Icon_NPC_Pegleg);
-            enemyButtons.push_back(Icon_NPC_CrazyHook);
-            if (base == 10) {
-                enemyButtons.push_back(Icon_Marrow);
-            }
-        } else if (base == 11 || base == 12) {
-            enemyButtons.push_back(Icon_NPC_Fish);
-            enemyButtons.push_back(Icon_NPC_Merkat);
-            enemyButtons.push_back(Icon_NPC_Siren);
-            if (base == 12) {
-                enemyButtons.push_back(Icon_Aquatis);
-            }
-        } else if (base == 13) {
-            enemyButtons.push_back(Icon_NPC_Chameleon);
-            enemyButtons.push_back(Icon_NPC_RedTailPirate);
-            enemyButtons.push_back(Icon_NPC_BearSailor);
-            enemyButtons.push_back(Icon_RedTail);
-        } else if (base == 14) {
-            enemyButtons.push_back(Icon_NPC_Chameleon);
-            enemyButtons.push_back(Icon_NPC_TigerGuard1);
-            enemyButtons.push_back(Icon_NPC_TigerGuard2);
-            enemyButtons.push_back(Icon_Omar);
-        }
-    }
-
 #define DEFAULT_ENEMY(x, y) (std::pair<std::string,std::string>(x, y))
 
     static void GetEnemyLogicPairs(std::vector<std::pair<std::string, std::string>>& vstrpTypes, int base) {

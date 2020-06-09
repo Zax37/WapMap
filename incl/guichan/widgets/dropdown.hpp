@@ -184,7 +184,7 @@ namespace gcn {
 
         // Inherited from FocusListener
 
-        virtual void focusLost(const Event& event);
+        virtual void focusLost(const FocusEvent& event);
 
 
         // Inherited from ActionListener

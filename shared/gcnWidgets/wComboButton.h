@@ -57,7 +57,8 @@ namespace SHR {
 
     class GCN_CORE_DECLSPEC ComboBut : public gcn::Widget,
                                        public MouseListener,
-                                       public FocusListener
+                                       public FocusListener,
+                                       public KeyListener
         //public cTooltip
     {
     public:
@@ -65,19 +66,21 @@ namespace SHR {
 
         void adjustSize();
 
-        virtual void draw(Graphics *graphics);
+        void draw(Graphics *graphics) override;
 
-        virtual void focusLost(const Event &event);
+        void focusGained(const FocusEvent &event) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void focusLost(const FocusEvent &event) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual bool showHand();
+        void mouseExited(MouseEvent &mouseEvent) override;
+
+        void keyPressed(KeyEvent &keyEvent) override;
 
         void addEntry(ComboButEntry n);
 
@@ -89,7 +92,7 @@ namespace SHR {
         cInterfaceSheet *hGfx;
 
         bool mHasMouse;
-        bool mKeyPressed;
+        bool mKeyboardFocus;
         bool mMousePressed;
         int iSelectedID, iFocused;
         std::vector<ComboButEntry> vEntries;

@@ -190,13 +190,11 @@ namespace State {
             m_hOwn->SetTool(EWW_TOOL_NONE);
         } else if (actionEvent.getSource() == m_hOwn->winObjectBrush) {
             m_hOwn->iActiveTool = EWW_TOOL_NONE;
-        } else if (actionEvent.getSource() == m_hOwn->butwsNew) {
+        } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[NewDocument]) {
             GV->editState->NewMap_Open();
-        } else if (actionEvent.getSource() == m_hOwn->butwsOpen) {
+        } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[OpenExisting]) {
             GV->editState->OpenDocuments();
-        } else if (actionEvent.getSource() == m_hOwn->butwsRecently) {
-            GV->StateMgr->Push(new State::LoadMap(m_hOwn->hMruList->GetRecentlyUsedFile(0)));
-        } else if (actionEvent.getSource() == m_hOwn->butwsWhatsnew) {
+        } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[WhatsNew]) {
             char tmp[256];
             sprintf(tmp, "Changelog.html", GV->Lang->GetCode());
             printf(tmp);
@@ -248,12 +246,10 @@ namespace State {
                    actionEvent.getSource() == m_hOwn->tfpmPlaneSizeY) {
             m_hOwn->SetAnchorPlaneProperties(m_hOwn->ipmAnchor);
         } else if (m_hOwn->butCrashRetrieve != NULL && actionEvent.getSource() == m_hOwn->butCrashRetrieve) {
-            m_hOwn->conCrashRetrieve->setVisible(0);
             m_hOwn->winWelcome->remove(m_hOwn->conCrashRetrieve);
-            m_hOwn->conRecentFiles->setVisible(1);
-            m_hOwn->winWelcome->add(m_hOwn->conRecentFiles,
-                                    m_hOwn->winWelcome->getWidth() / 2 - m_hOwn->conRecentFiles->getWidth() / 2,
-                                    m_hOwn->winWelcome->getHeight() + 20);
+            delete m_hOwn->conCrashRetrieve;
+            m_hOwn->conCrashRetrieve = NULL;
+            m_hOwn->winWelcome->add(m_hOwn->conRecentFiles, 0, m_hOwn->winWelcome->getHeight() + 50);
             m_hOwn->winWelcome->setY(
                     m_hOwn->vPort->GetY() + m_hOwn->vPort->GetHeight() / 2 - m_hOwn->winWelcome->getHeight() / 2);
             std::ifstream ifs("runtime.tmp");
@@ -289,9 +285,6 @@ namespace State {
                 m_hOwn->tfmsSaveAs->setText(szFileopen, 1);
         } else if (actionEvent.getSource() == m_hOwn->hmbTile->ddActivePlane && m_hOwn->hParser != NULL) {
             m_hOwn->SwitchPlane();
-            if (m_hOwn->hParser != NULL)
-                m_hOwn->SetHint("%s: %s", GETL2S("Hints", "ActivePlaneChange"),
-                                m_hOwn->hParser->GetPlane(m_hOwn->hmbTile->ddActivePlane->getSelected())->GetName());
         } else if (actionEvent.getSource() == m_hOwn->buttpfcShow) {
             if (m_hOwn->wintpFillColor->getHeight() == 61) {
                 m_hOwn->wintpFillColor->setWidth(202);
@@ -590,7 +583,7 @@ namespace State {
                         atoi(m_hOwn->tfcamSetToY->getText().c_str()) - (m_hOwn->vPort->GetHeight() / 2 / m_hOwn->fZoom);
             } else if (actionEvent.getSource() == m_hOwn->tilContext) {
                 if (m_hOwn->tilContext->GetSelectedID() == TILMENU_COPY ||
-                    m_hOwn->tilContext->GetSelectedID() == TILMENU_CUT) {
+                        m_hOwn->tilContext->GetSelectedID() == TILMENU_CUT) {
                     if (m_hOwn->MDI->GetActiveDoc()->hTileClipboard != NULL) {
                         delete[] m_hOwn->MDI->GetActiveDoc()->hTileClipboard;
                         delete[] m_hOwn->MDI->GetActiveDoc()->hTileClipboardImageSet;
@@ -790,10 +783,10 @@ namespace State {
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_EDIT) {
                     m_hOwn->OpenObjectEdit(m_hOwn->vObjectsPicked[0]);
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_FLAGS ||
-                           m_hOwn->objContext->GetSelectedID() == OBJMENU_ALIGN ||
-                           m_hOwn->objContext->GetSelectedID() == OBJMENU_SPECIFICPROP ||
-                           m_hOwn->objContext->GetSelectedID() == OBJMENU_ZCOORD ||
-                           m_hOwn->objContext->GetSelectedID() == OBJMENU_SPACE) {
+                        m_hOwn->objContext->GetSelectedID() == OBJMENU_ALIGN ||
+                        m_hOwn->objContext->GetSelectedID() == OBJMENU_SPECIFICPROP ||
+                        m_hOwn->objContext->GetSelectedID() == OBJMENU_ZCOORD ||
+                        m_hOwn->objContext->GetSelectedID() == OBJMENU_SPACE) {
                     return;
                 }
                 m_hOwn->objContext->setVisible(0);
@@ -1096,7 +1089,7 @@ namespace State {
                 WWD::Object *obj = new WWD::Object();
                 bool bFromContext = false;
                 if (GV->editState->hmbObject->GetContext()->isVisible() &&
-                    GV->editState->hmbObject->GetContext()->GetSelectedID() != -1) {
+                        GV->editState->hmbObject->GetContext()->GetSelectedID() != -1) {
                     obj->SetParam(WWD::Param_LocationX,
                                   m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->objContext->getX()));
                     obj->SetParam(WWD::Param_LocationY,
@@ -1144,16 +1137,8 @@ namespace State {
                 m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
             } else if (actionEvent.getSource() == m_hOwn->butMicroTileCB) {
                 m_hOwn->bForceTileClipbPreview = !m_hOwn->bForceTileClipbPreview;
-                if (m_hOwn->bForceTileClipbPreview)
-                    m_hOwn->SetHint(GETL2S("Hints", "TileClipboardOpen"));
-                else
-                    m_hOwn->SetHint(GETL2S("Hints", "TileClipboardClose"));
             } else if (actionEvent.getSource() == m_hOwn->butMicroObjectCB) {
                 m_hOwn->bForceObjectClipbPreview = !m_hOwn->bForceObjectClipbPreview;
-                if (m_hOwn->bForceObjectClipbPreview)
-                    m_hOwn->SetHint(GETL2S("Hints", "ObjectClipboardOpen"));
-                else
-                    m_hOwn->SetHint(GETL2S("Hints", "ObjectClipboardClose"));
             } else if (actionEvent.getSource() == m_hOwn->cbObjSearchCaseSensitive) {
                 m_hOwn->UpdateSearchResults();
             } else if (actionEvent.getSource() == m_hOwn->ddObjSearchTerm) {
@@ -1221,7 +1206,7 @@ namespace State {
         m_hOwn = owner;
     }
 
-    void EditingWWFocusListener::focusLost(const Event &event) {
+    void EditingWWFocusListener::focusLost(const FocusEvent& event) {
         if (hge->Input_GetKeyState(HGEK_TAB)) {
             m_hOwn->TextEditMoveToNextTile();
             m_hOwn->tfWriteID->requestFocus();
@@ -1234,9 +1219,12 @@ namespace State {
 
     EditingWWKeyListener::EditingWWKeyListener(EditingWW *owner) {
         m_hOwn = owner;
+        lastPressedWasAlt = false;
     }
 
     void EditingWWKeyListener::keyPressed(KeyEvent &keyEvent) {
+        lastPressedWasAlt = false;
+
         if (keyEvent.getKey() == Key::ESCAPE) {
             if (keyEvent.getType() == KeyEvent::PRESSED) {
                 if (m_hOwn->NewMap_data) {
@@ -1269,8 +1257,11 @@ namespace State {
                 }
             }
             return;
+        } else if (keyEvent.getKey() == Key::F11) {
+            m_hOwn->ToggleFullscreen();
+            return;
         }
-        if (keyEvent.getType() != KeyEvent::PRESSED) return;
+
         if (keyEvent.isControlPressed()) {
             switch (keyEvent.getKey().getValue()) {
                 case 'd':
@@ -1323,6 +1314,56 @@ namespace State {
                         m_hOwn->SetTool(EWW_TOOL_DUPLICATE);
                     }
                     break;
+                case Key::LEFT_ALT:
+                case Key::RIGHT_ALT:
+                    lastPressedWasAlt = true;
+                    break;
+            }
+        }
+    }
+
+    void EditingWWKeyListener::keyReleased(KeyEvent &keyEvent) {
+        if (keyEvent.getKey() == Key::LEFT_ALT && lastPressedWasAlt && !m_hOwn->hAppMenu->isFocused()) {
+            m_hOwn->hAppMenu->requestFocus();
+            m_hOwn->hAppMenu->keyPressed(keyEvent);
+        }
+    }
+
+    EditingWWMouseListener::EditingWWMouseListener(State::EditingWW *owner) {
+        m_hOwn = owner;
+    }
+
+    void EditingWWMouseListener::mousePressed(MouseEvent &mouseEvent) {
+        if (mouseEvent.getY() > 0 && mouseEvent.getY() < LAY_APPMENU_H) {
+            int rx = mouseEvent.getX() - (hge->System_GetState(HGE_SCREENWIDTH) - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - m_hOwn->bMaximized * 2);
+            if (rx < 0) {
+                if (mouseEvent.getX() > LAY_APPMENU_X + m_hOwn->hAppMenu->getWidth()) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        m_hOwn->ToggleFullscreen();
+                    } else {
+                        m_hOwn->bDragWindow = true;
+                        POINT mouse;
+                        GetCursorPos(&mouse);
+                        m_hOwn->iWindowDragX = mouse.x;
+                        m_hOwn->iWindowDragY = mouse.y;
+                        GetWindowRect(hge->System_GetState(HGE_HWND), &m_hOwn->windowDragStartRect);
+                    }
+                }
+            } else {
+                int i = rx / LAY_APP_BUTTON_W;
+                switch (i) {
+                    case 0:
+                        ShowWindow(hge->System_GetState(HGE_HWND), SW_MINIMIZE);
+                        break;
+                    case 1:
+                        m_hOwn->ToggleFullscreen();
+                        break;
+                    case 2:
+                        if (m_hOwn->PromptExit()) {
+                            m_hOwn->bExit = true;
+                        }
+                        break;
+                }
             }
         }
     }

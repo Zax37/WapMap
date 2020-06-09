@@ -267,7 +267,7 @@ namespace ObjEdit {
         tfDamage->setVisible(dmgvis);
 
         tfDamage->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labDamage->setColor(tfDamage->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
+        labDamage->setColor(SETA(GV->colFontWhite, tfDamage->isEnabled() ? 0xFF : 0x77));
 
         bool warpvis = 0;
         for (int i = 0; i < 9; i++)
@@ -291,7 +291,7 @@ namespace ObjEdit {
         tfSpeedY->setVisible(warpvis || gemvis);
         tfSpeedX->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
         tfSpeedY->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labWarpDest->setColor(tfSpeedX->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
+        labWarpDest->setColor(SETA(GV->colFontWhite, tfSpeedX->isEnabled() ? 0xFF : 0x77));
         butPickSpeedXY->setVisible(warpvis || gemvis);
         butPickSpeedXY->setEnabled(!hRectPick->IsPicking());
         if (warpvis || gemvis) {
@@ -330,8 +330,7 @@ namespace ObjEdit {
         }
 
         butPickSpeedXY->setCaption(GETL2S("EditObj_Enemy", bPickSpeedXY ? "Cancel" : "Pick"));
-
-        labMoveArea->setColor(cbPatrol->isSelected() && !bPickSpeedXY ? 0xFFa1a1a1 : 0xEE000000);
+        labMoveArea->setColor(SETA(GV->colFontWhite, !bPickSpeedXY ? 0xFF : 0x77));
         hRectPick->setEnabled(cbPatrol->isSelected() && !bPickSpeedXY);
         butClearArea->setEnabled(cbPatrol->isSelected() && !bPickSpeedXY && !hRectPick->IsPicking());
         hTempObj->SetParam(WWD::Param_MinX, cbPatrol->isSelected() ? hRectPick->getValue(0) : 0);
@@ -477,9 +476,9 @@ namespace ObjEdit {
             spr->SetColor(0xBBFFFFFF);
             spr->RenderEx(mx, my, 0, GV->editState->fZoom);
             mx += (spr->GetWidth() / 2 + 15) * GV->editState->fZoom;
-            GV->fntMyriad13->printf(mx + 1, my + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
+            GV->fntMyriad16->printf(mx + 1, my + 1, HGETEXT_LEFT, "~l~%s %d, %d", 0,
                                     GETL2S("EditObj_Enemy", bPickGem ? "GemDest" : "WarpDest"), wmx, wmy);
-            GV->fntMyriad13->printf(mx, my, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
+            GV->fntMyriad16->printf(mx, my, HGETEXT_LEFT, "~w~%s ~y~%d~w~, ~y~%d", 0,
                                     GETL2S("EditObj_Enemy", bPickGem ? "GemDest" : "WarpDest"), wmx, wmy);
         }
     }
@@ -517,9 +516,9 @@ namespace ObjEdit {
             hge->Gfx_RenderLine(dx, dy + 161 + 178 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
                                 dy + 161 + 28 + 178 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
         } else if (tfSpeedX->isVisible()) {
-            GV->fntMyriad13->SetColor(tfSpeedX->isEnabled() ? 0xFFa1a1a1 : 0xFF222222);
-            GV->fntMyriad13->Render(dx + 8, dy + 160 + 170 + 28 + 10 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
-            GV->fntMyriad13->Render(dx + 8, dy + 160 + 170 + 48 + 12 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
+            GV->fntMyriad16->SetColor(SETA(GV->colFontWhite, tfSpeedX->isEnabled() ? 0xFF : 0x77));
+            GV->fntMyriad16->Render(dx + 8, dy + 160 + 170 + 28 + 10 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
+            GV->fntMyriad16->Render(dx + 8, dy + 160 + 170 + 48 + 12 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
             hge->Gfx_RenderLine(dx, dy + 160 + 178 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
                                 dy + 160 + 178 + 68 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
             hge->Gfx_RenderLine(dx, dy + 161 + 178 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),

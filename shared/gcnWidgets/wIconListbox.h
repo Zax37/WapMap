@@ -8,6 +8,7 @@ namespace SHR {
     class GCN_CORE_DECLSPEC IconListModel : public ListModel {
     public:
         virtual hgeSprite* getIcon(int i) = 0;
+        virtual DWORD32 getIconColor(int i) { return 0xFFFFFF; };
     };
 
     class GCN_CORE_DECLSPEC IconListBox : public ListBox {

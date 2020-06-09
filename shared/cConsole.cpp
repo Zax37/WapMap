@@ -1,10 +1,11 @@
 #include "cConsole.h"
 #include "hge.h"
-
 #include "commonFunc.h"
+#include "../WapMap/globals.h"
 #include <fstream>
 
 extern HGE *hge;
+extern cGlobals *GV;
 
 SHR::cConsole::cConsole(hgeSprite *psprBG) {
     m_sprBG = psprBG;
@@ -14,7 +15,6 @@ SHR::cConsole::cConsole(hgeSprite *psprBG) {
     m_bAnimSet = false;
     m_fAnimScroll = 0;
     m_osFile = nullptr;
-    m_szInput[0] = '\0';
     m_vCmds.clear();
     m_iScroll = 0;
     m_bFile = false;
@@ -132,13 +132,13 @@ void SHR::cConsole::Think() {
 
             if (hge->Input_GetChar() != NULL && hge->Input_GetChar() != '`') {
                 if (hge->Input_GetChar() == HGEK_BACKSPACE) {
-                    if (strlen(m_szInput) > 0)
-                        m_szInput[strlen(m_szInput) - 1] = '\0';
+                    if (!m_szInput.empty())
+                        m_szInput.pop_back();
                 } else if (hge->Input_GetChar() == HGEK_ENTER) {
-                    ParseCommand(m_szInput);
-                    ZeroMemory(&m_szInput, 256);
+                    ParseCommand(m_szInput.c_str());
+                    m_szInput = "";
                 } else
-                    m_szInput[strlen(m_szInput)] = hge->Input_GetChar();
+                    m_szInput.push_back(hge->Input_GetChar());
             }
 
             m_fAnimScroll += hge->Timer_GetDelta() * 32;
@@ -155,11 +155,13 @@ void SHR::cConsole::Render() {
         m_bAnimSet = 1;
     }
     if (m_bFocused || !m_bFocused && m_fAnim > -int(hge->System_GetState(HGE_SCREENHEIGHT) / 3)) {
+        int x, y, w, h;
+        hge->Gfx_GetClipping(&x, &y, &w, &h);
+        h = std::min(float(h), hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) + 1;
         m_fnt->SetColor(0xFFFFFFFF);
-        hge->Gfx_SetClipping(0, 0, hge->System_GetState(HGE_SCREENWIDTH),
-                             hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim);
+        hge->Gfx_SetClipping(x, y, w, h);
         if (m_sprBG != NULL) {
-            for (int y = -1; y < int(int(hge->System_GetState(HGE_SCREENHEIGHT) / 3) / 128) + 1; y++) {
+            for (int y = -1; y < int(int(hge->System_GetState(HGE_SCREENHEIGHT) / 3) / 128) + 2; ++y) {
                 for (int x = 0; x < int(hge->System_GetState(HGE_SCREENWIDTH)); x++) {
                     m_sprBG->Render(int(x * 128 - m_fAnimScroll), int(m_fAnim + y * 128 + m_fAnimScroll));
                 }
@@ -173,13 +175,15 @@ void SHR::cConsole::Render() {
         if (linesc < 0)
             linesc = 0;
         for (int i = start; i >= linesc; i--) {
-            m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) -
+            m_fnt->Render(5, y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) -
                              (m_vLines.size() - i + 1 - m_iScroll) * 13, HGETEXT_LEFT, m_vLines[i], 0);
         }
-        m_fnt->Render(5, (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput, 0);
-        m_fnt->Render(5 + m_fnt->GetStringWidth(m_szInput), (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13,
+        m_fnt->SetColor(GV->colFontWhite);
+        m_fnt->Render(5, y +(hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput.c_str(), 0);
+        m_fnt->Render(5 + m_fnt->GetStringWidth(m_szInput.c_str()), y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13,
                       HGETEXT_LEFT, "_", 0);
         hge->Gfx_SetClipping();
+        hge->Gfx_RenderLine(x, y + h, x + w, y + h, 0xFF000000);
     }
 }
 
@@ -496,4 +500,10 @@ const char *SHR::cConsole::GetLine(int i) {
         return m_vLines[count - i];
     else
         return NULL;
+}
+
+void SHR::cConsole::FixPos() {
+    if (!m_bFocused) {
+        m_fAnim = -int(hge->System_GetState(HGE_SCREENHEIGHT) / 3);
+    }
 }

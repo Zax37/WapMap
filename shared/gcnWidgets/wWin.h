@@ -69,8 +69,6 @@ namespace SHR {
 
         void setShadow(bool b) { bDrawShadow = b; };
 
-        virtual bool showHand();
-
 		bool gotFocus();
 
 		void unDrag() {

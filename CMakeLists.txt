@@ -125,6 +125,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/shared/guichan/defaultfont.cpp
 	${PROJECT_SOURCE_DIR}/shared/guichan/event.cpp
 	${PROJECT_SOURCE_DIR}/shared/guichan/exception.cpp
+	${PROJECT_SOURCE_DIR}/shared/guichan/focusevent.cpp
 	${PROJECT_SOURCE_DIR}/shared/guichan/focushandler.cpp
 	${PROJECT_SOURCE_DIR}/shared/guichan/font.cpp
 	${PROJECT_SOURCE_DIR}/shared/guichan/genericinput.cpp
@@ -279,5 +280,4 @@ file(GLOB RESOURCES
 	"res/copy/*"
 )
 
-file(COPY ${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}/libcurl-d.dll DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${RESOURCES} DESTINATION ${CMAKE_BINARY_DIR})

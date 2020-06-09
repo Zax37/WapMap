@@ -78,7 +78,6 @@ namespace ObjEdit {
         int newpick = hTempObj->GetParam(WWD::Param_LocationY) - hState->Scr2WrdY(hState->GetActivePlane(), my);
 
         if (newpick > 0) {
-            hState->bShowHand = 1;
             iPickY = newpick;
             if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                 char tmp[32];

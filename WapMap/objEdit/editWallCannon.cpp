@@ -321,12 +321,5 @@ namespace ObjEdit {
             GV->sprArrowVerticalU->SetColor(COL_ORANGE_ARROW);
         }
         mn->RenderArrow(objx, objy, objx + vecDest.x, objy + vecDest.y, 1, !bDraggingArrow);
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-        if (mn->conMain->getWidgetAt(mx, my) != mn->vPort->GetWidget()) return;
-        if (mx > objx + vecDest.x - 15 && mx < objx + vecDest.x + 15 &&
-            my > objy + vecDest.y - 15 && my < objy + vecDest.y + 15) {
-            mn->bShowHand = 1;
-        }
     }
 }

@@ -206,7 +206,7 @@ namespace ObjEdit {
         cbArea[1]->setEnabled(rbAreaType[1]->isSelected() && cbArea[0]->isSelected() && !bRectPick);
         _butSave->setEnabled(
                 !bRectPick && hPickArea[0]->isValid() && hPickArea[1]->isValid() && !tddSound->isMarkedInvalid());
-        DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFFa1a1a1 : 0xFF000000);
+        DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFFe1e1e1 : 0xFF000000);
         labTurnOnTime->setColor(dwCol);
         labTurnOffTime->setColor(dwCol);
         labTimeMin[0]->setColor(dwCol);

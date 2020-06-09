@@ -28,7 +28,7 @@ namespace SHR {
 
         int getSelected() const;
 
-        void setSelected(int selected);
+        void setSelected(int selected, bool generatingEvent = true);
 
         void setListModel(ListModel *listModel);
 
@@ -62,7 +62,7 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual int getTextXOffset() const { return 1; }
+        virtual int getTextXOffset() const { return 2; }
 
         int findIndexOf(const std::string& option);
 

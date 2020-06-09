@@ -969,10 +969,8 @@ namespace gcn
          */
         virtual void showPart(Rectangle rectangle);
 
-        virtual bool showHand(){ return 0; };
-
         float getAlphaModifier();
-        unsigned char getAlpha();
+        virtual unsigned char getAlpha();
         void setAlphaTerminator(bool b){ mAlphaModTerminator = b; };
         bool isAlphaTerminator(){ return mAlphaModTerminator; };
 

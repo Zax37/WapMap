@@ -62,7 +62,7 @@ namespace SHR {
         }
 
         if (isOpaque()) {
-            graphics->setColor(GV->colBaseGCN);
+            graphics->setColor(GV->colBase);
             graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
         }
 

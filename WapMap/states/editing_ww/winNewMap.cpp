@@ -159,11 +159,11 @@ void State::EditingWW::NewMap_Think() {
                 if (NewMap_data->fBaseTimer[y * 2 + x] > 0) {
                     char tmp[16];
                     sprintf(tmp, "Baselvl_%d", y * 2 + x + 1);
-                    GV->fntMyriad13->SetColor(ARGB(int(255.0f * NewMap_data->fBaseTimer[y * 2 + x]), 0, 0, 0));
-                    GV->fntMyriad13->printf(dx + 11, dy + 128, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1,
+                    GV->fntMyriad16->SetColor(ARGB(int(255.0f * NewMap_data->fBaseTimer[y * 2 + x]), 0, 0, 0));
+                    GV->fntMyriad16->printf(dx + 11, dy + 128, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1,
                                             GETL2S("NewMap", tmp));
-                    GV->fntMyriad13->SetColor(ARGB(int(255.0f * NewMap_data->fBaseTimer[y * 2 + x]), 255, 255, 255));
-                    GV->fntMyriad13->printf(dx + 10, dy + 127, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1,
+                    GV->fntMyriad16->SetColor(ARGB(int(255.0f * NewMap_data->fBaseTimer[y * 2 + x]), 255, 255, 255));
+                    GV->fntMyriad16->printf(dx + 10, dy + 127, HGETEXT_LEFT, "%d - %s", 0, y * 2 + x + 1,
                                             GETL2S("NewMap", tmp));
                 }
                 GV->sprLevels[14]->SetColor(

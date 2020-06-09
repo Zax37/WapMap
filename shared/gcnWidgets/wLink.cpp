@@ -1,21 +1,18 @@
 #include "wLink.h"
-
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
-
-#include <hgeFont.h>
+#include <hgefont.h>
 #include "guichan/hge/hgeimagefont.hpp"
 #include <hge.h>
-#include <hgeSprite.h>
+#include <hgesprite.h>
 
 extern HGE *hge;
 
 namespace SHR {
     Link::Link() {
         mAlignment = Graphics::LEFT;
-        bMouseOver = mMousePressed = 0;
-        sprIcon = 0;
+        bMouseOver = mMousePressed = false;
+        sprIcon = nullptr;
         fFocusTimer = 0;
     }
 
@@ -26,13 +23,9 @@ namespace SHR {
         sprIcon = spr;
 
         adjustSize();
-        bMouseOver = mMousePressed = 0;
+        bMouseOver = mMousePressed = false;
         addMouseListener(this);
         fFocusTimer = 0;
-    }
-
-    bool Link::showHand() {
-        return isEnabled();
     }
 
     const std::string &Link::getCaption() const {
@@ -82,35 +75,37 @@ namespace SHR {
 
         hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
 
-        //0xFFa1a1a1
-
         unsigned char p = 161.0f + (fFocusTimer * 5.0f * 94.0f);
 
         fnt->SetColor(ARGB(255, p, p, p));
 
-        int textx = (sprIcon == 0 ? 0 : sprIcon->GetWidth() + 2);
+        int textx = (sprIcon == nullptr ? 0 : sprIcon->GetWidth() + 6);
 
-        if (sprIcon != 0)
+        if (sprIcon != 0) {
+            sprIcon->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
+            sprIcon->SetColor(SETA(0xFFFFFF, p));
             sprIcon->Render(dx, dy);
+            sprIcon->SetBlendMode(BLEND_DEFAULT);
+        }
 
         fnt->Render(dx + textX + textx, dy + textY, HGETEXT_LEFT, getCaption().c_str(), 0);
     }
 
     void Link::adjustSize() {
-        setWidth(getFont()->getWidth(getCaption()) + (sprIcon != 0 ? sprIcon->GetWidth() + 2 : 0));
+        setWidth(getFont()->getWidth(getCaption()) + (sprIcon != 0 ? sprIcon->GetWidth() + 6 : 0));
         setHeight(getFont()->getHeight());
-        if (sprIcon != 0) {
+        if (sprIcon != nullptr) {
             if (sprIcon->GetHeight() > getHeight())
                 setHeight(sprIcon->GetHeight());
         }
     }
 
     void Link::mouseExited(MouseEvent &mouseEvent) {
-        bMouseOver = 0;
+        bMouseOver = false;
     }
 
     void Link::mouseEntered(MouseEvent &mouseEvent) {
-        bMouseOver = 1;
+        bMouseOver = true;
     }
 
     void Link::mousePressed(MouseEvent &mouseEvent) {

@@ -142,7 +142,7 @@ namespace SHR {
         }
     }
 
-    void Tree::focusLost(const Event &event) {
+    void Tree::focusLost(const FocusEvent &event) {
         mMousePressed = false;
         mKeyPressed = false;
     }
@@ -151,7 +151,7 @@ namespace SHR {
         szName = new char[strlen(pszName) + 1];
         strcpy(szName, pszName);
         sprIcon = psprIcon;
-        m_iW = GV->fntMyriad13->GetStringWidth(szName) + 16;
+        m_iW = GV->fntMyriad16->GetStringWidth(szName) + 16;
         m_iH = 20;
         m_hParent = phParent;
     }
@@ -168,7 +168,7 @@ namespace SHR {
     int TreeElement::Render(int x, int y) {
         if (sprIcon != NULL)
             sprIcon->Render(x, y);
-        GV->fntMyriad13->Render(x + 20, y, HGETEXT_LEFT, szName, 0);
+        GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, szName, 0);
         return 20;
     }
 
@@ -176,7 +176,7 @@ namespace SHR {
         int oldy = y;
         if (sprIcon != NULL)
             sprIcon->Render(x, y);
-        GV->fntMyriad13->Render(x + 16, y, HGETEXT_LEFT, szName, 0);
+        GV->fntMyriad16->Render(x + 16, y, HGETEXT_LEFT, szName, 0);
         y += 20;
         if (m_bOpened) {
             x += 20;

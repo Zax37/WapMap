@@ -1,8 +1,6 @@
 #include "wSlider.h"
-
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
-#include "guichan/mouseinput.hpp"
 #include "../../WapMap/cInterfaceSheet.h"
 
 extern cInterfaceSheet *_ghGfxInterface;
@@ -89,36 +87,7 @@ namespace SHR {
         mScaleEnd = scaleEnd;
     }
 
-    bool Slider::showHand() {
-        int dx, dy;
-        getAbsolutePosition(dx, dy);
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-
-        if (mStyle == DEFAULT) {
-            bool orient = mOrientation == VERTICAL;
-            if (orient)
-                dy += getHeight() - getMarkerPosition() - getMarkerLength();
-            else
-                dx += getMarkerPosition();
-            int markdimx = (orient ? 16 : getMarkerLength()),
-                    markdimy = (orient ? getMarkerLength() : 16);
-            return (mHasMouse && mx > dx && my > dy && mx < dx + markdimx && my < dy + markdimy);
-        } else {
-            int markspr = (mStyle == POINTER);
-            int v = getMarkerPosition();
-            if (mOrientation == HORIZONTAL)
-                return (mHasMouse && mx > dx + v && mx < dx + v + getMarkerLength() && my > dy && my < dy + 12);
-            else if (mOrientation == VERTICAL)
-                return (mHasMouse && mx > dx && mx < dx + 12 && my > dy + v && my < dy + v + getMarkerLength());
-        }
-    }
-
     void Slider::draw(gcn::Graphics *graphics) {
-        Color shadowColor = getBaseColor() - 0x101010;
-        int alpha = getBaseColor().a;
-        shadowColor.a = alpha;
-
         int dx, dy;
         getAbsolutePosition(dx, dy);
 
@@ -144,16 +113,16 @@ namespace SHR {
             } else if (!(markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
                 fTimer -= hge->Timer_GetDelta();
                 if (fTimer < 0.2f) fTimer = 0.2f;
-            } else if (markerFocus && fTimer < 0.2f) {
+            } else if (isFocused() && fTimer < 0.2f) {
                 fTimer += hge->Timer_GetDelta();
                 if (fTimer > 0.2f) fTimer = 0.2f;
-            } else if (!markerFocus && fTimer > 0.0f) {
+            } else if (!isFocused() && fTimer > 0.0f) {
                 fTimer -= hge->Timer_GetDelta();
                 if (fTimer < 0.0f) fTimer = 0.0f;
             }
             if (isEnabled())
-                sliderDrawBar(dx, dy + 1, orient, getMarkerLength(), 2,
-                              SETA(0xFFFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
+                sliderDrawBar(dx, dy, orient, getMarkerLength(), 2,
+                              SETA(0xFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
         } else {
             int markSpr = (mStyle == POINTER);
             if (mOrientation == HORIZONTAL) {
@@ -178,10 +147,10 @@ namespace SHR {
                 } else if (!(markerFocus && hge->Input_GetKeyState(HGEK_LBUTTON)) && fTimer > 0.2f) {
                     fTimer -= hge->Timer_GetDelta();
                     if (fTimer < 0.2f) fTimer = 0.2f;
-                } else if (markerFocus && fTimer < 0.2f) {
+                } else if (isFocused() && fTimer < 0.2f) {
                     fTimer += hge->Timer_GetDelta();
                     if (fTimer > 0.2f) fTimer = 0.2f;
-                } else if (!markerFocus && fTimer > 0.0f) {
+                } else if (!isFocused() && fTimer > 0.0f) {
                     fTimer -= hge->Timer_GetDelta();
                     if (fTimer < 0.0f) fTimer = 0.0f;
                 }
@@ -189,7 +158,7 @@ namespace SHR {
                 _ghGfxInterface->sprSlider[markSpr][0]->Render(dx + v, dy);
                 if (fTimer > 0.0f) {
                     _ghGfxInterface->sprSlider[markSpr][1]->SetColor(
-                            SETA(0xFFFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
+                            SETA(0xFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
                     _ghGfxInterface->sprSlider[markSpr][1]->Render(dx + v, dy);
                 }
             } else if (mOrientation == VERTICAL) {

@@ -37,13 +37,14 @@ namespace SHR {
 
 
     void ComboButEntry::UpdateWidth() {
-        iWidth = 10 + (sprIcon == NULL ? 0 : 16) + (int)GV->fntMyriad13->GetStringWidth(strCaption.c_str());
+        iWidth = 10 + (sprIcon == NULL ? 0 : 16) + (int)GV->fntMyriad16->GetStringWidth(strCaption.c_str());
     }
 
     ComboBut::ComboBut(cInterfaceSheet *Parts) {
         setFocusable(true);
         setFrameSize(0);
 
+        addKeyListener(this);
         addMouseListener(this);
         addFocusListener(this);
         hGfx = Parts;
@@ -82,7 +83,11 @@ namespace SHR {
             }
         }
 
-        But::drawButton(hGfx, isEnabled() ? 2 : 0, x, y, getWidth(), getHeight(), 0xFFFFFFFF);
+        unsigned alpha = getAlpha();
+        if (isFocused() && mKeyboardFocus) {
+            But::drawButton(hGfx, 3, x, y,getWidth(), getHeight(), SETA(0xFFFFFF, alpha));
+        }
+        But::drawButton(hGfx, 2, x + 1, y + 1, getWidth() - 2, getHeight() - 2, SETA(0xFFFFFF, alpha));
 
         int lx = x + 6;
         for (int i = 0; i < vEntries.size(); i++) {
@@ -99,20 +104,16 @@ namespace SHR {
                 vEntries[i].fTimer -= hge->Timer_GetDelta();
                 if (vEntries[i].fTimer < 0.0f) vEntries[i].fTimer = 0.0f;
             }
-            unsigned char p = (vEntries[i].fTimer * 2.5f * 255.0f);
-            if (!isEnabled()) {
-                p /= 2;
-            }
 
             if (vEntries[i].fTimer > 0.0f) {
                 hge->Gfx_SetClipping(lx - (i == 0 ? 5 : 2), y, vEntries[i].GetWidth() + (i == 0 ? 2 : i == vEntries.size() - 1 ? 1 : 0), getHeight());
-                But::drawButton(hGfx, 3, x, y, getWidth(), getHeight(), SETA(0xFFFFFFFF, p));
+                But::drawButton(hGfx, 0, x, y, getWidth(), getHeight(), SETA(0xFFFFFF, vEntries[i].fTimer * 2.5f * alpha / 2.f));
                 hge->Gfx_SetClipping();
             }
 
             if (vEntries[i].sprIcon != 0) {
                 int addOX = (i > 0 ? 1 : 0);
-                vEntries[i].sprIcon->Render(lx + addOX, y);
+                vEntries[i].sprIcon->Render(lx + addOX, y + (getHeight() - vEntries[i].sprIcon->GetHeight()) / 2 - 1);
                 lx += 17 + addOX;
             } else if (i > 0) {
                 lx += 3;
@@ -120,9 +121,9 @@ namespace SHR {
                 lx += 1;
             }
 
-            GV->fntMyriad13->SetColor(ARGB(255, p, p, p));
-            GV->fntMyriad13->Render(lx, y + 1, HGETEXT_LEFT, vEntries[i].strCaption.c_str(), 0);
-            lx += GV->fntMyriad13->GetStringWidth(vEntries[i].strCaption.c_str());
+            GV->fntMyriad16->SetColor(SETA(0xe1e1e1, isEnabled() ? 0xFF : 0x77));
+            GV->fntMyriad16->Render(lx, y + getHeight() / 2 - 2, HGETEXT_LEFT | HGETEXT_MIDDLE, vEntries[i].strCaption.c_str(), 0);
+            lx += GV->fntMyriad16->GetStringWidth(vEntries[i].strCaption.c_str());
 
             lx += i == 0 ? 8 : 7;
         }
@@ -136,10 +137,10 @@ namespace SHR {
 
     void ComboBut::adjustSize() {
         int w = 4;
-        for (int i = 0; i < vEntries.size(); i++)
-            w += vEntries[i].GetWidth();
+        for (auto & vEntry : vEntries)
+            w += vEntry.GetWidth();
         setWidth(w);
-        setHeight(20);
+        setHeight(24);
     }
 
     void ComboBut::mousePressed(MouseEvent &mouseEvent) {
@@ -164,20 +165,34 @@ namespace SHR {
         mMousePressed = 0;
     }
 
-
-    void ComboBut::focusLost(const Event &event) {
-        mMousePressed = false;
-        mKeyPressed = false;
+    void ComboBut::focusGained(const FocusEvent& event) {
+        mKeyboardFocus = event.isKeyboardFocus();
     }
 
-
-    bool ComboBut::showHand() {
-        return iFocused != iSelectedID && iFocused != -1;
+    void ComboBut::focusLost(const FocusEvent& event) {
+        mMousePressed = false;
+        mKeyboardFocus = false;
     }
 
     void ComboBut::addEntry(ComboButEntry n) {
         n.iID = vEntries.size();
         vEntries.push_back(n);
         adjustSize();
+    }
+
+    void ComboBut::keyPressed(KeyEvent &keyEvent) {
+        if(keyEvent.getType() == KeyEvent::PRESSED) {
+            if (keyEvent.getKey() == Key::LEFT) {
+                if (iSelectedID > 0) {
+                    --iSelectedID;
+                    distributeActionEvent();
+                }
+            } else if (keyEvent.getKey() == Key::RIGHT) {
+                if (iSelectedID < vEntries.size() - 1) {
+                    ++iSelectedID;
+                    distributeActionEvent();
+                }
+            }
+        }
     }
 }

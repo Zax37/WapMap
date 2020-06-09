@@ -128,9 +128,6 @@ namespace ObjEdit {
                     dwHighlightColor = bPicked ? 0xFFFFFF00 : 0xFFFF0000;
                 }
             }
-            hState->bShowHand = 1;
-            if (!bPicked)
-                hState->dwCursorColor = 0xFFFFFF00;
         }
     }
 }

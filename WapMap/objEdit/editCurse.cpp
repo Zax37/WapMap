@@ -92,7 +92,6 @@ namespace ObjEdit {
             spr->SetColor(0xFFFFFFFF);
             spr->Render(dx + i * 131 + 65, dy + 60);
             if (mx > dx + i * 131 + 65 - 30 && mx < dx + i * 131 + 65 + 30 && my > dy + 60 - 30 && my < dy + 60 + 30) {
-                hState->bShowHand = 1;
                 if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                     rbCurses[i]->setSelected(1);
                     Action(gcn::ActionEvent(rbCurses[i], ""));
@@ -102,14 +101,14 @@ namespace ObjEdit {
             hge->Gfx_RenderLine(dx + i * 131 + 1, dy + 24, dx + i * 131 + 1, dy + 120, 0xFF5c5c5c);
         }
         hge->Gfx_RenderLine(dx, dy + 121, dx + win->getWidth(), dy + 121, 0xFF1f1f1f);
-        GV->fntMyriad13->SetColor(0xFFa1a1a1);
+        GV->fntMyriad16->SetColor(0xFFe1e1e1);
         char tmp[64];
         for (int i = 0; i < 6; i++)
             if (rbCurses[i]->isSelected()) {
                 sprintf(tmp, "CurseDesc%d", i);
                 break;
             }
-        GV->fntMyriad13->printf(dx + 15, dy + 132, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
+        GV->fntMyriad16->printf(dx + 15, dy + 132, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
                                 GETL2S("EditObj_Curse", "CurseEffect"), GETL2S("EditObj_Curse", tmp), 0);
     }
 }

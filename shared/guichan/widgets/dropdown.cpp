@@ -415,7 +415,7 @@ namespace gcn {
         }
     }
 
-    void DropDown::focusLost(const Event &event) {
+    void DropDown::focusLost(const FocusEvent& event) {
         foldUp();
         mInternalFocusHandler.focusNone();
     }

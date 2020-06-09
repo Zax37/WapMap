@@ -104,7 +104,7 @@ namespace SHR {
 
         virtual void draw(Graphics *graphics);
 
-        virtual void focusLost(const Event &event);
+        virtual void focusLost(const FocusEvent &event);
 
         void mousePressed(MouseEvent &mouseEvent) override;
 
@@ -122,11 +122,19 @@ namespace SHR {
 
         void AddElement(int id, const char *cap, hgeSprite *spr = NULL, ContextEl *after = NULL);
 
-        int GetSelectedID() { return iSelected; };
+        void AddSeparator();
+
+        int GetSelectedID() { return iSelectedID; };
 
         int GetElementsCount() { return vElements.size(); };
 
-        void SetSelectedID(int i) { iSelected = i; };
+        int GetSelectedIt() { return iSelected; };
+
+        void SetSelectedIt(int i) { iSelected = i; iSelectedID = i == -1 ? -1 : vElements[i]->GetID(); };
+
+        void SelectPrev();
+
+        void SelectNext();
 
         void RemoveElement(int i);
 
@@ -138,6 +146,18 @@ namespace SHR {
 
         ContextEl *GetElementByID(int id);
 
+        ContextEl *GetSelectedElement();
+
+        void setTopLineOffset(int offX) {
+            topLineXOffset = offX;
+        }
+
+        unsigned char getAlpha() override {
+            return fShowTimer * 5.0f * 255.0f;
+        }
+
+        void OpenSubContext(int i);
+
         bool MouseOver() { return mHasMouse; };
 
         void ReserveIconSpace(bool icon, bool reserve) { mReserveIconSpace[icon] = reserve; };
@@ -148,28 +168,28 @@ namespace SHR {
 
         virtual void widgetHidden(const Event &event);
 
-        virtual bool showHand();
-
         void hide();
 
         void addSelectionListener(gcn::SelectionListener *selectionListener);
 
         void removeSelectionListener(gcn::SelectionListener *selectionListener);
 
+        void distributeValueChangedEvent();
+
     protected:
         float fShowTimer;
         bool bHide;
         guiParts *hGfx;
-        int iSelected, iSelectedIt;
+        int iSelectedID, iSelected;
         int iRowHeight;
         bool mHasMouse;
         bool mKeyPressed;
         bool mMousePressed;
         bool mReserveIconSpace[2];
         std::vector<ContextEl *> vElements;
+        std::vector<int> vSeparators;
         hgeFont *hFont;
-
-        void distributeValueChangedEvent();
+        int topLineXOffset;
 
         typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;

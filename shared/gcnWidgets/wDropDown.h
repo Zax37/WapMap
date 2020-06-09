@@ -2,7 +2,7 @@
 #define SHR_DROPDOWN_H
 
 #include "../cGUIparts.h"
-
+#include "cField.h"
 #include "guichan/actionlistener.hpp"
 #include "guichan/basiccontainer.hpp"
 #include "guichan/deathlistener.hpp"
@@ -20,6 +20,7 @@ using namespace gcn;
 
 namespace SHR {
     class GCN_CORE_DECLSPEC DropDown :
+            public Field,
             public ActionListener,
             public BasicContainer,
             public KeyListener,
@@ -35,7 +36,7 @@ namespace SHR {
 
         int getSelected() const;
 
-        void setSelected(int selected);
+        void setSelected(int selected, bool generatingEvent = true);
 
         void setListModel(ListModel *listModel);
 
@@ -62,7 +63,7 @@ namespace SHR {
 
         virtual gcn::Rectangle getChildrenArea();
 
-        virtual void focusLost(const Event &event);
+        virtual void focusLost(const FocusEvent &event);
 
         virtual void action(const ActionEvent &actionEvent);
 
@@ -84,8 +85,6 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual bool showHand();
-
         virtual void valueChanged(const SelectionEvent &event);
 
         void SetGfx(guiParts *n) { hGfx = n; };
@@ -103,6 +102,7 @@ namespace SHR {
         bool mPushed;
         bool mHasMouse;
         int mFoldedUpHeight;
+        int mSelected = 0;
         ScrollArea *mScrollArea;
         ListBox *mListBox;
         FocusHandler mInternalFocusHandler;
@@ -113,7 +113,7 @@ namespace SHR {
         typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;
         typedef SelectionListenerList::iterator SelectionListenerIterator;
-        float fButtonTimer;
+        float fFocusTimer;
 
         guiParts *hGfx;
     };

@@ -193,34 +193,34 @@ void winTileBrowser::Think() {
     cTileImageSet *ts = hTileset->GetSet((iSelectedTileSet));
 
     int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
-            tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
+        tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
     int tilesPerRow = (tilePickW / 60);
-    int borderoffset = (tilePickW - (tilesPerRow * 60)) / 2;
+    int borderOffset = (tilePickW - (tilesPerRow * 60)) / 2;
     int scroll = saTiles->getVerticalScrollAmount();
 
     mx += dx;
     my += dy;
     if (mx > tilePickX && my > tilePickY && mx < tilePickX + tilePickW && my < tilePickY + tilePickH) {
         if (bSingleGroup) {
-            iHighlightedT = MouseHandleGroup(*hSingleGroup, tilePickX + borderoffset, tilePickY + 10 - scroll,
-                                             tilesPerRow);
+            iHighlightedT = MouseHandleGroup(*hSingleGroup, tilePickX + borderOffset,
+                    tilePickY + borderOffset - scroll, tilesPerRow);
         } else {
             iHighlightedT = -1;
-            int ypos = 0;
-            for (int i = 0; i < 3; i++)
-                if (vtGroups[i].size() > 0) {
-                    int drawX = tilePickX + borderoffset,
-                            drawY = tilePickY + 10 - scroll + ypos;
-                    int hl = MouseHandleGroup(vtGroups[i], drawX, drawY + 20, tilesPerRow);
-                    if (hl != -1) {
-                        cTile *t = vtGroups[i][hl];
-                        for (int i = 0; i < ts->GetTilesCount(); i++)
-                            if (ts->GetTileByIterator(i) == t) {
-                                iHighlightedT = i;
+            int yPos = 0;
+            for (auto & vtGroup : vtGroups)
+                if (!vtGroup.empty()) {
+                    int drawX = tilePickX + borderOffset,
+                        drawY = tilePickY + borderOffset - scroll + yPos;
+                    int hl = MouseHandleGroup(vtGroup, drawX, drawY + borderOffset * 2, tilesPerRow);
+                    if (hl != -1 && hl < vtGroup.size()) {
+                        cTile *t = vtGroup[hl];
+                        for (int j = 0; j < ts->GetTilesCount(); j++)
+                            if (ts->GetTileByIterator(j) == t) {
+                                iHighlightedT = j;
                                 break;
                             }
                     }
-                    ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
+                    yPos += borderOffset * 2 + (vtGroup.size() / tilesPerRow + 1) * 80;
                 }
         }
     } else {
@@ -231,9 +231,6 @@ void winTileBrowser::Think() {
         iSelectedTile = iHighlightedT;
         Synchronize();
     }
-
-    GV->editState->bShowHand = (iHighlightedTS != -1 && iHighlightedTS != iSelectedTileSet
-                                || iHighlightedT != -1 && iHighlightedT != iSelectedTile);
 }
 
 void winTileBrowser::Draw(int piCode) {
@@ -289,14 +286,12 @@ void winTileBrowser::Draw(int piCode) {
 
             ico->GetImage()->SetColor(0xFFFFFFFF);
             ico->GetImage()->RenderStretch(drawX + 10, drawY + 10, drawX + 10 + 48, drawY + 10 + 48);
-            GV->fntMyriad13->SetColor(0xFFc1c1c1);
-            GV->fntMyriad13->Render(drawX + 20 + 48, drawY + 10 + 24 - 14, HGETEXT_LEFT, ts->GetName(), 0);
-            GV->fntMyriad13->SetColor(0xFFa1a1a1);
-            GV->fntMyriad13->printf(drawX + 20 + 48, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", 0, ts->GetTilesCount(),
+            GV->fntMyriad16->SetColor(0xFFc1c1c1);
+            GV->fntMyriad16->Render(drawX + 20 + 48, drawY + 10 + 24 - 14, HGETEXT_LEFT, ts->GetName(), 0);
+            GV->fntMyriad16->SetColor(0xFFe1e1e1);
+            GV->fntMyriad16->printf(drawX + 20 + 48, drawY + 10 + 24, HGETEXT_LEFT, "%d %s", 0, ts->GetTilesCount(),
                                     GETL2S("Win_TileBrowser", "tiles"));
         }
-        hge->Gfx_SetClipping();
-        GV->hGfxInterface->sprMainShadeBar->RenderStretch(dx + 6, dy + 45, dx + 6 + 202, dy + 45 + 9);
 
         int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
             tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
@@ -319,7 +314,7 @@ void winTileBrowser::Draw(int piCode) {
         seltile->GetImage()->RenderStretch(dx + 230, dy + 110, dx + 230 + 64, dy + 110 + 64);
 
         int tilesPerRow = (tilePickW / 60);
-        int borderoffset = (tilePickW - (tilesPerRow * 60)) / 2;
+        int borderOffset = (tilePickW - (tilesPerRow * 60)) / 2;
         int scroll = saTiles->getVerticalScrollAmount();
         if (scroll < 0) scroll = 0;
 
@@ -329,27 +324,25 @@ void winTileBrowser::Draw(int piCode) {
                 GV->hGfxInterface->sprMainBackground->Render(tilePickX + x * 128, tilePickY + y * 128);
 
         if (bSingleGroup) {
-            RenderTileGroup(*hSingleGroup, tilePickX + borderoffset, tilePickY + 10 - scroll);
+            RenderTileGroup(*hSingleGroup, tilePickX + borderOffset, tilePickY + borderOffset - scroll);
         } else {
-            int ypos = 0;
+            int yPos = 0;
             for (int i = 0; i < 3; i++)
-                if (vtGroups[i].size() > 0) {
-                    int drawX = tilePickX + borderoffset,
-                        drawY = tilePickY + 10 - scroll + ypos;
+                if (!vtGroups[i].empty()) {
+                    int drawX = tilePickX + borderOffset,
+                        drawY = tilePickY + borderOffset - scroll + yPos;
                     const char *label = 0;
                     if (i == 0) label = GETL2S("Win_TileBrowser", "GroupREZ");
                     else if (i == 1) label = GETL2S("Win_TileBrowser", "GroupClaw");
                     else if (i == 2) label = GETL2S("Win_TileBrowser", "GroupCustom");
-                    hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15,
-                                        0xFFa1a1a1);
-                    GV->fntMyriad13->SetColor(0xFFFFFFFF);
-                    GV->fntMyriad13->Render(drawX, drawY, HGETEXT_LEFT, label, 0);
-                    RenderTileGroup(vtGroups[i], drawX, drawY + 20);
-                    ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
+                    hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderOffset * 2, drawY + 15,
+                                        0xFFe1e1e1);
+                    GV->fntMyriad16->SetColor(0xFFFFFFFF);
+                    GV->fntMyriad16->Render(drawX, drawY, HGETEXT_LEFT, label, 0);
+                    RenderTileGroup(vtGroups[i], drawX, drawY + borderOffset * 2);
+                    yPos += borderOffset * 2 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
                 }
         }
-        hge->Gfx_SetClipping();
-        GV->hGfxInterface->sprMainShadeBar->RenderStretch(tilePickX, tilePickY, tilePickX + tilePickW, tilePickY + 9);
     }
 }
 
@@ -563,8 +556,8 @@ void winTileBrowser::RenderTileGroup(std::vector<cTile *> tiles, int x, int y) {
         }
         tile->GetImage()->RenderStretch(drawX + 5, drawY + 5, drawX + 5 + 48, drawY + 5 + 48);
 
-        GV->fntMyriad13->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFa1a1a1));
-        GV->fntMyriad13->printf(drawX + 5 + 25, drawY + 50 + 10, HGETEXT_CENTER, "%d", 0, tile->GetID());
+        GV->fntMyriad16->SetColor((colBorder != GV->colLineBright ? 0xFFFFFFFF : 0xFFe1e1e1));
+        GV->fntMyriad16->printf(drawX + 5 + 25, drawY + 50 + 10, HGETEXT_CENTER, "%d", 0, tile->GetID());
     }
 }
 

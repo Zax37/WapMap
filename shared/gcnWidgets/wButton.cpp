@@ -13,7 +13,7 @@ extern HGE *hge;
 namespace SHR {
     But::But(cInterfaceSheet *Parts)
             : mHasMouse(false),
-              mKeyPressed(false),
+              mKeyboardFocus(false),
               mMousePressed(false),
               mAlignment(Graphics::CENTER),
               mSpacing(4) {
@@ -35,7 +35,7 @@ namespace SHR {
     But::But(cInterfaceSheet *Parts, const std::string &caption)
             : mCaption(caption),
               mHasMouse(false),
-              mKeyPressed(false),
+              mKeyboardFocus(false),
               mMousePressed(false),
               mAlignment(Graphics::CENTER),
               mSpacing(4) {
@@ -56,7 +56,7 @@ namespace SHR {
 
     But::But(cInterfaceSheet *Parts, hgeSprite *psprIcon)
             : mHasMouse(false),
-              mKeyPressed(false),
+              mKeyboardFocus(false),
               mMousePressed(false),
               mAlignment(Graphics::CENTER),
               mSpacing(4) {
@@ -123,10 +123,10 @@ namespace SHR {
         } else if (!(isPressed() || bBlinkState) && fTimer > 0.2f) {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.2f) fTimer = 0.2f;
-        } else if (isEnabled() && (mHasMouse || isFocused()) && fTimer < 0.2f) {
+        } else if (isEnabled() && (mHasMouse || mKeyboardFocus) && fTimer < 0.2f) {
             fTimer += hge->Timer_GetDelta();
             if (fTimer > 0.2f) fTimer = 0.2f;
-        } else if ((!mHasMouse || !isEnabled()) && fTimer > 0.0f) {
+        } else if ((!isEnabled() || (!mHasMouse && !mKeyboardFocus)) && fTimer > 0.0f) {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.0f) fTimer = 0.0f;
         } else if (isEnabled() && fTimer < 0.0f) {
@@ -147,7 +147,7 @@ namespace SHR {
             else if ((isPressed() || bBlinkState) && fTimer == 0.3f) st = 3;
             //else if( fTimer == 0.2f ) st = 3;
 
-            drawButton(hGfx, st, x, y, getWidth(), getHeight(), SETA(0xFFFFFFFF, getAlpha()));
+            drawButton(hGfx, st, x, y, getWidth(), getHeight(), SETA(0xFFFFFF, getAlpha()));
             if (fTimer != 0) {
                 unsigned char p = 0;
                 if (fTimer > 0.2f)
@@ -156,22 +156,11 @@ namespace SHR {
                     p = (fTimer * -1) * 5.0f * 255.0f * getAlphaModifier();
                 else
                     p = fTimer * 5.0f * 125.0f * getAlphaModifier();
-                drawButton(hGfx, (fTimer < 0 ? 0 : 3), x, y, getWidth(), getHeight(), SETA(0xFFFFFFFF, p));
+                drawButton(hGfx, (fTimer < 0 ? 0 : 3), x, y, getWidth(), getHeight(), SETA(0xFFFFFF, p));
             }
         }
         if (getCaption().length() > 0) {
             hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
-
-            unsigned char p = 0;
-            if (isEnabled() && fTimer >= 0) {
-                if (fTimer > 0.2f)
-                    p = (fTimer - 0.2f) * 10.0f * 55.0f + 200.0f;
-                else
-                    p = fTimer * 5.0f * 200.0f;
-            } else {
-                p = (fTimer * -1) * 5.0f * 45.0f;
-            }
-            graphics->setColor(RGB(p, p, p));
 
             int textX;
             int textY = getHeight() / 2 - getFont()->getHeight() / 2 - 2;
@@ -204,7 +193,7 @@ namespace SHR {
                 if (fTimer > 0.0f && isEnabled()) {
                     sprIcon->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
                     unsigned char a = fTimer * 5.0f * 255.0f * getAlphaModifier();
-                    sprIcon->SetColor(SETA(0xFFFFFFFF, a));
+                    sprIcon->SetColor(SETA(0xFFFFFF, a));
                     sprIcon->Render(x + iconX, y + iconY);
                     sprIcon->SetBlendMode(BLEND_DEFAULT);
                 }
@@ -212,18 +201,8 @@ namespace SHR {
             }
 
             graphics->setFont(getFont());
-
-            if (isPressed()) {
-                graphics->drawText(getCaption(), textX + 1, textY + 1, getAlignment());
-            } else {
-                graphics->drawText(getCaption(), textX, textY, getAlignment());
-
-                /*if (isFocused())
-                {
-                    graphics->drawRectangle(Rectangle(2, 2, getWidth() - 4,
-                                                      getHeight() - 4));
-                }*/
-            }
+            graphics->setColor(gcn::Color(0xe1e1e1, isEnabled() ? 0xFF : 0x77));
+            graphics->drawText(getCaption(), textX, textY, getAlignment());
         } else if (sprIcon != 0) {
             int iconX = (getWidth() - sprIcon->GetWidth()) / 2;
             int iconY = (getHeight() - sprIcon->GetHeight()) / 2;
@@ -232,7 +211,7 @@ namespace SHR {
             if (fTimer > 0.0f && isEnabled()) {
                 sprIcon->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
                 unsigned char a = fTimer * 5.0f * 255.0f * getAlphaModifier();
-                sprIcon->SetColor(SETA(0xFFFFFFFF, a));
+                sprIcon->SetColor(SETA(0xFFFFFF, a));
                 sprIcon->Render(x + iconX, y + iconY);
                 sprIcon->SetBlendMode(BLEND_DEFAULT);
             }
@@ -256,7 +235,7 @@ namespace SHR {
         if (mMousePressed) {
             return mHasMouse;
         } else {
-            return mKeyPressed;
+            return mKeyboardFocus;
         }
     }
 
@@ -267,6 +246,7 @@ namespace SHR {
     void But::mousePressed(MouseEvent &mouseEvent) {
         if (mouseEvent.getButton() == MouseEvent::LEFT) {
             mMousePressed = true;
+            mKeyboardFocus = false;
             mouseEvent.consume();
         }
     }
@@ -301,7 +281,6 @@ namespace SHR {
 
         if (key.getValue() == Key::ENTER
             || key.getValue() == Key::SPACE) {
-            mKeyPressed = true;
             keyEvent.consume();
         }
     }
@@ -311,15 +290,18 @@ namespace SHR {
 
         if ((key.getValue() == Key::ENTER
              || key.getValue() == Key::SPACE)
-            && mKeyPressed) {
-            mKeyPressed = false;
+            && mKeyboardFocus) {
             distributeActionEvent();
             keyEvent.consume();
         }
     }
 
-    void But::focusLost(const Event &event) {
+    void But::focusGained(const FocusEvent &event) {
+        mKeyboardFocus = event.isKeyboardFocus();
+    }
+
+    void But::focusLost(const FocusEvent &event) {
         mMousePressed = false;
-        mKeyPressed = false;
+        mKeyboardFocus = false;
     }
 }

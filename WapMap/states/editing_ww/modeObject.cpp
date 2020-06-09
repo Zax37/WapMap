@@ -134,19 +134,19 @@ void State::EditingWW::ObjectOverlay() {
                     miny = iObjDragOrigY > wmy ? wmy : iObjDragOrigY,
                     maxx = iObjDragOrigX > wmx ? iObjDragOrigX : wmx,
                     maxy = iObjDragOrigY > wmy ? iObjDragOrigY : wmy;
-                GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
                                         GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
-                GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
                                         GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
 
-                GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 21, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 21, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
                                         GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
-                GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
                                         GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
             } else {
-                GV->fntMyriad13->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", 0,
                                         GETL(Lang_SelectedObjects), vObjectsHL.size());
-                GV->fntMyriad13->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
+                GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                         GETL(Lang_SelectedObjects), vObjectsHL.size());
             }
         }
@@ -163,10 +163,10 @@ void State::EditingWW::ObjectOverlay() {
             diffx = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationX) - hEditObj->_iMoveInitX;
             diffy = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationY) - hEditObj->_iMoveInitY;
         }
-        GV->fntMyriad13->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffx);
-        GV->fntMyriad13->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffy);
-        GV->fntMyriad13->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffx);
-        GV->fntMyriad13->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffy);
+        GV->fntMyriad16->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffx);
+        GV->fntMyriad16->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffy);
+        GV->fntMyriad16->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffx);
+        GV->fntMyriad16->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffy);
     }
 }
 
@@ -755,7 +755,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                                               Scr2WrdY(GetActivePlane(), my));
                     float percDist = distance / sliobrDistance->getValue();
                     if (percDist > 1) percDist = 1;
-                    dwCursorColor = SETR(SETB(0xFF00FF00, int((1 - percDist) * 255)), int((1 - percDist) * 255));
+                    // CURSOR COLORING DEPENDING ON DISTANCE
+                    // dwCursorColor = SETR(SETB(0xFF00FF00, int((1 - percDist) * 255)), int((1 - percDist) * 255));
                     if (distance > sliobrDistance->getValue()) {
                         iobjbrLastDrawnX = Scr2WrdX(GetActivePlane(), mx);
                         iobjbrLastDrawnY = Scr2WrdY(GetActivePlane(), my);
@@ -1255,4 +1256,12 @@ void State::EditingWW::ObjectBrush(int x, int y) {
 
     MarkUnsaved();
     vPort->MarkToRedraw(true);
+}
+
+void State::EditingWW::OnResize() {
+    if (!bMaximized) {
+        GV->iScreenW = hge->System_GetState(HGE_SCREENWIDTH);
+        GV->iScreenH = hge->System_GetState(HGE_SCREENHEIGHT);
+    }
+    FixInterfacePositions();
 }

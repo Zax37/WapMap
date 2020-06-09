@@ -31,6 +31,7 @@ namespace SHR {
         mIsVerticalMarkerDragged = false;
         mIsHorizontalMarkerDragged = false;
         mOpaque = true;
+        mBackgroundColor = 0x131313;
 
         if (content) {
             setContent(content);

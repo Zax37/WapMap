@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -46,7 +46,7 @@
 
 #include <vector>
 
-#include "guichan/event.hpp"
+#include "guichan/focusevent.hpp"
 #include "guichan/platform.hpp"
 
 namespace gcn
@@ -81,6 +81,8 @@ namespace gcn
          * Destructor.
          */
         virtual ~FocusHandler() { };
+
+        virtual void switchFocus(Widget* from, Widget* to, bool isKeyboardEvent);
 
         /**
          * Requests focus for a widget. Focus will only be granted to a widget
@@ -324,7 +326,7 @@ namespace gcn
          * @param focusEvent the event to distribute.
          * @since 0.7.0
          */
-        virtual void distributeFocusLostEvent(const Event& focusEvent);
+        virtual void distributeFocusLostEvent(const FocusEvent& focusEvent);
 
         /**
          * Distributes a focus gained event.
@@ -332,7 +334,7 @@ namespace gcn
          * @param focusEvent the event to distribute.
          * @since 0.7.0
          */
-        virtual void distributeFocusGainedEvent(const Event& focusEvent);
+        virtual void distributeFocusGainedEvent(const FocusEvent& focusEvent);
 
         /**
          * Typedef.

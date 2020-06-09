@@ -45,7 +45,10 @@ namespace SHR {
     void ListBox::draw(Graphics *graphics) {
         unsigned char alpha = getAlpha();
         graphics->setColor(gcn::Color(0x131313, alpha));
-        graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
+        graphics->fillRectangle(mDimension);
+
+        /*graphics->setColor(gcn::Color(0x178ce1, alpha));
+        graphics->drawRectangle(mDimension);*/
 
         if (mListModel == NULL) {
             return;
@@ -100,7 +103,7 @@ namespace SHR {
         if (i == mSelected)
             graphics->setColor(gcn::Color(0xffffff, alpha));
         else
-            graphics->setColor(gcn::Color(i == mHighlighted ? 0xdcdcdc : 0xbababa, alpha));
+            graphics->setColor(gcn::Color(i == mHighlighted ? 0xffffff : 0xe1e1e1, alpha));
 
         // If the row height is greater than the font height we
         // draw the text with a center vertical alignment.
@@ -119,7 +122,7 @@ namespace SHR {
         return mSelected;
     }
 
-    void ListBox::setSelected(int selected) {
+    void ListBox::setSelected(int selected, bool generatingEvent) {
         if (mListModel == NULL) {
             mSelected = -1;
         } else {
@@ -143,7 +146,9 @@ namespace SHR {
         scroll.height = getRowHeight();
         showPart(scroll);
 
-        distributeValueChangedEvent();
+        if (generatingEvent) {
+            distributeValueChangedEvent();
+        }
     }
 
     void ListBox::keyPressed(KeyEvent &keyEvent) {
@@ -267,7 +272,7 @@ namespace SHR {
     }
 
     unsigned int ListBox::getRowHeight() const {
-        return getFont()->getHeight();
+        return getFont()->getHeight() + 4;
     }
 
     int ListBox::findIndexOf(const std::string& option) {

@@ -276,7 +276,7 @@ bool State::MapShot::Think() {
     if (sprPreview != NULL) {
         winLoad->setHeight(200 + iPreviewH);
     }
-    return 0;
+    return false;
 }
 
 bool State::MapShot::Render() {

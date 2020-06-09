@@ -87,8 +87,8 @@ namespace ObjEdit {
         win->getAbsolutePosition(dx, dy);
 
         if (rbType[0] != 0) {
-            GV->fntMyriad13->SetColor(0xFFa1a1a1);
-            GV->fntMyriad13->Render(dx + 6, dy + 30, HGETEXT_LEFT, GETL2S("EditObj_CrumblingPeg", "Imageset"), 0);
+            GV->fntMyriad16->SetColor(0xFFe1e1e1);
+            GV->fntMyriad16->Render(dx + 6, dy + 30, HGETEXT_LEFT, GETL2S("EditObj_CrumblingPeg", "Imageset"), 0);
             hState->SprBank->GetAssetByID("LEVEL_CRUMBLINPEG2")->GetIMGByIterator(0)->GetSprite()->Render(dx + 50,
                                                                                                           dy + 105);
             hState->SprBank->GetAssetByID("LEVEL_CRUMBLINPEG1")->GetIMGByIterator(0)->GetSprite()->Render(dx + 140,

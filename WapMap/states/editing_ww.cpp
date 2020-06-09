@@ -84,17 +84,19 @@ void State::EditingWW::Init() {
     }
 
     bWindowFocused = 1;
-    bShowHand = 0;
     iManipulatedGuide = -1;
-    bShowGuideLines = 1;
-    dwCursorColor = 0xFFFFFFFF;
-    bEditObjDelete = 0;
-    bDragWindow = 0;
-    fAppBarTimers[0] = fAppBarTimers[1] = 0.0f;
+    bShowGuideLines = true;
+    bEditObjDelete = false;
+    bMaximized = false;
+    bDragWindow = false;
+
+    GV->cursors[DEFAULT] = LoadCursor(NULL, IDC_ARROW);
+    GV->cursors[TEXT] = LoadCursor(NULL, IDC_IBEAM);
+
+    for (auto& timer : fAppBarTimers)
+        timer = 0.0f;
+
     fCameraMoveTimer = 0;
-#ifdef BUILD_DEBUG
-    bShowConsole = 1;
-#endif
     iTileSelectX1 = iTileSelectX2 = iTileSelectY1 = iTileSelectY2 = -1;
     bObjDragSelection = 0;
     iObjDragOrigX = iObjDragOrigY = 0;
@@ -104,8 +106,6 @@ void State::EditingWW::Init() {
     hTempAttrib = nullptr;
     fObjContextX = fObjContextY = 0;
     lastbrushx = lastbrushy = 0;
-    szHint[0] = '\0';
-    fHintTime = -1;
 
     bForceObjectClipbPreview = bForceTileClipbPreview = 0;
 
@@ -143,23 +143,28 @@ void State::EditingWW::Init() {
     gui->setInput(GV->gcnInput);
 
     conMain = new SHR::Container();
+    conMain->setOpaque(0);
     conMain->setDimension(
             gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
 
-    vPort = new Viewport(this, 0, 50 + 24, hge->System_GetState(HGE_SCREENWIDTH) - 17,
-                         hge->System_GetState(HGE_SCREENHEIGHT) - 31 - 25 - 24 - 25 - 11);
+    vPort = new Viewport(this, 0, LAY_VIEWPORT_Y, hge->System_GetState(HGE_SCREENWIDTH) - 17,
+                         hge->System_GetState(HGE_SCREENHEIGHT) - LAY_VIEWPORT_Y - LAY_STATUS_H - 17);
     conMain->add(vPort->GetWidget(), vPort->GetX(), vPort->GetY());
 
     al = new EditingWWActionListener(this);
     fl = new EditingWWFocusListener(this);
     kl = new EditingWWKeyListener(this);
+    ml = new EditingWWMouseListener(this);
     vp = new EditingWWvpCallback(this);
 
     gui->addGlobalKeyListener(kl);
+    conMain->addMouseListener(ml);
 
     MDI = new cMDI();
-
     hAppMenu = new cAppMenu();
+    conMain->add(hAppMenu, LAY_APPMENU_X, LAY_APPMENU_Y);
+
+    hRulers = new cRulers();
 
     vpMain = new WIDG::Viewport(vp, VP_VIEWPORT);
     conMain->add(vpMain, 0, 0);
@@ -176,57 +181,6 @@ void State::EditingWW::Init() {
     tfWriteID->addFocusListener(fl);
     conWriteID->add(tfWriteID, 0, 0);
 
-
-    sliVer = new SHR::Slider(100);
-    sliVer->setOrientation(SHR::Slider::VERTICAL);
-    sliVer->setDimension(gcn::Rectangle(0, 0, 16, hge->System_GetState(HGE_SCREENHEIGHT) - 111 - 24 - 5));
-    sliVer->setScaleStart(-40);
-    sliVer->addActionListener(al);
-    sliVer->setMarkerLength(40);
-    conMain->add(sliVer, hge->System_GetState(HGE_SCREENWIDTH) - 19, 80 + 24);
-
-    hAppMenu->FixInterfacePositions();
-
-    sliHor = new SHR::Slider(100);
-    sliHor->setOrientation(SHR::Slider::HORIZONTAL);
-    sliHor->setDimension(gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH) - 19, 16));
-    sliHor->setScaleStart(-40);
-    sliHor->addActionListener(al);
-    sliHor->setMarkerLength(40);
-    conMain->add(sliHor, 0, hge->System_GetState(HGE_SCREENHEIGHT) - 30 - 17);
-
-    butMicroTileCB = new SHR::But(GV->hGfxInterface, GV->sprMicroIcons[0]);
-    butMicroTileCB->setDimension(gcn::Rectangle(0, 0, 18, 18));
-    butMicroTileCB->addActionListener(al);
-    butMicroTileCB->SetTooltip(GETL2S("ClipboardPreview", "TileClipboard"));
-    conMain->add(butMicroTileCB, 2, hge->System_GetState(HGE_SCREENHEIGHT) - 25);
-
-    butMicroObjectCB = new SHR::But(GV->hGfxInterface, GV->sprMicroIcons[1]);
-    butMicroObjectCB->setDimension(gcn::Rectangle(0, 0, 18, 18));
-    butMicroObjectCB->addActionListener(al);
-    butMicroObjectCB->SetTooltip(GETL2S("ClipboardPreview", "ObjectClipboard"));
-    conMain->add(butMicroObjectCB, 20, hge->System_GetState(HGE_SCREENHEIGHT) - 25);
-
-    sliZoom = new SHR::Slider(-5, 5);
-    sliZoom->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    sliZoom->setStyle(SHR::Slider::POINTER);
-    sliZoom->addActionListener(al);
-    for (int i = -5; i <= 5; i++)
-        sliZoom->addKeyValue(i);
-    conMain->add(sliZoom, hge->System_GetState(HGE_SCREENWIDTH) - 160, hge->System_GetState(HGE_SCREENHEIGHT) - 25);
-
-    int yoff = 24 + 23;
-
-    int xoff = 0;
-#ifdef WM_ADD_LUA_EXECUTER
-    butIconLua = MakeButton(555, 5 + yoff, Icon_Lua, conMain);
-	butIconLua->SetTooltip(GETL2("Tooltip", Lang_TT_Lua));
-#else
-    xoff -= 32;
-#endif
-
-    //butIconShot->SetTooltip(GETL2("Tooltip", Lang_TT_Mapshot));
-
     cbutActiveMode = new SHR::ComboBut(GV->hGfxInterface);
     cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeTile], GETL(Lang_ModeTile)));
     cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeObject], GETL(Lang_ModeObject)));
@@ -237,12 +191,46 @@ void State::EditingWW::Init() {
     int modeMenuStartX = 10 + cbutActiveMode->getDimension().width;
 
     hmbTile = new cmmbTile(modeMenuStartX);
-    hmbTile->SetVisible(0);
+    hmbTile->SetVisible(false);
     hmbObject = new cmmbObject(modeMenuStartX);
-    hmbObject->SetVisible(0);
+    hmbObject->SetVisible(false);
     hmbActive = NULL;
 
-    SetIconBarVisible(0);
+    SetIconBarVisible(false);
+
+    sliVer = new SHR::Slider(100);
+    sliVer->setOrientation(SHR::Slider::VERTICAL);
+    sliVer->setScaleStart(-40);
+    sliVer->addActionListener(al);
+    sliVer->setMarkerLength(40);
+    conMain->add(sliVer, 0, 0);
+
+    sliHor = new SHR::Slider(100);
+    sliHor->setOrientation(SHR::Slider::HORIZONTAL);
+    sliHor->setScaleStart(-40);
+    sliHor->addActionListener(al);
+    sliHor->setMarkerLength(40);
+    conMain->add(sliHor, 0, 0);
+
+    butMicroTileCB = new SHR::But(GV->hGfxInterface, GV->sprIcons16[Icon16_ModeTile]);
+    butMicroTileCB->setDimension(gcn::Rectangle(0, 0, 26, 24));
+    butMicroTileCB->addActionListener(al);
+    butMicroTileCB->SetTooltip(GETL2S("ClipboardPreview", "TileClipboard"));
+    conMain->add(butMicroTileCB, 0, 0);
+
+    butMicroObjectCB = new SHR::But(GV->hGfxInterface, GV->sprIcons16[Icon16_ModeObject]);
+    butMicroObjectCB->setDimension(gcn::Rectangle(0, 0, 26, 24));
+    butMicroObjectCB->addActionListener(al);
+    butMicroObjectCB->SetTooltip(GETL2S("ClipboardPreview", "ObjectClipboard"));
+    conMain->add(butMicroObjectCB, 0, 0);
+
+    sliZoom = new SHR::Slider(-5, 5);
+    sliZoom->setDimension(gcn::Rectangle(0, 0, 150, 20));
+    sliZoom->setStyle(SHR::Slider::POINTER);
+    sliZoom->addActionListener(al);
+    for (int i = -5; i <= 5; i++)
+        sliZoom->addKeyValue(i);
+    conMain->add(sliZoom, 0, 0);
 
     conResizeLeft = new SHR::Container();
     conResizeLeft->setDimension(gcn::Rectangle(vPort->GetX(), vPort->GetY() + 40, 40, vPort->GetHeight() - 80));
@@ -268,13 +256,21 @@ void State::EditingWW::Init() {
     conMain->add(conResizeDown);
 
     butExtLayerUL = MakeButton(4, 4, Icon_AddUpLeft, conResizeUp);
+    butExtLayerUL->setFocusable(false);
     butExtLayerUR = MakeButton(vPort->GetWidth() - 36, 4, Icon_AddUpRight, conResizeUp);
+    butExtLayerUR->setFocusable(false);
     butExtLayerDL = MakeButton(4, 4, Icon_AddDownLeft, conResizeDown);
+    butExtLayerDL->setFocusable(false);
     butExtLayerDR = MakeButton(vPort->GetWidth() - 36, 4, Icon_AddDownRight, conResizeDown);
+    butExtLayerDR->setFocusable(false);
     butExtLayerUp = MakeButton(vPort->GetWidth() / 2, 4, Icon_AddUp, conResizeUp);
+    butExtLayerUp->setFocusable(false);
     butExtLayerDown = MakeButton(vPort->GetWidth() / 2, 4, Icon_AddDown, conResizeDown);
+    butExtLayerDown->setFocusable(false);
     butExtLayerLeft = MakeButton(4, vPort->GetHeight() / 2 - 40 - 16, Icon_AddLeft, conResizeLeft);
+    butExtLayerLeft->setFocusable(false);
     butExtLayerRight = MakeButton(4, vPort->GetHeight() / 2 - 40 - 16, Icon_AddRight, conResizeRight);
+    butExtLayerRight->setFocusable(false);
 
     hNativeController = new cNativeController();
     hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
@@ -483,7 +479,7 @@ void State::EditingWW::Init() {
 
     labobjseaInfo = new SHR::Lab(GETL2S("ObjectSearch", "InputLabel"));
     labobjseaInfo->adjustSize();
-    winSearchObj->add(labobjseaInfo, 5, 15);
+    winSearchObj->add(labobjseaInfo, 5, 17);
 
     ddObjSearchTerm = new SHR::DropDown();
     ddObjSearchTerm->setListModel(new EditingWWlModel(this, LMODEL_SEARCHTERM));
@@ -491,7 +487,10 @@ void State::EditingWW::Init() {
     ddObjSearchTerm->addActionListener(al);
     ddObjSearchTerm->SetGfx(&GV->gcnParts);
     ddObjSearchTerm->adjustHeight();
-    winSearchObj->add(ddObjSearchTerm, labobjseaInfo->getWidth() + 10, 15);
+    winSearchObj->add(ddObjSearchTerm, labobjseaInfo->getWidth() + 10, 14);
+
+    butObjSearchSelect = new SHR::But(GV->hGfxInterface, GETL2S("ObjectSearch", "GoToObject"));
+    butObjSearchSelect->adjustSize();
 
     vpobjseaRender = new WIDG::Viewport(vp, VP_OBJSEARCH);
     winSearchObj->add(vpobjseaRender, 0, 0);
@@ -505,6 +504,7 @@ void State::EditingWW::Init() {
     sliSearchObj->setOrientation(SHR::Slider::VERTICAL);
     sliSearchObj->setDimension(gcn::Rectangle(0, 0, 11, 387));
     sliSearchObj->setVisible(0);
+    sliSearchObj->setMarkerLength(20);
     winSearchObj->add(sliSearchObj, 430, 105);
 
     winTileProp = new SHR::Win(&GV->gcnParts, GETL(Lang_TileProperties));
@@ -515,8 +515,25 @@ void State::EditingWW::Init() {
     conMain->add(winTileProp, 300, 300);
     buttpPrev = MakeButton(0, 9, Icon_Undo, winTileProp, 1, 1);
     buttpPrev->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Previous));
+
+    tftpTileID = new SHR::TextField("0");
+    tftpTileID->setDimension(gcn::Rectangle(0, 0, 100, 20));
+    tftpTileID->addActionListener(al);
+    winTileProp->add(tftpTileID, 100, 15);
+
     buttpNext = MakeButton(264, 9, Icon_Redo, winTileProp, 1, 1);
     buttpNext->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Next));
+
+    tftpW = new SHR::TextField("0");
+    tftpW->setDimension(gcn::Rectangle(0, 0, 35, 20));
+    tftpW->addActionListener(al);
+    winTileProp->add(tftpW, 220, 48);
+
+    tftpH = new SHR::TextField("0");
+    tftpH->setDimension(gcn::Rectangle(0, 0, 35, 20));
+    tftpH->addActionListener(al);
+    winTileProp->add(tftpH, 220, 73);
+
     buttpZoom = MakeButton(264, 60, Icon_Zoom, winTileProp, 1, 1);
     buttpZoom->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Zoom));
     buttpShow = MakeButton(264, 100, Icon_Eye, winTileProp, 1, 1);
@@ -525,10 +542,6 @@ void State::EditingWW::Init() {
     //buttpPipette->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Pipette));
     buttpApply = MakeButton(264, 140, Icon_Apply, winTileProp, 1, 1);
     buttpApply->SetTooltip(GETL2("Tooltip", Lang_TT_TP_Apply));
-    tftpTileID = new SHR::TextField("0");
-    tftpTileID->setDimension(gcn::Rectangle(0, 0, 100, 20));
-    tftpTileID->addActionListener(al);
-    winTileProp->add(tftpTileID, 100, 15);
 
     rbtpSingle = new SHR::RadBut(GV->hGfxInterface, GETL(Lang_AttribSingle), "atribtype");
     rbtpSingle->adjustSize();
@@ -553,10 +566,15 @@ void State::EditingWW::Init() {
     }
     for (int i = 0; i < 2; i++) {
         winTileProp->add(rbtpIn[i], 107 + i * 100, 192);
-        winTileProp->add(rbtpOut[i], 107 + i * 100, 252);
     }
     for (int i = 2; i < 5; i++) {
         winTileProp->add(rbtpIn[i], 7 + (i - 2) * 100, 222);
+    }
+
+    for (int i = 0; i < 2; i++) {
+        winTileProp->add(rbtpOut[i], 107 + i * 100, 252);
+    }
+    for (int i = 2; i < 5; i++) {
         winTileProp->add(rbtpOut[i], 7 + (i - 2) * 100, 282);
     }
 
@@ -576,16 +594,6 @@ void State::EditingWW::Init() {
     tftpY2->setDimension(gcn::Rectangle(0, 0, 35, 20));
     tftpY2->addActionListener(al);
     winTileProp->add(tftpY2, 260, 310);
-
-    tftpW = new SHR::TextField("0");
-    tftpW->setDimension(gcn::Rectangle(0, 0, 35, 20));
-    tftpW->addActionListener(al);
-    winTileProp->add(tftpW, 220, 48);
-
-    tftpH = new SHR::TextField("0");
-    tftpH->setDimension(gcn::Rectangle(0, 0, 35, 20));
-    tftpH->addActionListener(al);
-    winTileProp->add(tftpH, 220, 73);
 
     itpSelectedTile = -1;
     vpTileProp = new WIDG::Viewport(vp, VP_TILEPROP);
@@ -798,10 +806,9 @@ void State::EditingWW::Init() {
 
     lbbrlLogicList = new SHR::ListBox(0);
     lbbrlLogicList->addActionListener(al);
-    lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 300, 215));
+    lbbrlLogicList->setDimension(gcn::Rectangle(0, 0, 296, 194));
 
     sabrlLogicList = new SHR::ScrollArea(lbbrlLogicList, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_AUTO);
-    sabrlLogicList->setBackgroundColor(0x131313);
     sabrlLogicList->setDimension(gcn::Rectangle(0, 0, 296, 194));
     winLogicBrowser->add(sabrlLogicList, 0, 8);
 
@@ -1533,11 +1540,11 @@ void State::EditingWW::Init() {
     GV->Console->AddModifiableBool("drawprop", &bDrawTileProperties);
 
     conRecentFiles = new SHR::Container();
-    conRecentFiles->setOpaque(0);
+    conRecentFiles->setOpaque(false);
     labLoadLastOpened = new SHR::Lab(GETL2S("HomeScreen", "RecentDocs"));
     labLoadLastOpened->adjustSize();
     conRecentFiles->setDimension(gcn::Rectangle(0, 0, 200, 20));
-    conRecentFiles->add(labLoadLastOpened, 5, 5);
+    conRecentFiles->add(labLoadLastOpened, 0, 0);
 
     butCrashRetrieve = NULL;
     conCrashRetrieve = NULL;
@@ -1570,7 +1577,7 @@ void State::EditingWW::Init() {
                         if (ibase > 0 && ibase < 15 && iCrashRetrieveIcon[linec] == WWD::Game_Claw) {
                             iCrashRetrieveIcon[linec] = 50 + ibase;
                         }
-                        while (GV->fntMyriad13->GetStringWidth(tmp) > 460) {
+                        while (GV->fntMyriad16->GetStringWidth(tmp) > 460) {
                             int len = strlen(tmp);
                             if (bAddSign) {
                                 tmp[int(len / 4) - 2] = '(';
@@ -1589,7 +1596,7 @@ void State::EditingWW::Init() {
                         }
                         szCrashRetrieve[linec] = new char[strlen(tmp) + 1];
                         strcpy(szCrashRetrieve[linec], tmp);
-                        int len = GV->fntMyriad13->GetStringWidth(tmp) + 20;
+                        int len = GV->fntMyriad16->GetStringWidth(tmp) + 20;
                         if (len > maxnamelen)
                             maxnamelen = len;
                     }
@@ -1619,33 +1626,31 @@ void State::EditingWW::Init() {
     }
 
     winWelcome = new SHR::Container();
-    winWelcome->setDimension(gcn::Rectangle(0, 0, 600, 180));
-    winWelcome->setOpaque(0);
-    conMain->add(winWelcome, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 300,
-                 hge->System_GetState(HGE_SCREENHEIGHT) / 2 - 150);
+    winWelcome->setDimension(gcn::Rectangle(0, 0, 600, 0));
+    winWelcome->setOpaque(false);
+    conMain->add(winWelcome, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 300, 0);
 
     vpws = new WIDG::Viewport(vp, VP_WELCOMESCREEN);
     winWelcome->add(vpws, 0, 0);
 
-    butwsNew = new SHR::But(GV->hGfxInterface, GETL2S("HomeScreen", "New"));
-    butwsNew->setDimension(gcn::Rectangle(0, 0, 128, 33));
-    butwsNew->addActionListener(al);
-    winWelcome->add(butwsNew, 11, 133);
+    static hgeSprite* icons[] = {
+            GV->sprIcons16[Icon16_New],
+            GV->sprIcons16[Icon16_Open],
+            GV->sprIcons16[Icon16_Readme],
+    };
 
-    butwsOpen = new SHR::But(GV->hGfxInterface, GETL2S("HomeScreen", "Open"));
-    butwsOpen->setDimension(gcn::Rectangle(0, 0, 128, 33));
-    butwsOpen->addActionListener(al);
-    winWelcome->add(butwsOpen, 11 + 150, 133);
+    static const char* options[] = {
+            GETL2S("HomeScreen", "New"),
+            GETL2S("HomeScreen", "Open"),
+            GETL2S("HomeScreen", "Changelog"),
+    };
 
-    butwsRecently = new SHR::But(GV->hGfxInterface, GETL2S("HomeScreen", "LastUsed"));
-    butwsRecently->setDimension(gcn::Rectangle(0, 0, 128, 33));
-    butwsRecently->addActionListener(al);
-    winWelcome->add(butwsRecently, 11 + 300, 133);
-
-    butwsWhatsnew = new SHR::But(GV->hGfxInterface, GETL2S("HomeScreen", "Whatsnew"));
-    butwsWhatsnew->setDimension(gcn::Rectangle(0, 0, 128, 33));
-    butwsWhatsnew->addActionListener(al);
-    winWelcome->add(butwsWhatsnew, 11 + 450, 133);
+    for (int i = 0; i < WelcomeScreenOptions_Count; ++i) {
+        welcomeScreenOptions[i] = new SHR::Link(options[i], icons[i]);
+        welcomeScreenOptions[i]->adjustSize();
+        welcomeScreenOptions[i]->addActionListener(al);
+        winWelcome->add(welcomeScreenOptions[i], 0, 95 + i * 25);
+    }
 
     winWelcome->setVisible(GV->szCmdLine.empty());
 
@@ -1654,20 +1659,19 @@ void State::EditingWW::Init() {
     }
     hMruList = new cMruList();
     MruListUpdated();
-
     hAppMenu->SyncMRU();
 
     if ((hMruList->IsValid() && hMruList->GetFilesCount() > 0) || conCrashRetrieve) {
         SHR::Container *conToAdd = (conCrashRetrieve ? conCrashRetrieve : conRecentFiles);
 
-        winWelcome->add(conToAdd, winWelcome->getWidth() / 2 - conToAdd->getWidth() / 2,
-                        winWelcome->getHeight() + 10);
+        winWelcome->add(conToAdd, 0, winWelcome->getHeight() + 50);
+        winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
     }
 
     if (hMruList->IsValid() && hMruList->GetFilesCount() > 0) {
         char *n = SHR::GetFile(hMruList->GetRecentlyUsedFile(0));
         bool bDots = false;
-        while (GV->fntMyriad13->GetStringWidth(n) > 140) {
+        while (GV->fntMyriad16->GetStringWidth(n) > 140) {
             if (strlen(n) < 5) break;
             if (!bDots) {
                 n[strlen(n) - 4] = '.';
@@ -1680,19 +1684,11 @@ void State::EditingWW::Init() {
             }
             bDots = true;
         }
-        labwsRecently = new SHR::Lab(n);
-        delete[] n;
-        labwsRecently->adjustSize();
-        winWelcome->add(labwsRecently, 375 - labwsRecently->getWidth() / 2, 108);
-    } else {
-        labwsRecently = 0;
     }
 
     winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
 
-    butwsRecently->setEnabled(hMruList->GetFilesCount() > 0);
-
-    btpZoomTile = 0;
+    btpZoomTile = false;
 
     GV->Console->Printf("~w~Initing interface...");
 
@@ -1730,7 +1726,7 @@ void State::EditingWW::Init() {
     conmodObject->AddElement(conmodEditableObject->GetElementByID(OBJMENU_FLAGS));
     conmodObject->AddElement(conmodEditableObject->GetElementByID(OBJMENU_ZCOORD));
 
-    objmAlignContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objmAlignContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objmAlignContext->AddElement(OBJMENU_ALIGN_HOR, GETL2S("Various", "ContextAlign_Hor"),
                                  GV->sprIcons16[Icon16_FlipX]);
     objmAlignContext->AddElement(OBJMENU_ALIGN_VERT, GETL2S("Various", "ContextAlign_Vert"),
@@ -1740,7 +1736,7 @@ void State::EditingWW::Init() {
     objmAlignContext->addActionListener(al);
     conMain->add(objmAlignContext, 400, 400);
 
-    objmSpaceContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objmSpaceContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objmSpaceContext->AddElement(OBJMENU_SPACE_HOR, GETL2S("Various", "ContextSpaceHor"), GV->sprIcons16[Icon16_FlipX]);
     objmSpaceContext->AddElement(OBJMENU_SPACE_VERT, GETL2S("Various", "ContextSpaceVer"),
                                  GV->sprIcons16[Icon16_FlipY]);
@@ -1790,7 +1786,7 @@ void State::EditingWW::Init() {
 
     conMain->add(hmbObject->GetContext(), 400, 400);
 
-    objZCoordContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objZCoordContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objZCoordContext->AddElement(OBJMENU_ZC_INC3, GETL2S("Various", "ContextZ_Increase3"),
                                  GV->sprIcons16[Icon16_AddTriple]);
     objZCoordContext->AddElement(OBJMENU_ZC_INC2, GETL2S("Various", "ContextZ_Increase2"),
@@ -1812,7 +1808,7 @@ void State::EditingWW::Init() {
     objZCoordContext->addActionListener(al);
     conMain->add(objZCoordContext, 400, 400);
 
-    objFlagContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objFlagContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objFlagContext->AddElement(OBJMENU_FLAGS_DRAW, GETL(Lang_DrawingFlags), 0);
     //objFlagContext->AddElement(OBJMENU_FLAGS_ADDITIONAL, GETL(Lang_AddFlags), 0);
     objFlagContext->AddElement(OBJMENU_FLAGS_DYNAMIC, GETL(Lang_DynamicFlags), 0);
@@ -1821,7 +1817,7 @@ void State::EditingWW::Init() {
     conMain->add(objFlagContext, 400, 400);
     conmodObject->GetElementByID(OBJMENU_FLAGS)->SetCascade(objFlagContext);
 
-    objFlagDrawContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objFlagDrawContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objFlagDrawContext->AddElement(OBJMENU_FLAGS_DRAW_NODRAW, GETL(Lang_NoDraw), 0);
     objFlagDrawContext->AddElement(OBJMENU_FLAGS_DRAW_FLIPX, GETL(Lang_Mirror), 0);
     objFlagDrawContext->AddElement(OBJMENU_FLAGS_DRAW_FLIPY, GETL(Lang_Invert), 0);
@@ -1833,7 +1829,7 @@ void State::EditingWW::Init() {
     conMain->add(objFlagDrawContext, 400, 400);
     objFlagContext->GetElementByID(OBJMENU_FLAGS_DRAW)->SetCascade(objFlagDrawContext);
 
-    /*objFlagAddContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    /*objFlagAddContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_DIFFICULT, GETL(Lang_ObjFlag_Difficult), 0);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_EXTRAMEMORY, GETL(Lang_ObjFlag_ExtraMemory), 0);
     objFlagAddContext->AddElement(OBJMENU_FLAGS_ADDITIONAL_EYECANDY, GETL(Lang_ObjFlag_EyeCandy), 0);
@@ -1847,7 +1843,7 @@ void State::EditingWW::Init() {
     conMain->add(objFlagAddContext, 400, 400);
     objFlagContext->GetElementByID(OBJMENU_FLAGS_ADDITIONAL)->SetCascade(objFlagAddContext);*/
 
-    objFlagDynamicContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objFlagDynamicContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objFlagDynamicContext->AddElement(OBJMENU_FLAGS_DYNAMIC_ALWAYSACTIVE, GETL(Lang_ObjFlag_AlwaysActive), 0);
     objFlagDynamicContext->AddElement(OBJMENU_FLAGS_DYNAMIC_AUTOHITDAMAGE, GETL(Lang_ObjFlag_AutoHitDmg), 0);
     objFlagDynamicContext->AddElement(OBJMENU_FLAGS_DYNAMIC_NOHIT, GETL(Lang_ObjFlag_NoHit), 0);
@@ -1859,21 +1855,21 @@ void State::EditingWW::Init() {
     conMain->add(objFlagDynamicContext, 400, 400);
     objFlagContext->GetElementByID(OBJMENU_FLAGS_DYNAMIC)->SetCascade(objFlagDynamicContext);
 
-    objContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    objContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     objContext->SetModel(conmodObject);
     objContext->adjustSize();
     objContext->addActionListener(al);
     objContext->hide();
     conMain->add(objContext, 400, 400);
 
-    advcon_Warp = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    advcon_Warp = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     advcon_Warp->AddElement(OBJMENU_ADV_WARP_GOTO, GETL2S("EditObj_Warp", "Context_GoTo"), GV->sprIcons16[Icon16_Warp]);
     advcon_Warp->adjustSize();
     advcon_Warp->hide();
     advcon_Warp->addActionListener(al);
     conMain->add(advcon_Warp, 400, 400);
 
-    advcon_Container = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    advcon_Container = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     advcon_Container->AddElement(OBJMENU_ADV_CONTAINER_RAND, GETL2S("EditObj_Statue", "Context_Randomize"),
                                  GV->sprIcons16[Icon16_Treasure]);
     advcon_Container->adjustSize();
@@ -1889,14 +1885,12 @@ void State::EditingWW::Init() {
     conmodTilesPaste = new SHR::ContextModel();
     conmodTilesPaste->AddElement(TILMENU_PASTE, GETL(Lang_Paste), GV->sprIcons16[Icon16_Paste]);
 
-    tilContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad13);
+    tilContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     tilContext->SetModel(conmodTilesSelected);
     tilContext->adjustSize();
     tilContext->addActionListener(al);
     tilContext->hide();
     conMain->add(tilContext, 400, 400);
-
-    GV->IF->EnableCursor(1);
 
     if (GV->bFirstRun)
         FirstRun_Open();
@@ -1921,7 +1915,9 @@ void State::EditingWW::Init() {
     GV->Console->Print("~w~Creating IPC server...");
     hServerIPC = new cServerIPC();
 
-    hAppMenu->FixInterfacePositions();
+    bMaximized = !bMaximized;
+    ToggleFullscreen();
+    //FixInterfacePositions();
 
     GV->Console->Print("~g~Everything OK.");
 }
@@ -1937,9 +1933,9 @@ void State::EditingWW::InitEmpty() {
 
     sliVer->setVisible(0);
     sliHor->setVisible(0);
-
-    butMicroTileCB->setEnabled(0);
-    butMicroObjectCB->setEnabled(0);
+    sliZoom->setVisible(0);
+    butMicroTileCB->setVisible(0);
+    butMicroObjectCB->setVisible(0);
 
     cbutActiveMode->setVisible(0);
 #ifdef WM_ADD_LUA_EXECUTER
@@ -1959,11 +1955,6 @@ void State::EditingWW::SynchronizeWithParser() {
             hmbTile->ddActivePlane->setSelected(i);
         }
     }
-
-    cbutActiveMode->setVisible(1);
-
-    butMicroTileCB->setEnabled(1);
-    butMicroObjectCB->setEnabled(1);
 
     cbutActiveMode->setVisible(1);
 #ifdef WM_ADD_LUA_EXECUTER
@@ -1996,17 +1987,18 @@ void State::EditingWW::Destroy() {
     delete al;
     delete fl;
     delete kl;
+    delete ml;
     delete vp;
-    //if( szHint != 0 )
-    // delete [] szHint;
     delete vpMain;
-    delete sliVer, sliHor;
+    delete sliVer;
+    delete sliHor;
     delete conMain;
     delete gui;
     delete vPort;
 }
 
 bool State::EditingWW::Think() {
+    GV->Console->Think();
     if (fade_iAction == 0) {
         fade_fAlpha -= hge->Timer_GetDelta() * 512;
         if (fade_fAlpha < 0) {
@@ -2037,11 +2029,6 @@ bool State::EditingWW::Think() {
         return 0;
 
     if (bExit) return 1;
-
-#ifdef BUILD_DEBUG
-                                                                                                                            if (hge->Input_KeyDown(HGEK_F1))
-		bShowConsole = !bShowConsole;
-#endif
 
     if (hNativeController->ExecutableChanged()) {
         hwinOptions->SyncWithExe();
@@ -2137,11 +2124,22 @@ bool State::EditingWW::Think() {
 
 
     if (bDragWindow) {
+        POINT mouse;
+        GetCursorPos(&mouse);
+
+        if (bMaximized && mouse.x != iWindowDragX && mouse.y != iWindowDragY) {
+            float oldW = hge->System_GetState(HGE_SCREENWIDTH);
+            ToggleFullscreen();
+            iWindowDragX *= GV->iScreenW / oldW;
+            windowDragStartRect.left *= GV->iScreenW / oldW;
+        }
+
         if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
-            bDragWindow = 0;
+            bDragWindow = false;
+            if (!bMaximized && mouse.y <= 1) {
+                ToggleFullscreen();
+            }
         } else {
-            POINT mouse;
-            GetCursorPos(&mouse);
             float dmx, dmy;
             dmx = mouse.x - iWindowDragX;
             dmy = mouse.y - iWindowDragY;
@@ -2151,30 +2149,9 @@ bool State::EditingWW::Think() {
         }
     }
 
-    if (hge->Input_KeyDown(HGEK_LBUTTON) && conMain->getWidgetAt(mx, my) == NULL && my >= 2 && my < 24) {
-        if (mx < hge->System_GetState(HGE_SCREENWIDTH) - 43 && my < 24) {
-            bDragWindow = 1;
-            POINT mouse;
-            GetCursorPos(&mouse);
-            iWindowDragX = mouse.x;
-            iWindowDragY = mouse.y;
-            GetWindowRect(hge->System_GetState(HGE_HWND), &windowDragStartRect);
-        }
-        if (mx > hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 - 22 &&
-            mx < hge->System_GetState(HGE_SCREENWIDTH) - 5 - 22) //minimize
-            ShowWindow(hge->System_GetState(HGE_HWND), SW_MINIMIZE);
-        else if (mx > hge->System_GetState(HGE_SCREENWIDTH) - 5 - 20 &&
-                 mx < hge->System_GetState(HGE_SCREENWIDTH) - 5) //close
-            if (PromptExit()) {
-                bExit = 1;
-                return 1;
-            }
-    }
-
-    hAppMenu->Think(conMain->getWidgetAt(mx, my) != NULL);
+    hRulers->Think();
     MDI->Think(conMain->getWidgetAt(mx, my) != NULL);
 
-    GV->Console->Think();
     if (hge->Input_KeyDown(HGEK_MBUTTON)) {
         cScrollOrientation++;
         if (cScrollOrientation > 2)
@@ -2213,8 +2190,7 @@ bool State::EditingWW::Think() {
                 if ((gl.bOrient == GUIDE_HORIZONTAL && (my > scrpos - 5 && my < scrpos + 5) ||
                      gl.bOrient == GUIDE_VERTICAL && (mx > scrpos - 5 && mx < scrpos + 5)) &&
                     iActiveTool != EWW_TOOL_MOVEOBJECT && iActiveTool != EWW_TOOL_EDITOBJ) {
-                    bMouseConsumed = 1;
-                    bShowHand = 1;
+                    bMouseConsumed = true;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         iManipulatedGuide = i;
                         break;
@@ -2225,14 +2201,11 @@ bool State::EditingWW::Think() {
 
         if (iManipulatedGuide != -1) {
             stGuideLine gl = GV->editState->MDI->GetActiveDoc()->vGuides[GV->editState->iManipulatedGuide];
-            if (gl.iPos < 0 && gl.iPos != -100)
-                bShowHand = 1;
             if (conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
                 if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
                     gl.iPos = (gl.bOrient == GUIDE_HORIZONTAL ? Scr2WrdY(mainPl, my)
                                                               : Scr2WrdX(mainPl, mx));
                     GV->editState->MDI->GetActiveDoc()->vGuides[GV->editState->iManipulatedGuide] = gl;
-                    bShowHand = 1;
                 } else {
                     iManipulatedGuide = -1;
                 }
@@ -2371,23 +2344,6 @@ bool State::EditingWW::Think() {
         fDragLastMx = mx;
         fDragLastMy = my;
     }
-
-    if (mx > hge->System_GetState(HGE_SCREENWIDTH) - 11 &&
-        my > hge->System_GetState(HGE_SCREENHEIGHT) - 31 &&
-        my < hge->System_GetState(HGE_SCREENHEIGHT) - 21
-        /*cScrollOrientation != iHintID+1*/) {
-        switch (cScrollOrientation) {
-            case 0:
-                SetHint(GETL(Lang_ScrollScrollsVerticaly));
-                break;
-            case 1:
-                SetHint(GETL(Lang_ScrollScrollsHorizontaly));
-                break;
-            case 2:
-                SetHint(GETL(Lang_ScrollZooms));
-                break;
-        }
-    }
     //SHORTCUTS
     HandleHotkeys();
 
@@ -2481,15 +2437,12 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
             hAppMenu->SyncDocumentOpened();
             MDI->SetActiveDoc(MDI->AddDocument(dd));
             SynchronizeWithParser();
-            char *filename = SHR::GetFile(hParser->GetFilePath());
-            SetHint("%s: %s", GETL2S("Hints", "FileOpened"), filename);
-            delete[] filename;
             vPort->MarkToRedraw(1);
 
             if (strlen(hParser->GetFilePath()) > 0) {
                 char *n = SHR::GetFile(hParser->GetFilePath());
                 bool bdots = 0;
-                while (GV->fntMyriad13->GetStringWidth(n) > 140) {
+                while (GV->fntMyriad16->GetStringWidth(n) > 140) {
                     if (strlen(n) < 5) break;
                     if (!bdots) {
                         n[strlen(n) - 4] = '.';
@@ -2502,17 +2455,6 @@ void State::EditingWW::GainFocus(int iReturnCode, bool bFlipped) {
                     }
                     bdots = 1;
                 }
-                if (!labwsRecently) {
-                    labwsRecently = new SHR::Lab(n);
-                    delete[] n;
-                    labwsRecently->adjustSize();
-                    winWelcome->add(labwsRecently, 375 - labwsRecently->getWidth() / 2, 108);
-                } else {
-                    labwsRecently->setCaption(n);
-                    labwsRecently->adjustSize();
-                    labwsRecently->setPosition(375 - labwsRecently->getWidth() / 2, 108);
-                }
-                butwsRecently->setEnabled(1);
                 winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
             }
         } else {
@@ -2556,15 +2498,6 @@ WWD::Plane *State::EditingWW::GetActivePlane() {
 
 int State::EditingWW::GetActivePlaneID() {
     return hmbTile->ddActivePlane->getSelected();
-}
-
-void State::EditingWW::SetHint(const char *pszFormat, ...) {
-    va_list args;
-            va_start(args, pszFormat);
-    vsprintf(szHint, pszFormat, args);
-            va_end(args);
-    fHintTime = 0;
-    GV->Console->Printf("~w~Action: ~y~%s", szHint);
 }
 
 void State::EditingWW::SetIconBarVisible(bool b) {
@@ -2846,7 +2779,6 @@ void State::EditingWW::SaveAs() {
             strncpy(MDI->GetActiveDoc()->szFileName, fl, size - 1);
             MDI->GetActiveDoc()->szFileName[size - 1] = 0;
             MDI->GetActiveDoc()->bSaved = 1;
-            SetHint("%s: %s", GETL2S("Hints", "FileSavedAs"), fl);
             delete[] fl;
             MDI->UpdateCrashList();
         }
@@ -2922,6 +2854,55 @@ SHR::But *State::EditingWW::MakeButton(int x, int y, EnumGfxIcons icon, SHR::Con
     but->setVisible(visible);
     dest->add(but, x, y);
     return but;
+}
+
+void State::EditingWW::ToggleFullscreen() {
+    bMaximized = !bMaximized;
+
+    tagMONITORINFO monitorInfo;
+    monitorInfo.cbSize = sizeof(tagMONITORINFO);
+    HMONITOR monitor = MonitorFromWindow(hge->System_GetState(HGE_HWND), MONITOR_DEFAULTTOPRIMARY);
+    GetMonitorInfoA(monitor, &monitorInfo);
+
+    if (bMaximized) {
+        hge->System_SetState(HGE_BORDER_WIDTH, 0);
+        ::SetWindowPos(hge->System_GetState(HGE_HWND), NULL, monitorInfo.rcWork.left, monitorInfo.rcWork.top,
+                monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top, SWP_SHOWWINDOW);
+    } else {
+        hge->System_SetState(HGE_BORDER_WIDTH, 5);
+        const auto scr_width = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
+        const auto scr_height = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
+        ::SetWindowPos(hge->System_GetState(HGE_HWND), NULL, monitorInfo.rcWork.left + (scr_width - GV->iScreenW) / 2,
+                     monitorInfo.rcWork.top + (scr_height - GV->iScreenH) / 2, GV->iScreenW, GV->iScreenH, SWP_SHOWWINDOW);
+    }
+    FixInterfacePositions();
+}
+
+void State::EditingWW::FixInterfacePositions() {
+    conMain->setDimension(gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
+    MDI->SetY(LAY_MDI_Y);
+    if (hParser) {
+        int rulersOffset = hRulers->IsVisible() * 19;
+        vPort->SetPos(1 + rulersOffset, LAY_VIEWPORT_Y + rulersOffset);
+        vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH) - 17 - rulersOffset + !bMaximized,
+                      hge->System_GetState(HGE_SCREENHEIGHT) - LAY_APP_CUT_Y - LAY_STATUS_H - 19 - LAY_VIEWPORT_Y -
+                      rulersOffset);
+        sliHor->setDimension(gcn::Rectangle(vPort->GetX() - 1, vPort->GetY() + vPort->GetHeight() - 5,
+                vPort->GetWidth() + rulersOffset + 3, 18
+        ));
+        sliVer->setDimension(gcn::Rectangle(vPort->GetX() + vPort->GetWidth() - !bMaximized, vPort->GetY(),
+                18, vPort->GetHeight() + rulersOffset - 2
+        ));
+        sliZoom->setPosition(hge->System_GetState(HGE_SCREENWIDTH) - 160, hge->System_GetState(HGE_SCREENHEIGHT) - 25);
+    } else {
+        vPort->SetPos(1, LAY_MODEBAR_Y);
+        vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H - LAY_MODEBAR_Y - 9);
+        winWelcome->setPosition(vPort->GetX() + (vPort->GetWidth() - winWelcome->getWidth()) / 2,
+                                vPort->GetY() + (vPort->GetHeight() - winWelcome->getHeight()) / 2);
+    }
+    butMicroTileCB->setPosition(4, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 2);
+    butMicroObjectCB->setPosition(32, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 2);
+    GV->Console->FixPos();
 }
 
 bool State::EditingWW::PromptExit() {
@@ -3152,14 +3133,15 @@ void State::EditingWW::DocumentSwitched() {
     sliHor->setVisible(MDI->GetActiveDoc() != NULL);
     winWelcome->setVisible(MDI->GetActiveDoc() == NULL);
     sliZoom->setVisible(MDI->GetActiveDoc() != NULL);
+    butMicroTileCB->setVisible(MDI->GetActiveDoc() != NULL);
+    butMicroObjectCB->setVisible(MDI->GetActiveDoc() != NULL);
     if (MDI->GetActiveDoc() == NULL) {
-        winLogicBrowser->setVisible(0);
-        if (conCrashRetrieve != 0 && conCrashRetrieve->isVisible()) {
-            conCrashRetrieve->setVisible(0);
+        winLogicBrowser->setVisible(false);
+        if (conCrashRetrieve != NULL) {
             winWelcome->remove(conCrashRetrieve);
-            conRecentFiles->setVisible(1);
-            winWelcome->add(conRecentFiles, winWelcome->getWidth() / 2 - conRecentFiles->getWidth() / 2,
-                            winWelcome->getHeight() + 20);
+            delete conCrashRetrieve;
+            conCrashRetrieve = NULL;
+            winWelcome->add(conRecentFiles, 0, winWelcome->getHeight() + 50);
             winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
         }
         SetTool(EWW_TOOL_NONE);
@@ -3176,6 +3158,7 @@ void State::EditingWW::DocumentSwitched() {
             win->Close();
         }
         winTileProp->setVisible(false);
+        FixInterfacePositions();
         return;
     }
 
@@ -3297,6 +3280,7 @@ void State::EditingWW::DocumentSwitched() {
         cbutActiveMode->simulateAction();
         //SwitchActiveModeMenuBar(cbutActiveMode->getSelectedEntryID() ? (cModeMenuBar*)hmbObject : (cModeMenuBar*)hmbTile);
     }
+    FixInterfacePositions();
 }
 
 void State::EditingWW::SetZoom(float fZ) {
@@ -3313,7 +3297,12 @@ void State::EditingWW::FileDraggedIn() {
     int i = 0;
     auto& files = hge->System_GetDraggedFiles();
     for (auto it = files.begin(); it != files.end();) {
-        char* ext = SHR::ToLower(strrchr(it->c_str(), '.') + 1);
+        const char* dot = strrchr(it->c_str(), '.');
+        if (!dot) {
+            it = files.erase(it);
+            continue;
+        }
+        char* ext = SHR::ToLower(dot + 1);
         if (strcmp(ext, "wwd") != 0) {
             it = files.erase(it);
         } else {
@@ -3555,7 +3544,7 @@ void State::EditingWW::MruListUpdated() {
             char tmp[MAX_PATH];
             strcpy(tmp, hMruList->GetRecentlyUsedFile(i));
             std::string pathname(tmp);
-            while (GV->fntMyriad13->GetStringWidth(tmp) > 370) {
+            while (GV->fntMyriad16->GetStringWidth(tmp) > 370) {
                 int len = strlen(tmp);
                 if (bAddSign) {
                     tmp[int(len / 4) - 2] = '(';
@@ -3594,7 +3583,7 @@ void State::EditingWW::MruListUpdated() {
             lnkLastOpened[i]->adjustSize();
             lnkLastOpened[i]->setEnabled(gt != WWD::Game_Unknown);
             lnkLastOpened[i]->addActionListener(al);
-            conRecentFiles->add(lnkLastOpened[i], 5, 25 + i * 20);
+            conRecentFiles->add(lnkLastOpened[i], 0, 25 + i * 25);
             int nw = lnkLastOpened[i]->getWidth() + 25;
             if (nw > maxW) maxW = nw;
         }

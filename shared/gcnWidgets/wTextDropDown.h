@@ -2,7 +2,7 @@
 #define SHR_TEXTDROPDOWN_H
 
 #include "../cGUIparts.h"
-
+#include "cField.h"
 #include "guichan/actionlistener.hpp"
 #include "guichan/basiccontainer.hpp"
 #include "guichan/deathlistener.hpp"
@@ -20,6 +20,7 @@ using namespace gcn;
 
 namespace SHR {
     class GCN_CORE_DECLSPEC TextDropDown :
+            public Field,
             public ActionListener,
             public BasicContainer,
             public KeyListener,
@@ -60,7 +61,9 @@ namespace SHR {
 
         gcn::Rectangle getChildrenArea() override;
 
-        void focusLost(const Event &event) override;
+        void focusLost(const FocusEvent& event) override;
+
+        void focusGained(const FocusEvent& event) override;
 
         void action(const ActionEvent &actionEvent) override;
 
@@ -95,8 +98,6 @@ namespace SHR {
         bool isMarkedInvalid() { return bMarkedInvalid; };
 
         void setMarkedInvalid(bool b) { bMarkedInvalid = b; };
-
-        virtual bool showHand();
 
     protected:
         virtual void dropDown();

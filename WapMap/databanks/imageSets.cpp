@@ -250,8 +250,8 @@ hgeSprite *cBankImageSet::GetObjectSprite(WWD::Object *obj) {
 hgeSprite *cBankImageSet::GetSpriteFromAsset(const char *asset, int frame) {
     if (GV->bKijan)
         return GV->sprKijan;
-    else if (GV->bNapo)
-        return GV->sprNapo;
+    else if (GV->bZax)
+        return GV->sprZax;
     else {
         cSprBankAsset *as = GetAssetByID(asset);
         if (as != NULL)

@@ -14,10 +14,6 @@ namespace SHR {
     }
 
     void cWinBar::Render() {
-        GV->gcnParts.sprGcnWinBarL->RenderStretch(0, 0, 2, 24);
-        GV->gcnParts.sprGcnWinBarM->RenderStretch(2, 0, hge->System_GetState(HGE_SCREENWIDTH) - 2, 24);
-        GV->gcnParts.sprGcnWinBarR->RenderStretch(hge->System_GetState(HGE_SCREENWIDTH) - 2, 0,
-                                                  hge->System_GetState(HGE_SCREENWIDTH), 24);
         hge->Gfx_RenderLine(0, 0,
                             0, hge->System_GetState(HGE_SCREENHEIGHT),
                             0xFF000000);

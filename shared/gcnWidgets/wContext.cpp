@@ -1,11 +1,7 @@
 #include "wContext.h"
-
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
-#include "guichan/key.hpp"
 #include "guichan/mouseevent.hpp"
-#include "guichan/mouseinput.hpp"
+#include "../commonFunc.h"
 #include "../../WapMap/globals.h"
 #include "../../WapMap/cInterfaceSheet.h"
 
@@ -31,17 +27,17 @@ namespace SHR {
             : mHasMouse(false),
               mKeyPressed(false),
               mMousePressed(false) {
-        //setFocusable(false);
+        setFocusable(true);
         adjustSize();
         setFrameSize(0);
 
         addMouseListener(this);
         addFocusListener(this);
         hGfx = Parts;
+        iSelectedID = -1;
         iSelected = -1;
-        iSelectedIt = -1;
         hFont = font;
-        iRowHeight = 18;
+        iRowHeight = 24;
         addWidgetListener(this);
         mReserveIconSpace[0] = 0;
         mReserveIconSpace[1] = 1;
@@ -50,8 +46,8 @@ namespace SHR {
     }
 
     void ContextModel::ClearElements() {
-        for (int i = 0; i < vElements.size(); i++) {
-            delete vElements[i];
+        for (auto & vElement : vElements) {
+            delete vElement;
         }
         vElements.clear();
     }
@@ -74,160 +70,107 @@ namespace SHR {
             }
         }
 
-        unsigned char galpha = (fShowTimer * 5.0f * 255.0f);
+        unsigned char galpha = getAlpha();
         float gtimer = fShowTimer * 5.0f;
 
-        ClipRectangle rect = graphics->getCurrentClipArea();
         int x, y;
         getAbsolutePosition(x, y);
 
         hge->Gfx_SetClipping();
 
-        GV->RenderDropShadow(x, y, getWidth(), getHeight());
-
-        //hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
-
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
-        q.v[0].col = q.v[1].col = SETA(0xFF373737, galpha);
-        q.v[2].col = q.v[3].col = SETA(0xFF282828, galpha);
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
-        q.v[0].x = x;
-        q.v[0].y = y + 5;
-        q.v[1].x = q.v[0].x + getWidth() - 1;
-        q.v[1].y = q.v[0].y;
-        q.v[2].x = q.v[1].x;
-        q.v[2].y = q.v[0].y + getHeight() - 10;
-        q.v[3].x = q.v[0].x;
-        q.v[3].y = q.v[2].y;
+        SHR::SetQuad(&q, SETA(0x0F0F0F, galpha), x, y, x + getWidth() - 1, y + getHeight() - 1);
         hge->Gfx_RenderQuad(&q);
 
-        for (int i = 0; i < 6; i++)
-            _ghGfxInterface->sprDropDown[i > 2][0][i % 3]->SetColor(SETA(0xFFFFFFFF, galpha));
-
-        _ghGfxInterface->sprDropDown[0][0][0]->Render(x, y);
-        _ghGfxInterface->sprDropDown[0][0][1]->RenderStretch(x + 5, y, x + getWidth() - 5, y + 5);
-        _ghGfxInterface->sprDropDown[0][0][2]->Render(x + getWidth() - 5, y);
-
-        _ghGfxInterface->sprDropDown[1][0][0]->Render(x, y + getHeight() - 5);
-        _ghGfxInterface->sprDropDown[1][0][1]->RenderStretch(x + 5, y + getHeight() - 5, x + getWidth() - 5,
-                                                             y + getHeight());
-        _ghGfxInterface->sprDropDown[1][0][2]->Render(x + getWidth() - 5, y + getHeight() - 5);
-
-        bool banyhasicon = mReserveIconSpace[0];
+        bool anyIcon = mReserveIconSpace[0];
+        auto separatorsIt = vSeparators.begin();
         for (int i = 0; i < vElements.size(); i++) {
-            if (vElements[i]->GetIcon() != NULL) banyhasicon = 1;
+            if (vElements[i]->GetIcon() != NULL) anyIcon = true;
 
-            if (vElements[i]->IsEnabled() && iSelectedIt == i && vElements[i]->fTimer < 0.2f) {
+            if (vElements[i]->IsEnabled() && iSelected == i && vElements[i]->fTimer < 0.2f) {
                 vElements[i]->fTimer += hge->Timer_GetDelta();
                 if (vElements[i]->fTimer > 0.2f) vElements[i]->fTimer = 0.2f;
-            } else if (iSelectedIt != i && vElements[i]->fTimer > 0.0f) {
+            } else if (iSelected != i && vElements[i]->fTimer > 0.0f) {
                 vElements[i]->fTimer -= hge->Timer_GetDelta();
                 if (vElements[i]->fTimer < 0.0f) vElements[i]->fTimer = 0.0f;
             }
-            //hge->Gfx_RenderLine(x, y+2+(i+1)*iRowHeight, x+getWidth(), y+2+(i+1)*iRowHeight, 0xFFFF0000);
         }
 
-        for (int i = 0; i < vElements.size(); i++) {
-            if (vElements[i]->fTimer > 0.0f) {
-                bool first = (i == 0),
-                        last = (i == vElements.size() - 1);
-                unsigned char p = (vElements[i]->fTimer * 5.0f * 255.0f) * gtimer;
-                hgeQuad q2;
-                q2.blend = BLEND_DEFAULT;
-                q2.tex = 0;
-                q2.v[0].z = q2.v[1].z = q2.v[2].z = q2.v[3].z = 1;
-                q2.v[0].col = q2.v[1].col = SETA((first ? 0xFF178ce1 : 0xFF1792e1), p);
-                q2.v[2].col = q2.v[3].col = SETA((last ? 0xFF1478e2 : 0xFF1371e3), p);
-                q2.v[0].x = x;
-                q2.v[0].y = y + i * iRowHeight + 1 + 4 * first;
-                q2.v[1].x = x + getWidth() - 1;
-                q2.v[1].y = q2.v[0].y;
-                q2.v[2].x = q2.v[1].x;
-                q2.v[2].y = q2.v[0].y + iRowHeight + 1 - 3 * last - 4 * first;
-                q2.v[3].x = q2.v[0].x;
-                q2.v[3].y = q2.v[2].y;
+        int yOff = y;
+        int borderColor = 0x1d1d1d;
 
-                hge->Gfx_RenderQuad(&q2);
-                //hge->Gfx_RenderLine(q2.v[0].x, q2.v[0].y-1, q2.v[1].x, q2.v[0].y-1, 0xFF45a9e7);
-                if (!last) {
-                    hge->Gfx_RenderLine(q2.v[0].x, q2.v[2].y + 1, q2.v[1].x, q2.v[2].y + 1, SETA(0xFF181818, p));
-                    hge->Gfx_RenderLine(q2.v[0].x, q2.v[2].y + 2, q2.v[1].x, q2.v[2].y + 2, SETA(0xFF262626, p));
-                }
-                if (i == 0) {
-                    for (int z = 0; z < 3; z++)
-                        _ghGfxInterface->sprDropDown[0][1][z]->SetColor(SETA(0xFFFFFFFF, p));
-                    _ghGfxInterface->sprDropDown[0][1][0]->Render(x, y);
-                    _ghGfxInterface->sprDropDown[0][1][1]->RenderStretch(x + 5, y, x + getWidth() - 5, y + 5);
-                    _ghGfxInterface->sprDropDown[0][1][2]->Render(x + getWidth() - 5, y);
-                }
-                if (i == vElements.size() - 1) {
-                    for (int z = 0; z < 3; z++)
-                        _ghGfxInterface->sprDropDown[1][1][z]->SetColor(SETA(0xFFFFFFFF, p));
-                    _ghGfxInterface->sprDropDown[1][1][0]->Render(x, y + getHeight() - 5);
-                    _ghGfxInterface->sprDropDown[1][1][1]->RenderStretch(x + 5, y + getHeight() - 5, x + getWidth() - 5,
-                                                                         y + getHeight());
-                    _ghGfxInterface->sprDropDown[1][1][2]->Render(x + getWidth() - 5, y + getHeight() - 5);
-                }
+        for (int i = 0; i < vElements.size(); i++) {
+            if (separatorsIt != vSeparators.end() && i == *separatorsIt) {
+                ++separatorsIt;
+                ++y;
+                hge->Gfx_RenderLine(x, y, x + getWidth(), y, SETA(borderColor, galpha));
+                ++y;
             }
 
-            int xoff = 5;
+            if (vElements[i]->fTimer > 0.0f) {
+                unsigned char p = (vElements[i]->fTimer * 5.0f * 255.0f) * gtimer;
+                SHR::SetQuad(&q, SETA(0x178ce1, p), x, y, x + getWidth() - 1, y + iRowHeight);
+                hge->Gfx_RenderQuad(&q);
+            }
+
+            int xOff = 10;
             if (vElements[i]->GetIcon() != NULL) {
                 vElements[i]->GetIcon()->SetColor(SETA(vElements[i]->IsEnabled() ? 0xFFFFFFFF : 0x44FFFFFF, galpha));
-                vElements[i]->GetIcon()->Render(x + 4, y + iRowHeight * i + 3);
+                vElements[i]->GetIcon()->Render(x + xOff, y + 4);
                 if (vElements[i]->fTimer > 0.0f) {
                     vElements[i]->GetIcon()->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
                     vElements[i]->GetIcon()->SetColor(
-                            SETA(0xFFFFFFFF, (unsigned char) (vElements[i]->fTimer * 5.0f * 255.0f * gtimer)));
-                    vElements[i]->GetIcon()->Render(x + 4, y + iRowHeight * i + 3);
+                            SETA(0xFFFFFF, (unsigned char) (vElements[i]->fTimer * 5.0f * 255.0f * gtimer)));
+                    vElements[i]->GetIcon()->Render(x + xOff, y + 4);
                     vElements[i]->GetIcon()->SetBlendMode(BLEND_DEFAULT);
                 }
                 vElements[i]->GetIcon()->SetColor(0xFFFFFFFF);
             }
             if (vElements[i]->GetIcon(1) != NULL) {
                 vElements[i]->GetIcon()->SetColor(SETA(vElements[i]->IsEnabled() ? 0xFFFFFFFF : 0x44FFFFFF, galpha));
-                vElements[i]->GetIcon(1)->Render(x + getWidth() - 20, y + iRowHeight * i + 3);
+                vElements[i]->GetIcon(1)->Render(x + getWidth() - 25, y + 4);
                 if (vElements[i]->fTimer > 0.0f) {
                     vElements[i]->GetIcon(1)->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
                     vElements[i]->GetIcon(1)->SetColor(
-                            SETA(0xFFFFFFFF, (unsigned char) (vElements[i]->fTimer * 5.0f * 255.0f * gtimer)));
-                    vElements[i]->GetIcon(1)->Render(x + getWidth() - 20, y + iRowHeight * i + 3);
+                            SETA(0xFFFFFF, (unsigned char) (vElements[i]->fTimer * 5.0f * 255.0f * gtimer)));
+                    vElements[i]->GetIcon(1)->Render(x + getWidth() - 25, y + 4);
                     vElements[i]->GetIcon(1)->SetBlendMode(BLEND_DEFAULT);
                 }
                 vElements[i]->GetIcon(1)->SetColor(0xFFFFFFFF);
             }
-            if (banyhasicon)
-                xoff = 20;
+            if (anyIcon)
+                xOff += 25;
             if (vElements[i]->GetCascade() != 0) {
-                GV->sprContextCascadeArrow->SetColor(SETA(0xFFFFFFFF, galpha));
-                GV->sprContextCascadeArrow->Render(x + getWidth() - 13, y + iRowHeight * i + 4);
+                GV->sprContextCascadeArrow->SetColor(SETA(0xFFFFFF, galpha));
+                GV->sprContextCascadeArrow->Render(x + getWidth() - 20, y + 6);
             }
-            DWORD fontcol = SETA(0xFFb2b2b2, galpha);
+            DWORD fontcol = SETA(0xFFe1e1e1, galpha);
             if (!vElements[i]->IsEnabled()) {
-                fontcol = SETA(0xFF171717, galpha);
-            } else if (vElements[i]->fTimer > 0.0f) {
-                unsigned char byte = 178.0f + (vElements[i]->fTimer * 5.0f * 77.0f);
-                fontcol = ARGB(galpha, byte, byte, byte);
+                fontcol = SETA(0xFFe1e1e1, 0x77 * galpha / 255.f);
             }
             hFont->SetColor(fontcol);
-            int ifonty = y + iRowHeight * i + iRowHeight / 2 - hFont->GetHeight() / 2 + 2;
+            int textY = y + (iRowHeight - hFont->GetHeight()) / 2;
             if (vElements[i]->GetAlign() == HGETEXT_LEFT) {
-                hFont->Render(x + xoff + 2, ifonty, HGETEXT_LEFT, vElements[i]->GetCaption(), 0);
+                hFont->Render(x + xOff + 2, textY, HGETEXT_LEFT, vElements[i]->GetCaption(), 0);
             } else if (vElements[i]->GetAlign() == HGETEXT_CENTER)
-                hFont->Render(x + xoff + (q.v[1].x - q.v[0].x - xoff) / 2, ifonty, HGETEXT_CENTER,
+                hFont->Render(x + xOff + (q.v[1].x - q.v[0].x - xOff) / 2, textY, HGETEXT_CENTER,
                               vElements[i]->GetCaption(), 0);
             else if (vElements[i]->GetAlign() == HGETEXT_RIGHT)
-                hFont->Render(x + (q.v[1].x - q.v[0].x), ifonty, HGETEXT_RIGHT, vElements[i]->GetCaption(), 0);
+                hFont->Render(x + (q.v[1].x - q.v[0].x), textY, HGETEXT_RIGHT, vElements[i]->GetCaption(), 0);
+
+            y += iRowHeight;
         }
-        //hge->Gfx_RenderLine(x+5, y, x+getWidth()-5, y, 0xFF5c5c5c);
-        //hge->Gfx_RenderLine(x+5, y+getHeight(), x+getWidth()-5, y+getHeight(), 0xFF5c5c5c);
-        hge->Gfx_RenderLine(x, y + 5, x, y + getHeight() - 5, SETA(0xFF5c5c5c, galpha));
-        hge->Gfx_RenderLine(x + getWidth(), y + 5, x + getWidth(), y + getHeight() - 5, SETA(0xFF5c5c5c, galpha));
+
+        hge->Gfx_RenderLine(x + topLineXOffset, yOff, x + getWidth(), yOff, SETA(borderColor, galpha));
+        hge->Gfx_RenderLine(x, y, x + getWidth(), y, SETA(borderColor, galpha));
+        hge->Gfx_RenderLine(x, yOff, x, y, SETA(borderColor, galpha));
+        hge->Gfx_RenderLine(x + getWidth(), yOff, x + getWidth(), y, SETA(borderColor, galpha));
     }
 
     void Context::hide() {
-        bHide = 1;
+        bHide = true;
         fShowTimer = 0;
         setVisible(0);
     }
@@ -235,19 +178,19 @@ namespace SHR {
     void Context::adjustSize() {
         int w = 0;
         bool banyhasicon[2] = {0, 0};
-        for (int i = 0; i < vElements.size(); i++) {
-            int w2 = hFont->GetStringWidth(vElements[i]->GetCaption());
-            if (vElements[i]->GetIcon() != NULL) banyhasicon[0] = 1;
-            if (vElements[i]->GetIcon(1) != NULL) banyhasicon[1] = 1;
-            if (vElements[i]->GetCascade() != 0)
+        for (auto & vElement : vElements) {
+            int w2 = hFont->GetStringWidth(vElement->GetCaption());
+            if (vElement->GetIcon() != NULL) banyhasicon[0] = 1;
+            if (vElement->GetIcon(1) != NULL) banyhasicon[1] = 1;
+            if (vElement->GetCascade() != 0)
                 w2 += 12;
             w = std::max(w, w2);
         }
         for (int i = 0; i < 2; i++)
             if (banyhasicon[i] || mReserveIconSpace[i])
                 w += 20;
-        setWidth(w);
-        setHeight(vElements.size() * iRowHeight + 4);
+        setWidth(w + 40);
+        setHeight(vElements.size() * iRowHeight + 1 + vSeparators.size() * 2);
     }
 
     void Context::mousePressed(MouseEvent &mouseEvent) {
@@ -261,59 +204,43 @@ namespace SHR {
         if (bHide) return;
         int n = mouseEvent.getY() / iRowHeight;
         if (n >= vElements.size()) n = vElements.size() - 1;
-        if (n == iSelectedIt) return;
-        if (iSelectedIt >= vElements.size()) iSelectedIt = -1;
-        bool switchcascade = !(iSelectedIt != -1 && vElements[iSelectedIt]->GetCascade() == vElements[n]->GetCascade());
-        if (iSelectedIt != -1) vElements[iSelectedIt]->SetFocused(0, switchcascade);
+        if (n == iSelected) return;
+        if (iSelected >= vElements.size()) iSelected = -1;
+        bool switchcascade = !(iSelected != -1 && vElements[iSelected]->GetCascade() == vElements[n]->GetCascade());
+        if (iSelected != -1) vElements[iSelected]->SetFocused(0, switchcascade);
         vElements[n]->SetFocused(1, switchcascade);
-        if (vElements[n]->GetCascade() != 0) {
-            int destx = getX() + getWidth(), desty = getY() + iRowHeight * n + 1;
-            vElements[n]->GetCascade()->setPosition(destx, desty);
-            if (destx + vElements[n]->GetCascade()->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
-                vElements[n]->GetCascade()->setX(destx - vElements[n]->GetCascade()->getWidth() - getWidth());
-            if (desty + vElements[n]->GetCascade()->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
-                vElements[n]->GetCascade()->setY(desty - vElements[n]->GetCascade()->getHeight() + iRowHeight);
-            vElements[n]->GetCascade()->requestMoveToTop();
-            vElements[n]->GetCascade()->bHide = false;
-        }
-        bool dist = (iSelectedIt != n);
-        iSelected = vElements[n]->GetID();
-        iSelectedIt = n;
+        OpenSubContext(n);
+        bool dist = (iSelected != n);
+        iSelectedID = vElements[n]->GetID();
+        iSelected = n;
         if (dist)
             distributeValueChangedEvent();
     }
 
     void Context::mouseExited(MouseEvent &mouseEvent) {
         mHasMouse = false;
-        if (vElements.size() > iSelectedIt) {
-            if (iSelectedIt != -1 && vElements[iSelectedIt]->GetCascade() != 0) {
+        if (vElements.size() > iSelected) {
+            if (iSelected != -1 && vElements[iSelected]->GetCascade() != 0) {
                 int dx, dy, dw, dh;
                 float mx, my;
-                vElements[iSelectedIt]->GetCascade()->getAbsolutePosition(dx, dy);
-                dw = vElements[iSelectedIt]->GetCascade()->getWidth();
-                dh = vElements[iSelectedIt]->GetCascade()->getHeight();
+                vElements[iSelected]->GetCascade()->getAbsolutePosition(dx, dy);
+                dw = vElements[iSelected]->GetCascade()->getWidth();
+                dh = vElements[iSelected]->GetCascade()->getHeight();
                 hge->Input_GetMousePos(&mx, &my);
                 if (mx >= dx && mx < dx + dw && my >= dy && my < dy + dh)
                     return;
             }
-            if (iSelectedIt != -1) {
-                vElements[iSelectedIt]->SetFocused(0);
+            if (iSelected != -1) {
+                vElements[iSelected]->SetFocused(0);
                 distributeValueChangedEvent();
             }
         }
+        iSelectedID = -1;
         iSelected = -1;
-        iSelectedIt = -1;
     }
 
     void Context::mouseEntered(MouseEvent &mouseEvent) {
         mHasMouse = true;
-    }
-
-    bool Context::showHand() {
-        bool enabled = 1;
-        if (iSelectedIt != -1 && vElements.size() > iSelectedIt && !vElements[iSelectedIt]->IsEnabled())
-            enabled = 0;
-        return mHasMouse && enabled;
     }
 
     void Context::mouseReleased(MouseEvent &mouseEvent) {
@@ -322,7 +249,7 @@ namespace SHR {
             && mHasMouse) {
             mMousePressed = false;
             mouseEvent.consume();
-            if (iSelectedIt != -1 && vElements[iSelectedIt]->IsEnabled()) {
+            if (iSelected != -1 && vElements[iSelected]->IsEnabled()) {
                 distributeActionEvent();
             }
         } else if (mouseEvent.getButton() == MouseEvent::LEFT) {
@@ -335,7 +262,7 @@ namespace SHR {
         mouseEvent.consume();
     }
 
-    void Context::focusLost(const Event &event) {
+    void Context::focusLost(const FocusEvent &event) {
         mMousePressed = false;
         mKeyPressed = false;
         setVisible(0);
@@ -361,19 +288,19 @@ namespace SHR {
     }
 
     void Context::ClearElements() {
-        for (int i = 0; i < vElements.size(); i++) {
-            delete vElements[i];
+        for (auto & vElement : vElements) {
+            delete vElement;
         }
         vElements.clear();
     }
 
     void Context::EmulateClickID(int id) {
-        int oldsel = iSelected;
+        int selection = iSelectedID;
 
-        iSelected = id;
+        iSelectedID = id;
         distributeActionEvent();
 
-        iSelected = oldsel;
+        iSelectedID = selection;
     }
 
     void ContextModel::AddElement(int id, const char *cap, hgeSprite *spr) {
@@ -381,19 +308,24 @@ namespace SHR {
     }
 
     ContextEl *ContextModel::GetElementByID(int id) {
-        for (int i = 0; i < vElements.size(); i++) {
-            if (vElements[i]->GetID() == id)
-                return vElements[i];
+        for (auto & vElement : vElements) {
+            if (vElement->GetID() == id)
+                return vElement;
         }
         return 0;
     }
 
     ContextEl *Context::GetElementByID(int id) {
-        for (int i = 0; i < vElements.size(); i++) {
-            if (vElements[i]->GetID() == id)
-                return vElements[i];
+        for (auto & vElement : vElements) {
+            if (vElement->GetID() == id)
+                return vElement;
         }
         return 0;
+    }
+
+    ContextEl *Context::GetSelectedElement() {
+        if (iSelected == -1) return 0;
+        return vElements[iSelected];
     }
 
     void ContextEl::SetCaption(const char *cap) {
@@ -407,7 +339,7 @@ namespace SHR {
             hCascade->setVisible(0);
         }
         hCascade = con;
-        SetFocused(bFocused);
+        SetFocused(bFocused, false);
     }
 
     void ContextEl::SetFocused(bool b, bool switchcascade) {
@@ -417,32 +349,46 @@ namespace SHR {
         bFocused = b;
     }
 
+    void Context::OpenSubContext(int i) {
+        if (i < 0 || i > vElements.size() || !vElements[i]->GetCascade()) return;
+        int destX = getX() + getWidth(), destY = getY() + iRowHeight * i;
+        vElements[i]->GetCascade()->setPosition(destX, destY);
+        if (destX + vElements[i]->GetCascade()->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
+            vElements[i]->GetCascade()->setX(destX - vElements[i]->GetCascade()->getWidth() - getWidth());
+        if (destY + vElements[i]->GetCascade()->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
+            vElements[i]->GetCascade()->setY(destY - vElements[i]->GetCascade()->getHeight() + iRowHeight);
+        vElements[i]->GetCascade()->requestMoveToTop();
+        vElements[i]->GetCascade()->bHide = false;
+        vElements[i]->GetCascade()->setVisible(true);
+    }
+
     void Context::SetModel(ContextModel *m) {
         vElements = m->vElements;
-        for (int i = 0; i < vElements.size(); i++)
-            vElements[i]->SetParent(this);
+        for (auto & vElement : vElements)
+            vElement->SetParent(this);
     };
 
     void Context::widgetShown(const Event &event) {
-        bHide = 0;
-        if (iSelectedIt != -1 && iSelectedIt < vElements.size()) vElements[iSelectedIt]->SetFocused(0);
-        iSelectedIt = -1;
+        bHide = false;
+        if (iSelected != -1 && iSelected < vElements.size()) vElements[iSelected]->SetFocused(0);
         iSelected = -1;
+        iSelectedID = -1;
     }
 
     void Context::widgetHidden(const Event &event) {
         if (!bHide) {
-            mVisible = 1;
-            bHide = 1;
-            for (int i = 0; i < vElements.size(); i++) {
-                if (vElements[i]->GetCascade() != 0)
-                    vElements[i]->GetCascade()->setVisible(0);
+            mVisible = true;
+            bHide = true;
+            for (auto & vElement : vElements) {
+                if (vElement->GetCascade() != 0)
+                    vElement->GetCascade()->setVisible(false);
             }
         }
         if (bHide && fShowTimer == 0.0f) {
-            for (int i = 0; i < vElements.size(); i++)
-                vElements[i]->fTimer = 0;
-            bHide = 0;
+            for (auto & vElement : vElements)
+                vElement->fTimer = 0;
+            bHide = false;
+            topLineXOffset = 0;
         }
     }
 
@@ -461,6 +407,38 @@ namespace SHR {
             SelectionEvent event(this);
             (*iter)->valueChanged(event);
         }
+    }
+
+    void Context::SelectPrev() {
+        if (iSelected <= 0) {
+            iSelected = vElements.size();
+        }
+
+        while (!vElements[--iSelected]->IsEnabled()) {
+            if (iSelected == 0) {
+                iSelected = vElements.size();
+            }
+        }
+
+        iSelectedID = vElements[iSelected]->GetID();
+    }
+
+    void Context::SelectNext() {
+        if (iSelected >= vElements.size() - 1) {
+            iSelected = -1;
+        }
+
+        while (!vElements[++iSelected]->IsEnabled()) {
+            if (iSelected == vElements.size() - 1) {
+                iSelected = -1;
+            }
+        }
+
+        iSelectedID = vElements[iSelected]->GetID();
+    }
+
+    void Context::AddSeparator() {
+        vSeparators.push_back(vElements.size());
     }
 
 }

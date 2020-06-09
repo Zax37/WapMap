@@ -38,6 +38,8 @@
 #include "../cControllerIPC.h"
 #include "../states/mapshot.h"
 #include "../LogicInfo.h"
+#include "../cRulers.h"
+#include "../cAppMenu.h"
 
 #ifndef byte
 typedef unsigned char byte;
@@ -401,16 +403,30 @@ namespace State {
     public:
         EditingWWFocusListener(EditingWW *owner);
 
-        void focusLost(const Event& event) override;
+        void focusLost(const FocusEvent &event) override;
     };
 
     class EditingWWKeyListener : public gcn::KeyListener {
     private:
         EditingWW *m_hOwn;
+        bool lastPressedWasAlt;
     public:
         EditingWWKeyListener(EditingWW *owner);
 
-        void keyPressed(KeyEvent& keyEvent) override;
+        void stopAltMenu() { lastPressedWasAlt = false; }
+
+        void keyPressed(KeyEvent &keyEvent) override;
+
+        void keyReleased(KeyEvent &keyEvent) override;
+    };
+
+    class EditingWWMouseListener : public gcn::MouseListener {
+        EditingWW *m_hOwn;
+
+    public:
+        EditingWWMouseListener(EditingWW *owner);
+
+        void mousePressed(MouseEvent& mouseEvent) override;
     };
 
     class Viewport {
@@ -581,7 +597,7 @@ namespace State {
         int idbisMoveX, idbisMoveY;
         float fdbisZoom;
 
-        SHR::But *butObjSearchSelectAll;
+        SHR::But *butObjSearchSelect, *butObjSearchSelectAll;
         SHR::DropDown *ddObjSearchTerm;
         SHR::CBox *cbObjSearchCaseSensitive;
         SHR::Slider *sliSearchObj;
@@ -642,10 +658,6 @@ namespace State {
         int iTilePicked;
         bool lockDrawing;
 
-        char szHint[256];
-        //int iHintID;
-        float fHintTime;
-
         bool bOpenObjContext;
 
         bool bExit;
@@ -684,6 +696,10 @@ namespace State {
 
         virtual void GainFocus(int iReturnCode, bool bFlipped);
 
+        void ToggleFullscreen();
+
+		void FixInterfacePositions();
+
         virtual bool PromptExit();
 
         virtual void GfxRestore();
@@ -713,8 +729,6 @@ namespace State {
         int GetActivePlaneID();
 
         WWD::Plane *GetActivePlane();
-
-        void SetHint(const char *pszFormat, ...);
 
         void SetTool(int iNewTool);
 
@@ -846,13 +860,9 @@ namespace State {
 
         bool draggedFilesIn = false;
 
-#ifdef BUILD_DEBUG
-        bool bShowConsole;
-#endif
-
         cMDI *MDI;
 
-        bool bDragWindow;
+        bool bMaximized, bDragWindow;
         int iWindowDragX, iWindowDragY;
         RECT windowDragStartRect;
 
@@ -963,9 +973,6 @@ namespace State {
 
         cInventoryController *hInvCtrl;
 
-        bool bShowHand;
-        DWORD dwCursorColor;
-
         std::vector<gcn::Widget *> vWidgetsToMinimalise;
         std::vector<gcn::Widget *> vMinimalisedWidgets;
 
@@ -980,7 +987,7 @@ namespace State {
         int GetActiveMode() { return iMode; };
 
         //app bar
-        float fAppBarTimers[2];
+        float fAppBarTimers[LAY_APP_BUTTONS_COUNT];
 
         //window spacing
         SHR::TextField *tfspacingDistance;
@@ -990,9 +997,8 @@ namespace State {
 
         //welcome screen
         SHR::Container *winWelcome;
-        SHR::But *butwsNew, *butwsOpen, *butwsRecently, *butwsWhatsnew;
+        SHR::Link* welcomeScreenOptions[WelcomeScreenOptions_Count];
         WIDG::Viewport *vpws;
-        SHR::Lab *labwsRecently;
 
         void DrawWelcomeScreen();
 
@@ -1030,12 +1036,15 @@ namespace State {
 
         EditingWWActionListener *al;
         EditingWWFocusListener *fl;
-        EditingWWKeyListener * kl;
+        EditingWWKeyListener *kl;
+        EditingWWMouseListener *ml;
 
         WWD::Plane *plMain;
 
         cAppMenu *hAppMenu;
         byte gamesLastOpened[10];
+
+		cRulers *hRulers;
 
         bool OpenDocuments();
         void SaveAs();
@@ -1053,8 +1062,7 @@ namespace State {
                 *labtpiSprayDensity, *labtpiLineThickness;
         SHR::CBox *cbtpiRectFilled, *cbtpiEllipseFilled;
         SHR::Slider *slitpiPointSize, *slitpiSpraySize, *slitpiSprayDensity, *slitpiLineThickness;
-        SHR::CBox *cbtpiShowTileID, *cbtpiShowProperties, *cbtpiDrawFilled;
-        SHR::TextField *tftpiPointSize;
+        SHR::CBox *cbtpiShowTileID, *cbtpiShowProperties;
         SHR::Slider *slitpiPicker;
         int iTilePickerOffUp, iTilePickerOffDown;
         int iTileDrawMode;
@@ -1094,6 +1102,8 @@ namespace State {
         void UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt = true);
 
         void ObjectBrush(int x, int y);
+
+        void OnResize();
     };
 };
 

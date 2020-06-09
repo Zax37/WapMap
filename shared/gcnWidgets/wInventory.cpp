@@ -36,14 +36,14 @@ namespace SHR {
         int x, y;
         getAbsolutePosition(x, y);
 
-        graphics->setColor(GV->colBaseGCN - 0x0d0d0d);
+        graphics->setColor(GV->colBase - 0x0d0d0d);
         graphics->drawLine(0, 0, getWidth(), 0);
         graphics->drawLine(0, 0, 0, getHeight());
 
         graphics->drawLine(getWidth() - 1, getHeight() - 1, getWidth() - 1, 0);
         graphics->drawLine(getWidth(), getHeight() - 1, 0, getHeight() - 1);
 
-        graphics->setColor(GV->colBaseGCN - 0x383838);
+        graphics->setColor(GV->colBase - 0x383838);
         graphics->drawLine(1, 1, getWidth() - 2, 1);
         graphics->drawLine(1, 1, 1, getHeight() - 2);
 
@@ -52,9 +52,9 @@ namespace SHR {
 
         graphics->pushClipArea(gcn::Rectangle(2, 2, getWidth() - 4, getHeight() - 4));
         if (isEnabled())
-            graphics->setColor(GV->colBaseGCN - 0x111111);
+            graphics->setColor(GV->colBase - 0x111111);
         else
-            graphics->setColor(GV->colBaseGCN - 0x232323);
+            graphics->setColor(GV->colBase - 0x232323);
         graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
         graphics->popClipArea();
 
