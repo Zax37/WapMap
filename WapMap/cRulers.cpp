@@ -75,7 +75,7 @@ void cRulers::Think() {
 }
 
 void cRulers::Render() {
-    if (!bVisible) return;
+    if (!bVisible || !GV->editState->hParser) return;
     float zoom = GV->editState->fZoom;
     int iStartX, iStartY;
     if (GV->editState->hParser == NULL) {
@@ -181,7 +181,11 @@ void cRulers::Render() {
                     else if (id % 2 == 0) type = 1;
                 }
             }
-            int pos = (mode == EWW_MODE_TILE ? id * step / 64 : id * step);
+            int pos = (mode == EWW_MODE_TILE
+                    ? id * step / (rl
+                        ? GV->editState->hParser->GetMainPlane()->GetTileHeight()
+                        : GV->editState->hParser->GetMainPlane()->GetTileWidth())
+                    : id * step);
             char text[64];
             if (rl == 1 && pos > 999)
                 sprintf(text, "%.1fk", float(pos) / 1000.0f);

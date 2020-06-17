@@ -97,17 +97,16 @@ void State::EditingWW::HandleHotkeys() {
         if (hge->Input_KeyDown(HGEK_R)) {
             SetTool(EWW_TOOL_PENCIL);
             iTilePicked = EWW_TILE_ERASE;
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw(true);
         }
-        else if (hge->Input_KeyDown(HGEK_P)) {
-            SetTool(EWW_TOOL_PENCIL);
+        else if (hge->Input_KeyDown(HGEK_P) && (iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL)) {
             iTilePicked = EWW_TILE_PIPETTE;
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw(true);
         }
         else if (hge->Input_KeyDown(HGEK_F)) {
             SetTool(EWW_TOOL_PENCIL);
             iTilePicked = EWW_TILE_FILL;
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw(true);
         }
 
         int iOldP = iTilePicked;
@@ -117,12 +116,12 @@ void State::EditingWW::HandleHotkeys() {
                 (iActiveTool == EWW_TOOL_BRUSH &&
                  iTilePicked + 1 < hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushesCount())) {
                 iTilePicked++;
-                vPort->MarkToRedraw(1);
+                vPort->MarkToRedraw(true);
             }
         } else if (hge->Input_KeyDown(HGEK_SUBTRACT)) {
             if (iTilePicked > 0) {
                 iTilePicked--;
-                vPort->MarkToRedraw(1);
+                vPort->MarkToRedraw(true);
             }
         }
         if (iOldP != iTilePicked && iActiveTool == EWW_TOOL_BRUSH) {

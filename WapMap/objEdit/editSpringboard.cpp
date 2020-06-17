@@ -17,12 +17,12 @@ namespace ObjEdit {
         win->setMovable(0);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
 
-        win->add(_butAddNext, win->getWidth() - 210, win->getHeight() - 60);
+        win->add(_butAddNext, win->getWidth() - 225, win->getHeight() - 60);
         win->add(_butSave, win->getWidth() - 110, win->getHeight() - 60);
 
         labJumpHeight = new SHR::Lab(GETL2S("EditObj_Springboard", "JumpHeight"));
         labJumpHeight->adjustSize();
-        win->add(labJumpHeight, 5, 19);
+        win->add(labJumpHeight, 8, 19);
 
         char tmp[64];
         sprintf(tmp, "%d", (hTempObj->GetParam(WWD::Param_MaxY) == 0 ? 450 : hTempObj->GetParam(WWD::Param_MaxY)));
@@ -37,7 +37,7 @@ namespace ObjEdit {
         butPick->addActionListener(hAL);
         win->add(butPick, 165, 15);
 
-        bPicking = 0;
+        bPicking = false;
     }
 
     cEditObjSpringboard::~cEditObjSpringboard() {

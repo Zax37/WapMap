@@ -618,7 +618,7 @@ namespace State {
                             for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
                                 WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);
                                 if (!tile->IsInvisible()) {
-                                    bChanges = 1;
+                                    bChanges = true;
                                     tile->SetInvisible(true);
                                 }
                             }
@@ -631,8 +631,8 @@ namespace State {
                     bool bChanges = 0;
                     float mx, my;
                     hge->Input_GetMousePos(&mx, &my);
-                    int tx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx) / 64, ty =
-                            m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my) / 64;
+                    int tx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx) / m_hOwn->GetActivePlane()->GetTileWidth(),
+                        ty = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my) / m_hOwn->GetActivePlane()->GetTileHeight();
                     for (int i = 0, y = ty; y < ty + m_hOwn->MDI->GetActiveDoc()->iTileCBh; ++y)
                         for (int x = tx; x < tx + m_hOwn->MDI->GetActiveDoc()->iTileCBw; ++x, ++i) {
                             WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);

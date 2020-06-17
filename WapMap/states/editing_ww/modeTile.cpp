@@ -180,8 +180,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
 
             iPipetteTileHL = EWW_TILE_NONE;
             if (hx != -1 && hy != -1) {
-                if ((iActiveTool == EWW_TOOL_PENCIL && iTilePicked == EWW_TILE_PIPETTE) ||
-                    iActiveTool == EWW_TOOL_WRITEID) {
+                if (iTilePicked == EWW_TILE_PIPETTE || iActiveTool == EWW_TOOL_WRITEID) {
                     TileGhost tg;
                     tg.x = hx;
                     tg.y = hy;

@@ -118,6 +118,8 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
     dd->hTileClipboard = NULL;
     dd->iTileCBw = dd->iTileCBh = -1;
 
+    dd->iTileSelectX1 = dd->iTileSelectY1 = dd->iTileSelectX2 = dd->iTileSelectY2 = -1;
+
     GV->editState->hPlaneData.clear();
     for (int i = 0; i < dd->hParser->GetPlanesCount(); i++) {
         dd->hPlaneData.push_back(new State::PlaneData());
