@@ -1558,66 +1558,48 @@ void State::EditingWW::Init() {
             fclose(f);
             std::ifstream ifs("runtime.tmp");
             std::string temp;
-            int maxnamelen = 0;
-            int linec = 0;
-            for (int i = 0; i < 10; i++)
-                szCrashRetrieve[i] = NULL;
+            int linesCount = 0;
+            for (auto & line : szCrashRetrieve) {
+                line = NULL;
+            }
             while (getline(ifs, temp)) {
                 if (temp.length()) {
-                    if (linec < 10) {
-                        bool bAddSign = 1;
-                        int iSignStart = 0;
-                        char tmp[MAX_PATH + 1];
-                        strcpy(tmp, temp.c_str());
-                        int ibase = 0;
+                    if (linesCount < 10) {
+                        int base = 0;
                         try {
-                            iCrashRetrieveIcon[linec] = WWD::GetGameTypeFromFile(tmp, &ibase);
+                            iCrashRetrieveIcon[linesCount] = WWD::GetGameTypeFromFile(temp.c_str(), &base);
                         }
                         catch (...) {
-                            iCrashRetrieveIcon[linec] = WWD::Game_Unknown;
+                            iCrashRetrieveIcon[linesCount] = WWD::Game_Unknown;
                         }
-                        if (ibase > 0 && ibase < 15 && iCrashRetrieveIcon[linec] == WWD::Game_Claw) {
-                            iCrashRetrieveIcon[linec] = 50 + ibase;
+                        if (base > 0 && base < 15 && iCrashRetrieveIcon[linesCount] == WWD::Game_Claw) {
+                            iCrashRetrieveIcon[linesCount] = 50 + base;
                         }
-                        while (GV->fntMyriad16->GetStringWidth(tmp) > 460) {
-                            int len = strlen(tmp);
-                            if (bAddSign) {
-                                tmp[int(len / 4) - 2] = '(';
-                                tmp[int(len / 4) - 1] = '.';
-                                tmp[int(len / 4)] = '.';
-                                tmp[int(len / 4) + 1] = '.';
-                                tmp[int(len / 4) + 2] = ')';
-                                bAddSign = 0;
-                                iSignStart = int(len / 4) - 2;
-                            }
-                            for (int it = iSignStart - 3; it <= len - 3; it++)
-                                tmp[it] = tmp[it + 3];
-                            for (int it = iSignStart + 2; it < len - 3; it++)
-                                tmp[it] = tmp[it + 3];
-                            iSignStart -= 3;
+                        if (GV->fntMyriad16->GetStringWidth(temp.c_str()) > 460) {
+                            do {
+                                temp.erase(0, 5);
+                            } while (GV->fntMyriad16->GetStringWidth(temp.c_str()) > 450);
+                            temp.insert(0, "(...)");
                         }
-                        szCrashRetrieve[linec] = new char[strlen(tmp) + 1];
-                        strcpy(szCrashRetrieve[linec], tmp);
-                        int len = GV->fntMyriad16->GetStringWidth(tmp) + 20;
-                        if (len > maxnamelen)
-                            maxnamelen = len;
+                        szCrashRetrieve[linesCount] = new char[strlen(temp.c_str()) + 1];
+                        strcpy(szCrashRetrieve[linesCount], temp.c_str());
                     }
-                    linec++;
+                    linesCount++;
                 }
             }
-            if (linec > 0) {
+            if (linesCount > 0) {
                 conCrashRetrieve = new SHR::Container();
-                conCrashRetrieve->setOpaque(0);
-                conCrashRetrieve->setDimension(gcn::Rectangle(0, 0, 590, 25 + (linec > 10 ? 11 : linec) * 25 + 40));
+                conCrashRetrieve->setOpaque(false);
+                conCrashRetrieve->setDimension(gcn::Rectangle(0, 0, 460, 25 + (linesCount > 10 ? 11 : linesCount) * 25 + 40));
                 vpCrashRetrieve = new WIDG::Viewport(vp, VP_CRASHRETRIEVE);
                 conCrashRetrieve->add(vpCrashRetrieve, 0, 0);
                 butCrashRetrieve = new SHR::But(GV->hGfxInterface, GETL2S("WinCrashRetrieve", "Retrieve"));
                 butCrashRetrieve->setDimension(gcn::Rectangle(0, 0, 100, 33));
                 butCrashRetrieve->addActionListener(al);
-                conCrashRetrieve->add(butCrashRetrieve, 590 / 2 - 50, conCrashRetrieve->getHeight() - 20);
-                if (linec > 10) {
+                conCrashRetrieve->add(butCrashRetrieve, 460 / 2 - 50, conCrashRetrieve->getHeight() - 20);
+                if (linesCount > 10) {
                     char tmp[512];
-                    sprintf(tmp, GETL2S("WinCrashRetrieve", "MoreTabs"), linec - 10);
+                    sprintf(tmp, GETL2S("WinCrashRetrieve", "MoreTabs"), linesCount - 10);
                     szCrashRetrieveMore = new char[strlen(tmp) + 1];
                     strcpy(szCrashRetrieveMore, tmp);
                 } else {
@@ -1628,7 +1610,6 @@ void State::EditingWW::Init() {
     }
 
     winWelcome = new SHR::Container();
-    winWelcome->setDimension(gcn::Rectangle(0, 0, 600, 0));
     winWelcome->setOpaque(false);
     conMain->add(winWelcome, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 300, 0);
 
@@ -3562,58 +3543,38 @@ void State::EditingWW::MruListUpdated() {
     labLoadLastOpened->setVisible(hMruList->IsValid());
 
     if (hMruList->IsValid()) {
-        int maxW = 0;
         for (int i = 0; i < hMruList->GetFilesCount(); i++) {
-            bool bAddSign = 1;
-            int iSignStart = 0;
-            char tmp[MAX_PATH];
-            strcpy(tmp, hMruList->GetRecentlyUsedFile(i));
-            std::string pathname(tmp);
-            while (GV->fntMyriad16->GetStringWidth(tmp) > 370) {
-                int len = strlen(tmp);
-                if (bAddSign) {
-                    tmp[int(len / 4) - 2] = '(';
-                    tmp[int(len / 4) - 1] = '.';
-                    tmp[int(len / 4)] = '.';
-                    tmp[int(len / 4) + 1] = '.';
-                    tmp[int(len / 4) + 2] = ')';
-                    bAddSign = 0;
-                    iSignStart = int(len / 4) - 2;
-                }
-                for (int it = iSignStart - 3; it <= len - 3; it++)
-                    tmp[it] = tmp[it + 3];
-                for (int it = iSignStart + 2; it < len - 3; it++)
-                    tmp[it] = tmp[it + 3];
-                iSignStart -= 3;
+            std::string tmp(hMruList->GetRecentlyUsedFile(i));
+            if (GV->fntMyriad16->GetStringWidth(tmp.c_str()) > 400) {
+                do {
+                    tmp.erase(0, 5);
+                } while (GV->fntMyriad16->GetStringWidth(tmp.c_str()) > 390);
+                tmp.insert(0, "(...)");
             }
 
             WWD::GAME gt;
-            int ibase = 0;
+            int base = 0;
             try {
-                gt = WWD::GetGameTypeFromFile(pathname.c_str(), &ibase);
+                gt = WWD::GetGameTypeFromFile(hMruList->GetRecentlyUsedFile(i), &base);
             }
             catch (...) {
                 gt = WWD::Game_Unknown;
             }
 
             gamesLastOpened[i] = gt;
-            if (gt == WWD::Game_Claw && ibase > 0 && ibase < 15) {
-                gamesLastOpened[i] = 50 + ibase;
+            if (gt == WWD::Game_Claw && base > 0 && base < 15) {
+                gamesLastOpened[i] = 50 + base;
             }
 
-            hgeSprite *ico = (gt == WWD::Game_Claw && ibase > 0 && ibase < 15 ? GV->sprLevelsMicro16[ibase - 1]
-                                                                              : GV->sprGamesSmall[gt]);
+            hgeSprite *ico = (gt == WWD::Game_Claw && base > 0 && base < 15 ? GV->sprLevelsMicro16[base - 1]
+                                                                            : GV->sprGamesSmall[gt]);
 
             lnkLastOpened[i] = new SHR::Link(tmp, ico);
             lnkLastOpened[i]->adjustSize();
             lnkLastOpened[i]->setEnabled(gt != WWD::Game_Unknown);
             lnkLastOpened[i]->addActionListener(al);
             conRecentFiles->add(lnkLastOpened[i], 0, 25 + i * 25);
-            int nw = lnkLastOpened[i]->getWidth() + 25;
-            if (nw > maxW) maxW = nw;
         }
-        conRecentFiles->setWidth(maxW);
-        conRecentFiles->setHeight(25 + hMruList->GetFilesCount() * 20);
     }
     GV->Console->Printf("Reloading main context...");
     hAppMenu->SyncMRU();

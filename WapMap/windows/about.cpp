@@ -2,8 +2,6 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
-#include "../cInterfaceSheet.h"
-#include "../version.h"
 
 extern HGE *hge;
 
@@ -25,7 +23,7 @@ static const char* const usedLibsCreditLines[] {
 
 winAbout::winAbout() {
     myWin = new SHR::Win(&GV->gcnParts, GETL(Lang_About));
-    int h = GV->sprLogoBig->GetHeight() + 40 + 22 * 4;
+    int h = GV->sprLogoBig->GetHeight() + 80 + 22 * 4;
     for (auto line : usedLibsCreditLines) {
         h += GV->fntMyriad16->GetHeightb(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
     }
@@ -51,7 +49,11 @@ void winAbout::Draw(int piCode) {
     GV->RenderLogoWithVersion(dx + logoW / 2 + 12, dy + 65, alpha);
 
     dx += 18;
-    dy += GV->sprLogoBig->GetHeight() + 42;
+    dy += GV->sprLogoBig->GetHeight() + 44;
+
+    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 16, dy, GV->colLineBright);
+
+    dy += 16;
 
     GV->fntMyriad16->printf(dx, dy, HGETEXT_LEFT, "%s kijanek6 & Zax37.",
                             0, GETL2S("WinAuthors", "Func_1"));
@@ -61,7 +63,11 @@ void winAbout::Draw(int piCode) {
     dy += 22;
     GV->fntMyriad16->printf(dx, dy, HGETEXT_LEFT, "%s.",
                             0, GETL2S("WinAuthors", "Func_3"));
-    dy += 28;
+    dy += 32;
+
+    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 16, dy, GV->colLineBright);
+
+    dy += 16;
 
     for (auto line : usedLibsCreditLines) {
         GV->fntMyriad16->printfb(dx, dy, usedLibsCreditsBlockWidth, 200, 0, 0, line);

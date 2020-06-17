@@ -2502,6 +2502,10 @@ bool State::EditingWW::Render() {
                 }
             }
 
+            if (maxW > 500) {
+                maxW = 500;
+            }
+
             x -= maxW / 2 + 10;
             y += 18 * 2;
 
@@ -2513,7 +2517,16 @@ bool State::EditingWW::Render() {
                 else
                     GV->sprLevelsMicro16[icon - 51]->Render(x, y);
 
-                GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, filepath.c_str(), 0);
+                if (maxW == 500 && GV->fntMyriad16->GetStringWidth(filepath.c_str()) > 500) {
+                    std::string temp(filepath);
+                    do {
+                        temp.erase(0, 5);
+                    } while (GV->fntMyriad16->GetStringWidth(temp.c_str()) > 490);
+                    temp.insert(0, "(...)");
+                    GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, temp.c_str(), 0);
+                } else {
+                    GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, filepath.c_str(), 0);
+                }
 
                 y += 18;
 
