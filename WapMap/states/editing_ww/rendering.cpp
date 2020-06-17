@@ -948,10 +948,10 @@ void State::EditingWW::DrawViewport() {
         hge->Input_GetMousePos(&mx, &my);
 
         for (int i = 0; i < vObjectsPicked.size(); i++) {
-            bool fnd = 0;
-            for (int j = 0; j < vObjectsForbidHL.size(); j++)
-                if (vObjectsPicked[i] == vObjectsForbidHL[j]) {
-                    fnd = 1;
+            bool fnd = false;
+            for (auto & j : vObjectsForbidHL)
+                if (vObjectsPicked[i] == j) {
+                    fnd = true;
                     break;
                 }
             if (fnd) {
@@ -964,16 +964,16 @@ void State::EditingWW::DrawViewport() {
             hgeSprite *spr = SprBank->GetObjectSprite(obj);
             float hsx, hsy;
             spr->GetHotSpot(&hsx, &hsy);
-            float sprw = spr->GetWidth() / 2, sprh = spr->GetHeight() / 2;
+            float sprW = spr->GetWidth() / 2, sprH = spr->GetHeight() / 2;
 
-            hsx -= sprw;
-            hsy -= sprh;
+            hsx -= sprW;
+            hsy -= sprH;
 
-            float posx = (GetUserDataFromObj(obj)->GetX() - hsx) * fZoom, posy =
-                    (GetUserDataFromObj(obj)->GetY() - hsy) * fZoom;
+            float posX = (GetUserDataFromObj(obj)->GetX() - hsx) * fZoom,
+                  posY = (GetUserDataFromObj(obj)->GetY() - hsy) * fZoom;
 
-            sprw *= fZoom;
-            sprh *= fZoom;
+            sprW *= fZoom;
+            sprH *= fZoom;
 
             WWD::Rect box = SprBank->GetObjectRenderRect(obj);
             box.x2 += box.x1;
@@ -983,7 +983,7 @@ void State::EditingWW::DrawViewport() {
             box.x2 = Wrd2ScrX(GetActivePlane(), box.x2);
             box.y2 = Wrd2ScrY(GetActivePlane(), box.y2);
             DWORD col = (iActiveTool == EWW_TOOL_EDITOBJ ? hEditObj->GetHighlightColor() : 0xFFFF0000);
-            hge->Gfx_RenderLine(box.x1, box.y1, box.x2, box.y1, col);
+            hge->Gfx_RenderLine(box.x1 - 1, box.y1, box.x2, box.y1, col);
             hge->Gfx_RenderLine(box.x2, box.y1, box.x2, box.y2, col);
             hge->Gfx_RenderLine(box.x2, box.y2, box.x1, box.y2, col);
             hge->Gfx_RenderLine(box.x1, box.y2, box.x1, box.y1, col);
@@ -1206,10 +1206,10 @@ void State::EditingWW::DrawViewport() {
 
                             vPort->ClipScreen();
                             if (iSpringboardValue != 0) {
-                                GV->fntMyriad16->printf(posx - cammx, mmd_ymin - 13, HGETEXT_CENTER, "~l~%s: %d", 0,
+                                GV->fntMyriad16->printf(posX - cammx, mmd_ymin - 13, HGETEXT_CENTER, "~l~%s: %d", 0,
                                                         GETL2S("EditObj_SpringBoard", "OverlayValue"),
                                                         iSpringboardValue);
-                                GV->fntMyriad16->printf(posx - cammx - 1, mmd_ymin - 14, HGETEXT_CENTER, "~w~%s: ~y~%d",
+                                GV->fntMyriad16->printf(posX - cammx - 1, mmd_ymin - 14, HGETEXT_CENTER, "~w~%s: ~y~%d",
                                                         0, GETL2S("EditObj_SpringBoard", "OverlayValue"),
                                                         iSpringboardValue);
                             }
@@ -1760,18 +1760,18 @@ void State::EditingWW::DrawViewport() {
 
                 if (obj == hStartingPosObj) {
                     GV->fntMyriad16->SetColor(0);
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy - sprH,
                                             HGETEXT_LEFT, "%s", 0, GETL(Lang_StartingPlace));
                     GV->fntMyriad16->SetColor(0xFFFFFF);
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy - sprH, HGETEXT_LEFT,
                                             "%s", 0, GETL(Lang_StartingPlace));
 
                     GV->fntMyriad16->SetColor(0);
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh + 15,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy - sprH + 15,
                                             HGETEXT_LEFT, "X: %d Y: %d", 0, obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY));
                     GV->fntMyriad16->SetColor(0xFFFFFF);
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh + 15,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy - sprH + 15,
                                             HGETEXT_LEFT, "X: ~y~%d ~w~Y: ~y~%d", 0,
                                             obj->GetParam(WWD::Param_LocationX), obj->GetParam(WWD::Param_LocationY));
                 } else if (bDrawObjProperties) {
@@ -1780,14 +1780,14 @@ void State::EditingWW::DrawViewport() {
                     if (iActiveTool == EWW_TOOL_EDITOBJ) {
                         iid = hEditObj->GetOrigObj()->GetParam(WWD::Param_ID);
                     }
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy - sprh,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy - sprH,
                                             HGETEXT_LEFT, "~l~%s: %d", 0, GETL(Lang_ID), iid);
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy - sprh, HGETEXT_LEFT,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy - sprH, HGETEXT_LEFT,
                                             "~w~%s: ~y~%d", 0, GETL(Lang_ID), iid);
                     if (obj->GetName()[0] != '\0' && strcmp(obj->GetLogic(), "CustomLogic") != 0) {
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Name), obj->GetName());
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Name), obj->GetName());
                         ioff += 15;
                     }
@@ -1799,41 +1799,41 @@ void State::EditingWW::DrawViewport() {
                         if (customlogic) {
                             GV->sprIcons16[Icon16_CrazyHook]->SetColor(0xFFFFFFFF);
                             GV->sprIcons16[Icon16_CrazyHook]->Render(
-                                    posx - cammx + sprw + 7 + GV->fntMyriad16->GetStringWidth(GETL(Lang_Logic)),
-                                    posy + vPort->GetY() - cammy + ioff - sprh);
+                                    posX - cammx + sprW + 7 + GV->fntMyriad16->GetStringWidth(GETL(Lang_Logic)),
+                                    posY + vPort->GetY() - cammy + ioff - sprH);
                         }
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, (customlogic ? "~l~%s:    %s" : "~l~%s: %s"), 0,
                                                 GETL(Lang_Logic), logicval);
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, (customlogic ? "~w~%s:    ~y~%s" : "~w~%s: ~y~%s"), 0,
                                                 GETL(Lang_Logic), logicval);
                         ioff += 15;
                     }
 
                     if (obj->GetImageSet()[0] != '\0') {
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Graphic), obj->GetImageSet());
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Graphic),
                                                 obj->GetImageSet());
                         ioff += 15;
                     }
 
                     if (obj->GetAnim()[0] != '\0') {
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~l~%s: %s", 0, GETL(Lang_Anim), obj->GetAnim());
-                        GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                        GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                 HGETEXT_LEFT, "~w~%s: ~y~%s", 0, GETL(Lang_Anim), obj->GetAnim());
                         ioff += 15;
                     }
 
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 5, posy + vPort->GetY() + 1 - cammy + ioff - sprh,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 5, posY + vPort->GetY() + 1 - cammy + ioff - sprH,
                                             HGETEXT_LEFT, "~l~%s: %dx%d, Z: %d", 0,
                                             GETL(Lang_Location), obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY),
                                             obj->GetParam(WWD::Param_LocationZ));
-                    GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                    GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                             HGETEXT_LEFT, "~w~%s: ~y~%d~w~x~y~%d~w~, Z: ~y~%d", 0,
                                             GETL(Lang_Location), obj->GetParam(WWD::Param_LocationX),
                                             obj->GetParam(WWD::Param_LocationY),
@@ -1841,29 +1841,29 @@ void State::EditingWW::DrawViewport() {
                     ioff += 15;
                     if (obj->GetParam(WWD::Param_MinX) != 0 || obj->GetParam(WWD::Param_MaxX) != 0) {
                         if (obj->GetParam(WWD::Param_MinX) != 0 && obj->GetParam(WWD::Param_MaxX) != 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d. %s: %d.", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX), GETL(Lang_MaxX),
                                                     obj->GetParam(WWD::Param_MaxX));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d~w~. %s: ~y~%d~w~.", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX), GETL(Lang_MaxX),
                                                     obj->GetParam(WWD::Param_MaxX));
                         } else if (obj->GetParam(WWD::Param_MinX) != 0 && obj->GetParam(WWD::Param_MaxX) == 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MinX), obj->GetParam(WWD::Param_MinX));
                         } else if (obj->GetParam(WWD::Param_MinX) == 0 && obj->GetParam(WWD::Param_MaxX) != 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MaxX), obj->GetParam(WWD::Param_MaxX));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MaxX), obj->GetParam(WWD::Param_MaxX));
                         }
@@ -1871,29 +1871,29 @@ void State::EditingWW::DrawViewport() {
                     }
                     if (obj->GetParam(WWD::Param_MinY) != 0 || obj->GetParam(WWD::Param_MaxY) != 0) {
                         if (obj->GetParam(WWD::Param_MinY) != 0 && obj->GetParam(WWD::Param_MaxY) != 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d. %s: %d.", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY), GETL(Lang_MaxY),
                                                     obj->GetParam(WWD::Param_MaxY));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d~w~. %s: ~y~%d~w~.", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY), GETL(Lang_MaxY),
                                                     obj->GetParam(WWD::Param_MaxY));
                         } else if (obj->GetParam(WWD::Param_MinY) != 0 && obj->GetParam(WWD::Param_MaxY) == 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MinY), obj->GetParam(WWD::Param_MinY));
                         } else if (obj->GetParam(WWD::Param_MinY) == 0 && obj->GetParam(WWD::Param_MaxY) != 0) {
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 5,
-                                                    posy + vPort->GetY() + 1 - cammy + ioff - sprh, HGETEXT_LEFT,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 5,
+                                                    posY + vPort->GetY() + 1 - cammy + ioff - sprH, HGETEXT_LEFT,
                                                     "~l~%s: %d", 0,
                                                     GETL(Lang_MaxY), obj->GetParam(WWD::Param_MaxY));
-                            GV->fntMyriad16->printf(posx - cammx + sprw + 4, posy + vPort->GetY() - cammy + ioff - sprh,
+                            GV->fntMyriad16->printf(posX - cammx + sprW + 4, posY + vPort->GetY() - cammy + ioff - sprH,
                                                     HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
                                                     GETL(Lang_MaxY), obj->GetParam(WWD::Param_MaxY));
                         }
@@ -1958,8 +1958,8 @@ void State::EditingWW::DrawViewport() {
                                     if (crabSpr->GetHeight() > grdim) grdim = crabSpr->GetHeight();
                                     float fScale = 1.0f;
                                     if (grdim > 48) fScale = 48.0f / float(grdim);
-                                    crabSpr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
-                                                  posy + vPort->GetY() - cammy + ioff - sprh + y * 54 + 24, 0, fScale);
+                                    crabSpr->RenderEx(posX - cammx + sprW + 4 + 52 * x + 24,
+                                                      posY + vPort->GetY() - cammy + ioff - sprH + y * 54 + 24, 0, fScale);
                                 }
                                 if (i > 9 || GetInventoryItemID(items[i]) == -1) {
                                     if (i < crabsNum) continue;
@@ -1978,8 +1978,8 @@ void State::EditingWW::DrawViewport() {
                                 if (treasureSpr->GetHeight() > grdim) grdim = treasureSpr->GetHeight();
                                 float fScale = 1.0f;
                                 if (grdim > 48) fScale = 48.0f / float(grdim);
-                                treasureSpr->RenderEx(posx - cammx + sprw + 4 + 52 * x + 24,
-                                              posy + vPort->GetY() - cammy + ioff - sprh + y * 54 + 24, 0, fScale);
+                                treasureSpr->RenderEx(posX - cammx + sprW + 4 + 52 * x + 24,
+                                                      posY + vPort->GetY() - cammy + ioff - sprH + y * 54 + 24, 0, fScale);
                             }
 
                         if (containsWarp && strcmp(obj->GetLogic(), "CrabNest") != 0) {
