@@ -106,4 +106,8 @@ namespace SHR {
             m_fTooltipTimer += hge->Timer_GetDelta();
         }
     }
+
+    void cTooltip::ResetTooltip() {
+        currentlyDisplayedTooltip = NULL;
+    }
 }

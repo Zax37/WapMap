@@ -175,12 +175,12 @@ void SHR::cConsole::Render() {
         if (linesc < 0)
             linesc = 0;
         for (int i = start; i >= linesc; i--) {
-            m_fnt->Render(5, y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) -
+            m_fnt->Render(x + 5, y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) -
                              (m_vLines.size() - i + 1 - m_iScroll) * 13, HGETEXT_LEFT, m_vLines[i], 0);
         }
         m_fnt->SetColor(GV->colFontWhite);
-        m_fnt->Render(5, y +(hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput.c_str(), 0);
-        m_fnt->Render(5 + m_fnt->GetStringWidth(m_szInput.c_str()), y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13,
+        m_fnt->Render(x + 5, y +(hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13, HGETEXT_LEFT, m_szInput.c_str(), 0);
+        m_fnt->Render(x + 5 + m_fnt->GetStringWidth(m_szInput.c_str()), y + (hge->System_GetState(HGE_SCREENHEIGHT) / 3 + m_fAnim) - 13,
                       HGETEXT_LEFT, "_", 0);
         hge->Gfx_SetClipping();
         hge->Gfx_RenderLine(x, y + h, x + w, y + h, 0xFF000000);

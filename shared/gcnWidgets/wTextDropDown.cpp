@@ -133,7 +133,7 @@ namespace SHR {
         _ghGfxInterface->sprDropDownBarArrow->SetFlip(0, mDroppedDown);
         _ghGfxInterface->sprDropDownBarArrow->Render(x + getWidth() - 16, y + 7);
 
-        graphics->pushClipArea(gcn::Rectangle(4, 0, getWidth() - 23, getHeight()));
+        graphics->pushClipArea(gcn::Rectangle(2, 2, getWidth() - 20, getHeight() - 4));
 
         hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
         fnt->SetColor(SETA(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * getAlpha() / 255.f));
@@ -151,12 +151,12 @@ namespace SHR {
                 starti = mSelectionPosition;
                 endi = mCaretPosition;
             }
-            int startX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 4,
-                endX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 4;
-            SHR::SetQuad(&q, 0x553393e6, startX, y + 3, endX, y + getFont()->getHeight() + 1);
+            int startX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 5,
+                endX = x + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 5;
+            SHR::SetQuad(&q, 0x553393e6, startX, y + 4, endX, y + getFont()->getHeight() + 1);
             hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(startX, y + 3, startX, y + getFont()->getHeight() + 1, 0xFF3393e6);
-            hge->Gfx_RenderLine(endX, y + 3, endX, y + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(startX, y + 4, startX, y + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(endX, y + 4, endX, y + getFont()->getHeight() + 1, 0xFF3393e6);
         } else if (bTextFocused && mCaretPosition != -1) {
             drawCaret(graphics, GV->fntMyriad16->GetStringWidth(mText.substr(0, mCaretPosition).c_str(), false, true) - mXScroll);
         }

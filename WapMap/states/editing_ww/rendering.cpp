@@ -2299,7 +2299,7 @@ bool State::EditingWW::Render() {
     hgeQuad q;
     q.tex = 0;
     q.blend = BLEND_DEFAULT;
-    SHR::SetQuad(&q, 0xFF2f2f2f, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), vPort->GetY());
+    SHR::SetQuad(&q, 0xFF2f2f2f, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
     hge->Gfx_RenderQuad(&q);
 
     GV->sprLogoCaption->Render(8, 5);
@@ -2340,7 +2340,6 @@ bool State::EditingWW::Render() {
                      vPort->GetWidth(), vPort->GetY(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
         hge->Gfx_RenderQuad(&q);
 
-        hRulers->Render();
         MDI->Render();
 
         //mode bar underlay
@@ -2354,19 +2353,6 @@ bool State::EditingWW::Render() {
                                     GV->colBaseDark);
             }
 
-    } else {
-
-    }
-
-    //lower bar
-    SHR::SetQuad(&q, 0xFF2f2f2f,
-                 0, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
-    hge->Gfx_RenderQuad(&q);
-
-    hge->Gfx_RenderLine(0, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, hge->System_GetState(HGE_SCREENWIDTH),
-                        hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, GV->colOutline);
-
-    if (hParser != NULL) {
         int wx = -1, wy = -1, tx = -1, ty = -1;
         if (conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
             wx = Scr2WrdX(GetActivePlane(), mx);
@@ -2374,76 +2360,29 @@ bool State::EditingWW::Render() {
             tx = (wx / GetActivePlane()->GetTileWidth()) % GetActivePlane()->GetPlaneWidth();
             ty = (wy / GetActivePlane()->GetTileHeight()) % GetActivePlane()->GetPlaneHeight();
         }
-        int x = butMicroObjectCB->getX() + butMicroObjectCB->getWidth() + 6, y = hge->System_GetState(HGE_SCREENHEIGHT) - 25;
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        const char *text = GETL2S("Various", "TilesOnScreen");
-        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad16->GetStringWidth(text);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(x + 50, y, HGETEXT_RIGHT, "%d", 0,
-                                iTilesOnScreen);
-        x += 60;
-        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
+        int x = butMicroObjectCB->getX() + butMicroObjectCB->getWidth() + 10,
+            y = hge->System_GetState(HGE_SCREENHEIGHT) - (LAY_STATUS_H - GV->fntMyriad16->GetHeight() / 2) - 1;
+        std::string text = GETL2S("Various", "TilesOnScreen");
+#define RENDER_STATUS_VALUE(valName) text += " ~w~"; text += valName; \
+        GV->fntMyriad16->SetColor(0xAAe1e1e1); \
+        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text.c_str(), 0); \
+        x += GV->fntMyriad16->GetStringWidth(text.c_str()) + 20; \
+        hge->Gfx_RenderLine(x - 10, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 2, x - 10, \
                             hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
+        RENDER_STATUS_VALUE(std::to_string(iTilesOnScreen));
         text = GETL2S("Various", "ObjectsOnScreen");
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad16->GetStringWidth(text);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(x + 50, y, HGETEXT_RIGHT, "%d", 0,
-                                iObjectsOnScreen);
-        x += 60;
-        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
+        RENDER_STATUS_VALUE(std::to_string(iObjectsOnScreen));
         text = GETL2S("Various", "WorldMousePosition");
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad16->GetStringWidth(text);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(x + 85, y, HGETEXT_RIGHT, "%dx%d", 0, wx, wy);
-        x += 95;
-        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
+        RENDER_STATUS_VALUE(std::to_string(wx) + 'x' + std::to_string(wy));
         text = GETL2S("Various", "TileMousePosition");
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, text, 0);
-        x += GV->fntMyriad16->GetStringWidth(text);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(x + 65, y, HGETEXT_RIGHT, "%dx%d", 0, tx, ty);
-        x += 75;
-        hge->Gfx_RenderLine(x - 5, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 5,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineDark);
-        hge->Gfx_RenderLine(x - 4, hge->System_GetState(HGE_SCREENHEIGHT) - 30, x - 4,
-                            hge->System_GetState(HGE_SCREENHEIGHT) - 3, GV->colLineBright);
-
-        GV->fntMyriad16->Render(x, y, HGETEXT_LEFT, "FPS:", 0);
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        x += GV->fntMyriad16->GetStringWidth("FPS:", 0);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(x + 30, y, HGETEXT_RIGHT, "%d", 0,
-                                hge->Timer_GetFPS());
-        x += 40;
-
-        GV->fntMyriad16->SetColor(0xFFe1e1e1);
-        GV->fntMyriad16->Render(hge->System_GetState(HGE_SCREENWIDTH) - 195,
+        RENDER_STATUS_VALUE(std::to_string(tx) + 'x' + std::to_string(ty));
+        text = "FPS:";
+        RENDER_STATUS_VALUE(std::to_string(hge->Timer_GetFPS()));
+        GV->fntMyriad16->Render(hge->System_GetState(HGE_SCREENWIDTH) - 200,
                                 y, HGETEXT_RIGHT, GETL2S("Various", "Zoom"),
                                 0);
-        GV->fntMyriad16->SetColor(0xFFeeeeee);
-        GV->fntMyriad16->printf(hge->System_GetState(HGE_SCREENWIDTH) - 167,
+        GV->fntMyriad16->printf(hge->System_GetState(HGE_SCREENWIDTH) - 170,
                                 y, HGETEXT_RIGHT, "%.1fx", 0, fZoom);
-
-        /*GV->fntMyriad10->printf(hge->System_GetState(HGE_SCREENWIDTH)-350, hge->System_GetState(HGE_SCREENHEIGHT)-18, HGETEXT_RIGHT,
-								GETL(Lang_InfoBar), 0,
-								fZoom, wx, wy, tx, ty, hge->Timer_GetFPS());*/
     }
 #ifdef SHOWMEMUSAGE
     GV->UpdateMemUsage();
@@ -2451,6 +2390,10 @@ bool State::EditingWW::Render() {
 	//GV->fntMyriad16->printf(840, 25, HGETEXT_LEFT, "~l~Mem: ~y~%s~l~MB", 0, GV->szMemUsage);
 	LeaveCriticalSection(&GV->csMemUsage);
 #endif
+
+    //lower bar
+    hge->Gfx_RenderLine(0, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, hge->System_GetState(HGE_SCREENWIDTH),
+                        hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H, GV->colOutline);
 
     try {
         gui->draw();
@@ -2467,22 +2410,49 @@ bool State::EditingWW::Render() {
         hge->Gfx_RenderLine(hge->System_GetState(HGE_SCREENWIDTH), 1, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - 1, GV->colOutline);
     }
 
-    if (_isOnTop()) {
-        if (butMicroTileCB->mouseOver() || bForceTileClipbPreview)
-            RenderTileClipboardPreview();
-        else if (butMicroObjectCB->mouseOver() || bForceObjectClipbPreview)
-            RenderObjectClipboardPreview();
+    if (hParser == NULL) {
+        /*if (MDI->GetDocsCount()) {
+            int x = vPort->GetX() + 8, y = vPort->GetY() + 8;
 
-        hInvCtrl->DrawDraggedObject();
+            float mx, my;
+            hge->Input_GetMousePos(&mx, &my);
+            if (mx > x && my > y && mx < x + 32 && my < y + 32) {
+                if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
+                    MDI->BackToLastActive();
+                }
+
+                fHomeBackButTimer += hge->Timer_GetDelta();
+                if (fHomeBackButTimer > 0.2) {
+                    fHomeBackButTimer = 0.2;
+                }
+            } else if (fHomeBackButTimer > 0.0) {
+                fHomeBackButTimer -= hge->Timer_GetDelta();
+                if (fHomeBackButTimer < 0.0) {
+                    fHomeBackButTimer = 0.0;
+                }
+            }
+
+            GV->sprHomepageBackButton->SetColor(SETA(0xFFFFFF, 0x77 + 0x77 * fHomeBackButTimer * 5.f));
+            GV->sprHomepageBackButton->Render(x, y);
+        }*/
     } else {
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77000000;
+        if (_isOnTop()) {
+            if (bForceTileClipbPreview)
+                RenderTileClipboardPreview();
+            else if (bForceObjectClipbPreview)
+                RenderObjectClipboardPreview();
 
-        q.v[0].x = q.v[3].x = 0;
-        q.v[0].y = q.v[1].y = 0;
-        q.v[1].x = q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
-        q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
+            hInvCtrl->DrawDraggedObject();
+        } else {
+            q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77000000;
 
-        hge->Gfx_RenderQuad(&q);
+            q.v[0].x = q.v[3].x = 0;
+            q.v[0].y = q.v[1].y = 0;
+            q.v[1].x = q.v[2].x = hge->System_GetState(HGE_SCREENWIDTH);
+            q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
+
+            hge->Gfx_RenderQuad(&q);
+        }
     }
 
     if (fade_iAction < 2) {
@@ -2875,45 +2845,45 @@ void State::EditingWW::DrawPlaneOverlay(WWD::Plane *hPl) {
             x2 = Wrd2ScrXrb(hPl, (iTileSelectX2 + 1) * GetActivePlane()->GetTileWidth());
             y2 = Wrd2ScrYrb(hPl, (iTileSelectY2 + 1) * GetActivePlane()->GetTileHeight());
         }
+
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 0;
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77ffcc00;
-        //vPort->ClipScreen();
-        q.v[0].x = x1;
-        q.v[0].y = y1;
-        q.v[1].x = x2;
-        q.v[1].y = y1;
-        q.v[2].x = x2;
-        q.v[2].y = y2;
-        q.v[3].x = x1;
-        q.v[3].y = y2;
+        SHR::SetQuad(&q, 0x77ffcc00, x1, y1, x2, y2);
         hge->Gfx_RenderQuad(&q);
-        hge->Gfx_RenderLine(q.v[0].x, q.v[0].y, q.v[1].x, q.v[1].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[1].x, q.v[1].y, q.v[2].x, q.v[2].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFFFF0000);
+        hge->Gfx_RenderLine(x1 - 1, y1, x2, y1, 0xFFFF0000);
+        hge->Gfx_RenderLine(x1, y1, x1, y2, 0xFFFF0000);
+        hge->Gfx_RenderLine(x2, y1, x2, y2, 0xFFFF0000);
+        hge->Gfx_RenderLine(x1, y2, x2, y2, 0xFFFF0000);
     }
 }
 
 void State::EditingWW::ViewportOverlay() {
+    hRulers->Render();
+
     hge->Gfx_SetClipping(vPort->GetX(), vPort->GetY(), vPort->GetWidth() - (hParser == NULL) * 2, vPort->GetHeight());
     GV->Console->Render();
     hge->Gfx_SetClipping();
+
+    hge->Gfx_RenderLine(vPort->GetX() + 1, vPort->GetY(), vPort->GetX() + 1, vPort->GetY() + vPort->GetHeight(), SETA(0, 0xFF));
+    hge->Gfx_RenderLine(vPort->GetX() + 2, vPort->GetY(), vPort->GetX() + 2, vPort->GetY() + vPort->GetHeight(), SETA(0, 0x77));
+
+    hge->Gfx_RenderLine(vPort->GetX() + vPort->GetWidth(), vPort->GetY(), vPort->GetX() + vPort->GetWidth(), vPort->GetY() + vPort->GetHeight(), SETA(0, 0x77));
+
     hge->Gfx_RenderLine(vPort->GetX(), vPort->GetY() + 1, vPort->GetX() + vPort->GetWidth(), vPort->GetY() + 1, SETA(0, 0xFF));
     hge->Gfx_RenderLine(vPort->GetX(), vPort->GetY() + 2, vPort->GetX() + vPort->GetWidth(), vPort->GetY() + 2, SETA(0, 0x77));
+
+    hge->Gfx_RenderLine(vPort->GetX(), vPort->GetY() + vPort->GetHeight(), vPort->GetX() + vPort->GetWidth(), vPort->GetY() + vPort->GetHeight(), SETA(0, 0x77));
 }
 
 void State::EditingWW::RenderCloudTip(int x, int y, int w, int h, int ax, int ay) {
     hgeQuad q;
     q.blend = BLEND_DEFAULT;
     q.tex = 0;
-    SHR::SetQuad(&q, GV->colBase, x + 10, y, x + w - 10, y + h);
-    hge->Gfx_RenderQuad(&q);
-    SHR::SetQuad(&q, GV->colBase, x, y + 10, x + 10, y + h - 10);
-    hge->Gfx_RenderQuad(&q);
-    SHR::SetQuad(&q, GV->colBase, x + w - 10, y + 10, x + w, y + h - 10);
+    SHR::SetQuad(&q, GV->colBase, x, y, x + w, y + h);
     hge->Gfx_RenderQuad(&q);
     hgeTriple tr;
     tr.tex = 0;
@@ -2929,36 +2899,32 @@ void State::EditingWW::RenderCloudTip(int x, int y, int w, int h, int ax, int ay
     hge->Gfx_RenderTriple(&tr);
     hge->Gfx_RenderLine(x + 25, y + h, ax, ay, 0xFF000000);
     hge->Gfx_RenderLine(x + 45, y + h, ax, ay, 0xFF000000);
-    hge->Gfx_RenderLine(x + 10, y + h, x + 25, y + h, 0xFF000000);
-    hge->Gfx_RenderLine(x + 45, y + h, x + w - 10, y + h, 0xFF000000);
-    hge->Gfx_RenderLine(x + 10, y, x + w - 10, y, 0xFF000000);
-    hge->Gfx_RenderLine(x, y + 10, x, y + h - 10, 0xFF000000);
-    hge->Gfx_RenderLine(x + w, y + 10, x + w, y + h - 10, 0xFF000000);
-    GV->sprCloudTip[0]->Render(x, y);
-    GV->sprCloudTip[1]->Render(x + w - 10, y);
-    GV->sprCloudTip[2]->Render(x, y + h - 10);
-    GV->sprCloudTip[3]->Render(x + w - 10, y + h - 10);
+    hge->Gfx_RenderLine(x, y + h, x + 25, y + h, 0xFF000000);
+    hge->Gfx_RenderLine(x + 45, y + h, x + w, y + h, 0xFF000000);
+    hge->Gfx_RenderLine(x, y, x + w, y, 0xFF000000);
+    hge->Gfx_RenderLine(x, y, x, y + h, 0xFF000000);
+    hge->Gfx_RenderLine(x + w, y, x + w, y + h, 0xFF000000);
 }
 
 void State::EditingWW::RenderTileClipboardPreview() {
     if (MDI->GetActiveDoc() == NULL) return;
     if (MDI->GetActiveDoc()->hTileClipboard == NULL) {
         int len = GV->fntMyriad16->GetStringWidth(GETL2S("ClipboardPreview", "TileClipboardEmpty"));
-        RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroTileCB->getX() + 9,
+        RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroTileCB->getX() + 12,
                        butMicroTileCB->getY() - 3);
         GV->fntMyriad16->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
                                 GETL2S("ClipboardPreview", "TileClipboardEmpty"), 0);
         return;
     }
     int cbw = MDI->GetActiveDoc()->iTileCBw,
-            cbh = MDI->GetActiveDoc()->iTileCBh;
-    int tilew = 64, tileh = 64;
-    if (tilew * cbw > 400 || tilew * cbh > 400) {
-        tilew = 400 / (cbw > cbh ? cbw : cbh);
-        tileh = 400 / (cbw > cbh ? cbw : cbh);
+        cbh = MDI->GetActiveDoc()->iTileCBh;
+    int tileW = 64, tileH = 64;
+    if (tileW * cbw > 400 || tileW * cbh > 400) {
+        tileW = 400 / (cbw > cbh ? cbw : cbh);
+        tileH = 400 / (cbw > cbh ? cbw : cbh);
     }
-    int px = 20, py = hge->System_GetState(HGE_SCREENHEIGHT) - (tileh * cbh + 20 + 50) + 10;
-    RenderCloudTip(px - 10, py - 10, tilew * cbw + 20, tileh * cbh + 20, butMicroTileCB->getX() + 9,
+    int px = 20, py = hge->System_GetState(HGE_SCREENHEIGHT) - (tileH * cbh + 20 + 50) + 10;
+    RenderCloudTip(px - 10, py - 10, tileW * cbw + 20, tileH * cbh + 20, butMicroTileCB->getX() + 12,
                    butMicroTileCB->getY() - 3);
     for (int i = 0, y = 0; y < cbh; y++)
         for (int x = 0; x < cbw; x++, i++) {
@@ -2971,7 +2937,7 @@ void State::EditingWW::RenderTileClipboardPreview() {
                 spr->SetColor(0xFFFFFFFF);
                 spr->SetFlip(0, 0);
                 spr->SetHotSpot(0, 0);
-                spr->RenderStretch(px + tilew * x, py + tileh * y, px + tilew * (x + 1), py + tileh * (y + 1));
+                spr->RenderStretch(px + tileW * x, py + tileH * y, px + tileW * (x + 1), py + tileH * (y + 1));
             }
         }
 }
@@ -2980,7 +2946,7 @@ void State::EditingWW::RenderObjectClipboardPreview() {
     if (MDI->GetActiveDoc() == NULL) return;
     if (vObjectClipboard.empty()) {
         int len = GV->fntMyriad16->GetStringWidth(GETL2S("ClipboardPreview", "ObjectClipboardEmpty"));
-        RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroObjectCB->getX() + 9,
+        RenderCloudTip(10, hge->System_GetState(HGE_SCREENHEIGHT) - 70, len + 20, 20, butMicroObjectCB->getX() + 12,
                        butMicroObjectCB->getY() - 3);
         GV->fntMyriad16->Render(20, hge->System_GetState(HGE_SCREENHEIGHT) - 70, HGETEXT_LEFT,
                                 GETL2S("ClipboardPreview", "ObjectClipboardEmpty"), 0);
@@ -2992,8 +2958,8 @@ void State::EditingWW::RenderObjectClipboardPreview() {
         spr->SetFlip(vObjectClipboard[0]->GetFlipX(), vObjectClipboard[0]->GetFlipY(), true);
         int sizeX = spr->GetWidth();
         int sizeY = spr->GetHeight();
-        int cx = 20, cy = hge->System_GetState(HGE_SCREENHEIGHT) - sizeY - 50 + 10;
-        RenderCloudTip(10, cy - 10, sizeX + 20, sizeY + 20, butMicroObjectCB->getX() + 9, butMicroObjectCB->getY() - 3);
+        int cx = 20, cy = hge->System_GetState(HGE_SCREENHEIGHT) - sizeY - 70;
+        RenderCloudTip(10, cy - 10, sizeX + 20, sizeY + 20, butMicroObjectCB->getX() + 12, butMicroObjectCB->getY() - 3);
         float hX = 0, hY = 0;
         SprBank->GetObjectSprite(vObjectClipboard[0])->GetHotSpot(&hX, &hY);
         spr->Render(cx + hX, cy + hY);
@@ -3027,8 +2993,8 @@ void State::EditingWW::RenderObjectClipboardPreview() {
     }
     sizeX *= fScale;
     sizeY *= fScale;
-    int cx = 20, cy = hge->System_GetState(HGE_SCREENHEIGHT) - sizeY - 50 + 10;
-    RenderCloudTip(10, cy - 10, sizeX + 20, sizeY + 20, butMicroObjectCB->getX() + 9, butMicroObjectCB->getY() - 3);
+    int cx = 20, cy = hge->System_GetState(HGE_SCREENHEIGHT) - sizeY - 70;
+    RenderCloudTip(10, cy - 10, sizeX + 20, sizeY + 20, butMicroObjectCB->getX() + 12, butMicroObjectCB->getY() - 3);
     int baseX = horBase->GetParam(WWD::Param_LocationX) - SprBank->GetObjectSprite(horBase)->GetWidth() / 2,
         baseY = verBase->GetParam(WWD::Param_LocationY) - SprBank->GetObjectSprite(verBase)->GetHeight() / 2;
     for (auto & object : vObjectClipboard) {
@@ -3091,19 +3057,19 @@ void State::EditingWW::DrawCrashRetrieve() {
     int dx, dy;
     conCrashRetrieve->getAbsolutePosition(dx, dy);
     GV->fntMyriad16->SetColor(0xFFe1e1e1);
-    GV->fntMyriad16->Render(dx + 5, dy + 3, HGETEXT_LEFT, GETL2S("WinCrashRetrieve", "Label"), 0);
+    GV->fntMyriad16->Render(dx, dy, HGETEXT_LEFT, GETL2S("WinCrashRetrieve", "Label"), 0);
     int c = 0;
     for (int i = 0; i < 10; i++) {
         if (szCrashRetrieve[i] == NULL) break;
         if (iCrashRetrieveIcon[i] < 50)
-            GV->sprGamesSmall[iCrashRetrieveIcon[i]]->Render(dx + 2, dy + 25 + 25 * i);
+            GV->sprGamesSmall[iCrashRetrieveIcon[i]]->Render(dx, dy + 30 + 25 * i);
         else
-            GV->sprLevelsMicro16[iCrashRetrieveIcon[i] - 51]->Render(dx + 2, dy + 25 + 25 * i);
-        GV->fntMyriad16->Render(dx + 20, dy + 25 + 25 * i, HGETEXT_LEFT, szCrashRetrieve[i], 0);
+            GV->sprLevelsMicro16[iCrashRetrieveIcon[i] - 51]->Render(dx, dy + 30 + 25 * i);
+        GV->fntMyriad16->Render(dx + 22, dy + 30 + 25 * i, HGETEXT_LEFT, szCrashRetrieve[i], 0);
         c++;
     }
     if (szCrashRetrieveMore != NULL)
-        GV->fntMyriad16->Render(dx + 5, dy + 25 + 25 * c, HGETEXT_LEFT, szCrashRetrieveMore, 0);
+        GV->fntMyriad16->Render(dx, dy + 30 + 25 * c, HGETEXT_LEFT, szCrashRetrieveMore, 0);
 }
 
 void State::EditingWW::DrawTilePicker() {

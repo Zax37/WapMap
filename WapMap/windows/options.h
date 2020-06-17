@@ -38,9 +38,9 @@ private:
     std::vector<gcn::Widget*> widgetsToDelete;
     std::vector<SHR::Container*> optionsForCategory;
     std::vector<SHR::TextField*> pathTextFields;
-    SHR::Lab *labChangesRes, *labChangesLang, *labRes, *labLang, *labGameRes, *labCrazyHookSettings, *labVersion;
+    SHR::Lab *labChangesLang, *labLang, *labGameRes, *labCrazyHookSettings, *labVersion;
     SHR::But *butPath[WWD::Games_Count], *butSave;
-    SHR::DropDown *ddoptLang, *ddoptRes, *ddoptGameRes;
+    SHR::DropDown *ddoptLang, *ddoptGameRes;
     SHR::CBox *cbOptionsAlfaHigherPlanes, *cboptCrazyHookGodMode, *cboptCrazyHookArmor, *cboptCrazyHookDebugInfo,
             *cboptAutoUpdate, *cboptSmoothZooming;
     WIDG::Viewport *vp;

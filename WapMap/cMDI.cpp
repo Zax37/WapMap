@@ -11,6 +11,8 @@
 
 extern HGE *hge;
 
+int cTabMDI::MaxTabWidth = 100;
+
 void cMDI::action(const gcn::ActionEvent &actionEvent) {
     if (actionEvent.getSource() == hContext) {
         if (hContext->GetSelectedID() == MDI_CONTEXT_RELOAD) {
@@ -53,16 +55,12 @@ cMDI::cMDI() {
     GV->editState->conMain->add(hContext, 400, 400);
     RebuildContext(1);
     m_iPosY = LAY_MDI_Y;
-    hDefTab = new cTabMDI();
-    hDefTab->dd = 0;
-    hDefTab->bFocused = 0;
-    hDefTab->fTimer = 0;
+    m_iAddTabButtonOffset = (LAY_MDI_H - 16) / 2;
+    //fAddTabTimer = 0.f;
 }
 
 cMDI::~cMDI() {
-    delete hDefTab;
-    bUpdateCrashList = 0;
-    while (m_vhDoc.size())
+    while (!m_vhDoc.empty())
         DeleteDocByIt(0);
     FILE *f = fopen("runtime.tmp", "r");
     if (f) {
@@ -84,9 +82,9 @@ void cMDI::UpdateCrashList() {
         GV->Console->Printf("~r~Unable to update runtime temporary cache!");
         return;
     }
-    for (int i = 0; i < m_vhDoc.size(); i++) {
-        if (strlen(m_vhDoc[i]->hParser->GetFilePath()) > 0)
-            fprintf(f, "%s\n", m_vhDoc[i]->hParser->GetFilePath());
+    for (auto & doc : m_vhDoc) {
+        if (strlen(doc->hParser->GetFilePath()) > 0)
+            fprintf(f, "%s\n", doc->hParser->GetFilePath());
     }
     fclose(f);
     GV->Console->Printf("~g~Runtime temporary cache updated.");
@@ -106,13 +104,13 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
         strrchr(dd->szFileName, '.')[0] = 0;
     }
 
-    dd->bSaved = 1;
+    dd->bSaved = true;
 
     dd->fZoom = 1;
-    dd->fDestZoom = 1;
 
     dd->hTab = new cTabMDI();
     dd->hTab->dd = dd;
+    dd->hTab->hMDI = this;
     dd->hTab->bFocused = 0;
     dd->hTab->fTimer = 0;
 
@@ -170,9 +168,11 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
     if (bReloadingMap) {
         int pos = m_iContextMenuFocusedDoc;
         DeleteDocByIt(m_iContextMenuFocusedDoc);
-        bReloadingMap = 0;
+        bReloadingMap = false;
         m_vhDoc.insert(m_vhDoc.begin() + pos, dd);
+        dd->hTab->index = pos;
     } else {
+        dd->hTab->index = m_vhDoc.size();
         m_vhDoc.push_back(dd);
     }
     GV->Console->Printf("~g~Document added.");
@@ -188,12 +188,14 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
             }
         }
         if (bRebuild) {
-            RebuildContext(0);
+            RebuildContext(false);
             GV->editState->hAppMenu->SyncRecentlyClosedRebuild();
         }
     }
-    hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(1);
+    hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(true);
     hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
+
+    UpdateMaxTabSize();
 
     return dd;
 }
@@ -307,28 +309,16 @@ void cMDI::DeleteDocByIt(int i) {
     hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
     GV->editState->hAppMenu->SyncDocumentClosed();
     RebuildContext(0);
-}
 
-void cMDI::DeleteDocByPtr(DocumentData *hdd) {
-
+    UpdateMaxTabSize();
 }
 
 void cMDI::Think(bool bConsumed) {
     if (bBlock) return;
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
-    bool mout = 0;
+    bool mout = false, mAtAdd = false;
     int iFocus = -2;
-
-    /*if( (hge->Input_KeyDown(HGEK_LBUTTON) || hge->Input_KeyDown(HGEK_RBUTTON || hge->Input_GetMouseWheel() != 0)) && hContext->isVisible() &&
-        !(mx > hContext->getX() &&
-          mx < hContext->getX()+hContext->getWidth() &&
-          my > hContext->getY() &&
-          my < hContext->getY()+hContext->getHeight()) &&
-        !(hContextClosed->isVisible() &&
-          mx > hContextClosed->getX() && mx < hContextClosed->getX()+hContextClosed->getWidth() &&
-          my > hContextClosed->getY() && my < hContextClosed->getY()+hContextClosed->getHeight()) )
-     hContext->setVisible(0);*/
 
     if (my > m_iPosY && my < m_iPosY + 25 && !bConsumed) {
         int xoff = 0;
@@ -336,11 +326,8 @@ void cMDI::Think(bool bConsumed) {
             cTabMDI *tab = /*(i == -1 ? hDefTab : */m_vhDoc[i]->hTab;
             int w = tab->GetWidth();
             if (mx > xoff && mx <= xoff + w) {
-                bool reject = 0;
-                tab->bFocused = !reject;
-                if (!reject) {
-                    iFocus = i;
-                }
+                tab->bFocused = true;
+                iFocus = i;
                 if (hge->Input_KeyDown(HGEK_LBUTTON) && i != -1) {
                     if (tab->bCloseFocused) {
                         CloseDocByIt(i);
@@ -351,11 +338,14 @@ void cMDI::Think(bool bConsumed) {
                     }
                 }
             } else
-                tab->bFocused = 0;
+                tab->bFocused = false;
             xoff += w;
         }
+        if (mx > xoff && mx <= xoff + 16) {
+            mAtAdd = true;
+        }
     } else
-        mout = 1;
+        mout = true;
 
     if (hContext->isVisible() && !(mx > hContext->getX() - 2 && mx < hContext->getX() + hContext->getWidth() + 2 &&
                                    my > hContext->getY() - 2 && my < hContext->getY() + hContext->getHeight() + 2) &&
@@ -373,11 +363,10 @@ void cMDI::Think(bool bConsumed) {
         hContext->setVisible(1);
     }
 
-    for (int i = -1; i < int(m_vhDoc.size()); i++) {
-        cTabMDI *tab = (i == -1 ? hDefTab : m_vhDoc[i]->hTab);
+    for (auto doc : m_vhDoc) {
         if (mout)
-            tab->bFocused = 0;
-        tab->Update();
+            doc->hTab->bFocused = false;
+        doc->hTab->Update();
     }
 
     if (iFocus != -2) {
@@ -386,14 +375,35 @@ void cMDI::Think(bool bConsumed) {
             SetActiveDocIt(iFocus);
         }
     }
+
+    /*if (mAtAdd) {
+        if (fAddTabTimer < 0.2) {
+            fAddTabTimer += hge->Timer_GetDelta();
+            if (fAddTabTimer > 0.2) {
+                fAddTabTimer = 0.2;
+            }
+        }
+
+        if (hge->Input_KeyDown(HGEK_LBUTTON)) {
+            GV->editState->PrepareForDocumentSwitch();
+            SetActiveDocIt(-1);
+        }
+    } else {
+        if (fAddTabTimer > 0.0) {
+            fAddTabTimer -= hge->Timer_GetDelta();
+            if (fAddTabTimer < 0.0) {
+                fAddTabTimer = 0.0;
+            }
+        }
+    }*/
 }
 
 bool cMDI::IsAnyDocUnsaved() {
-    for (int i = 0; i < m_vhDoc.size(); i++) {
-        if (!m_vhDoc[i]->bSaved)
-            return 1;
+    for (auto & doc : m_vhDoc) {
+        if (!doc->bSaved)
+            return true;
     }
-    return 0;
+    return false;
 }
 
 void cMDI::PrepareDocToSave(int i) {
@@ -409,7 +419,7 @@ bool cMDI::CloseDocByIt(int i) {
     if (!m_vhDoc[i]->bSaved) {
         char text[256];
         sprintf(text, GETL2S("Various", "FileUnsavedPrompt"), m_vhDoc[i]->szFileName);
-        int choice = MessageBox(hge->System_GetState(HGE_HWND), text, "WapMap", MB_YESNOCANCEL | MB_ICONWARNING);
+        int choice = MessageBox(hge->System_GetState(HGE_HWND), text, PRODUCT_NAME, MB_YESNOCANCEL | MB_ICONWARNING);
         if (choice == IDYES) {
             if (strlen(m_vhDoc[i]->hParser->GetFilePath()) == 0) {
                 OPENFILENAME ofn;
@@ -442,33 +452,38 @@ bool cMDI::CloseDocByIt(int i) {
                 GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
 #endif
                 sprintf(text, GETL2S("Various", "UnableToSave"), m_vhDoc[i]->szFileName);
-                MessageBox(hge->System_GetState(HGE_HWND), text, "WapMap", MB_OK | MB_ICONERROR);
+                MessageBox(hge->System_GetState(HGE_HWND), text, PRODUCT_NAME, MB_OK | MB_ICONERROR);
             }
         } else if (choice == IDCANCEL) {
-            return 0;
+            return false;
         }
     }
     DeleteDocByIt(i);
-    if (m_vhDoc.size() == 0) {
+    if (m_vhDoc.empty()) {
         GV->anyMapLoaded = false;
     }
-    return 1;
+    return true;
 }
 
 void cMDI::Render() {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     hge->Gfx_RenderLine(0, m_iPosY, hge->System_GetState(HGE_SCREENWIDTH), m_iPosY, GV->colOutline);
-    /*hgeQuad q;
-    q.tex = 0;
-    q.blend = BLEND_DEFAULT;
-    hge->Gfx_SetClipping(0, m_iPosY - 1, hge->System_GetState(HGE_SCREENWIDTH) - 3, 26);
-    for (int x = 0; x < hge->System_GetState(HGE_SCREENWIDTH) / 128; x++)
-        GV->hGfxInterface->sprMainBackground->Render(x * 128, m_iPosY - (m_iPosY % 128));*/
     hge->Gfx_SetClipping();
-    int xoffset = 0; //hDefTab->Render(0, m_iPosY, bBlock, m_iActiveDoc == -1, true);
+    int xOffset = 0;
     for (int i = 0; i < m_vhDoc.size(); i++)
-        xoffset += m_vhDoc[i]->hTab->Render(xoffset, m_iPosY, bBlock, m_iActiveDoc == i, true);
+        xOffset += m_vhDoc[i]->hTab->Render(xOffset, m_iPosY, bBlock, m_iActiveDoc == i);
+    m_vhDoc.back()->hTab->RenderSeparator(xOffset, m_iPosY, true);
+
+    xOffset += m_iAddTabButtonOffset;
+
+    /*if (fAddTabTimer < 0.2) {
+        GV->sprTabAddButton->Render(xOffset, m_iPosY + m_iAddTabButtonOffset);
+    }
+    if (fAddTabTimer > 0.0) {
+        GV->sprTabAddButtonFocused->SetColor(SETA(0xFFFFFF, fAddTabTimer * 5.f * 255.f));
+        GV->sprTabAddButtonFocused->Render(xOffset, m_iPosY + m_iAddTabButtonOffset);
+    }*/
 }
 
 void cMDI::SetActiveDoc(DocumentData *doc) {
@@ -482,6 +497,7 @@ void cMDI::SetActiveDoc(DocumentData *doc) {
 }
 
 void cMDI::SetActiveDocIt(int it) {
+    m_iLastActiveDoc = m_iActiveDoc;
     m_iActiveDoc = it;
     GV->editState->DocumentSwitched();
 }
@@ -491,7 +507,7 @@ void cMDI::SaveCurrent() {
         try {
             PrepareDocToSave(GetActiveDocIt());
             GV->editState->hParser->CompileToFile(GV->editState->hParser->GetFilePath());
-            GetActiveDoc()->bSaved = 1;
+            GetActiveDoc()->bSaved = true;
 
             char tmp[128];
             char *filename = SHR::GetFile(GV->editState->hParser->GetFilePath());
@@ -507,11 +523,15 @@ void cMDI::SaveCurrent() {
 #endif
         }
     }
-};
+}
+
+void cMDI::UpdateMaxTabSize() {
+    cTabMDI::MaxTabWidth = m_vhDoc.empty() ? hge->System_GetState(HGE_SCREENWIDTH) : (hge->System_GetState(HGE_SCREENWIDTH) - 16 - m_iAddTabButtonOffset * 2) / m_vhDoc.size();
+}
 
 cTabMDI::cTabMDI() {
     dd = 0;
-    bFocused = 0;
+    bFocused = false;
     fTimer = 0;
     fCloseTimer = 0;
 }
@@ -530,9 +550,9 @@ void cTabMDI::Update() {
         if (fTimer < 0.25f) fTimer = 0.25f;
     }*/
 
-    if (!bSelected && bFocused && fTimer < 0.25f) {
+    if (!bSelected && bFocused && fTimer < 0.2f) {
         fTimer += hge->Timer_GetDelta();
-        if (fTimer > 0.25f) fTimer = 0.25f;
+        if (fTimer > 0.2f) fTimer = 0.2f;
     } else if ((bSelected || !bFocused) && fTimer > 0) {
         fTimer -= hge->Timer_GetDelta();
         if (fTimer < 0) fTimer = 0;
@@ -540,103 +560,91 @@ void cTabMDI::Update() {
 }
 
 int cTabMDI::GetWidth() {
-    if (dd == 0)
-        return 36 ;
+    /*if (dd == 0)
+        return 36 ;*/
 
     std::string desc(dd->szFileName);
     if (!dd->bSaved) desc.push_back('*');
-    return GV->fntMyriad16->GetStringWidth(desc.c_str()) + 55;
+    return std::min(int(GV->fntMyriad16->GetStringWidth(desc.c_str()) + 55), MaxTabWidth);
 }
 
-int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected, bool blast) {
+int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected) {
     bSelected = bselected;
-    int st = 1;
-    if (bselected) st = 3;
-    //if (bdisabled) st = 0;
-    /*if (dd == 0) {
-        int tabw = GetWidth();
-        if (!bselected) {
-            for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[st][i]->SetColor(0xFFFFFFFF);
+    std::string desc(dd->szFileName);
+    if (!dd->bSaved) desc.push_back('*');
+    int sw = GV->fntMyriad16->GetStringWidth(desc.c_str());
+    int tabWidth = GetWidth();
 
-            RenderBG(x, y, tabw, st, 1, blast);
-        }
+    if (bselected || fTimer > 0) {
+        hgeQuad q;
+        q.tex = 0;
+        q.blend = BLEND_DEFAULT;
+        SHR::SetQuad(&q, 0xFFFFFFFF, x, y, x + GetWidth(), y + LAY_MDI_H);
+        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = bselected ? 0xFF0F0F0F : SETA(0xFFFFFF, fTimer * 0x70);
+        hge->Gfx_RenderQuad(&q);
+    }
 
-        if (st == 1 && fTimer > 0) {
-            for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFF, int(fTimer
-                        *4.0f * 125.0f)));
-            RenderBG(x, y, tabw, 3, 1, blast);
-        }
-        GV->sprIcons[Icon_Home]->RenderStretch(x + 7, y, x + 4 + 26, y + 26);
-        if (fTimer > 0.0f) {
-            GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_COLORMUL | BLEND_ALPHAADD | BLEND_NOZWRITE);
-            GV->sprIcons[Icon_Home]->SetColor(SETA(0xFFFFFF, (unsigned char) (fTimer * 4.0f * 125.0f)));
-            GV->sprIcons[Icon_Home]->RenderStretch(x + 7, y, x + 4 + 26, y + 26);
-            GV->sprIcons[Icon_Home]->SetBlendMode(BLEND_DEFAULT);
-            GV->sprIcons[Icon_Home]->SetColor(0xFFFFFFFF);
-        }
+    if (!bselected) {
+        RenderSeparator(x, y);
+    }
 
-        return tabw;
-    } else {*/
-        std::string desc(dd->szFileName);
-        if (!dd->bSaved) desc.push_back('*');
-        int sw = GV->fntMyriad16->GetStringWidth(desc.c_str());
-        int tabw = GetWidth();
+    float mx, my;
+    hge->Input_GetMousePos(&mx, &my);
 
-        if (!bselected) {
-            for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[st][i]->SetColor(0xFFFFFFFF);
+    bCloseFocused = (!bdisabled && mx > x + tabWidth - 16 && my > y + 5 && mx < x + tabWidth - 5 && my < y + LAY_MDI_H - 5 &&
+                         GV->editState->conMain->getWidgetAt(mx, my) == NULL);
 
-            RenderBG(x, y, tabw, st, 1, blast);
-        }
+    if (bCloseFocused && fCloseTimer < 0.2f) {
+        fCloseTimer += hge->Timer_GetDelta();
+        if (fCloseTimer > 0.2f) fCloseTimer = 0.2f;
+    } else if (!bCloseFocused && fCloseTimer > 0.0f) {
+        fCloseTimer -= hge->Timer_GetDelta();
+        if (fCloseTimer < 0.0f) fCloseTimer = 0.0f;
+    }
 
-        if (st == 1 && fTimer > 0) {
-            for (int i = 0; i < 5; i++)
-                GV->hGfxInterface->sprBreadcrumb[3][i]->SetColor(SETA(0xFFFFFF, int(fTimer
-                        *4.0f * 125.0f)));
-            RenderBG(x, y, tabw, 3, 1, blast);
-        }
+    hge->Gfx_SetClipping(x, y, tabWidth - 18, LAY_MDI_H);
+    if (dd->hParser->GetGame() == WWD::Game_Claw && dd->hParser->GetBaseLevel() != 0) {
+        GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->SetColor(0xFFFFFFFF);
+        GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->Render(x + 9, y + 4);
+    } else {
+        GV->sprGamesSmall[dd->hParser->GetGame()]->SetColor(0xFFFFFFFF);
+        GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 9, y + 4);
+    }
 
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
+    GV->fntMyriad16->SetColor(SETA(0xe1e1e1, bdisabled ? 0x77 : 0xFF));
+    GV->fntMyriad16->Render(x + 31, y + 5, HGETEXT_LEFT, desc.c_str(), 0);
+    hge->Gfx_SetClipping();
 
-        bCloseFocused = (!bdisabled && mx > x + sw + 38 && my > y + 4 && mx < x + sw + 31 + 16 && my < y + 20 &&
-                             GV->editState->conMain->getWidgetAt(mx, my) == NULL);
+    GV->sprTabCloseButton->SetColor(SETA(0xFFFFFF, bdisabled ? 0x77 : 0xFF));
+    GV->sprTabCloseButton->Render(x + tabWidth - 16, y + 7);
 
-        if (bCloseFocused && fCloseTimer < 0.2f) {
-            fCloseTimer += hge->Timer_GetDelta();
-            if (fCloseTimer > 0.2f) fCloseTimer = 0.2f;
-        } else if (!bCloseFocused && fCloseTimer > 0.0f) {
-            fCloseTimer -= hge->Timer_GetDelta();
-            if (fCloseTimer < 0.0f) fCloseTimer = 0.0f;
-        }
+    if (fCloseTimer > 0.f) {
+        GV->sprTabCloseButtonFocused->SetColor(SETA(0xFFFFFF, fCloseTimer * 5.f * 128.f));
+        GV->sprTabCloseButtonFocused->Render(x + tabWidth - 18, y + 6);
+    }
 
-        GV->sprTabCloseButton->SetColor(SETA(0xFFFFFF, bdisabled ? 0x77 : 0xFF));
-        GV->sprTabCloseButton->Render(x + sw + 38, y + 8);
+    return tabWidth;
+}
 
-        if (dd->hParser->GetGame() == WWD::Game_Claw && dd->hParser->GetBaseLevel() != 0)
-            GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->Render(x + 9, y + 4);
-        else
-            GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 9, y + 4);
-        GV->fntMyriad16->SetColor(SETA(0xe1e1e1, bdisabled ? 0x77 : 0xFF));
-        GV->fntMyriad16->Render(x + 31, y + 5, HGETEXT_LEFT, desc.c_str(), 0);
-        return tabw;
-    //}
+void cTabMDI::RenderSeparator(int x, int y, bool right) {
+    if (index && (right ? !bSelected : !hMDI->m_vhDoc[index - 1]->hTab->bSelected)) {
+        int alpha = 255 - (right ? fTimer : std::max(fTimer, hMDI->m_vhDoc[index - 1]->hTab->fTimer)) * 4 * 255;
+        hge->Gfx_RenderLine(x, y + 2, x, y + LAY_MDI_H - 2, SETA(GV->colLineBright, alpha));
+    }
 }
 
 void cTabMDI::RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed) {
     int xoff = 0;
-    /*if (bfirst) {
+    if (bfirst) {
         GV->hGfxInterface->sprBreadcrumb[st][0]->Render(x, y);
         xoff = 5;
     } else {
         GV->hGfxInterface->sprBreadcrumb[st][3]->Render(x, y);
         xoff = 14;
-    }*/
+    }
     GV->hGfxInterface->sprBreadcrumb[st][1]->RenderStretch(x/* + xoff*/, y, x + w - 1 /*- (bclosed || bfirst) * 4 - 4*/, y + 26);
-    /*if (bclosed)
+    if (bclosed)
         GV->hGfxInterface->sprBreadcrumb[st][4]->Render(x + w - 8, y);
     else
-        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w - (bfirst * 4) - 4, y);*/
+        GV->hGfxInterface->sprBreadcrumb[st][2]->Render(x + w - (bfirst * 4) - 4, y);
 }

@@ -97,8 +97,7 @@ typedef unsigned long DWORD;
 #define EWW_DRAW_LINE       1
 #define EWW_DRAW_RECT       2
 #define EWW_DRAW_ELLIPSE    3
-#define EWW_DRAW_FLOOD      4
-#define EWW_DRAW_SPRAY      5
+#define EWW_DRAW_SPRAY      4
 
 #define VP_VIEWPORT         0
 //unused                    1
@@ -1069,6 +1068,8 @@ namespace State {
         int iPipetteTileHL;
         bool btpiFixedPos;
         WIDG::Viewport *vptpi;
+
+        //float fHomeBackButTimer;
 
         void RebuildTilePicker(bool forceSliderRefresh = false);
 

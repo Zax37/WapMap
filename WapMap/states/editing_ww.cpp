@@ -32,6 +32,8 @@ State::EditingWW::EditingWW() {
     fade_fTimer = 0;
     fade_iAction = 0;
     GV->editState = this;
+
+    //fHomeBackButTimer = 0.0;
 }
 
 State::EditingWW::EditingWW(WWD::Parser *phParser) {
@@ -186,7 +188,7 @@ void State::EditingWW::Init() {
     cbutActiveMode->addEntry(SHR::ComboButEntry(GV->sprIcons16[Icon16_ModeObject], GETL(Lang_ModeObject)));
     cbutActiveMode->addActionListener(al);
     cbutActiveMode->adjustSize();
-    conMain->add(cbutActiveMode, 5, LAY_MODEBAR_Y + 4);
+    conMain->add(cbutActiveMode, 5, LAY_MODEBAR_Y + 5);
 
     int modeMenuStartX = 10 + cbutActiveMode->getDimension().width;
 
@@ -1612,7 +1614,7 @@ void State::EditingWW::Init() {
                 butCrashRetrieve = new SHR::But(GV->hGfxInterface, GETL2S("WinCrashRetrieve", "Retrieve"));
                 butCrashRetrieve->setDimension(gcn::Rectangle(0, 0, 100, 33));
                 butCrashRetrieve->addActionListener(al);
-                conCrashRetrieve->add(butCrashRetrieve, 590 / 2 - 50, conCrashRetrieve->getHeight() - 40);
+                conCrashRetrieve->add(butCrashRetrieve, 590 / 2 - 50, conCrashRetrieve->getHeight() - 20);
                 if (linec > 10) {
                     char tmp[512];
                     sprintf(tmp, GETL2S("WinCrashRetrieve", "MoreTabs"), linec - 10);
@@ -2180,15 +2182,15 @@ bool State::EditingWW::Think() {
             for (size_t i = 0; i < GV->editState->MDI->GetActiveDoc()->vGuides.size(); i++) {
                 stGuideLine gl = GV->editState->MDI->GetActiveDoc()->vGuides[i];
                 if (gl.iPos < 0) continue;
-                int scrpos = (gl.bOrient == GUIDE_HORIZONTAL ? Wrd2ScrY(mainPl, gl.iPos)
+                int scrPos = (gl.bOrient == GUIDE_HORIZONTAL ? Wrd2ScrY(mainPl, gl.iPos)
                                                              : Wrd2ScrX(mainPl, gl.iPos));
                 if (gl.bOrient == GUIDE_HORIZONTAL &&
-                    (scrpos < vPort->GetY() || scrpos > vPort->GetY() + vPort->GetHeight()) ||
+                    (scrPos < vPort->GetY() || scrPos > vPort->GetY() + vPort->GetHeight()) ||
                     gl.bOrient == GUIDE_VERTICAL &&
-                    (scrpos < vPort->GetX() || scrpos > vPort->GetX() + vPort->GetWidth()))
+                    (scrPos < vPort->GetX() || scrPos > vPort->GetX() + vPort->GetWidth()))
                     continue;
-                if ((gl.bOrient == GUIDE_HORIZONTAL && (my > scrpos - 5 && my < scrpos + 5) ||
-                     gl.bOrient == GUIDE_VERTICAL && (mx > scrpos - 5 && mx < scrpos + 5)) &&
+                if ((gl.bOrient == GUIDE_HORIZONTAL && (my > scrPos - 5 && my < scrPos + 5) ||
+                     gl.bOrient == GUIDE_VERTICAL && (mx > scrPos - 5 && mx < scrPos + 5)) &&
                     iActiveTool != EWW_TOOL_MOVEOBJECT && iActiveTool != EWW_TOOL_EDITOBJ) {
                     bMouseConsumed = true;
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
@@ -2219,7 +2221,7 @@ bool State::EditingWW::Think() {
                     iManipulatedGuide = -1;
                 }
             }
-            bMouseConsumed = 1;
+            bMouseConsumed = true;
         }
     }
 
@@ -2528,8 +2530,15 @@ void State::EditingWW::SetTool(int iNewTool) {
 
 void State::EditingWW::OpenTool(int iNewTool) {
     if (iNewTool == EWW_TOOL_PENCIL || iNewTool == EWW_TOOL_FILL) {
+        if (iNewTool == EWW_TOOL_FILL) {
+            hmbTile->butIconFill->setHighlight(true);
+        } else {
+            hmbTile->butIconPencil->setHighlight(true);
+        }
+        if (iActiveTool != EWW_TOOL_FILL) {
+            iTileDrawMode = EWW_DRAW_POINT;
+        }
         iActiveTool = iNewTool;
-        iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker(true);
         winTilePicker->setVisible(true);
     } else if (iNewTool == EWW_TOOL_WRITEID) {
@@ -2539,6 +2548,7 @@ void State::EditingWW::OpenTool(int iNewTool) {
         winSpacing->setVisible(true);
         winSpacing->requestMoveToTop();
     } else if (iNewTool == EWW_TOOL_BRUSH) {
+        hmbTile->butIconBrush->setHighlight(true);
         iActiveTool = iNewTool;
         iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker(true);
@@ -2573,12 +2583,15 @@ void State::EditingWW::OpenTool(int iNewTool) {
     } else if (iNewTool == EWW_TOOL_DUPLICATE) {
         ShowAndUpdateDuplicateMenu();
     } else if (iNewTool == EWW_TOOL_NONE) {
+        hmbTile->butIconSelect->setHighlight(true);
         iTilePicked = EWW_TILE_NONE;
     }
 }
 
 void State::EditingWW::CloseTool(int iNewTool) {
     if (iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL) {
+        hmbTile->butIconPencil->setHighlight(false);
+        hmbTile->butIconFill->setHighlight(false);
         if (iNewTool != EWW_TOOL_PENCIL && iNewTool != EWW_TOOL_FILL) {
             iTilePicked = EWW_TILE_NONE;
             if (iNewTool != EWW_TOOL_BRUSH) {
@@ -2589,11 +2602,12 @@ void State::EditingWW::CloseTool(int iNewTool) {
         vTileGhosting.clear();
         return;
     } else if (iActiveTool == EWW_TOOL_WRITEID) {
-        hmbTile->butIconWriteID->setHighlight(0);
+        hmbTile->butIconWriteID->setHighlight(false);
         vTileGhosting.clear();
     } else if (iActiveTool == EWW_TOOL_SPACEOBJ) {
-        winSpacing->setVisible(0);
+        winSpacing->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_BRUSH) {
+        hmbTile->butIconBrush->setHighlight(false);
         if (iNewTool != EWW_TOOL_PENCIL && iNewTool != EWW_TOOL_FILL) {
             winTilePicker->setVisible(false);
         }
@@ -2621,6 +2635,7 @@ void State::EditingWW::CloseTool(int iNewTool) {
     } else if (iActiveTool == EWW_TOOL_ALIGNOBJ) {
 
     } else if (iActiveTool == EWW_TOOL_NONE) {
+        hmbTile->butIconSelect->setHighlight(false);
         iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
         iObjDragOrigX = iObjDragOrigY = -1;
         bObjDragSelection = false;
@@ -2823,7 +2838,7 @@ void State::EditingWW::EnterMode(int piMode) {
         cbutActiveMode->setSelectedEntryID(0);
         UpdateScrollBars();
     } else if (piMode == EWW_MODE_OBJECT) {
-        bObjDragSelection = 0;
+        bObjDragSelection = false;
         SwitchActiveModeMenuBar(hmbObject);
         cbutActiveMode->setSelectedEntryID(1);
         UpdateScrollBars();
@@ -2834,12 +2849,12 @@ void State::EditingWW::ExitMode(int piMode) {
     if (piMode == EWW_MODE_TILE) {
         SwitchActiveModeMenuBar(NULL);
         if (iTileSelectX1 != -1)
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw(true);
         iTileSelectX1 = iTileSelectX2 = iTileSelectY1 = iTileSelectY2 = -1;
-        tilContext->setVisible(0);
+        tilContext->setVisible(false);
     } else if (piMode == EWW_MODE_OBJECT) {
-        objContext->setVisible(0);
-        winSearchObj->setVisible(0);
+        objContext->setVisible(false);
+        winSearchObj->setVisible(false);
         SwitchActiveModeMenuBar(NULL);
         vObjectsPicked.clear();
     }
@@ -2881,16 +2896,16 @@ void State::EditingWW::ToggleFullscreen() {
 void State::EditingWW::FixInterfacePositions() {
     conMain->setDimension(gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
     MDI->SetY(LAY_MDI_Y);
+    MDI->UpdateMaxTabSize();
     if (hParser) {
-        int rulersOffset = hRulers->IsVisible() * 19;
+        int rulersOffset = hRulers->IsVisible() * 18;
         vPort->SetPos(1 + rulersOffset, LAY_VIEWPORT_Y + rulersOffset);
         vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH) - 17 - rulersOffset + !bMaximized,
-                      hge->System_GetState(HGE_SCREENHEIGHT) - LAY_APP_CUT_Y - LAY_STATUS_H - 19 - LAY_VIEWPORT_Y -
-                      rulersOffset);
-        sliHor->setDimension(gcn::Rectangle(vPort->GetX() - 1, vPort->GetY() + vPort->GetHeight() - 5,
+                      hge->System_GetState(HGE_SCREENHEIGHT) - vPort->GetY() - LAY_STATUS_H - 17);
+        sliHor->setDimension(gcn::Rectangle(vPort->GetX() - rulersOffset - 1, vPort->GetY() + vPort->GetHeight(),
                 vPort->GetWidth() + rulersOffset + 3, 18
         ));
-        sliVer->setDimension(gcn::Rectangle(vPort->GetX() + vPort->GetWidth() - !bMaximized, vPort->GetY(),
+        sliVer->setDimension(gcn::Rectangle(vPort->GetX() + vPort->GetWidth() - !bMaximized, vPort->GetY() - rulersOffset,
                 18, vPort->GetHeight() + rulersOffset - 2
         ));
         sliZoom->setPosition(hge->System_GetState(HGE_SCREENWIDTH) - 160, hge->System_GetState(HGE_SCREENHEIGHT) - 25);
@@ -2900,8 +2915,9 @@ void State::EditingWW::FixInterfacePositions() {
         winWelcome->setPosition(vPort->GetX() + (vPort->GetWidth() - winWelcome->getWidth()) / 2,
                                 vPort->GetY() + (vPort->GetHeight() - winWelcome->getHeight()) / 2);
     }
-    butMicroTileCB->setPosition(4, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 2);
-    butMicroObjectCB->setPosition(32, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 2);
+    UpdateScrollBars();
+    butMicroTileCB->setPosition(4, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 3);
+    butMicroObjectCB->setPosition(32, hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H + 3);
     GV->Console->FixPos();
 }
 
@@ -3072,9 +3088,12 @@ void State::EditingWW::PrepareForDocumentSwitch() {
     MDI->GetActiveDoc()->iSelectedPlane = hmbTile->ddActivePlane->getSelected();
     MDI->GetActiveDoc()->vObjectsPicked = vObjectsPicked;
     MDI->GetActiveDoc()->fZoom = fZoom;
-    MDI->GetActiveDoc()->fDestZoom = fZoom;
     MDI->GetActiveDoc()->hPlaneData = hPlaneData;
     MDI->GetActiveDoc()->hStartingPosObj = hStartingPosObj;
+    MDI->GetActiveDoc()->iTileSelectX1 = iTileSelectX1;
+    MDI->GetActiveDoc()->iTileSelectY1 = iTileSelectY1;
+    MDI->GetActiveDoc()->iTileSelectX2 = iTileSelectX2;
+    MDI->GetActiveDoc()->iTileSelectY2 = iTileSelectY2;
 }
 
 void State::EditingWW::SyncLogicBrowser() {
@@ -3159,10 +3178,16 @@ void State::EditingWW::DocumentSwitched() {
         }
         winTileProp->setVisible(false);
         FixInterfacePositions();
+        iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
         return;
     }
 
-    cbutActiveMode->setVisible(1);
+    iTileSelectX1 = MDI->GetActiveDoc()->iTileSelectX1;
+    iTileSelectY1 = MDI->GetActiveDoc()->iTileSelectY1;
+    iTileSelectX2 = MDI->GetActiveDoc()->iTileSelectX2;
+    iTileSelectY2 = MDI->GetActiveDoc()->iTileSelectY2;
+
+    cbutActiveMode->setVisible(true);
 
     if (iActiveTool == EWW_TOOL_BRUSH || iActiveTool == EWW_TOOL_FILL || iActiveTool == EWW_TOOL_PENCIL) {
         if (iActiveTool == EWW_TOOL_BRUSH && MDI->GetActiveDoc() != NULL && iTilePicked != EWW_TILE_NONE)

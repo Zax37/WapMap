@@ -70,79 +70,71 @@ void State::EditingWW::ObjectOverlay() {
     hge->Input_GetMousePos(&mx, &my);
     if (iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_OBJSELAREA &&
         (toolsaMinX != 0 || toolsaMinY != 0 || toolsaMaxX != 0 || toolsaMaxY != 0 || (toolsaAction != TOOL_OBJSA_NONE && toolsaAction != TOOL_OBJSA_PICKALL))) {
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 0;
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x7700ffd8;
-        vPort->ClipScreen();
-        q.v[0].x = Wrd2ScrX(GetActivePlane(), toolsaMinX);
-        q.v[0].y = Wrd2ScrY(GetActivePlane(), toolsaMinY);
-        q.v[2].x = Wrd2ScrX(GetActivePlane(), (toolsaMaxX == 0 ? GetActivePlane()->GetPlaneWidthPx() : toolsaMaxX));
-        q.v[2].y = Wrd2ScrY(GetActivePlane(), (toolsaMaxY == 0 ? GetActivePlane()->GetPlaneHeightPx() : toolsaMaxY));
+        int x1 = toolsaMinX, x2 = toolsaMaxX == 0 ? GetActivePlane()->GetPlaneWidthPx() : toolsaMaxX,
+            y1 = toolsaMinY, y2 = toolsaMaxY == 0 ? GetActivePlane()->GetPlaneHeightPx() : toolsaMaxY;
+
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+
+        x1 = Wrd2ScrX(GetActivePlane(), x1);
+        y1 = Wrd2ScrY(GetActivePlane(), y1);
+        x2 = Wrd2ScrX(GetActivePlane(), x2);
+        y2 = Wrd2ScrY(GetActivePlane(), y2);
 
         if (vPort->GetWidget()->isMouseOver()) {
-            if (toolsaAction == TOOL_OBJSA_PICKMINX && mx < q.v[2].x)
-                q.v[0].x = mx;
-            else if (toolsaAction == TOOL_OBJSA_PICKMINY && my < q.v[2].y)
-                q.v[0].y = my;
-            else if (toolsaAction == TOOL_OBJSA_PICKMAXX && mx > q.v[0].x)
-                q.v[2].x = mx;
-            else if (toolsaAction == TOOL_OBJSA_PICKMAXY && my > q.v[0].y)
-                q.v[2].y = my;
+            if (toolsaAction == TOOL_OBJSA_PICKMINX && mx < x1)
+                x1 = mx;
+            else if (toolsaAction == TOOL_OBJSA_PICKMINY && my < y1)
+                y1 = my;
+            else if (toolsaAction == TOOL_OBJSA_PICKMAXX && mx > x2)
+                x2 = mx;
+            else if (toolsaAction == TOOL_OBJSA_PICKMAXY && my > y2)
+                y2 = my;
         }
 
-        if (q.v[0].x < vPort->GetX()) q.v[0].x = vPort->GetX();
-        if (q.v[0].y < vPort->GetY()) q.v[0].y = vPort->GetY() + 3;
-        if (q.v[2].x > vPort->GetX() + vPort->GetWidth()) q.v[2].x = vPort->GetX() + vPort->GetWidth();
-        if (q.v[2].y > vPort->GetY() + vPort->GetHeight()) q.v[2].y = vPort->GetY() + vPort->GetHeight();
-        q.v[1].x = q.v[2].x;
-        q.v[1].y = q.v[0].y;
-        q.v[3].x = q.v[0].x;
-        q.v[3].y = q.v[2].y;
-        hge->Gfx_RenderQuad(&q);
-        hge->Gfx_RenderLine(q.v[0].x, q.v[0].y, q.v[1].x, q.v[1].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[1].x, q.v[1].y, q.v[2].x, q.v[2].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFFFF0000);
-        hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFFFF0000);
-    }
-    if (bObjDragSelection && hParser != NULL && iMode == EWW_MODE_OBJECT) {
         hgeQuad q;
         q.blend = BLEND_DEFAULT;
         q.tex = 0;
-        q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 0;
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77ffcc00;
-        vPort->ClipScreen();
-        q.v[0].x = Wrd2ScrX(GetActivePlane(), iObjDragOrigX);
-        q.v[0].y = Wrd2ScrY(GetActivePlane(), iObjDragOrigY);
-        q.v[1].x = mx;
-        q.v[1].y = q.v[0].y;
-        q.v[2].x = mx;
-        q.v[2].y = my;
-        q.v[3].x = q.v[0].x;
-        q.v[3].y = my;
-        if (abs(q.v[0].x - q.v[2].x) > 2 && abs(q.v[0].y - q.v[2].y) > 2) {
+        SHR::SetQuad(&q, 0x7700ffd8, x1, y1, x2, y2);
+        hge->Gfx_RenderQuad(&q);
+        hge->Gfx_RenderLine(x1 - 1, y1, x2, y1, 0xFFFF0000);
+        hge->Gfx_RenderLine(x1, y1, x1, y2, 0xFFFF0000);
+        hge->Gfx_RenderLine(x2, y1, x2, y2, 0xFFFF0000);
+        hge->Gfx_RenderLine(x1, y2, x2, y2, 0xFFFF0000);
+    }
+    if (bObjDragSelection && hParser != NULL && iMode == EWW_MODE_OBJECT) {
+        int x1 = Wrd2ScrX(GetActivePlane(), iObjDragOrigX), x2 = mx,
+            y1 = Wrd2ScrY(GetActivePlane(), iObjDragOrigY), y2 = my;
+
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+
+        if (x2 - x1 > 2 && y2 - y1 > 2) {
+            hgeQuad q;
+            q.blend = BLEND_DEFAULT;
+            q.tex = 0;
+            SHR::SetQuad(&q, 0x77ffcc00, x1, y1, x2, y2);
             hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(q.v[0].x, q.v[0].y, q.v[1].x, q.v[1].y, 0xFFFF0000);
-            hge->Gfx_RenderLine(q.v[1].x, q.v[1].y, q.v[2].x, q.v[2].y, 0xFFFF0000);
-            hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFFFF0000);
-            hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFFFF0000);
+            hge->Gfx_RenderLine(x1 - 1, y1, x2, y1, 0xFFFF0000);
+            hge->Gfx_RenderLine(x1, y1, x1, y2, 0xFFFF0000);
+            hge->Gfx_RenderLine(x2, y1, x2, y2, 0xFFFF0000);
+            hge->Gfx_RenderLine(x1, y2, x2, y2, 0xFFFF0000);
             if (iActiveTool == EWW_TOOL_OBJSELAREA) {
-                int wmx = Scr2WrdX(GetActivePlane(), mx),
-                    wmy = Scr2WrdY(GetActivePlane(), my);
-                int minx = iObjDragOrigX > wmx ? wmx : iObjDragOrigX,
-                    miny = iObjDragOrigY > wmy ? wmy : iObjDragOrigY,
-                    maxx = iObjDragOrigX > wmx ? iObjDragOrigX : wmx,
-                    maxy = iObjDragOrigY > wmy ? iObjDragOrigY : wmy;
+                int wmX = Scr2WrdX(GetActivePlane(), mx),
+                    wmY = Scr2WrdY(GetActivePlane(), my);
+                int minX = iObjDragOrigX > wmX ? wmX : iObjDragOrigX,
+                    minY = iObjDragOrigY > wmY ? wmY : iObjDragOrigY,
+                    maxX = iObjDragOrigX > wmX ? iObjDragOrigX : wmX,
+                    maxY = iObjDragOrigY > wmY ? iObjDragOrigY : wmY;
                 GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
-                                        GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
+                                        GETL(Lang_MinX), minX, GETL(Lang_MinY), minY);
                 GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
-                                        GETL(Lang_MinX), minx, GETL(Lang_MinY), miny);
+                                        GETL(Lang_MinX), minX, GETL(Lang_MinY), minY);
 
                 GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 21, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
-                                        GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
+                                        GETL(Lang_MaxX), maxX, GETL(Lang_MaxY), maxY);
                 GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
-                                        GETL(Lang_MaxX), maxx, GETL(Lang_MaxY), maxy);
+                                        GETL(Lang_MaxX), maxX, GETL(Lang_MaxY), maxY);
             } else {
                 GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", 0,
                                         GETL(Lang_SelectedObjects), vObjectsHL.size());
@@ -150,7 +142,6 @@ void State::EditingWW::ObjectOverlay() {
                                         GETL(Lang_SelectedObjects), vObjectsHL.size());
             }
         }
-        hge->Gfx_SetClipping();
     }
     if ((iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_MOVEOBJECT ||
          iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->IsMovingObject())

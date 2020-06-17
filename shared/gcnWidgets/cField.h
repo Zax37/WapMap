@@ -49,7 +49,7 @@ namespace SHR {
             const gcn::Rectangle clipArea = graphics->getCurrentClipArea();
 
             graphics->setColor(0x3393e6);
-            graphics->drawLine(x + 2, clipArea.height - 2, x + 2, 1);
+            graphics->drawLine(x + 2, 2, x + 2, clipArea.height - 3);
         }
     };
 }

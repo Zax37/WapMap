@@ -16,6 +16,7 @@
 #include "../../databanks/anims.h"
 #include "../../databanks/imageSets.h"
 #include "../../windows/window.h"
+#include "../../version.h"
 
 extern HGE *hge;
 
@@ -39,8 +40,8 @@ namespace State {
                         break;
                     }
                 if (bObjFnd &&
-                    MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "RenamePrompt"), "WapMap",
-                               MB_YESNO | MB_ICONQUESTION) == IDYES) {
+                    MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "RenamePrompt"),
+                               PRODUCT_NAME, MB_YESNO | MB_ICONQUESTION) == IDYES) {
                     for (int i = 0; i < m_hOwn->plMain->GetObjectsCount(); i++)
                         if (!strcmp(m_hOwn->plMain->GetObjectByIterator(i)->GetLogic(), "CustomLogic") &&
                             !strcmp(m_hOwn->plMain->GetObjectByIterator(i)->GetName(), strOldName.c_str())) {
@@ -49,8 +50,8 @@ namespace State {
                     m_hOwn->MarkUnsaved();
                 }
             } else {
-                MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "RenameError"), "WapMap",
-                           MB_OK | MB_ICONWARNING);
+                MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "RenameError"),
+                           PRODUCT_NAME, MB_OK | MB_ICONWARNING);
             }
         } else if (actionEvent.getSource() == m_hOwn->butbrlRename) {
             m_hOwn->tfbrlRename->setVisible(1);
@@ -66,7 +67,7 @@ namespace State {
             /*else if (actionEvent.getSource() == m_hOwn->butbrlNew) {
                 // REMOVED
                 if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
-                    MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NewLogicDocumentSave"), "WapMap", MB_OK | MB_ICONERROR);
+                    MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NewLogicDocumentSave"), PRODUCT_NAME, MB_OK | MB_ICONERROR);
                     return;
                 }
                 //GV->StateMgr->Push(new State::CodeEditor(0, 1, ""));
@@ -88,7 +89,7 @@ namespace State {
                     ".lua";
             char tmp[512];
             sprintf(tmp, GETL2S("Win_LogicBrowser", "DeleteWarning"), path.c_str());
-            if (MessageBox(hge->System_GetState(HGE_HWND), tmp, "WapMap", MB_YESNO | MB_ICONWARNING) == IDYES) {
+            if (MessageBox(hge->System_GetState(HGE_HWND), tmp, PRODUCT_NAME, MB_YESNO | MB_ICONWARNING) == IDYES) {
                 logic->DeleteFile();
                 m_hOwn->SyncLogicBrowser();
             }
@@ -612,7 +613,7 @@ namespace State {
                             m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i] = *m_hOwn->GetActivePlane()->GetTile(x, y);
 
                     if (m_hOwn->tilContext->GetSelectedID() == TILMENU_CUT) {
-                        bool bChanges = 0;
+                        bool bChanges = false;
                         for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
                             for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
                                 WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);
@@ -645,7 +646,7 @@ namespace State {
                         m_hOwn->MarkUnsaved();
                     }
                 } else if (m_hOwn->tilContext->GetSelectedID() == TILMENU_DELETE) {
-                    bool bChanges = 0;
+                    bool bChanges = false;
                     for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
                         for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
                             WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);
@@ -1136,9 +1137,15 @@ namespace State {
                 m_hOwn->fCamX += m_hOwn->GetActivePlane()->GetTileWidth() / m_hOwn->fZoom;
                 m_hOwn->fCamY += m_hOwn->GetActivePlane()->GetTileHeight() / m_hOwn->fZoom;
             } else if (actionEvent.getSource() == m_hOwn->butMicroTileCB) {
+                m_hOwn->bForceObjectClipbPreview = false;
                 m_hOwn->bForceTileClipbPreview = !m_hOwn->bForceTileClipbPreview;
+                m_hOwn->butMicroTileCB->setHighlight(m_hOwn->bForceTileClipbPreview);
+                m_hOwn->butMicroObjectCB->setHighlight(false);
             } else if (actionEvent.getSource() == m_hOwn->butMicroObjectCB) {
+                m_hOwn->bForceTileClipbPreview = false;
                 m_hOwn->bForceObjectClipbPreview = !m_hOwn->bForceObjectClipbPreview;
+                m_hOwn->butMicroObjectCB->setHighlight(m_hOwn->bForceObjectClipbPreview);
+                m_hOwn->butMicroTileCB->setHighlight(false);
             } else if (actionEvent.getSource() == m_hOwn->cbObjSearchCaseSensitive) {
                 m_hOwn->UpdateSearchResults();
             } else if (actionEvent.getSource() == m_hOwn->ddObjSearchTerm) {
@@ -1255,6 +1262,10 @@ namespace State {
                 for (cWindow *win : m_hOwn->hWindows) {
                     win->Close();
                 }
+
+                if (m_hOwn->MDI->GetActiveDocIt() == -1 && m_hOwn->MDI->GetDocsCount()) {
+                    m_hOwn->MDI->BackToLastActive();
+                }
             }
             return;
         } else if (keyEvent.getKey() == Key::F11) {
@@ -1305,6 +1316,9 @@ namespace State {
                             GV->StateMgr->Push(new State::LoadMap(m_hOwn->MDI->GetMostRecentlyClosedDoc().c_str()));
                         }
                     }
+                    break;
+                case 'r':
+                    m_hOwn->hRulers->SetVisible(!m_hOwn->hRulers->IsVisible());
                     break;
             }
         } else if (keyEvent.isAltPressed()) {

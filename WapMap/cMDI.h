@@ -27,11 +27,17 @@ class cBankAni;
 
 class cDataController;
 
+class cMDI;
+
 class cTabMDI {
 public:
+    cMDI* hMDI;
+    int index;
     DocumentData *dd;
     bool bFocused, bSelected, bCloseFocused;
     float fTimer, fCloseTimer;
+
+    static int MaxTabWidth;
 
     cTabMDI();
 
@@ -41,7 +47,9 @@ public:
 
     int GetWidth();
 
-    int Render(int x, int y, bool bdisabled, bool bselected, bool blast);
+    int Render(int x, int y, bool bdisabled, bool bselected);
+
+    void RenderSeparator(int x, int y, bool right = false);
 
     static void RenderBG(int x, int y, int w, int st, bool bfirst, bool bclosed);
 };
@@ -74,7 +82,8 @@ struct DocumentData {
     int iSelectedPlane;
     bool bSaved;
     std::vector<WWD::Object *> vObjectsPicked;
-    float fZoom, fDestZoom;
+    float fZoom;
+    int iTileSelectX1, iTileSelectY1, iTileSelectX2, iTileSelectY2;
 
     //meta
     std::vector<stGuideLine> vGuides;
@@ -86,17 +95,18 @@ class cMDI : public gcn::ActionListener {
 private:
     std::vector<DocumentData *> m_vhDoc;
     std::vector<std::string> vstrRecentlyClosed;
-    int m_iActiveDoc, m_iContextMenuFocusedDoc;
+    int m_iActiveDoc, m_iLastActiveDoc, m_iContextMenuFocusedDoc;
     bool bBlock;
     bool bUpdateCrashList;
     SHR::Context *hContext;
     SHR::Context *hContextClosed;
-    int m_iPosY;
+    int m_iPosY, m_iAddTabButtonOffset;
     bool bReloadingMap;
-    cTabMDI *hDefTab;
+    //float fAddTabTimer;
 
     void RebuildContext(bool bForceRebuildBase);
 
+    friend class cTabMDI;
 public:
     cMDI();
 
@@ -130,8 +140,6 @@ public:
 
     void DeleteDocByIt(int i);
 
-    void DeleteDocByPtr(DocumentData *hdd);
-
     int GetDocsCount() { return m_vhDoc.size(); };
 
     void Think(bool bConsumed);
@@ -157,6 +165,10 @@ public:
     void CloseAllDocs() { hContext->EmulateClickID(MDI_CONTEXT_CLOSEALL); };
 
     void UnlockMapReload() { bReloadingMap = 0; };
+
+    void UpdateMaxTabSize();
+
+    void BackToLastActive() { SetActiveDocIt(m_iLastActiveDoc); }
 };
 
 #endif

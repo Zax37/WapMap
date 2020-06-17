@@ -9,6 +9,7 @@
 #include "../databanks/imageSets.h"
 #include <direct.h>
 #include "../langID.h"
+#include "../version.h"
 
 extern HGE *hge;
 
@@ -494,7 +495,7 @@ namespace State {
         GV->Console->Printf("~r~Import error: #%d", int(err));
         char tmp[256];
         sprintf(tmp, "err #%d", int(err));
-        MessageBox(hge->System_GetState(HGE_HWND), tmp, "WapMap", MB_ICONERROR | MB_OK);
+        MessageBox(hge->System_GetState(HGE_HWND), tmp, PRODUCT_NAME, MB_ICONERROR | MB_OK);
     }
 
     void ImageImport::AddFile(std::string strFilePath) {

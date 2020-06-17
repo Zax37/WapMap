@@ -36,7 +36,7 @@ cmmbTile::cmmbTile(int startX) : cModeMenuBar(startX) {
     ddActivePlane->SetGfx(&GV->gcnParts);
     ddActivePlane->adjustHeight();
     ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
-    GV->editState->conMain->add(ddActivePlane, startX + 5, LAY_MODEBAR_Y + 4);
+    GV->editState->conMain->add(ddActivePlane, startX + 5, LAY_MODEBAR_Y + 5);
 
     startX += 160;
     vSeparators.push_back(startX);

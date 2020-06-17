@@ -88,7 +88,7 @@ winOptions::winOptions() {
     conWapMap->setOpaque(false);
     {
         int xOffset = 8, yOffset = 10;
-        labLang = new SHR::Lab(GETL(Lang_Language));
+        labLang = new SHR::Lab(std::string(GETL(Lang_Language)) + ':');
         labLang->adjustSize();
         conWapMap->add(labLang, xOffset, yOffset);
 
@@ -100,7 +100,7 @@ winOptions::winOptions() {
         ddoptLang->addActionListener(this);
         ddoptLang->SetGfx(&GV->gcnParts);
         ddoptLang->adjustHeight();
-        conWapMap->add(ddoptLang, xOffset + 130, yOffset - 2);
+        conWapMap->add(ddoptLang, xOffset + labLang->getWidth() + 8, yOffset - 2);
 
         HANDLE hFind = INVALID_HANDLE_VALUE;
         WIN32_FIND_DATA fdata;
@@ -123,27 +123,6 @@ winOptions::winOptions() {
         conWapMap->add(labChangesLang, xOffset, yOffset);
 
         yOffset += 25;
-
-        labRes = new SHR::Lab(GETL(Lang_DisplayResolution));
-        labRes->adjustSize();
-        conWapMap->add(labRes, xOffset, yOffset);
-
-        ddoptRes = new SHR::DropDown();
-        ddoptRes->setListModel(new cListModelDisplay());
-        ddoptRes->setDimension(gcn::Rectangle(0, 0, 150, 20));
-        ddoptRes->addActionListener(this);
-        ddoptRes->SetGfx(&GV->gcnParts);
-        ddoptRes->adjustHeight();
-        conWapMap->add(ddoptRes, xOffset + 130, yOffset - 2);
-
-        yOffset += 22;
-
-        labChangesRes = new SHR::Lab(GETL(Lang_OptionChangesAfterRestart));
-        labChangesRes->adjustSize();
-        labChangesRes->setVisible(0);
-        conWapMap->add(labChangesRes, xOffset, yOffset);
-
-        yOffset += 30;
 
         cbOptionsAlfaHigherPlanes = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AlphaOverlapping));
         cbOptionsAlfaHigherPlanes->adjustSize();
@@ -175,7 +154,7 @@ winOptions::winOptions() {
         conGame->add(labDesc, xOffset, yOffset);
         widgetsToDelete.push_back(labDesc);
 
-        xOffset += 5 + labDesc->getWidth();
+        xOffset += 8 + labDesc->getWidth();
 
         auto tfPath = new SHR::TextField(GV->gamePaths[i].c_str());
         tfPath->adjustSize();
@@ -185,7 +164,7 @@ winOptions::winOptions() {
         widgetsToDelete.push_back(tfPath);
         pathTextFields.push_back(tfPath);
 
-        xOffset += 5 + tfPath->getWidth();
+        xOffset += 8 + tfPath->getWidth();
 
         widgetsToDelete.push_back(butPath[i - WWD::Games_First] = GV->editState->MakeButton(xOffset, yOffset - 6, Icon_Open, conGame, true, true, this));
 
@@ -211,7 +190,7 @@ winOptions::winOptions() {
 
         yOffset += 30;
 
-        labGameRes = new SHR::Lab(GETL2S("Options", "GameRes"));
+        labGameRes = new SHR::Lab(std::string(GETL2S("Options", "GameRes")) + ':');
         labGameRes->adjustSize();
         conClaw->add(labGameRes, xOffset, yOffset);
 
@@ -221,7 +200,7 @@ winOptions::winOptions() {
         ddoptGameRes->addActionListener(this);
         ddoptGameRes->SetGfx(&GV->gcnParts);
         ddoptGameRes->adjustHeight();
-        conClaw->add(ddoptGameRes, xOffset + 5 + labGameRes->getWidth(), yOffset - 2);
+        conClaw->add(ddoptGameRes, xOffset + 8 + labGameRes->getWidth(), yOffset - 2);
 
         yOffset += 30;
 
@@ -250,16 +229,13 @@ winOptions::winOptions() {
 }
 
 winOptions::~winOptions() {
-    delete labChangesRes;
     delete labChangesLang;
-    delete labRes;
     delete labLang;
     delete labGameRes;
     delete labCrazyHookSettings;
     delete labVersion;
     delete butSave;
     delete ddoptLang;
-    delete ddoptRes;
     delete ddoptGameRes;
     delete lmLang;
     delete cbOptionsAlfaHigherPlanes;
@@ -330,13 +306,6 @@ void winOptions::Open(WWD::GAME game) {
         }
     }
     labChangesLang->setVisible(false);
-    for (int i = 0; i < ddoptRes->getListModel()->getNumberOfElements(); ++i) {
-        if (ddoptRes->getListModel()->getElementAt(i) == res) {
-            ddoptRes->setSelected(i);
-            break;
-        }
-    }
-    labChangesRes->setVisible(false);
     cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
     cboptSmoothZooming->setSelected(GV->bSmoothZoom);
     cboptAutoUpdate->setSelected(GV->bAutoUpdate);
@@ -423,11 +392,6 @@ void winOptions::action(const ActionEvent &actionEvent) {
         labChangesLang->setVisible(
                 !(!strcmp(ddoptLang->getListModel()->getElementAt(ddoptLang->getSelected()).c_str(),
                           GV->Lang->GetName())));
-    } else if (actionEvent.getSource() == ddoptRes) {
-        int x, y;
-        sscanf(ddoptRes->getListModel()->getElementAt(ddoptRes->getSelected()).c_str(), "%dx%d", &x, &y);
-        labChangesRes->setVisible(
-                (x != hge->System_GetState(HGE_SCREENWIDTH) || y != hge->System_GetState(HGE_SCREENHEIGHT)));
     } else if (actionEvent.getSource() == butSave) {
         for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
             GV->gamePaths[(WWD::GAME)i] = pathTextFields[i - WWD::Games_First]->getText();
@@ -452,14 +416,6 @@ void winOptions::action(const ActionEvent &actionEvent) {
         GV->bSmoothZoom = cboptSmoothZooming->isSelected();
 
         int w, h;
-        sscanf(ddoptRes->getListModel()->getElementAt(ddoptRes->getSelected()).c_str(), "%dx%d", &w, &h);
-        sprintf(tmp, "%d", w);
-        GV->ini->SetValue("WapMap", "DisplayWidth", tmp);
-        sprintf(tmp, "%d", h);
-        GV->ini->SetValue("WapMap", "DisplayHeight", tmp);
-        GV->iScreenW = w;
-        GV->iScreenH = h;
-
         if (ddoptGameRes->getSelected() == 0) {
             w = h = -1;
             sprintf(tmp, "%d", w);

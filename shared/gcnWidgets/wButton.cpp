@@ -116,17 +116,11 @@ namespace SHR {
     }
 
     void But::draw(Graphics *graphics) {
-        UpdateTooltip(mHasMouse);
 
-        if (isPressed() || bBlinkState) {
-            if ((fTimer += hge->Timer_GetDelta()) > 0.3f) fTimer = 0.3f;
-        } else if (!(isPressed() || bBlinkState) && fTimer > 0.2f) {
-            fTimer -= hge->Timer_GetDelta();
-            if (fTimer < 0.2f) fTimer = 0.2f;
-        } else if (isEnabled() && (mHasMouse || mKeyboardFocus) && fTimer < 0.2f) {
+        if (isEnabled() && (isPressed() || bBlinkState || mHasMouse || mKeyboardFocus) && fTimer < 0.2f) {
             fTimer += hge->Timer_GetDelta();
             if (fTimer > 0.2f) fTimer = 0.2f;
-        } else if ((!isEnabled() || (!mHasMouse && !mKeyboardFocus)) && fTimer > 0.0f) {
+        } else if ((!isEnabled() || (!isPressed() && !bBlinkState && !mHasMouse && !mKeyboardFocus)) && fTimer > 0.0f) {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.0f) fTimer = 0.0f;
         } else if (isEnabled() && fTimer < 0.0f) {
@@ -303,5 +297,9 @@ namespace SHR {
     void But::focusLost(const FocusEvent &event) {
         mMousePressed = false;
         mKeyboardFocus = false;
+    }
+
+    void But::logic() {
+        UpdateTooltip(mHasMouse);
     }
 }

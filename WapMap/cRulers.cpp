@@ -38,13 +38,20 @@ void cRulers::Think() {
     hge->Input_GetMousePos(&mx, &my);
     if (GV->editState->conMain->getWidgetAt(mx, my) != NULL) return;
     bool orient;
-    int drawY = GV->editState->hAppMenu->GetHeight() + 2;
-    if (mx > 0 && mx < 18 && my > drawY + 17 && my < GV->editState->vPort->GetHeight())
+    int drawY = LAY_MDI_Y + LAY_MDI_H + 1;
+    if (mx > 0 && mx < 20 && my > drawY + 17 && my < GV->editState->vPort->GetHeight())
         orient = GUIDE_VERTICAL;
-    else if (mx > 17 && mx < GV->editState->vPort->GetWidth() + 17 && my > drawY && my < drawY + 17)
+    else if (mx > 17 && mx < GV->editState->vPort->GetWidth() + 17 && my > drawY && my < drawY + 20)
         orient = GUIDE_HORIZONTAL;
-    else
+    else {
+        if (GV->editState->iManipulatedGuide != -1 && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
+            GV->editState->MDI->GetActiveDoc()->vGuides.erase(
+                GV->editState->MDI->GetActiveDoc()->vGuides.begin() + GV->editState->iManipulatedGuide);
+            GV->editState->iManipulatedGuide = -1;
+        }
         return;
+    }
+
     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
         stGuideLine gl;
         gl.bOrient = orient;
@@ -84,23 +91,17 @@ void cRulers::Render() {
     q.tex = 0;
     q.blend = BLEND_DEFAULT;
 
-    int drawY = GV->editState->hAppMenu->GetHeight() + 2;
+    int drawY = LAY_MDI_Y + LAY_MDI_H + 1;
 
     //separator from mdi
-    hge->Gfx_RenderLine(0, drawY - 1,
-                        GV->editState->vPort->GetX() + GV->editState->vPort->GetWidth(), drawY - 1,
-                        0xFF181818);
-    hge->Gfx_RenderLine(0, drawY,
-                        GV->editState->vPort->GetX() + GV->editState->vPort->GetWidth(), drawY,
-                        0xFF4d4d4d);
+    hge->Gfx_RenderLine(0, drawY, hge->System_GetState(HGE_SCREENWIDTH), drawY, GV->colLineBright);
     SHR::SetQuad(&q, 0xFF202020, 1, drawY,
-                 18, drawY + 17);
+                 19, drawY + 18);
     hge->Gfx_RenderQuad(&q);
     for (int rl = 0; rl < 2; rl++) {//1 vertical 0 horizontal
-        int drX = 1 + 17 * (!rl), drY = drawY + (rl * 17);
-        SHR::SetQuad(&q, 0xFF303030, drX, drY, drX + (rl ? 17 : GV->editState->vPort->GetWidth()),
-                     drY + (rl ? GV->editState->vPort->GetHeight() : 17));
-        hge->Gfx_RenderQuad(&q);
+        int drX = 1 + 18 * (!rl), drY = drawY + (rl * 18);
+        SHR::SetQuad(&q, 0xFF303030, drX, drY, drX + (rl ? 18 : GV->editState->vPort->GetWidth() + 18),
+                     drY + (rl ? GV->editState->vPort->GetHeight() : 18));
         hge->Gfx_SetClipping(drX, drY, q.v[2].x - drX, q.v[2].y - drY);
         int step;
         int mode = GV->editState->GetActiveMode();
@@ -115,7 +116,7 @@ void cRulers::Render() {
             else step = 5;
         }
         for (int i = 0; i < (rl ? GV->editState->vPort->GetHeight() / (step * zoom)
-                                : (GV->editState->vPort->GetWidth() + 17) / (step * zoom)); i++) {
+                                : (GV->editState->vPort->GetWidth() + 20) / (step * zoom)) + 1; i++) {
             int modx = (rl ? iStartY : iStartX) % step;
             int constoff = ((rl ? GV->editState->fCamY : GV->editState->fCamX) < 0) *
                            (rl ? GV->editState->fCamY : GV->editState->fCamX) * -1;
@@ -209,13 +210,13 @@ void cRulers::Render() {
         hge->Gfx_SetClipping();
     }
     //vertical ruler viewport separator
-    hge->Gfx_RenderLine(19, drawY,
-                        19, GV->editState->hAppMenu->GetHeight() + 49 + GV->editState->vPort->GetHeight(),
-                        0xFF616161);
+    /*hge->Gfx_RenderLine(19, drawY,
+                        19, GV->editState->vPort->GetY() + GV->editState->vPort->GetHeight(),
+                        0xFF616161);*/
     //vertical ruler upper separator fix
-    hge->Gfx_RenderLine(0, drawY + 18,
+    /*hge->Gfx_RenderLine(0, drawY + 18,
                         18, drawY + 18,
-                        0xFF616161);
+                        0xFF616161);*/
 
     if (GV->editState->iManipulatedGuide != -1) {
         stGuideLine gl = GV->editState->MDI->GetActiveDoc()->vGuides[GV->editState->iManipulatedGuide];

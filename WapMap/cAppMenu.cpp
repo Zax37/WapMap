@@ -12,6 +12,7 @@
 #include "windows/about.h"
 
 #include "databanks/logics.h"
+#include "version.h"
 
 extern HGE *hge;
 
@@ -30,6 +31,8 @@ cAppMenu::cAppMenu() {
     mDimension.height = LAY_APPMENU_H;
     iHovered = iOpened = iSelected = -1;
 
+    setTabInEnabled(false);
+    setTabOutEnabled(false);
     setFocusable(true);
     addMouseListener(this);
     addKeyListener(this);
@@ -196,13 +199,13 @@ void cAppMenu::SyncDocumentClosed() {
 }
 
 void cAppMenu::SyncDocumentOpened() {
-    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSE)->SetEnabled(1);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSE)->SetEnabled(true);
     hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSEALL)->SetEnabled(
             GV->editState->MDI->GetDocsCount() > 1);
-    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVE)->SetEnabled(1);
-    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(1);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVE)->SetEnabled(true);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_SAVEAS)->SetEnabled(true);
 #ifdef _DEBUG
-    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_EXPORT)->SetEnabled(1);
+    hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_EXPORT)->SetEnabled(true);
 #endif
     SyncMRU();
     hEntries[AppMenu_Edit]->SetEnabled(true);
@@ -212,10 +215,10 @@ void cAppMenu::SyncDocumentOpened() {
 }
 
 void cAppMenu::SyncRecentlyClosedRebuild() {
-    if (GV->editState->MDI->GetCachedClosedDocsCount() == 0) {
+    /*if (GV->editState->MDI->GetCachedClosedDocsCount() == 0) {
         hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSED)->SetEnabled(false);
         hEntries[AppMenu_File]->GetContext()->GetElementByID(APPMEN_FILE_CLOSED)->SetCascade(NULL);
-    }
+    }*/
 }
 
 void cAppMenu::SyncMRU() {
@@ -292,7 +295,7 @@ void cAppMenu::switchTo(int i) {
     int xOffset = LAY_APPMENU_X;
     for (int j = 0; j < i; ++j) xOffset += hEntries[j]->GetWidth();
     hEntries[i]->GetContext()->setTopLineOffset(hEntries[i]->GetWidth());
-    hEntries[i]->GetContext()->setPosition(xOffset, LAY_APPMENU_Y + LAY_APPMENU_H - 2);
+    hEntries[i]->GetContext()->setPosition(xOffset, LAY_APPMENU_Y + LAY_APPMENU_H);
     GV->editState->conMain->moveToTop(hEntries[i]->GetContext());
     iOpened = i;
 }
@@ -320,17 +323,11 @@ int cAppMenu_Entry::GetWidth() {
 
 int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
     int w = GetWidth(), h = LAY_APPMENU_H;
-    bool unfolded = (hContext != 0 && hContext->isVisible());
-    if (unfolded && fTimer < 0.4f) {
-        fTimer += hge->Timer_GetDelta();
-        if (fTimer > 0.4f) fTimer = 0.4f;
-    } else if (!unfolded && fTimer > 0.2f) {
-        fTimer -= hge->Timer_GetDelta();
-        if (fTimer < 0.2f) fTimer = 0.2f;
-    } else if (bFocused && fTimer < 0.2f) {
+    bool unfolded = (hContext != 0 && hContext->getAlpha() > 0);
+    if ((unfolded || bFocused) && fTimer < 0.2f) {
         fTimer += hge->Timer_GetDelta();
         if (fTimer > 0.2f) fTimer = 0.2f;
-    } else if (!bFocused && fTimer > 0.0f) {
+    } else if (!(unfolded || bFocused) && fTimer > 0.0f) {
         fTimer -= hge->Timer_GetDelta();
         if (fTimer < 0.0f) fTimer = 0.0f;
     }
@@ -339,15 +336,17 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
         hgeQuad q;
         q.tex = 0;
         q.blend = BLEND_DEFAULT;
-        SHR::SetQuad(&q, 0xFFFFFFFF, x, y + 2, x + w, y + h - 2);
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = unfolded ? SETA(0x0F0F0F, hContext->getAlpha()) : SETA(0xFFFFFF, fTimer * 0x16 / 0.4f);
+        SHR::SetQuad(&q, 0xFFFFFFFF, x, y + 2, x + w, y + h - 2 * (!unfolded));
+        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = unfolded ? SETA(0x0F0F0F, hContext->getAlpha()) : SETA(0xFFFFFF, fTimer * 0x50 / 0.4f);
         hge->Gfx_RenderQuad(&q);
 
         if (unfolded) {
-            int borderColor = SETA(0x3d3d3d, hContext->getAlpha());
-            hge->Gfx_RenderLine(x, y + 1, x, y + LAY_APPMENU_H, borderColor);
-            hge->Gfx_RenderLine(x, y + 1, x + w - 1, y + 1, borderColor);
-            hge->Gfx_RenderLine(x + w, y + 1, x + w, y + LAY_APPMENU_H, borderColor);
+            int borderColor = SETA(0x1d1d1d, hContext->getAlpha());
+            hge->Gfx_RenderLine(x, y + 2, x, y + LAY_APPMENU_H, borderColor);
+            hge->Gfx_RenderLine(x, y + 2, x + w - 1, y + 2, borderColor);
+            hge->Gfx_RenderLine(x + w, y + 2, x + w, y + LAY_APPMENU_H, borderColor);
+
+            fTimer = hContext->getAlpha() / 255.f;
         }
     }
 
@@ -547,11 +546,11 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_EDIT_WORLDSCRIPT) {
             if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
                 MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "GlobalScriptDocumentSave"),
-                           "WapMap", MB_OK | MB_ICONERROR);
+                           PRODUCT_NAME, MB_OK | MB_ICONERROR);
             } else {
                 if (GV->editState->hCustomLogics->GetGlobalScript() == 0) {
-                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"), "WapMap",
-                                   MB_YESNO | MB_ICONWARNING) == IDYES) {
+                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"),
+                                   PRODUCT_NAME, MB_YESNO | MB_ICONWARNING) == IDYES) {
                         GV->editState->hDataCtrl->FixCustomDir();
                         GV->editState->hDataCtrl->OpenCodeEditor("main", true);
                     }

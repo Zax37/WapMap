@@ -57,12 +57,11 @@
 #define APPMEN_WM_README   4
 #define APPMEN_WM_SITE     5
 
-#define LAY_APP_CUT_Y  168
 #define LAY_APPMENU_X  36
 #define LAY_APPMENU_Y  1
 #define LAY_APPMENU_H  30
 #define LAY_MODEBAR_Y  LAY_APPMENU_Y + LAY_APPMENU_H
-#define LAY_MODEBAR_H  33
+#define LAY_MODEBAR_H  34
 #define LAY_MDI_Y      LAY_MODEBAR_Y + LAY_MODEBAR_H
 #define LAY_MDI_H      25
 #define LAY_VIEWPORT_Y LAY_MDI_Y + LAY_MDI_H

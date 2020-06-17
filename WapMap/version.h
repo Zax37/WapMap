@@ -18,6 +18,6 @@
 #define WA_VERSTRING "v" APP_VERSION " (b" TO_STR(WA_VER) ") 2010-2020"
 #define WA_VERPURE APP_VERSION
 
-#define WA_LANGVER 14
+#define WA_LANGVER 15
 
 #endif // !VERSION_H

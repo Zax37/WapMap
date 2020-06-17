@@ -336,9 +336,10 @@ public:
     SHR::cStateMgr *StateMgr;
     SHR::cLanguage *Lang;
 
-    hgeSprite *sprCloudTip[4];
     hgeSprite *sprContextCascadeArrow;
-    hgeSprite *sprTabCloseButton;
+    hgeSprite *sprTabCloseButton, *sprTabCloseButtonFocused;
+    hgeSprite *sprTabAddButton, *sprTabAddButtonFocused;
+    hgeSprite *sprHomepageBackButton;
 
     hgeSprite *sprTile;
     hgeFont *fntMyriad10, *fntMyriad20, *fntSystem17, *fntMyriad16, *fntMyriad80, *fntMinimal;

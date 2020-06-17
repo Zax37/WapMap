@@ -17,7 +17,7 @@ namespace ObjEdit {
             bStackable = 1;
 
         iType = ObjEdit::enCrate;
-        bPick = 0;
+        bPick = false;
 
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Crate", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 250, 282));

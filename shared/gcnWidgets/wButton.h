@@ -49,25 +49,27 @@ namespace SHR {
 
         void adjustSize();
 
-        virtual void draw(Graphics *graphics);
+        void logic() override;
 
-        virtual void focusGained(const FocusEvent &event);
+        void draw(Graphics *graphics) override;
 
-        virtual void focusLost(const FocusEvent &event);
+        void focusGained(const FocusEvent &event) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void focusLost(const FocusEvent &event) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        void mouseExited(MouseEvent &mouseEvent) override;
 
-        virtual void keyPressed(KeyEvent &keyEvent);
+        void mouseDragged(MouseEvent &mouseEvent) override;
 
-        virtual void keyReleased(KeyEvent &keyEvent);
+        void keyPressed(KeyEvent &keyEvent) override;
+
+        void keyReleased(KeyEvent &keyEvent) override;
 
         hgeSprite *getIcon() { return sprIcon; };
 

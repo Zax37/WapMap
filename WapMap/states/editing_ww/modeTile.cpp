@@ -55,19 +55,19 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
             iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
         } else if (hge->Input_GetKeyState(HGEK_LBUTTON) && vPort->GetWidget()->isMouseOver() && !pbConsumed) {
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw(true);
         } else if (bObjDragSelection) {
-            bObjDragSelection = 0;
-            int secx = Scr2WrdX(GetActivePlane(), mx);
-            int secy = Scr2WrdY(GetActivePlane(), my);
-            if (secx != iObjDragOrigX && secy != iObjDragOrigY) {
-                iTileSelectX1 = std::min(iObjDragOrigX, secx) / GetActivePlane()->GetTileWidth();
-                iTileSelectY1 = std::min(iObjDragOrigY, secy) / GetActivePlane()->GetTileHeight();
-                iTileSelectX2 = std::max(iObjDragOrigX, secx) / GetActivePlane()->GetTileWidth();
-                iTileSelectY2 = std::max(iObjDragOrigY, secy) / GetActivePlane()->GetTileHeight();
+            bObjDragSelection = false;
+            int secX = Scr2WrdX(GetActivePlane(), mx);
+            int secY = Scr2WrdY(GetActivePlane(), my);
+            if (secX != iObjDragOrigX && secY != iObjDragOrigY) {
+                iTileSelectX1 = std::min(iObjDragOrigX, secX) / GetActivePlane()->GetTileWidth();
+                iTileSelectY1 = std::min(iObjDragOrigY, secY) / GetActivePlane()->GetTileHeight();
+                iTileSelectX2 = std::max(iObjDragOrigX, secX) / GetActivePlane()->GetTileWidth();
+                iTileSelectY2 = std::max(iObjDragOrigY, secY) / GetActivePlane()->GetTileHeight();
             } else {
                 iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
-                vPort->MarkToRedraw(1);
+                vPort->MarkToRedraw(true);
             }
         }
 

@@ -16,10 +16,10 @@ namespace SHR {
         szCaption = new char[strlen(cap) + 1];
         strcpy(szCaption, cap);
         iAlign = HGETEXT_LEFT;
-        bFocused = 0;
+        bFocused = false;
         hParent = 0;
         hCascade = 0;
-        bEnabled = 1;
+        bEnabled = true;
         fTimer = 0;
     }
 
@@ -39,10 +39,10 @@ namespace SHR {
         hFont = font;
         iRowHeight = 24;
         addWidgetListener(this);
-        mReserveIconSpace[0] = 0;
-        mReserveIconSpace[1] = 1;
+        mReserveIconSpace[0] = false;
+        mReserveIconSpace[1] = true;
         fShowTimer = 0;
-        bHide = 0;
+        bHide = false;
     }
 
     void ContextModel::ClearElements() {

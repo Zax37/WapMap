@@ -122,8 +122,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
 #ifndef BUILD_DEBUG
     char *fn = SHR::GetFile(tmp);
     if (strcmp(fn, EXENAME) != 0) {
-        MessageBox(NULL, "This installation of WM is broken. Please download and install fresh version.", "WapMap",
-                   MB_OK | MB_ICONERROR);
+        MessageBox(NULL, "This installation of WapMap is broken. Please download and install fresh version.",
+                   PRODUCT_NAME, MB_OK | MB_ICONERROR);
         return 1;
     }
     delete[] fn;
@@ -152,7 +152,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
                         _sleep(2000);
                     }
 
-                    MessageBox(NULL, "WapMap is already running.", "WapMap", MB_OK | MB_ICONERROR);
+                    MessageBox(NULL, "WapMap is already running.", PRODUCT_NAME, MB_OK | MB_ICONERROR);
                     return 1;
                 } else break;
             }
@@ -205,7 +205,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
         GV->StateMgr->Push(new State::EditingWW());
         hge->System_Start();
     } else {
-        MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+        MessageBox(NULL, hge->System_GetErrorMessage(), PRODUCT_NAME, MB_OK | MB_ICONERROR | MB_APPLMODAL);
     }
     GV->Console->Printf("~w~Application shutdown.");
     delete GV;

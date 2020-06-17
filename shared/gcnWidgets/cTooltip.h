@@ -31,6 +31,8 @@ namespace SHR {
 
         static void RenderTooltip();
 
+        static void ResetTooltip();
+
         void UpdateTooltip(bool hasmouse);
     };
 }

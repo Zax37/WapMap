@@ -51,7 +51,7 @@ namespace SHR {
         fTimer = 0;
         iSelectedID = -1;
         adjustSize();
-        mMousePressed = 0;
+        mMousePressed = false;
         iFocused = -1;
     }
 
@@ -96,7 +96,7 @@ namespace SHR {
                 if (vEntries[i].fTimer > 0.4f) vEntries[i].fTimer = 0.4f;
             } else if (iSelectedID != i && vEntries[i].fTimer > 0.2f) {
                 vEntries[i].fTimer -= hge->Timer_GetDelta() * 2;
-                if (vEntries[i].fTimer < 0.2f) vEntries[i].fTimer = 0.2f;
+                if (vEntries[i].fTimer < 0.2f) vEntries[i].fTimer = 0.0f;
             } else if (iFocused == i && vEntries[i].fTimer < 0.2f && isEnabled()) {
                 vEntries[i].fTimer += hge->Timer_GetDelta();
                 if (vEntries[i].fTimer > 0.2f) vEntries[i].fTimer = 0.2f;
@@ -106,9 +106,16 @@ namespace SHR {
             }
 
             if (vEntries[i].fTimer > 0.0f) {
+                if (vEntries[i].fTimer <= 0.2f)
+                    for (int j = 0; j < 9; ++j)
+                        GV->hGfxInterface->sprButton[0][j]->SetBlendMode(BLEND_COLORADD);
+
                 hge->Gfx_SetClipping(lx - (i == 0 ? 5 : 2), y, vEntries[i].GetWidth() + (i == 0 ? 2 : i == vEntries.size() - 1 ? 1 : 0), getHeight());
-                But::drawButton(hGfx, 0, x, y, getWidth(), getHeight(), SETA(0xFFFFFF, vEntries[i].fTimer * 2.5f * alpha / 2.f));
+                But::drawButton(hGfx, 0, x, y, getWidth(), getHeight(), SETA(0xFFFFFF, vEntries[i].fTimer * 2.5f * alpha / (vEntries[i].fTimer <= 0.2f ? 7.f : 1.5f)));
                 hge->Gfx_SetClipping();
+
+                for (int j = 0; j < 9; ++j)
+                    GV->hGfxInterface->sprButton[0][j]->SetBlendMode(BLEND_DEFAULT);
             }
 
             if (vEntries[i].sprIcon != 0) {
@@ -131,6 +138,9 @@ namespace SHR {
 
     void ComboBut::setSelectedEntryID(int i, bool bEvent) {
         iSelectedID = (i < int(vEntries.size()) ? i : -1);
+        if (iSelectedID != -1 && vEntries[i].fTimer < 0.2f) {
+            vEntries[i].fTimer = 0.201f;
+        }
         if (bEvent)
             distributeActionEvent();
     }
@@ -154,7 +164,7 @@ namespace SHR {
 
     void ComboBut::mouseExited(MouseEvent &mouseEvent) {
         mHasMouse = false;
-        mMousePressed = 0;
+        mMousePressed = false;
     }
 
     void ComboBut::mouseEntered(MouseEvent &mouseEvent) {
@@ -162,7 +172,7 @@ namespace SHR {
     }
 
     void ComboBut::mouseReleased(MouseEvent &mouseEvent) {
-        mMousePressed = 0;
+        mMousePressed = false;
     }
 
     void ComboBut::focusGained(const FocusEvent& event) {
@@ -178,6 +188,9 @@ namespace SHR {
         n.iID = vEntries.size();
         vEntries.push_back(n);
         adjustSize();
+        if (n.iID == 0) {
+            n.fTimer = 0.4;
+        }
     }
 
     void ComboBut::keyPressed(KeyEvent &keyEvent) {

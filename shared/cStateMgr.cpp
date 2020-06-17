@@ -124,6 +124,7 @@ bool SHR::cStateMgr::Think() {
 				bActionsDone = 1;
 			}
 		}
+		SHR::cTooltip::ResetTooltip();
 	}
 
 	if (m_hStateStack.size() == 0) {

@@ -112,12 +112,12 @@ namespace SHR {
                 starti = mSelectionPosition;
                 endi = mCaretPosition;
             }
-            int startX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 4;
-            int endX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 4;
-            SHR::SetQuad(&q, 0x553393e6, startX, dy + 3, endX, dy + getFont()->getHeight() + 1);
+            int startX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, starti).c_str(), false, true) - mXScroll + 5;
+            int endX = dx + GV->fntMyriad16->GetStringWidth(mText.substr(0, endi).c_str(), false, true) - mXScroll + 5;
+            SHR::SetQuad(&q, 0x553393e6, startX, dy + 4, endX, dy + getFont()->getHeight() + 1);
             hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(startX, dy + 3, startX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
-            hge->Gfx_RenderLine(endX, dy + 3, endX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(startX, dy + 4, startX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
+            hge->Gfx_RenderLine(endX, dy + 4, endX, dy + getFont()->getHeight() + 1, 0xFF3393e6);
         } else if (isFocused()) {
             drawCaret(graphics, GV->fntMyriad16->GetStringWidth(mText.substr(0, mCaretPosition).c_str(), false, true) - mXScroll);
         }

@@ -129,7 +129,6 @@ cGlobals::cGlobals() {
     ini = new CSimpleIni;
     ini->LoadFile("settings.cfg");
 
-    bool bError = 0;
     const char *lang = ini->GetValue("WapMap", "Language", "English");
     try {
         Lang = new SHR::cLanguage(lang, WA_LANGVER);
@@ -144,7 +143,7 @@ cGlobals::cGlobals() {
             sprintf(tmp2, "unknown error");
         sprintf(tmp, "Unable to load language '%s' (%s).", lang, tmp2);
         Console->Printf("~r~%s~w~", tmp);
-        MessageBox(0, tmp, "WapMap error", MB_OK | MB_ICONERROR);
+        MessageBox(0, tmp, PRODUCT_NAME, MB_OK | MB_ICONERROR);
         exit(123);
     }
 
@@ -601,9 +600,6 @@ void cGlobals::Init() {
     sprArrowVerticalM->SetHotSpot(22, 128);
     sprArrowVerticalD->SetHotSpot(22, 0);
 
-    for (int i = 0; i < 4; i++)
-        sprCloudTip[i] = new hgeSprite(texMain, 50 + 10 * (i == 1 || i == 3), 326 + 10 * (i > 1), 10, 10);
-
     Console->Print("   Fancy icons...");
 
     offY = 16;
@@ -632,6 +628,10 @@ void cGlobals::Init() {
 
     sprContextCascadeArrow = new hgeSprite(texMain, 905, 756, 10, 12);
     sprTabCloseButton = new hgeSprite(texMain, 917, 756, 9, 9);
+    sprTabCloseButtonFocused = new hgeSprite(texMain, 906, 779, 13, 13);
+    sprTabAddButton = new hgeSprite(texMain, 896, 800, 16, 16);
+    sprTabAddButtonFocused = new hgeSprite(texMain, 896, 816, 16, 16);
+    sprHomepageBackButton = new hgeSprite(texMain, 960, 704, 32, 32);
 
     IF = new SHR::Interface(&gcnParts);
 
