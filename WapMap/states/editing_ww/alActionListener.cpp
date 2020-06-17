@@ -760,12 +760,15 @@ namespace State {
                     y = y / m_hOwn->fZoom;
 
                     for (auto &clipboardObject : m_hOwn->vObjectClipboard) {
+                        float diffX = clipboardObject->GetX() - m_hOwn->vObjectClipboard[0]->GetX(),
+                              diffY = clipboardObject->GetY() - m_hOwn->vObjectClipboard[0]->GetY();
+
                         auto *object = new WWD::Object(clipboardObject);
                         m_hOwn->GetActivePlane()->AddObjectAndCalcID(object);
                         object->SetUserData(new cObjUserData(object));
                         //m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
                         m_hOwn->vObjectsPicked.push_back(object);
-                        GetUserDataFromObj(object)->SetPos(x, y);
+                        GetUserDataFromObj(object)->SetPos(x + diffX, y + diffY);
                     }
 
                     m_hOwn->UpdateMovedObjectWithRects(m_hOwn->vObjectsPicked);
