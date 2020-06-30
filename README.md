@@ -1,4 +1,4 @@
-![WapMap](res/copy/logo.png)
+![WapMap](logo.png)
 
 ## Info
 

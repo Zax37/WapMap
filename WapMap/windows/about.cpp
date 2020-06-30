@@ -5,8 +5,8 @@
 
 extern HGE *hge;
 
-static const int usedLibsCreditsBlockWidth = 520;
-static const int usedLibsCreditsBlockLineSpacing = -9;
+static const int usedLibsCreditsBlockWidth = 507;
+static const int usedLibsCreditsBlockLineSpacing = 6;
 
 static const char* const usedLibsCreditLines[] {
         "HGE 1.81 - Copyright (c) 2003-2008 Relish Games.",
@@ -23,11 +23,11 @@ static const char* const usedLibsCreditLines[] {
 
 winAbout::winAbout() {
     myWin = new SHR::Win(&GV->gcnParts, GETL(Lang_About));
-    int h = GV->sprLogoBig->GetHeight() + 80 + 22 * 4;
+    int h = GV->sprLogoBig->GetHeight() + 105 + 22 * 4;
     for (auto line : usedLibsCreditLines) {
-        h += GV->fntMyriad16->GetHeightb(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
+        h += GV->fntMyriad16->GetStringBlockHeight(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
     }
-    myWin->setDimension(gcn::Rectangle(0, 0, usedLibsCreditsBlockWidth + 2 * 18, h));
+    myWin->setDimension(gcn::Rectangle(0, 0, usedLibsCreditsBlockWidth + 2 * 32, h));
     myWin->setVisible(0);
     vp = new WIDG::Viewport(this, 0);
     myWin->add(vp, 0, 0);
@@ -46,12 +46,15 @@ void winAbout::Draw(int piCode) {
     unsigned char alpha = myWin->getAlpha();
     int dx, dy, logoW = GV->sprLogoBig->GetWidth();
     myWin->getAbsolutePosition(dx, dy);
-    GV->RenderLogoWithVersion(dx + logoW / 2 + 12, dy + 65, alpha);
+
+    dx += 16;
+
+    GV->RenderLogoWithVersion(dx + logoW / 2 + 12, dy + 77, alpha);
 
     dx += 18;
-    dy += GV->sprLogoBig->GetHeight() + 44;
+    dy += GV->sprLogoBig->GetHeight() + 64;
 
-    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 16, dy, GV->colLineBright);
+    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 2, dy, GV->colLineBright);
 
     dy += 16;
 
@@ -65,21 +68,23 @@ void winAbout::Draw(int piCode) {
                             0, GETL2S("WinAuthors", "Func_3"));
     dy += 32;
 
-    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 16, dy, GV->colLineBright);
+    hge->Gfx_RenderLine(dx, dy, dx + usedLibsCreditsBlockWidth - 2, dy, GV->colLineBright);
 
     dy += 16;
 
     for (auto line : usedLibsCreditLines) {
         GV->fntMyriad16->printfb(dx, dy, usedLibsCreditsBlockWidth, 200, 0, 0, line);
-        dy += GV->fntMyriad16->GetHeightb(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
+        dy += GV->fntMyriad16->GetStringBlockHeight(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
     }
 }
 
 void winAbout::Open() {
-    myWin->setVisible(1);
+    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
+                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
+    myWin->setVisible(true);
     myWin->getParent()->moveToTop(myWin);
 }
 
 void winAbout::Close() {
-    myWin->setVisible(0);
+    myWin->setVisible(false);
 }
