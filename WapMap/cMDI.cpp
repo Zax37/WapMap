@@ -8,6 +8,7 @@
 #include "io/cWWDx.h"
 #include "version.h"
 #include "states/loadmap.h"
+#include "states/dialog.h"
 
 extern HGE *hge;
 
@@ -16,26 +17,33 @@ int cTabMDI::MaxTabWidth = 100;
 void cMDI::action(const gcn::ActionEvent &actionEvent) {
     if (actionEvent.getSource() == hContext) {
         if (hContext->GetSelectedID() == MDI_CONTEXT_RELOAD) {
-            bReloadingMap = 1;
+            bReloadingMap = true;
             GV->StateMgr->Push(new State::LoadMap(m_vhDoc[m_iContextMenuFocusedDoc]->hParser->GetFilePath()));
-            hContext->setVisible(0);
+            hContext->setVisible(false);
             return;
-        }
-        if (hContext->GetSelectedID() == MDI_CONTEXT_PREVIOUSLYCLOSED)
+        } else if (hContext->GetSelectedID() == MDI_CONTEXT_PREVIOUSLYCLOSED)
             return;
-        for (int i = 0; i < m_vhDoc.size(); i++) {
-            if (hContext->GetSelectedID() == MDI_CONTEXT_CLOSEEXCEPTACTIVE && m_iContextMenuFocusedDoc == i)
-                continue;
-            if (!CloseDocByIt(i)) {
-                hContext->setVisible(0);
+        bool leaveCurrent = hContext->GetSelectedID() == MDI_CONTEXT_CLOSEEXCEPTACTIVE;
+        int closeRight = leaveCurrent ? m_vhDoc.size() - m_iContextMenuFocusedDoc - 1 : m_vhDoc.size();
+        int closeLeft = leaveCurrent ? m_iContextMenuFocusedDoc : 0;
+
+        while (closeLeft--) {
+            if (!CloseDocByIt(0)) {
+                hContext->setVisible(false);
                 return;
             }
-            i--;
+        }
+
+        while (closeRight--) {
+            if (!CloseDocByIt(m_vhDoc.size() - 1)) {
+                hContext->setVisible(false);
+                return;
+            }
         }
     } else if (actionEvent.getSource() == hContextClosed) {
-        GV->StateMgr->Push(new State::LoadMap(vstrRecentlyClosed[hContextClosed->GetSelectedID()].c_str()));
+        GV->editState->vstrMapsToLoad.emplace_back(vstrRecentlyClosed[hContextClosed->GetSelectedID()]);
     }
-    hContext->setVisible(0);
+    hContext->setVisible(false);
 }
 
 cMDI::cMDI() {
@@ -204,7 +212,7 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
 
 void cMDI::RebuildContext(bool bForceRebuildBase) {
     SHR::ContextEl *prevclosed = hContext->GetElementByID(MDI_CONTEXT_PREVIOUSLYCLOSED);
-    if (!vstrRecentlyClosed.size() || bForceRebuildBase) {
+    if (vstrRecentlyClosed.empty() || bForceRebuildBase) {
         if (prevclosed || bForceRebuildBase) {
             hContext->ClearElements();
             hContext->AddElement(MDI_CONTEXT_CLOSEEXCEPTACTIVE, GETL2S("MDI", "Context_CloseAllExceptActive"),
@@ -213,11 +221,11 @@ void cMDI::RebuildContext(bool bForceRebuildBase) {
             hContext->AddElement(MDI_CONTEXT_RELOAD, GETL2S("MDI", "Context_Reload"),
                                  GV->sprIcons16[Icon16_AutoUpdate]);
             hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
-            hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(m_vhDoc.size() != 0);
+            hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(!m_vhDoc.empty());
             hContext->adjustSize();
         }
     }
-    if (!vstrRecentlyClosed.size()) return;
+    if (vstrRecentlyClosed.empty()) return;
     if (!prevclosed) {
         hContext->AddElement(MDI_CONTEXT_PREVIOUSLYCLOSED, GETL2S("MDI", "Context_PreviouslyClosed"));
         hContext->adjustSize();
@@ -262,7 +270,7 @@ void cMDI::DeleteDocByIt(int i) {
             }
         }
         if (!alreadyThere) {
-            if (vstrRecentlyClosed.size() == 5) {
+            if (vstrRecentlyClosed.size() >= 10) {
                 vstrRecentlyClosed.pop_back();
             }
             vstrRecentlyClosed.insert(vstrRecentlyClosed.begin(), m_vhDoc[i]->hParser->GetFilePath());
@@ -272,7 +280,7 @@ void cMDI::DeleteDocByIt(int i) {
     DocumentData *dd = m_vhDoc[i];
 
     m_vhDoc.erase(m_vhDoc.begin() + i);
-    if (m_vhDoc.size() == 0) SetActiveDocIt(-1);
+    if (m_vhDoc.empty()) SetActiveDocIt(-1);
     else if (m_iActiveDoc > i) m_iActiveDoc--;
     else if (m_iActiveDoc == i && m_iActiveDoc >= m_vhDoc.size()) SetActiveDocIt(m_iActiveDoc - 1);
     else if (m_iActiveDoc == i) SetActiveDocIt(m_iActiveDoc);
@@ -304,13 +312,14 @@ void cMDI::DeleteDocByIt(int i) {
     delete dd->hParser;
     delete[] dd->szFileName;
     delete dd;
+
     UpdateCrashList();
-    if (m_vhDoc.size() == 0) {
-        hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(0);
+    if (m_vhDoc.empty()) {
+        hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(false);
     }
     hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size() > 1);
     GV->editState->hAppMenu->SyncDocumentClosed();
-    RebuildContext(0);
+    RebuildContext(false);
 
     UpdateMaxTabSize();
 }
@@ -360,9 +369,13 @@ void cMDI::Think(bool bConsumed) {
         m_iContextMenuFocusedDoc = iFocus;
         hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(iFocus >= 0 && m_vhDoc.size() > 1);
         hContext->GetElementByID(MDI_CONTEXT_RELOAD)->SetEnabled(iFocus >= 0 && strlen(m_vhDoc[iFocus]->hParser->GetFilePath()) > 0);
-        hContext->setPosition(mx, my);
+        if (mx + hContext->getWidth() >= hge->System_GetState(HGE_SCREENWIDTH)) {
+            hContext->setPosition(mx - hContext->getWidth(), my);
+        } else {
+            hContext->setPosition(mx, my);
+        }
         GV->editState->conMain->moveToTop(hContext);
-        hContext->setVisible(1);
+        hContext->setVisible(true);
     }
 
     for (auto doc : m_vhDoc) {
@@ -421,8 +434,8 @@ bool cMDI::CloseDocByIt(int i) {
     if (!m_vhDoc[i]->bSaved) {
         char text[256];
         sprintf(text, GETL2S("Various", "FileUnsavedPrompt"), m_vhDoc[i]->szFileName);
-        int choice = MessageBox(hge->System_GetState(HGE_HWND), text, PRODUCT_NAME, MB_YESNOCANCEL | MB_ICONWARNING);
-        if (choice == IDYES) {
+        switch (State::MessageBox(PRODUCT_NAME, text, ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNOCANCEL)) {
+        case RETURN_YES:
             if (strlen(m_vhDoc[i]->hParser->GetFilePath()) == 0) {
                 OPENFILENAME ofn;
                 char szFileopen[512] = "\0";
@@ -440,7 +453,7 @@ bool cMDI::CloseDocByIt(int i) {
                     GV->SetLastSavePath(lastsave);
                     delete[] lastsave;
                 } else {
-                    return 0;
+                    return false;
                 }
             }
             try {
@@ -454,9 +467,10 @@ bool cMDI::CloseDocByIt(int i) {
                 GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
 #endif
                 sprintf(text, GETL2S("Various", "UnableToSave"), m_vhDoc[i]->szFileName);
-                MessageBox(hge->System_GetState(HGE_HWND), text, PRODUCT_NAME, MB_OK | MB_ICONERROR);
+                State::MessageBox(PRODUCT_NAME, text, ST_DIALOG_ICON_ERROR);
             }
-        } else if (choice == IDCANCEL) {
+            break;
+        case RETURN_CANCEL:
             return false;
         }
     }
@@ -531,6 +545,17 @@ void cMDI::UpdateMaxTabSize() {
     cTabMDI::MaxTabWidth = m_vhDoc.empty() ? hge->System_GetState(HGE_SCREENWIDTH) : (hge->System_GetState(HGE_SCREENWIDTH) - 16 - m_iAddTabButtonOffset * 2) / m_vhDoc.size();
 }
 
+bool cMDI::IsDocAlreadyOpen(const std::string& path) {
+    for (auto dd : m_vhDoc) {
+        if (path == dd->hParser->GetFilePath()) {
+            GV->editState->PrepareForDocumentSwitch();
+            SetActiveDoc(dd);
+            return true;
+        }
+    }
+    return false;
+}
+
 cTabMDI::cTabMDI() {
     dd = 0;
     bFocused = false;
@@ -578,9 +603,6 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected) {
     int tabWidth = GetWidth();
 
     if (bselected || fTimer > 0) {
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
         SHR::SetQuad(&q, 0xFFFFFFFF, x, y, x + GetWidth(), y + LAY_MDI_H);
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = bselected ? 0xFF0F0F0F : SETA(0xFFFFFF, fTimer * 0x70);
         hge->Gfx_RenderQuad(&q);

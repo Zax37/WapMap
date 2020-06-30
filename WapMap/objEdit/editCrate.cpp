@@ -213,7 +213,7 @@ namespace ObjEdit {
             delete invTabs[i];
         delete win;
         delete hInventory;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCrate::Save() {
@@ -250,10 +250,10 @@ namespace ObjEdit {
                 hTempObj->SetParam(WWD::Param_Health, 999);
         } else if (actionEvent.getSource() == tfWarpX) {
             hTempObj->SetParam(WWD::Param_SpeedX, atoi(tfWarpX->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == tfWarpY) {
             hTempObj->SetParam(WWD::Param_SpeedY, atoi(tfWarpY->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == butWarpPick) {
             bPick = !bPick;
             tfWarpX->setEnabled(!bPick);
@@ -332,7 +332,7 @@ namespace ObjEdit {
                         }
                     }
                     RebuildWindow();
-                    hState->vPort->MarkToRedraw(1);
+                    hState->vPort->MarkToRedraw();
                     ApplyInventoryToObject();
                 }
         }
@@ -440,7 +440,7 @@ namespace ObjEdit {
         butRandomize->setY(win->getHeight() - 100);
         cbIncludeSpecials->setY(win->getHeight() - 140);
         cbRandomCount->setY(win->getHeight() - 120);
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
 
         ddDurability->setEnabled(iCratesCount <= 2);
         if (!ddDurability->isEnabled())

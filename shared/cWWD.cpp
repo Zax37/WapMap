@@ -1342,7 +1342,10 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy, bool creating) {
                 GetUserDataFromObj(object)->SetPos(object->GetParam(WWD::Param_LocationX) + objectsOffsetX, object->GetParam(WWD::Param_LocationY) + objectsOffsetY);
             }
 
-            GV->editState->UpdateMovedObjectWithRects(m_vObjects);
+            if (!GV->editState->UpdateMovedObjectWithRects(m_vObjects)) {
+                delete[] newt;
+                return;
+            }
             int startX = GV->editState->hParser->GetStartX() + objectsOffsetX,
                 startY = GV->editState->hParser->GetStartY() + objectsOffsetY;
             GV->editState->hStartingPosObj->SetParam(WWD::Param_LocationX, startX);
@@ -1417,7 +1420,7 @@ void WWD::Plane::Resize(int nw, int nh, int ox, int oy, bool creating) {
 
     if (!creating) {
         GV->editState->MarkUnsaved();
-        GV->editState->vPort->MarkToRedraw(true);
+        GV->editState->vPort->MarkToRedraw();
     }
 }
 

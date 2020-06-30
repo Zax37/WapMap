@@ -79,10 +79,10 @@ namespace ObjEdit {
             rArea.y1 = hTempObj->GetParam(WWD::Param_MinY);
             rArea.y2 = hTempObj->GetParam(WWD::Param_MaxY);
 
-            if (!rArea.x1) rArea.x1 = GetUserDataFromObj(obj)->GetX();
-            if (!rArea.x2) rArea.x2 = GetUserDataFromObj(obj)->GetX();
-            if (!rArea.y1) rArea.y1 = GetUserDataFromObj(obj)->GetY();
-            if (!rArea.y2) rArea.y2 = GetUserDataFromObj(obj)->GetY();
+            if (!rArea.x1) rArea.x1 = obj->GetX();
+            if (!rArea.x2) rArea.x2 = obj->GetX();
+            if (!rArea.y1) rArea.y1 = obj->GetY();
+            if (!rArea.y2) rArea.y2 = obj->GetY();
 
             width = rArea.x2 - rArea.x1;
             height = rArea.y2 - rArea.y1;
@@ -106,8 +106,8 @@ namespace ObjEdit {
 
         #define InCorner(val, min, max) ((min == 0 && max == 0) || val == min || val == max)
 
-        bool bAutomatic = dir && InCorner(GetUserDataFromObj(obj)->GetX(), rArea.x1, rArea.x2)
-                && InCorner(GetUserDataFromObj(obj)->GetY(), rArea.y1, rArea.y2);
+        bool bAutomatic = dir && InCorner(obj->GetX(), rArea.x1, rArea.x2)
+                && InCorner(obj->GetY(), rArea.y1, rArea.y2);
         std::string group = std::to_string((int)this);
 
         automatic = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Elevator", "Automatic"), group, bAutomatic);
@@ -188,7 +188,7 @@ namespace ObjEdit {
         butDirection[6] = hState->MakeButton(xOffset + 32, yOffset + 64, Icon_Down, win);
         butDirection[7] = hState->MakeButton(xOffset + 64, yOffset + 64, Icon_DownRight, win);
         for (auto & i : butDirection) {
-            i->removeActionListener(GV->editState->al);
+            i->removeActionListener(GV->editState->mainListener);
             i->addActionListener(hAL);
         }
 
@@ -234,7 +234,7 @@ namespace ObjEdit {
             delete i;
 
         delete win;
-        hState->vPort->MarkToRedraw(true);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjElevator::Save() {

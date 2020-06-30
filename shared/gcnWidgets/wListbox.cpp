@@ -9,6 +9,7 @@
 #include "guichan/key.hpp"
 #include "guichan/listmodel.hpp"
 #include "guichan/selectionlistener.hpp"
+#include "../../WapMap/globals.h"
 
 namespace SHR {
     ListBox::ListBox()
@@ -21,9 +22,8 @@ namespace SHR {
 
         addMouseListener(this);
         addKeyListener(this);
-        setBackgroundColor(0x545454);
-        setForegroundColor(0x545454);
-        setBaseColor(0x545454);
+
+        mOpaque = true;
     }
 
     ListBox::ListBox(ListModel *listModel)
@@ -36,26 +36,21 @@ namespace SHR {
 
         addMouseListener(this);
         addKeyListener(this);
-        //setForegroundColor();
-        setBackgroundColor(0x545454);
-        setForegroundColor(0x545454);
-        setBaseColor(0x545454);
+
+        mOpaque = true;
     }
 
     void ListBox::draw(Graphics *graphics) {
         unsigned char alpha = getAlpha();
-        graphics->setColor(gcn::Color(0x131313, alpha));
-        graphics->fillRectangle(mDimension);
 
-        /*graphics->setColor(gcn::Color(0x178ce1, alpha));
-        graphics->drawRectangle(mDimension);*/
+        if (mOpaque) {
+            graphics->setColor(gcn::Color(0x131313, alpha));
+            graphics->fillRectangle(mDimension);
+        }
 
         if (mListModel == NULL) {
             return;
         }
-
-        graphics->setColor(gcn::Color(0xbababa, alpha));
-        graphics->setFont(getFont());
 
         // Check the current clip area so we don't draw unnecessary items
         // that are not visible.
@@ -96,7 +91,7 @@ namespace SHR {
         unsigned rowHeight = getRowHeight();
         int y = i * rowHeight;
         if (i == mSelected || i == mHighlighted) {
-            graphics->setColor(gcn::Color(i == mSelected ? 0x1585e2 : 0x454545, alpha));
+            graphics->setColor(gcn::Color(i == mSelected ? GV->colActive : 0x454545, alpha));
             graphics->fillRectangle(gcn::Rectangle(0, y, getWidth(), rowHeight));
         }
 
@@ -226,7 +221,7 @@ namespace SHR {
         }
     }*/
 
-    void ListBox::mouseDragged(MouseEvent &mouseEvent) {
+    void ListBox::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 
@@ -282,5 +277,9 @@ namespace SHR {
             }
         }
         return -1;
+    }
+
+    void ListBox::setOpaque(bool opaque) {
+        mOpaque = opaque;
     }
 }

@@ -48,26 +48,17 @@
 #include "guichan/hge/hgeinput.hpp"
 #include "guichan/exception.hpp"
 
-#include <cstdio>
+extern HGE *hge;
 
 namespace gcn {
-    HGE *HGEInput::mHGE = NULL;
 
     HGEInput::HGEInput() {
-        printf("\n----\n");
-        mHGE = hgeCreate(HGE_VERSION);
-
         mMouseX = 0;
         mMouseY = 0;
 
         mLeftMouseButtonDown = false;
         mRightMouseButtonDown = false;
         mMiddleMouseButtonDown = false;
-        printf("\n---\n");
-    }
-
-    HGEInput::~HGEInput() {
-        mHGE->Release();
     }
 
     bool HGEInput::isKeyQueueEmpty() {
@@ -108,7 +99,7 @@ namespace gcn {
     void HGEInput::_pollInput() {
         hgeInputEvent ie;
 
-        while (mHGE->Input_GetEvent(&ie)) {
+        while (hge->Input_GetEvent(&ie)) {
             pollMouseInput();
             pollKeyInput(ie);
         }
@@ -120,14 +111,14 @@ namespace gcn {
 
         bool leftBtn, rightBtn, centerBtn;
 
-        mHGE->Input_GetMousePos(&curMouseX, &curMouseY);
-        mouseWheel = mHGE->Input_GetMouseWheel();
+        hge->Input_GetMousePos(&curMouseX, &curMouseY);
+        mouseWheel = hge->Input_GetMouseWheel();
 
-        leftBtn = mHGE->Input_GetKeyState(HGEK_LBUTTON);
-        rightBtn = mHGE->Input_GetKeyState(HGEK_RBUTTON);
-        centerBtn = mHGE->Input_GetKeyState(HGEK_MBUTTON);
+        leftBtn = hge->Input_GetKeyState(HGEK_LBUTTON);
+        rightBtn = hge->Input_GetKeyState(HGEK_RBUTTON);
+        centerBtn = hge->Input_GetKeyState(HGEK_MBUTTON);
 
-        int time = mHGE->Timer_GetDeltaRealtime();
+        int time = hge->Timer_GetDeltaRealtime();
 
         // Check mouse movement
         if (mMouseX != curMouseX

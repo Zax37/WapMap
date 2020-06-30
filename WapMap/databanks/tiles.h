@@ -54,6 +54,7 @@ private:
     int m_iTileMaxID;
     WWD::Parser *m_hParser;
     std::string strHash;
+    int tileWidth, tileHeight;
 
     std::vector<cTile *> m_vTiles;
     std::vector<cBrush *> m_vBrushes;
@@ -61,7 +62,7 @@ private:
     friend class cBankTile;
 
 public:
-    cTileImageSet(const char *pszName);
+    cTileImageSet(int tileWidth, int tileHeight, const char *pszName);
 
     ~cTileImageSet();
 
@@ -98,9 +99,9 @@ private:
     HTEXTURE hTex;
     hgeSprite **hSlots;
     int iLastSlotX, iLastSlotY;
-    int iW, iH, iUsedSlots;
+    int iW, iH, iTW, iTH, iUsedSlots;
 public:
-    cTilesetTexture(int w, int h);
+    cTilesetTexture(int w, int h, int tw, int th);
 
     ~cTilesetTexture();
 
@@ -116,7 +117,7 @@ public:
 
     bool IsEmpty() { return iUsedSlots == 0; };
 
-    static void CalculateDimension(int iTileNum, int &iTexW, int &iTexH);
+    static void CalculateDimension(int iTileNum, int tileW, int tileH, int &iTexW, int &iTexH);
 
     void GetLastSlotPos(int &x, int &y) {
         x = iLastSlotX;
@@ -124,6 +125,8 @@ public:
     };
 
     HTEXTURE GetTexture() { return hTex; };
+
+    friend class cTile;
 };
 
 class cBankTile : public cAssetBank, public gcn::ListModel {

@@ -111,7 +111,7 @@ namespace SHR {
         }
     }
 
-    void TextBox::mouseDragged(MouseEvent &mouseEvent) {
+    void TextBox::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

@@ -5,6 +5,7 @@
 #include "../shared/HashLib/hashlibpp.h"
 #include "cParallelLoop.h"
 #include "databanks/imageSets.h"
+#include "databanks/logics.h"
 #include <direct.h>
 #include <filesystem>
 
@@ -81,12 +82,7 @@ cDataController::cDataController(WWD::GAME game, std::string strGD, std::string 
         tmp.push_back('/');
         tmp.append(tmp2);
         delete[] tmp2;
-        hFind = FindFirstFile(tmp.c_str(), &fdata);
-        if (hFind == INVALID_HANDLE_VALUE) {
-            GV->Console->Printf("~r~Error mounting custom assets directory (~y~%s~r~)!", tmp.c_str());
-        } else {
-            hCustom = new cDiscFeed(tmp);
-        }
+        hCustom = new cDiscFeed(tmp);
     } else {
         GV->Console->Printf("~r~Unable to mount custom assets directory due to virtual document.");
     }
@@ -384,7 +380,7 @@ bool cDataController::RenderImage(cFile hFile, HTEXTURE texDest, int iRx, int iR
     int w, h;
     PID::Palette* palette = NULL;
     byte *data = GetImageRaw(hFile, &w, &h, &palette);
-    if (!data) return 0;
+    if (!data) return false;
     bool ret = RenderImageRaw(data, texDest, iRx, iRy, iRowSpan, w, h, palette);
     if (palette) {
         delete palette;
@@ -507,8 +503,7 @@ cAssetPackage::~cAssetPackage() {
 void cDataController::UpdateAllPackages() {
     for (auto & vhBank : vhBanks) {
         vhBank->BatchProcessStart(this);
-        if (GetLooper() != 0)
-            GetLooper()->Tick();
+        if (GetLooper()) GetLooper()->Tick();
         for (auto & vhPackage : vhPackages) {
             vhPackage->Update(vhBank);
         }
@@ -843,4 +838,8 @@ void cDataController::OpenCodeEditor(std::string logicName, bool nonExisting) {
         }
     }
     ShellExecute(hge->System_GetState(HGE_HWND), "open", filepath.c_str(), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void cDataController::OpenCodeEditor(cCustomLogic *logic) {
+    ShellExecute(hge->System_GetState(HGE_HWND), "open", logic->GetPath().c_str(), NULL, NULL, SW_SHOWNORMAL);
 }

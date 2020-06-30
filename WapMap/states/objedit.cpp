@@ -142,7 +142,7 @@ namespace ObjEdit {
                     hTempObj->GetParam(WWD::Param_LocationY) != desty) {
                     int sourceX = hTempObj->GetParam(WWD::Param_LocationX),
                         sourceY = hTempObj->GetParam(WWD::Param_LocationY);
-                    GV->editState->vPort->MarkToRedraw(true);
+                    GV->editState->vPort->MarkToRedraw();
                     hTempObj->SetParam(WWD::Param_LocationX, destx);
                     hTempObj->SetParam(WWD::Param_LocationY, desty);
                     GetUserDataFromObj(hTempObj)->SyncToObj();
@@ -255,7 +255,7 @@ namespace ObjEdit {
         int iOrigid = hTempObj->GetParam(WWD::Param_ID);
         hOrigObj->SetParam(WWD::Param_ID, iOrigid);
         hState->MarkUnsaved();
-        hState->vPort->MarkToRedraw(true);
+        hState->vPort->MarkToRedraw();
     }
 
 	void cObjEditVP::Draw(int iCode)

@@ -128,7 +128,7 @@ namespace SHR {
         }
     }
 
-    void Link::mouseDragged(MouseEvent &mouseEvent) {
+    void Link::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 }

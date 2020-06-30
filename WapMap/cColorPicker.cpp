@@ -149,13 +149,10 @@ void cColorPicker::SetColor(DWORD n) {
 void cColorPicker::Draw(int iCode) {
     int dx, dy;
     winPicker->getAbsolutePosition(dx, dy);
-    hgeQuad q;
     if (bUseAlpha)
         SHR::SetQuad(&q, dwColor, dx + 105, dy + 127, dx + 242, dy + 150);
     else
         SHR::SetQuad(&q, dwColor, dx + 105, dy + 102, dx + 242, dy + 125);
-    q.blend = BLEND_DEFAULT;
-    q.tex = 0;
     hge->Gfx_RenderQuad(&q);
 }
 

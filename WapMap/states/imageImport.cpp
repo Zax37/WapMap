@@ -10,6 +10,7 @@
 #include <direct.h>
 #include "../langID.h"
 #include "../version.h"
+#include "dialog.h"
 
 extern HGE *hge;
 
@@ -60,7 +61,7 @@ namespace State {
                     descw = labMountOut->getWidth();
 
                 labMountOutV = new SHR::Lab("-");
-                labMountOutV->setColor(0xFFFFFF);
+                labMountOutV->setColor(0xFFFFFFFF);
                 myWin->add(labMountOutV, 10 + descw, 50);
             }
 
@@ -72,12 +73,12 @@ namespace State {
             labWarnDestName = new SHR::Lab(GETL2S("Win_ImageImport",
                                                   iImportType == ImageImportTile ? "WarnSpecifyTileset"
                                                                                  : "WarnSpecifyImageset"));
-            labWarnDestName->setColor(0xA10808);
+            labWarnDestName->setColor(0xFFA10808);
             myWin->add(labWarnDestName, tfDestName->getX(), 30);
         } else {
-            labDestName = 0;
-            tfDestName = 0;
-            labWarnDestName = 0;
+            labDestName = nullptr;
+            tfDestName = nullptr;
+            labWarnDestName = nullptr;
         }
 
         labFiles = new SHR::Lab(GETL2S("Win_ImageImport", "FilesToImport"));
@@ -208,13 +209,13 @@ namespace State {
         return 0;
     }
 
-    void ImageImport::GainFocus(int iReturnCode, bool bFlipped) {
+    void ImageImport::GainFocus(ReturnCode<void> code, bool bFlipped) {
 
     }
 
     void ImageImport::action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == myWin || actionEvent.getSource() == butCancel) {
-            _popMe(0);
+            _popMe({});
             return;
         } /*else if (actionEvent.getSource() == butSave) {
             if (vImages.size() > 0) {
@@ -369,7 +370,7 @@ namespace State {
                 if (vImages[i].tfID->getText().length() == 0) {
                     vImages[i].labWarnID->setVisible(1);
                     vImages[i].labWarnID->setCaption(GETL2S("Win_ImageImport", "WarnSpecifyID"));
-                    vImages[i].labWarnID->setColor(0xa13a3a);
+                    vImages[i].labWarnID->setColor(0xFFa13a3a);
                     vImages[i].labWarnID->adjustSize();
                     if (!vImages[i].bBadFlag) {
                         vImages[i].bBadFlag = 1;
@@ -378,7 +379,7 @@ namespace State {
                 } else if (doubledid) {
                     vImages[i].labWarnID->setVisible(1);
                     vImages[i].labWarnID->setCaption(GETL2S("Win_ImageImport", "WarnMultipleID"));
-                    vImages[i].labWarnID->setColor(0xa13a3a);
+                    vImages[i].labWarnID->setColor(0xFFa13a3a);
                     vImages[i].labWarnID->adjustSize();
                     if (!vImages[i].bBadFlag) {
                         vImages[i].bBadFlag = 1;
@@ -389,7 +390,7 @@ namespace State {
                     vImages[i].labWarnID->setCaption(GETL2S("Win_ImageImport",
                                                             iImportType == ImageImportTile ? "WarnUsedByCustomTile"
                                                                                            : "WarnUsedByCustomImage"));
-                    vImages[i].labWarnID->setColor(0xa13a3a);
+                    vImages[i].labWarnID->setColor(0xFFa13a3a);
                     vImages[i].labWarnID->adjustSize();
                     if (!vImages[i].bBadFlag) {
                         vImages[i].bBadFlag = 1;
@@ -400,7 +401,7 @@ namespace State {
                     vImages[i].labWarnID->setCaption(GETL2S("Win_ImageImport",
                                                             iImportType == ImageImportTile ? "InfoTileReplace"
                                                                                            : "InfoImageReplace"));
-                    vImages[i].labWarnID->setColor(0xa1a1a1);
+                    vImages[i].labWarnID->setColor(0xFFa1a1a1);
                     vImages[i].labWarnID->adjustSize();
                 } else {
                     vImages[i].labWarnID->setVisible(0);
@@ -428,11 +429,6 @@ namespace State {
         drw = rchild.width;
         drh = rchild.height;
         if (piCode == 0) {
-            hge->Gfx_SetClipping(drx, dry, drw, drh);
-            for (int y = 0; y < drh / 128 + 1; y++)
-                for (int x = 0; x < drw / 128 + 1; x++)
-                    GV->hGfxInterface->sprMainBackground->Render(drx + x * 128, dry + y * 128);
-
             if (vImages.empty()) {
                 GV->fntMyriad16->SetColor(0xFFe1e1e1);
                 GV->fntMyriad16->Render(drx + drw / 2, dry + drh / 2 - 7, HGETEXT_CENTER,
@@ -495,7 +491,7 @@ namespace State {
         GV->Console->Printf("~r~Import error: #%d", int(err));
         char tmp[256];
         sprintf(tmp, "err #%d", int(err));
-        MessageBox(hge->System_GetState(HGE_HWND), tmp, PRODUCT_NAME, MB_ICONERROR | MB_OK);
+        State::MessageBox(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR);
     }
 
     void ImageImport::AddFile(std::string strFilePath) {
@@ -618,7 +614,7 @@ namespace State {
         n.strFilePath = strFilePath;
         n.strStdFilePath = stdPath;
         n.labFilePath = new SHR::Lab(strFilePath);
-        n.labFilePath->setColor(0xFFFFFF);
+        n.labFilePath->setColor(0xFFFFFFFF);
         conFiles->add(n.labFilePath);
         n.butRemove = new SHR::But(GV->hGfxInterface, GV->sprIcons[Icon_Trash]);
         n.butRemove->setDimension(gcn::Rectangle(0, 0, 32, 32));

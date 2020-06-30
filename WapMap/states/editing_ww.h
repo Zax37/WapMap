@@ -46,6 +46,8 @@ typedef unsigned char byte;
 typedef unsigned long DWORD;
 #endif
 
+#define WORKSPACE_MARGINS_SIZE 1200
+
 #define SIM_ROPE_DEFAULT_SPEED 3.000f //in seconds
 #define SIM_TOGGLEPEG_DEFAULT_ON 1.500f //in secs
 #define SIM_TOGGLEPEG_DEFAULT_OFF 1.500f //in secs
@@ -61,8 +63,6 @@ typedef unsigned long DWORD;
 #define TILE_PICK_COLOR_SOLID       0xFF00FF00
 #define TILE_HIGHLIGHT_COLOR_SOLID  0xFFFFFF00
 
-#define ZCOORD_DIF 10000.0f
-
 #define EWW_MODE_NONE       -1
 #define EWW_MODE_TILE        0
 #define EWW_MODE_OBJECT      1
@@ -71,15 +71,17 @@ typedef unsigned long DWORD;
 #define EWW_TOOL_PENCIL          1  //tile mode pencil
 #define EWW_TOOL_BRUSH           2  //tile mode lua brushes
 #define EWW_TOOL_FILL            3  //tile mode flood feature
-#define EWW_TOOL_DUPLICATE       4  //object duplication
-#define EWW_TOOL_MOVEOBJECT      5  //moving objects, self-explaining
-#define EWW_TOOL_BRUSHOBJECT     6  //object brush, self-explaining
-#define EWW_TOOL_MEASURE         7  //measure tool, self-explaining
-#define EWW_TOOL_OBJSELAREA      8  //Tool to select X and Y min and max object area. Simple hack to avoid switching states.
-#define EWW_TOOL_EDITOBJ         9  //entry point for all object's easyedit applets
-#define EWW_TOOL_ALIGNOBJ        10 //used to implement selection of which object user wants to align objects to
-#define EWW_TOOL_SPACEOBJ        11 //object interval selection
-#define EWW_TOOL_WRITEID         12 //tile mode write id
+#define EWW_TOOL_WRITEID         4 //tile mode write id
+#define EWW_TOOL_ZOOM            5 //zoom
+
+#define EWW_TOOL_DUPLICATE       9  //object duplication
+#define EWW_TOOL_MOVEOBJECT      10  //moving objects, self-explaining
+#define EWW_TOOL_BRUSHOBJECT     11  //object brush, self-explaining
+#define EWW_TOOL_MEASURE         12  //measure tool, self-explaining
+#define EWW_TOOL_OBJSELAREA      13  //Tool to select X and Y min and max object area. Simple hack to avoid switching states.
+#define EWW_TOOL_EDITOBJ         14  //entry point for all object's easyedit applets
+#define EWW_TOOL_ALIGNOBJ        15 //used to implement selection of which object user wants to align objects to
+#define EWW_TOOL_SPACEOBJ        16 //object interval selection
 
 #define TOOL_OBJSA_NONE     0
 #define TOOL_OBJSA_PICKMINX 1
@@ -162,13 +164,20 @@ enum OBJMENU {
 	ZC_BACK,
 	ZC_ACTION,
 	ZC_FRONT,
+
 	ALIGN,
 	ALIGN_HOR,
 	ALIGN_VERT,
-	SPECIFICPROP,
+
+    FLIP,
+    FLIP_X,
+    FLIP_Y,
+
 	SPACE,
 	SPACE_HOR,
 	SPACE_VERT,
+
+    SPECIFICPROP,
 	TESTFROMHERE,
 
 	FLAGS,
@@ -220,13 +229,20 @@ enum OBJMENU {
 #define OBJMENU_ZC_BACK      OBJMENU::ZC_BACK
 #define OBJMENU_ZC_ACTION    OBJMENU::ZC_ACTION
 #define OBJMENU_ZC_FRONT     OBJMENU::ZC_FRONT
+
 #define OBJMENU_ALIGN        OBJMENU::ALIGN
 #define OBJMENU_ALIGN_HOR    OBJMENU::ALIGN_HOR
 #define OBJMENU_ALIGN_VERT   OBJMENU::ALIGN_VERT
-#define OBJMENU_SPECIFICPROP OBJMENU::SPECIFICPROP
+
+#define OBJMENU_FLIP         OBJMENU::FLIP
+#define OBJMENU_FLIP_X       OBJMENU::FLIP_X
+#define OBJMENU_FLIP_Y       OBJMENU::FLIP_Y
+
 #define OBJMENU_SPACE        OBJMENU::SPACE
 #define OBJMENU_SPACE_HOR    OBJMENU::SPACE_HOR
 #define OBJMENU_SPACE_VERT   OBJMENU::SPACE_VERT
+
+#define OBJMENU_SPECIFICPROP OBJMENU::SPECIFICPROP
 #define OBJMENU_TESTFROMHERE OBJMENU::TESTFROMHERE
 
 #define OBJMENU_FLAGS        OBJMENU::FLAGS
@@ -364,7 +380,7 @@ namespace State {
 
     class EditingWW;
 
-    class EditingWWActionListener;
+    class EditingWWMainListener;
 
     class EditingWWvpCallback : public WIDG::VpCallback {
     private:
@@ -387,43 +403,25 @@ namespace State {
         int getNumberOfElements();
     };
 
-    class EditingWWActionListener : public gcn::ActionListener {
-    private:
-        EditingWW *m_hOwn;
-    public:
-        EditingWWActionListener(EditingWW *owner);
-
-        void action(const gcn::ActionEvent &actionEvent) override;
-    };
-
-    class EditingWWFocusListener : public gcn::FocusListener {
-    private:
-        EditingWW *m_hOwn;
-    public:
-        EditingWWFocusListener(EditingWW *owner);
-
-        void focusLost(const FocusEvent &event) override;
-    };
-
-    class EditingWWKeyListener : public gcn::KeyListener {
+    class EditingWWMainListener : public gcn::ActionListener,
+                                  public gcn::FocusListener,
+                                  public gcn::KeyListener,
+                                  public gcn::MouseListener {
     private:
         EditingWW *m_hOwn;
         bool lastPressedWasAlt;
     public:
-        EditingWWKeyListener(EditingWW *owner);
+        explicit EditingWWMainListener(EditingWW *owner);
+
+        void action(const gcn::ActionEvent &actionEvent) override;
+
+        void focusLost(const FocusEvent &event) override;
 
         void stopAltMenu() { lastPressedWasAlt = false; }
 
         void keyPressed(KeyEvent &keyEvent) override;
 
         void keyReleased(KeyEvent &keyEvent) override;
-    };
-
-    class EditingWWMouseListener : public gcn::MouseListener {
-        EditingWW *m_hOwn;
-
-    public:
-        EditingWWMouseListener(EditingWW *owner);
 
         void mousePressed(MouseEvent& mouseEvent) override;
     };
@@ -437,7 +435,7 @@ namespace State {
         EditingWW *hOwn;
         vpFoc *hFocuser;
     public:
-        void MarkToRedraw(bool mark);
+        void MarkToRedraw();
 
         bool IsMarkedToRedraw() { return bRedrawViewport; };
 
@@ -498,17 +496,27 @@ namespace State {
         bool bKill;
     };
 
-    class EditingWW : public SHR::cState {
+	class EditingWW : public SHR::cState, gcn::MouseListener {
     public:
-        SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmSpaceContext; //basic contexts
+        void mouseMoved(MouseEvent& mouseEvent) override;
+
+        void mouseDragged(DragEvent& dragEvent) override;
+
+        void mousePressed(MouseEvent& mouseEvent) override;
+
+        void mouseReleased(MouseEvent& mouseEvent) override;
+
+        void mouseExited(MouseEvent& mouseEvent) override;
+
+        SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmFlipContext, *objmSpaceContext; //basic contexts
         SHR::Context *objFlagContext, *objFlagDrawContext, *objFlagAddContext, *objFlagDynamicContext; //flags contexts
         SHR::Context *advcon_Warp, *advcon_Container; //advanced contexts (object specific)
 
         SHR::ContextModel *conmodObject, *conmodObjectMultiple, *conmodTilesSelected, *conmodTilesPaste, *conmodEditableObject;
-        SHR::ContextModel *conmodPaste, *conmodSpawnPoint, *conmodAtEmpty;//, * conmodUseAsBrush;
+        SHR::ContextModel *conmodAtEmptyPaste, *conmodSpawnPoint, *conmodAtEmpty;//, * conmodUseAsBrush;
         std::vector<TileGhost> vTileGhosting;
 
-        SHR::Container *conResizeUp, *conResizeLeft, *conResizeRight, *conResizeDown;
+        //SHR::Container *conResizeUp, *conResizeLeft, *conResizeRight, *conResizeDown;
         SHR::But *butExtLayerLeft, *butExtLayerRight, *butExtLayerUp, *butExtLayerDown, *butExtLayerUR, *butExtLayerUL, *butExtLayerDL,
                 *butExtLayerDR;
 
@@ -566,17 +574,15 @@ namespace State {
 
         SHR::ScrollArea *sabrlLogicList;
         SHR::ListBox *lbbrlLogicList;
-        SHR::But *butbrlNew, *butbrlEdit, *butbrlEditExternal, *butbrlDelete, *butbrlBrowseDir, *butbrlRenameOK, *butbrlRename;
-        SHR::Lab *labbrlLogicName, *labbrlFilePath, *labbrlFileSize, *labbrlFileChecksum, *labbrlFileModDate,
-                *labbrlLogicNameV, *labbrlFilePathV, *labbrlFileSizeV, *labbrlFileChecksumV, *labbrlFileModDateV;
-        SHR::TextField *tfbrlRename;
-        WIDG::Viewport *vpLogicBrowser;
-
-        void DrawLogicBrowser();
+        SHR::But *butbrlNew, *butbrlEdit, *butbrlEditExternal, *butbrlDelete, *butbrlBrowseDir, *butbrlRename;
+        SHR::Lab *labbrlLogics, *labbrlLogicName, *labbrlFilePath, *labbrlFileSize, *labbrlFileChecksum, *labbrlFileModDate,
+                 *labbrlLogicNameV, *labbrlFilePathV, *labbrlFileSizeV, *labbrlFileChecksumV, *labbrlFileModDateV;
 
         void SyncLogicBrowser();
 
         void ExpandLogicBrowser();
+
+        void FoldLogicBrowser();
 
         LogicInfo GetLogicInfo(const char* logic) { return {logic}; }
 
@@ -644,20 +650,16 @@ namespace State {
         bool bObjBrushDrawing;
 
         //std::vector<cObjectProp*> vObjectWins;
-        WIDG::Viewport *vpMain, *vpAbout, *vpWorld, *vpLoad, *vpDB, *vpTileProp;
+        WIDG::Viewport *vpMain, *vpWorld, *vpDB, *vpTileProp;
         char cScrollOrientation;
         bool bDragDropScroll;
-        float fDragLastMx, fDragLastMy;
-
-        float fObjPickLastMx, fObjPickLastMy;
+        int dragDropX, dragDropY;
 
         int iMode;
         int iActiveTool;
 
         int iTilePicked;
         bool lockDrawing;
-
-        bool bOpenObjContext;
 
         bool bExit;
 
@@ -667,7 +669,7 @@ namespace State {
 
         int lastbrushx, lastbrushy, iLastBrushPlacedX, iLastBrushPlacedY;
 
-        friend class EditingWWActionListener;
+        friend class EditingWWMainListener;
 
         friend class EditingWWvpCallback;
 
@@ -693,7 +695,7 @@ namespace State {
 
         virtual bool Render();
 
-        virtual void GainFocus(int iReturnCode, bool bFlipped);
+        virtual void GainFocus(ReturnCode<void> code, bool bFlipped);
 
         void ToggleFullscreen();
 
@@ -765,7 +767,10 @@ namespace State {
 
         WWD::Object *GetObjUnderWorldPos(int mx, int my);
 
-        SHR::But *MakeButton(int x, int y, EnumGfxIcons icon, SHR::Container *dest, bool enable = 1, bool visible = 1,
+        SHR::But *MakeButton(int x, int y, Gfx16Icons icon, SHR::Container *dest, bool enable = 1, bool visible = 1,
+                             gcn::ActionListener *actionListener = NULL);
+
+        SHR::But *MakeButton(int x, int y, Gfx32Icons icon, SHR::Container *dest, bool enable = 1, bool visible = 1,
                              gcn::ActionListener *actionListener = NULL);
 
         void RenderToViewportBuffer();
@@ -781,10 +786,7 @@ namespace State {
         cDataController *hDataCtrl;
 
         void ShowAndUpdateDuplicateMenu();
-
-        float fObjContextX, fObjContextY;
         bool bDrawTileProperties;
-        bool bLockScroll;
 
         //camera coords calculation
         int Scr2WrdX(WWD::Plane *pl, int px); //screen to world X
@@ -814,8 +816,8 @@ namespace State {
 
         int RenderLayer(WWD::Plane *hPl, bool bDefaultZoom);
 
-        bool bObjDragSelection;
-        int iObjDragOrigX, iObjDragOrigY;
+        bool bDragSelection;
+        int iDragSelectionOrigX, iDragSelectionOrigY;
 
         void ObjectOverlay();
 
@@ -831,15 +833,12 @@ namespace State {
         SHR::Container *conMain;
 
         float fCamX, fCamY;
-        float fZoom;
-        float fDestZoom;
+        float fZoom, fDestZoom, fStartZoom;
 
         std::vector<PlaneData *> hPlaneData;
         DWORD dwBG;
         cColorPicker *cpmsPicker;
 
-        float fDoubleClickTimer;
-        int iDoubleClickX, iDoubleClickY;
         SHR::Win *wintpFillColor;
         SHR::But *buttpfcShow;
 
@@ -851,9 +850,6 @@ namespace State {
         void DrawPlaneOverlay(WWD::Plane *hPl);
 
         void ViewportOverlay();
-
-        bool bSimFold;
-        float fSimFoldY;
 
         float fCameraMoveTimer;
 
@@ -914,6 +910,7 @@ namespace State {
         void SetAnchorPlaneProperties(int anchor);
 
         void HandleMirrorAndInvertHotkeys();
+
         void HandleHotkeys();
 
         //events
@@ -953,8 +950,6 @@ namespace State {
         void LockToolSpecificFunctions(bool bLock); //to specific tools
         void SetIconBarVisible(bool b);
 
-        float fObjPropMouseX, fObjPropMouseY; //to lock ppm object menu
-
         //object edit
         bool bEditObjDelete;
         ObjEdit::cObjEdit *hEditObj;
@@ -962,7 +957,8 @@ namespace State {
         bool IsEditableObject(WWD::Object *obj, ObjEdit::cObjEdit **hEdit = 0); //whether 'easy edit' is available
         void OpenObjectEdit(WWD::Object *obj);
 
-        std::vector<WWD::Object *> vObjectsPicked, vObjectsHL, vObjectsForbidHL, vObjectClipboard, vObjectsBrushCB;
+        std::vector<WWD::Object *> vObjectsPicked, vObjectsHL, vObjectClipboard, vObjectsBrushCB;
+		WWD::Object *selectionKeyObject;
 
         void SwitchActiveModeMenuBar(cModeMenuBar *n);
 
@@ -1021,8 +1017,8 @@ namespace State {
 
         void MruListUpdated(); //called from cMruList when list has been updates
 
-        void RenderAreaRect(WWD::Rect r, WWD::Rect dr, bool bClip, DWORD hwCol, bool bFill,
-                            DWORD hwFillCol); //renders area in viewport, given absolute screen-coords, if any coord = 0 then no draw
+        void RenderAreaRect(WWD::Rect r, bool bFill = false, DWORD hwCol = 0xFFFFFFFF);
+
         void RenderArrow(int x, int y, int x2, int y2, bool finished, bool setColors = true, bool twoSided = false);
 
         bool ValidateLevelName(const char *name, bool bAllowNoNum);
@@ -1033,10 +1029,7 @@ namespace State {
 
         cServerIPC *hServerIPC;
 
-        EditingWWActionListener *al;
-        EditingWWFocusListener *fl;
-        EditingWWKeyListener *kl;
-        EditingWWMouseListener *ml;
+        EditingWWMainListener *mainListener;
 
         WWD::Plane *plMain;
 
@@ -1100,11 +1093,13 @@ namespace State {
 
         void TextEditMoveToNextTile(bool saving = false);
 
-        void UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt = true);
+        bool UpdateMovedObjectWithRects(std::vector<WWD::Object *>& objects, bool prompt = true);
 
         void ObjectBrush(int x, int y);
 
-        void OnResize();
+        void OnResize() override;
+
+		void FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically);
     };
 };
 

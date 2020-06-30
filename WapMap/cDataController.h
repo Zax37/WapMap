@@ -250,6 +250,8 @@ public:
 
     void OpenCodeEditor(std::string logicName, bool nonExisting = false);
 
+    void OpenCodeEditor(class cCustomLogic *logic);
+
     cFile AssignFileForLogic(std::string strLogicName);
 
     void Think();

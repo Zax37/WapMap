@@ -48,7 +48,7 @@ namespace ObjEdit {
         if (!rbType[0]->isSelected() && !rbType[1]->isSelected() && !rbType[2]->isSelected()) {
             rbType[0]->setSelected(1);
             hTempObj->SetImageSet("GAME_WARP");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
 
         char tmpstr[256];
@@ -89,7 +89,7 @@ namespace ObjEdit {
         delete cbOneTime;
         delete butPick;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjWarp::RebuildWindow() {
@@ -112,17 +112,17 @@ namespace ObjEdit {
         } else if (actionEvent.getSource() == rbType[0]) {
             hTempObj->SetLogic("SpecialPowerup");
             hTempObj->SetImageSet("GAME_WARP");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
             RebuildWindow();
         } else if (actionEvent.getSource() == rbType[1]) {
             hTempObj->SetLogic("SpecialPowerup");
             hTempObj->SetImageSet("GAME_VERTWARP");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
             RebuildWindow();
         } else if (actionEvent.getSource() == rbType[2]) {
             hTempObj->SetLogic("BossWarp");
             hTempObj->SetImageSet("GAME_BOSSWARP");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
             RebuildWindow();
         } else if (actionEvent.getSource() == butPick) {
             if (!bPick) {
@@ -146,10 +146,10 @@ namespace ObjEdit {
             }
         } else if (actionEvent.getSource() == tfX) {
             hTempObj->SetParam(WWD::Param_SpeedX, atoi(tfX->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == tfY) {
             hTempObj->SetParam(WWD::Param_SpeedY, atoi(tfY->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
     }
 

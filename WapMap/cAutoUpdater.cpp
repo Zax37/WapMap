@@ -238,7 +238,7 @@ void cAutoUpdater::PopupQuestion(SHR::Container *dest) {
     else
         winActualize->setCaption(GETL(Lang_ActualizeCaption));
     winActualize->setDimension(
-            gcn::Rectangle(0, 0, 400, 80 + GV->fntMyriad16->GetHeightb(390, GETL(Lang_ActualizeQuestion))));
+            gcn::Rectangle(0, 0, 400, 120 + GV->fntMyriad16->GetStringBlockHeight(390, GETL(Lang_ActualizeQuestion))));
     winActualize->setMovable(false);
     if (labActualize == NULL)
         labActualize = new SHR::Lab(GETL(Lang_ActualizeQuestion));
@@ -290,7 +290,7 @@ void cAutoUpdater::TransformToDownload() {
     pbProgress->setDimension(gcn::Rectangle(0, 0, 380, 31));
     pbProgress->setProgress(0);
     pbProgress->setEnd(10);
-    winActualize->add(pbProgress, 10, 50);
+    winActualize->add(pbProgress, 10, 40);
 
     /*hVP = new cAUVP(this);
 

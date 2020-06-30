@@ -8,9 +8,9 @@ State::Viewport::Viewport(EditingWW *phOwn, int x, int y, int w, int h) {
     iY = y;
     iW = w;
     iH = h;
-    bRedrawViewport = 1;
+    bRedrawViewport = true;
 
-    target = hge->Target_Create(iW, iH, 0);
+    target = hge->Target_Create(iW, iH, false);
     sprViewport = new hgeSprite(hge->Target_GetTexture(target), 0, 0, iW, iH);
 
     hFocuser = new vpFoc();
@@ -28,16 +28,16 @@ void State::Viewport::Resize(int w, int h) {
 
     iW = w;
     iH = h;
-    bRedrawViewport = 1;
+    bRedrawViewport = true;
 
-    target = hge->Target_Create(iW, iH, 0);
+    target = hge->Target_Create(iW, iH,  false);
     sprViewport = new hgeSprite(hge->Target_GetTexture(target), 0, 0, iW, iH);
     hFocuser->setWidth(iW);
     hFocuser->setHeight(iH);//(gcn::Rectangle(0, 0, iW, iH));
 }
 
-void State::Viewport::MarkToRedraw(bool mark) {
-    bRedrawViewport = mark;
+void State::Viewport::MarkToRedraw() {
+    bRedrawViewport = true;
 }
 
 void State::Viewport::ClipScreen() {
@@ -53,7 +53,7 @@ void State::Viewport::Update() {
 
     hge->Gfx_EndScene();
 
-    bRedrawViewport = 0;
+    bRedrawViewport = false;
 }
 
 void State::Viewport::Render() {

@@ -37,42 +37,42 @@ bool ExitFunc() {
 
 bool GfxRestoreFunc() {
     GV->StateMgr->GfxRestore();
-    return 1;
+    return true;
 }
 
 bool FileDraggedInFunc() {
     GV->StateMgr->FileDraggedIn();
-    return 1;
+    return true;
 }
 
 bool FileDraggedOutFunc() {
     GV->StateMgr->FileDraggedOut();
-    return 1;
+    return true;
 }
 
 bool FileDroppedFunc() {
     GV->StateMgr->FileDropped();
-    return 1;
+    return true;
 }
 
 bool AppFocusOnFunc() {
-    GV->StateMgr->AppFocus(1);
-    return 0;
+    GV->StateMgr->AppFocus(true);
+    return false;
 }
 
 bool AppFocusOffFunc() {
-    GV->StateMgr->AppFocus(0);
-    return 0;
+    GV->StateMgr->AppFocus(false);
+    return false;
 }
 
 bool AppResizeFunc() {
-    GV->editState->OnResize();
-    return 0;
+    GV->StateMgr->OnResize();
+    return false;
 }
 
 bool AppToggleFullscreenFunc() {
     GV->editState->ToggleFullscreen();
-    return 0;
+    return false;
 }
 
 int main(int argc, char *argv[]) {

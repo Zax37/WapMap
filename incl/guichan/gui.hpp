@@ -6,11 +6,11 @@
  * /______/ //______/ //_/ //_____/\ /_/ //_/ //_/ //_/ //_/ /|_/ /
  * \______\/ \______\/ \_\/ \_____\/ \_\/ \_\/ \_\/ \_\/ \_\/ \_\/
  *
- * Copyright (c) 2004 - 2008 Olof Naessén and Per Larsson
+ * Copyright (c) 2004 - 2008 Olof Naessï¿½n and Per Larsson
  *
  *
  * Per Larsson a.k.a finalman
- * Olof Naessén a.k.a jansem/yakslem
+ * Olof Naessï¿½n a.k.a jansem/yakslem
  *
  * Visit: http://guichan.sourceforge.net
  *
@@ -332,7 +332,7 @@ namespace gcn
          * @param button The button of the event (if any used) to distribute.
          * @param x The x coordinate of the event.
          * @param y The y coordinate of the event.
-         * @param fource indicates whether the distribution should be forced or not.
+         * @param force indicates whether the distribution should be forced or not.
          *               A forced distribution distributes the event even if a widget
          *               is not enabled, not visible, another widget has modal
          *               focus or another widget has modal mouse input focus. 
@@ -349,7 +349,8 @@ namespace gcn
                                           int x,
                                           int y,
                                           bool force = false,
-                                          bool toSourceOnly = false);
+                                          bool toSourceOnly = false,
+                                          unsigned delta = 0);
 
         /**
          * Distributes a key event.
@@ -485,6 +486,18 @@ namespace gcn
          * when the same button is released.
          */
         int mLastMouseDragButton;
+
+        /**
+         * Holds the x position of current drag start
+         * to keep track of the drag distance.
+         */
+        int mDragStartX;
+
+        /**
+         * Holds the y position of current drag start
+         * to keep track of the drag distance.
+         */
+        int mDragStartY;
 
         /**
          * Holds a stack with all the widgets with the mouse.

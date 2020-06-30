@@ -12,7 +12,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
         if (conWriteID->isVisible()) {
             conWriteID->setShow(false);
             iTileWriteIDx = iTileWriteIDy = -1;
-            vPort->MarkToRedraw(true);
+            vPort->MarkToRedraw();
         }
         SetTool(EWW_TOOL_NONE);
         vTileGhosting.clear();
@@ -48,81 +48,9 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
     }
 
     if (iActiveTool == EWW_TOOL_NONE) {
-        if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON) &&
-            !bObjDragSelection) {
-            bObjDragSelection = true;
-            iObjDragOrigX = Scr2WrdX(GetActivePlane(), mx);
-            iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
-            iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
-        } else if (hge->Input_GetKeyState(HGEK_LBUTTON) && vPort->GetWidget()->isMouseOver() && !pbConsumed) {
-            vPort->MarkToRedraw(true);
-        } else if (bObjDragSelection) {
-            bObjDragSelection = false;
-            int secX = Scr2WrdX(GetActivePlane(), mx);
-            int secY = Scr2WrdY(GetActivePlane(), my);
-            if (secX != iObjDragOrigX && secY != iObjDragOrigY) {
-                iTileSelectX1 = std::min(iObjDragOrigX, secX) / GetActivePlane()->GetTileWidth();
-                iTileSelectY1 = std::min(iObjDragOrigY, secY) / GetActivePlane()->GetTileHeight();
-                iTileSelectX2 = std::max(iObjDragOrigX, secX) / GetActivePlane()->GetTileWidth();
-                iTileSelectY2 = std::max(iObjDragOrigY, secY) / GetActivePlane()->GetTileHeight();
-            } else {
-                iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
-                vPort->MarkToRedraw(true);
-            }
-        }
-
-        if (tilContext->isVisible() && (hge->Input_KeyDown(HGEK_RBUTTON) || hge->Input_KeyDown(HGEK_LBUTTON))) {
-            if (!(mx > tilContext->getX() &&
-                  mx < tilContext->getX() + tilContext->getWidth() &&
-                  my > tilContext->getY() &&
-                  my < tilContext->getY() + tilContext->getHeight())) {
-                tilContext->setVisible(false);
-                return false;
-            }
-        }
-
-        if (hge->Input_KeyDown(HGEK_RBUTTON) || hge->Input_KeyUp(HGEK_RBUTTON)) {
-            if (!tilContext->isVisible()) {
-                if (bOpenObjContext && hge->Input_KeyUp(HGEK_RBUTTON) && fObjContextX == fCamX &&
-                    fObjContextY == fCamY &&
-                    conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
-                    tilContext->setVisible(1);
-                    bOpenObjContext = 0;
-                } else if (hge->Input_KeyDown(HGEK_RBUTTON)) {
-                    int tx, ty;
-                    tx = int(Scr2WrdX(GetActivePlane(), mx) / GetActivePlane()->GetTileWidth());
-                    ty = int(Scr2WrdY(GetActivePlane(), my) / GetActivePlane()->GetTileHeight());
-                    if (tx >= iTileSelectX1 && tx <= iTileSelectX2 && ty >= iTileSelectY1 && ty <= iTileSelectY2) {
-                        tilContext->SetModel(conmodTilesSelected);
-                        bOpenObjContext = 1;
-                    } else if (MDI->GetActiveDoc()->hTileClipboard != NULL &&
-                               !strcmp(MDI->GetActiveDoc()->hTileClipboardImageSet, GetActivePlane()->GetImageSet(0))) {
-                        tilContext->SetModel(conmodTilesPaste);
-                        bOpenObjContext = 1;
-                    }
-                    if (bOpenObjContext) {
-                        fObjContextX = fCamX;
-                        fObjContextY = fCamY;
-                    }
-                }
-                tilContext->setPosition(mx, my);
-                fObjContextX = fCamX;
-                fObjContextY = fCamY;
-                tilContext->adjustSize();
-            }
-        }
-        if (tilContext->isVisible()) {
-            if ((fObjContextX - fCamX) != 0 || (fObjContextY - fCamY) != 0) {
-                tilContext->setX(tilContext->getX() + (fObjContextX - fCamX));
-                tilContext->setY(tilContext->getY() + (fObjContextY - fCamY));
-                fObjContextX = fCamX;
-                fObjContextY = fCamY;
-            }
-        }
-
         if (MDI->GetActiveDoc()->hTileClipboard != NULL &&
             !strcmp(MDI->GetActiveDoc()->hTileClipboardImageSet, GetActivePlane()->GetImageSet(0))) {
-            if (hge->Input_GetKeyState(HGEK_TAB)) {
+            if (hge->Input_GetKeyState(HGEK_ALT)) {
                 int tx = Scr2WrdX(GetActivePlane(), mx) / GetActivePlane()->GetTileWidth(), ty =
                         Scr2WrdY(GetActivePlane(), my) / GetActivePlane()->GetTileHeight();
                 if (vTileGhosting.size() == 0 ||
@@ -137,16 +65,16 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                             if (MDI->GetActiveDoc()->hTileClipboard[i].IsFilled())
                                 tg.id = EWW_TILE_FILL;
                             else if (MDI->GetActiveDoc()->hTileClipboard[i].IsInvisible())
-                                tg.id = EWW_TILE_NONE;
+                                tg.id = EWW_TILE_ERASE;
                             else
                                 tg.id = MDI->GetActiveDoc()->hTileClipboard[i].GetID();
                             vTileGhosting.push_back(tg);
                         }
-                    vPort->MarkToRedraw(1);
+                    vPort->MarkToRedraw();
                 }
             } else if (!vTileGhosting.empty()) {
                 vTileGhosting.clear();
-                vPort->MarkToRedraw(1);
+                vPort->MarkToRedraw();
             }
         }
     }
@@ -179,7 +107,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                 vTileGhosting.clear();
 
             iPipetteTileHL = EWW_TILE_NONE;
-            if (hx != -1 && hy != -1) {
+            if (hx > -1 && hy > -1) {
                 if (iTilePicked == EWW_TILE_PIPETTE || iActiveTool == EWW_TOOL_WRITEID) {
                     TileGhost tg;
                     tg.x = hx;
@@ -216,9 +144,16 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
 
                 if (lockDrawing) {
                     lockDrawing = hge->Input_GetKeyState(HGEK_LBUTTON);
+                } else if (hge->Input_GetKeyState(HGEK_SPACE)) {
+                    if (!vTileGhosting.empty()) {
+                        hx = hy = -1;
+                        vTileGhosting.clear();
+                        vPort->MarkToRedraw();
+                    }
+                    return false;
                 } else if (iActiveTool == EWW_TOOL_PENCIL &&
                            (iTilePicked >= 0 || iTilePicked == EWW_TILE_ERASE || iTilePicked == EWW_TILE_FILL)) {
-                    bool bPlacing = 0;
+                    bool bPlacing;
                     if (iTileDrawMode == EWW_DRAW_RECT || iTileDrawMode == EWW_DRAW_LINE ||
                         iTileDrawMode == EWW_DRAW_ELLIPSE) {
                         if (iTileDrawStartX == -1 && iTileDrawStartY == -1 && hge->Input_KeyDown(HGEK_LBUTTON)) {
@@ -501,20 +436,24 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         bool chng = 0;
                         for (auto &t : vTileGhosting) {
                             WWD::Tile *tl = t.pl->GetTile(t.x, t.y);
-                            if (t.id == EWW_TILE_ERASE) {
-                                if (!tl->IsInvisible()) {
-                                    tl->SetInvisible(1);
-                                    chng = 1;
+                            if (tl) {
+                                if (t.id == EWW_TILE_ERASE) {
+                                    if (!tl->IsInvisible()) {
+                                        tl->SetInvisible(1);
+                                        chng = 1;
+                                    }
                                 }
-                            } else if (t.id == EWW_TILE_FILL) {
-                                if (!tl->IsFilled()) {
-                                    tl->SetFilled(1);
-                                    chng = 1;
+                                else if (t.id == EWW_TILE_FILL) {
+                                    if (!tl->IsFilled()) {
+                                        tl->SetFilled(1);
+                                        chng = 1;
+                                    }
                                 }
-                            } else {
-                                if (tl->GetID() != t.id) {
-                                    tl->SetID(t.id);
-                                    chng = 1;
+                                else {
+                                    if (tl->GetID() != t.id) {
+                                        tl->SetID(t.id);
+                                        chng = 1;
+                                    }
                                 }
                             }
                         }
@@ -573,7 +512,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     } else if (iActiveTool == EWW_TOOL_FILL) {
                         FloodFill(hx, hy, iTilePicked);
                         hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
-                        vPort->MarkToRedraw(1);
+                        vPort->MarkToRedraw();
                     } else if (iActiveTool == EWW_TOOL_BRUSH && iTilePicked != EWW_TILE_NONE) {
                         if (iLastBrushPlacedX != hx || iLastBrushPlacedY != hy) {
                             vTileGhosting.clear();
@@ -581,7 +520,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                     iTilePicked);
                             if (brush->Apply(GetActivePlane(), hx, hy)) {
                                 MarkUnsaved();
-                                vPort->MarkToRedraw(1);
+                                vPort->MarkToRedraw();
                             }
                             iLastBrushPlacedX = hx;
                             iLastBrushPlacedY = hy;
@@ -596,7 +535,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             }
 
             if (hx != iTilePreviewX || hy != iTilePreviewY) {
-                vPort->MarkToRedraw(1);
+                vPort->MarkToRedraw();
                 iTilePreviewX = hx;
                 iTilePreviewY = hy;
             }
@@ -607,7 +546,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             }
         }
         if (tgSize != vTileGhosting.size()) {
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw();
         }
     }
     return false;

@@ -477,7 +477,7 @@ namespace ObjEdit {
         delete rbOther;
         delete hPlayer;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjSoundTrigger::Save() {

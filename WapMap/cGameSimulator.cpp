@@ -875,7 +875,7 @@ cGameSimulator::~cGameSimulator() {
             GetUserDataFromObj(pl->GetObjectByIterator(o))->SyncToObj();
         }
     }
-    mO->vPort->MarkToRedraw(1);
+    mO->vPort->MarkToRedraw();
     GV->Console->Printf("~g~Simulation data released.");
 }
 
@@ -1851,7 +1851,7 @@ void cGameSimulator::Think() {
 #endif
     }
     //if( bChange )
-    mO->vPort->MarkToRedraw(1);
+    mO->vPort->MarkToRedraw();
 }
 
 int cGameSimulator::GetTileColX(WWD::TileAtrib *atr, bool bRight) {

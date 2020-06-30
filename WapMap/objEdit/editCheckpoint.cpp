@@ -54,7 +54,7 @@ namespace ObjEdit {
             delete rbType[i];
         }
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCheckpoint::Action(const gcn::ActionEvent &actionEvent) {
@@ -64,19 +64,19 @@ namespace ObjEdit {
         } else if (actionEvent.getSource() == rbType[0]) {
             hTempObj->SetImageSet("GAME_CHECKPOINTFLAG");
             hTempObj->SetLogic("Checkpoint");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == rbType[1]) {
             hTempObj->SetImageSet("GAME_SUPERCHECKPOINT");
             hTempObj->SetLogic("FirstSuperCheckpoint");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == rbType[2]) {
             hTempObj->SetImageSet("GAME_SUPERCHECKPOINT");
             hTempObj->SetLogic("SecondSuperCheckpoint");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == rbType[3]) {
             hTempObj->SetImageSet("GAME_SOUNDICON");
             hTempObj->SetLogic("BossStager");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
         hTempObj->SetDrawFlags(actionEvent.getSource() == rbType[3] ? WWD::Flag_dr_NoDraw : WWD::Flag_dr_Nothing);
     }

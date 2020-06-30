@@ -179,7 +179,7 @@ namespace ObjEdit {
         delete tddSound;
         delete hPlayer;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjAmbient::Save() {

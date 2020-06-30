@@ -12,6 +12,8 @@
 #include "../../shared/commonFunc.h"
 #include "../databanks/imageSets.h"
 #include "../databanks/anims.h"
+#include "dialog.h"
+#include "../version.h"
 
 extern HGE *hge;
 
@@ -19,47 +21,46 @@ namespace State {
 
     void cObjectPropAL::action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == m_hOwn->butSave) {
-            bool logicfound = 0;
+            bool logicFound = false;
             if (m_hOwn->rbLogicStandard->isSelected()) {
                 for (size_t i = 0; i < m_hOwn->getNumberOfElements(); i++)
                     if (m_hOwn->getElementAt(i).compare(m_hOwn->tddadvLogic->getText()) == 0) {
-                        logicfound = 1;
+                        logicFound = true;
                         break;
                     }
-                if (!logicfound) {
-                    int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicStandard"),
-                                       "WapMap", MB_YESNO | MB_ICONWARNING);
-                    if (r == IDNO) return;
+                if (!logicFound) {
+                    int r = State::MessageBox(PRODUCT_NAME, GETL2S("ObjectProperties", "NoLogicStandard"),
+                                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO);
+                    if (r == RETURN_NO) return;
                 }
             } else {
                 for (size_t i = 0; i < GV->editState->hCustomLogics->getNumberOfElements(); i++)
-                    if (GV->editState->hCustomLogics->getElementAt(i).compare(m_hOwn->tddadvCustomLogic->getText()) ==
-                        0) {
-                        logicfound = 1;
+                    if (GV->editState->hCustomLogics->getElementAt(i) == m_hOwn->tddadvCustomLogic->getText()) {
+                        logicFound = true;
                         break;
                     }
-                if (!logicfound) {
-                    int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"),
-                                       "WapMap", MB_YESNO | MB_ICONWARNING);
-                    if (r == IDYES) {
+                if (!logicFound) {
+                    int r = State::MessageBox(PRODUCT_NAME, GETL2S("ObjectProperties", "NoLogicCustom"),
+                                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO);
+                    if (r == RETURN_YES) {
                         GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->tddadvCustomLogic->getText(), true);
                     }
                 }
             }
             m_hOwn->Save();
             GetUserDataFromObj(m_hOwn->hObj)->SyncToObj();
-            m_hOwn->hState->vPort->MarkToRedraw(1);
-            m_hOwn->bKill = 1;
+            m_hOwn->hState->vPort->MarkToRedraw();
+            m_hOwn->bKill = true;
             m_hOwn->hState->bEditObjDelete = false;
         } else if (actionEvent.getSource() == m_hOwn->butCustomLogicEdit) {
-            cCustomLogic *handle = GV->editState->hCustomLogics->GetLogicByName(
+            cCustomLogic *logic = GV->editState->hCustomLogics->GetLogicByName(
                     m_hOwn->tddadvCustomLogic->getText().c_str());
-            if (handle != 0) {
-                GV->editState->hDataCtrl->OpenCodeEditor(handle->GetName());
+            if (logic) {
+                GV->editState->hDataCtrl->OpenCodeEditor(logic);
             } else {
-                int r = MessageBox(hge->System_GetState(HGE_HWND), GETL2S("ObjectProperties", "NoLogicCustom"),
-                                   "WapMap", MB_YESNO | MB_ICONWARNING);
-                if (r == IDYES) {
+                int r = State::MessageBox(PRODUCT_NAME, GETL2S("ObjectProperties", "NoLogicCustom"),
+                                          ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO);
+                if (r == RETURN_YES) {
                     GV->editState->hDataCtrl->OpenCodeEditor(m_hOwn->tddadvCustomLogic->getText(), true);
                 }
             }
@@ -81,32 +82,32 @@ namespace State {
                 m_hOwn->tddadvCustomLogic->setText(m_hOwn->tddadvLogic->getText());
             }
         } else if (actionEvent.getSource() == m_hOwn->guirectMinMax->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_MinMax;
         } else if (actionEvent.getSource() == m_hOwn->guirectUser[0]->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_User1;
         } else if (actionEvent.getSource() == m_hOwn->guirectUser[1]->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_User2;
         } else if (actionEvent.getSource() == m_hOwn->guirectAttack->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_Attack;
         } else if (actionEvent.getSource() == m_hOwn->guirectMove->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_Move;
         } else if (actionEvent.getSource() == m_hOwn->guirectClip->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_Clip;
         } else if (actionEvent.getSource() == m_hOwn->guirectHit->butPick) {
-            m_hOwn->bSwap = 1;
+            m_hOwn->bSwap = true;
             m_hOwn->iPickType = PickRect_Hit;
         } else if (actionEvent.getSource() == m_hOwn->butCancel || actionEvent.getSource() == m_hOwn->window) {
-            m_hOwn->bKill = 1;
-            m_hOwn->bCanceled = 1;
+            m_hOwn->bKill = true;
+            m_hOwn->bCanceled = true;
         } else if (actionEvent.getSource() == m_hOwn->butSelListImageSet) {
-            m_hOwn->window->setVisible(0);
-            m_hOwn->winisPick->setVisible(1);
+            m_hOwn->window->setVisible(false);
+            m_hOwn->winisPick->setVisible(true);
             m_hOwn->winisPick->setPosition(
                     hge->System_GetState(HGE_SCREENWIDTH) / 2 - m_hOwn->winisPick->getWidth() / 2,
                     hge->System_GetState(HGE_SCREENHEIGHT) / 2 - m_hOwn->winisPick->getHeight() / 2);
@@ -134,16 +135,16 @@ namespace State {
                         break;
                     }
             }
-            int scaleend = std::max(0, m_hOwn->asImageSetPick->GetSpritesCount() * 138 - 790);
-            m_hOwn->sliisFrame->setScale(0, scaleend);
-            m_hOwn->sliisFrame->setEnabled(scaleend != 0);
+            int scaleEnd = std::max(0, m_hOwn->asImageSetPick->GetSpritesCount() * 138 - 790);
+            m_hOwn->sliisFrame->setScale(0, scaleEnd);
+            m_hOwn->sliisFrame->setEnabled(scaleEnd != 0);
             m_hOwn->sliisPick->setValue(std::max(0, std::min(int(m_hOwn->sliisPick->getScaleEnd()),
                                                              int((m_hOwn->iisPickIT) * 138 - 395 + 64))));
             m_hOwn->sliisFrame->setValue(std::max(0, std::min(int(m_hOwn->sliisFrame->getScaleEnd()),
                                                               int((m_hOwn->iisFrameIT) * 138 - 395 + 64))));
         } else if (actionEvent.getSource() == m_hOwn->winisPick) {
-            m_hOwn->window->setVisible(1);
-            m_hOwn->winisPick->setVisible(0);
+            m_hOwn->window->setVisible(true);
+            m_hOwn->winisPick->setVisible(false);
             m_hOwn->window->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - m_hOwn->window->getWidth() / 2,
                                         hge->System_GetState(HGE_SCREENHEIGHT) / 2 - m_hOwn->window->getHeight() / 2);
         } else if (actionEvent.getSource() == m_hOwn->butisOK) {
@@ -292,9 +293,6 @@ namespace State {
             dy += 24;
             int w = m_hOwn->GetPickWindow()->getWidth();
 
-            hgeQuad q;
-            q.tex = 0;
-            q.blend = BLEND_DEFAULT;
             SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 30, dx + w - 5, dy + 187);
             hge->Gfx_RenderQuad(&q);
             SHR::SetQuad(&q, 0xFF3e3e3e, dx + 5, dy + 238, dx + w - 5, dy + 395);
@@ -749,8 +747,7 @@ namespace State {
 
         yOffset += 30;
 
-        sprintf(tmp, "%s:", GETL(Lang_Name));
-        labadvName = new SHR::Lab(tmp);
+        labadvName = new SHR::Lab(GETL(Lang_Name));
         labadvName->adjustSize();
         window->add(labadvName,  xOffset, yOffset + 1);
         tfadvName = new SHR::TextField(obj->GetName());
@@ -1557,7 +1554,7 @@ State::ObjProp::ObjProp(EditingWW *main, WWD::Object *obj, bool bMove) {
     conMain = new SHR::Container();
     conMain->setDimension(
             gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
-    conMain->setOpaque(0);
+    conMain->setOpaque(false);
     gui->setTop(conMain);
 
     hObj = obj;
@@ -1565,7 +1562,7 @@ State::ObjProp::ObjProp(EditingWW *main, WWD::Object *obj, bool bMove) {
 }
 
 void State::ObjProp::Init() {
-    hProp = new cObjectProp(hObj, 1, mainSt);
+    hProp = new cObjectProp(hObj, true, mainSt);
     conMain->add(hProp->GetWindow());
     conMain->add(hProp->GetPickWindow());
 }
@@ -1586,17 +1583,13 @@ bool State::ObjProp::Think() {
                             exc.getLine());
     }
     if (hProp->Kill() || hge->Input_KeyDown(HGEK_ESCAPE)) {
-        returnCode *rc = new returnCode;
-        rc->Ptr = bMoveObject;
+        int value = bMoveObject;
         if ((bMoveObject || mainSt->bEditObjDelete) && (hProp->Canceled() || hge->Input_KeyDown(HGEK_ESCAPE))) {
-            rc->Ptr = 2;
+            value = 2;
             mainSt->bEditObjDelete = false;
         }
-        rc->Type = RC_ObjectProp;
-        _popMe((int) rc);
+        _popMe({ ReturnCodeType::ObjectProp, value });
     } else if (hProp->Swap()) {
-        returnCode *rc = new returnCode;
-        rc->Type = RC_ObjectProp;
         cRectPropGUI *source;
         if (hProp->iPickType == PickRect_MinMax) source = hProp->guirectMinMax;
         else if (hProp->iPickType == PickRect_User1) source = hProp->guirectUser[0];
@@ -1610,8 +1603,7 @@ bool State::ObjProp::Think() {
         ptr[1] = source->GetRect().y1;
         ptr[2] = source->GetRect().x2;
         ptr[3] = source->GetRect().y2;
-        rc->Ptr = (int) (void *) ptr;
-        _flipMe((int) rc);
+        _flipMe({ ReturnCodeType::ObjectProp, (int)(void*)ptr });
         hProp->SwapDone();
     }
     return false;
@@ -1629,11 +1621,11 @@ bool State::ObjProp::Render() {
     return false;
 }
 
-void State::ObjProp::GainFocus(int iReturnCode, bool bFlipped) {
+void State::ObjProp::GainFocus(ReturnCode<void> code, bool bFlipped) {
     if (bFlipped) {
-        if (((returnCode *) iReturnCode)->Type == RC_ObjPropSelectedValues) {
-            if (((returnCode *) iReturnCode)->Ptr != 0) {
-                int *ret = (int *) (((returnCode *) iReturnCode)->Ptr);
+        if (code.type == ReturnCodeType::ObjPropSelectedValues) {
+            if (code.value != 0) {
+                int *ret = (int *) (code.value);
                 cRectPropGUI *dest;
                 if (hProp->iPickType == PickRect_MinMax) dest = hProp->guirectMinMax;
                 else if (hProp->iPickType == PickRect_User1) dest = hProp->guirectUser[0];
@@ -1647,7 +1639,11 @@ void State::ObjProp::GainFocus(int iReturnCode, bool bFlipped) {
             }
         }
     }
-    delete (returnCode *) iReturnCode;
+}
+
+void State::ObjProp::OnResize() {
+    conMain->setDimension(
+            gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
 }
 
 std::string State::cObjectProp::getElementAt(int i) {

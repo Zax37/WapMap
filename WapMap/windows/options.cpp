@@ -289,6 +289,8 @@ void winOptions::Draw(int piCode) {
 }
 
 void winOptions::Open(WWD::GAME game) {
+    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
+                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
     myWin->setVisible(true);
     myWin->getParent()->moveToTop(myWin);
 

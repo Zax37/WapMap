@@ -33,7 +33,7 @@ public:
 
     virtual int GetFileSize(const char *path) { return 0; };
 
-    virtual void SetFileContent(const char *path, std::string strContent) {};
+    virtual void SetFileContent(const char *path, const std::string& strContent) {};
 
     virtual void ReadingStart() {};
 
@@ -41,7 +41,7 @@ public:
 
     virtual void Reload() {};
 
-    virtual bool DirectoryExists(const char *path) { return 0; };
+    virtual bool DirectoryExists(const char *path) { return false; };
 
     virtual std::vector<std::string>
     GetDirectoryContents(const char *path, bool bRecursive) { return std::vector<std::string>(); };
@@ -97,7 +97,7 @@ public:
     virtual unsigned char *GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart = 0,
                                           unsigned int iReadLen = 0);
 
-    virtual void SetFileContent(const char *path, std::string strContent);
+    virtual void SetFileContent(const char *path, const std::string& strContent);
 
     virtual bool DirectoryExists(const char *path);
 
@@ -137,7 +137,7 @@ private:
     time_t iModTime;
     bool iModificationFlag;
 public:
-    cRezFeed(std::string strPath);
+    cRezFeed(const std::string& strPath);
 
     ~cRezFeed();
 

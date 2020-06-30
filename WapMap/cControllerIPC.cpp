@@ -1,6 +1,6 @@
 #include "cControllerIPC.h"
 #include "globals.h"
-#include "states/loadmap.h"
+#include "states/editing_ww.h"
 
 cServerIPC::cServerIPC() {
     hMailslot = CreateMailslot(WM_MAILSLOT, MAX_PATH + 1, 0, NULL);
@@ -19,7 +19,7 @@ cServerIPC::~cServerIPC() {
 }
 
 bool cServerIPC::Think() {
-    if (!bOk) return 0;
+    if (!bOk) return false;
     DWORD msgSize;
     bool err;
 
@@ -44,18 +44,18 @@ bool cServerIPC::Think() {
                 char *msg = (char *) buffer;
                 if (msg[0] == WM_IPC_OPENFILE) {
                     GV->Console->Printf("~g~- Remote procedure: open map. Path: %s", &msg[1]);
-                    GV->StateMgr->Push(new State::LoadMap(&(msg[1])));
+                    GV->editState->vstrMapsToLoad.emplace_back(&(msg[1]));
                 }
                 GlobalFree(buffer);
-                return 1;
+                return true;
             }
         }
     }
-    return 0;
+    return false;
 }
 
 cClientIPC::cClientIPC() {
-    bConnected = 0;
+    bConnected = false;
     Connect();
 }
 

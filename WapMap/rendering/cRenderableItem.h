@@ -15,9 +15,9 @@ public:
         ObjectWrapper
     };
 
-    cRenderableItem() {};
+    cRenderableItem() = default;
 
-    virtual ~cRenderableItem() {};
+    virtual ~cRenderableItem() = default;
 
     virtual int GetZ() { return 0; };
 

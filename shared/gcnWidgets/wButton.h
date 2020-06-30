@@ -65,7 +65,7 @@ namespace SHR {
 
         void mouseExited(MouseEvent &mouseEvent) override;
 
-        void mouseDragged(MouseEvent &mouseEvent) override;
+        void mouseDragged(DragEvent &mouseEvent) override;
 
         void keyPressed(KeyEvent &keyEvent) override;
 

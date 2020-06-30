@@ -20,28 +20,28 @@ cTextureAtlas::~cTextureAtlas() {
 }
 
 bool cTextureAtlas::AddSprite(hgeSprite *spr) {
-    if (carX + spr->GetWidth() > dimX) {
-        carY += rowH;
+    if (carX + spr->GetWidth() + 2 > dimX) {
+        carY += rowH + 2;
         rowH = 0;
         carX = 0;
     }
-    if (carY + spr->GetHeight() > dimY)
-        return 0;
-    if (spr->GetHeight() > rowH) rowH = spr->GetHeight();
+    if (carY + spr->GetHeight() + 2 > dimY)
+        return false;
+    if (spr->GetHeight() + 2 > rowH) rowH = spr->GetHeight() + 2;
     spr->SetTexture(hTex);
-    spr->SetTextureRect(carX, carY, spr->GetWidth(), spr->GetHeight());
-    carX += spr->GetWidth();
+    spr->SetTextureRect(carX + 1, carY + 1, spr->GetWidth(), spr->GetHeight());
+    carX += spr->GetWidth() + 2;
     vSprites.push_back(spr);
-    return 1;
+    return true;
 }
 
 bool cTextureAtlas::DeleteSprite(hgeSprite *spr) {
     for (size_t i = 0; i < vSprites.size(); i++)
         if (vSprites[i] == spr) {
             vSprites.erase(vSprites.begin() + i);
-            return 1;
+            return true;
         }
-    return 0;
+    return false;
 }
 
 

@@ -36,7 +36,7 @@ namespace ObjEdit {
         delete labActivate;
         delete hRectPick;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjStalactite::Action(const gcn::ActionEvent &actionEvent) {

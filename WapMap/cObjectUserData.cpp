@@ -4,19 +4,19 @@ cObjUserData::cObjUserData(WWD::Object *obj) {
     hObj = obj;
     iPosX = iPosY = iPosZ = iPosI = 0;
     iSpecialData = 0;
-    bVisible = 0;
+    bVisible = false;
     SyncToObj();
 }
 
 void cObjUserData::SetPos(int x, int y) {
-    bool bUpdatePos = 0;
+    bool bUpdatePos = false;
     if (iPosX != x || iPosY != y)
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosX = x;
     iPosY = y;
 
     if (bUpdatePos)
-        if (m_vhCells.size() != 0) {
+        if (!m_vhCells.empty()) {
             cObjectQuadTree *cell = m_vhCells[0];
             cell->UpdateObject(hObj);
         }
@@ -25,7 +25,7 @@ void cObjUserData::SetPos(int x, int y) {
 void cObjUserData::SetX(int x) {
     if (iPosX == x) return;
     iPosX = x;
-    if (m_vhCells.size() != 0) {
+    if (!m_vhCells.empty()) {
         cObjectQuadTree *cell = m_vhCells[0];
         cell->UpdateObject(hObj);
     }
@@ -34,7 +34,7 @@ void cObjUserData::SetX(int x) {
 void cObjUserData::SetY(int y) {
     if (iPosY == y) return;
     iPosY = y;
-    if (m_vhCells.size() != 0) {
+    if (!m_vhCells.empty()) {
         cObjectQuadTree *cell = m_vhCells[0];
         cell->UpdateObject(hObj);
     }
@@ -42,34 +42,34 @@ void cObjUserData::SetY(int y) {
 
 
 void cObjUserData::SetI(int i) {
-    bool bUpdatePos = 0;
+    bool bUpdatePos = false;
     if (iPosI != i)
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosI = i;
 
     if (bUpdatePos)
-        if (m_vhCells.size() != 0) {
+        if (!m_vhCells.empty()) {
             cObjectQuadTree *cell = m_vhCells[0];
             cell->UpdateObject(hObj);
         }
 }
 
 void cObjUserData::SyncToObj() {
-    bool bUpdatePos = 0;
+    bool bUpdatePos = false;
     if (iPosX != hObj->GetParam(WWD::Param_LocationX))
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosX = hObj->GetParam(WWD::Param_LocationX);
 
     if (iPosY != hObj->GetParam(WWD::Param_LocationY))
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosY = hObj->GetParam(WWD::Param_LocationY);
 
     if (iPosZ != hObj->GetParam(WWD::Param_LocationZ))
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosZ = hObj->GetParam(WWD::Param_LocationZ);
 
     if (iPosI != hObj->GetParam(WWD::Param_LocationI))
-        bUpdatePos = 1;
+        bUpdatePos = true;
     iPosI = hObj->GetParam(WWD::Param_LocationI);
 
     bMirror = hObj->GetDrawFlags() & WWD::Flag_dr_Mirror;
@@ -85,7 +85,7 @@ void cObjUserData::SyncToObj() {
 }
 
 void cObjUserData::ClearCellReferences() {
-    for (int i = 0; i < m_vhCells.size(); i++)
-        m_vhCells[i]->DeleteObject(hObj);
+    for (auto & m_vhCell : m_vhCells)
+        m_vhCell->DeleteObject(hObj);
     m_vhCells.clear();
 }

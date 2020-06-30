@@ -152,7 +152,7 @@ namespace gcn {
         }
     }
 
-    void CheckBox::mouseDragged(MouseEvent &mouseEvent) {
+    void CheckBox::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

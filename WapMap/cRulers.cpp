@@ -87,9 +87,6 @@ void cRulers::Render() {
         if (iStartX < 0) iStartX = 0;
         if (iStartY < 0) iStartY = 0;
     }
-    hgeQuad q;
-    q.tex = 0;
-    q.blend = BLEND_DEFAULT;
 
     int drawY = LAY_MDI_Y + LAY_MDI_H + 1;
 

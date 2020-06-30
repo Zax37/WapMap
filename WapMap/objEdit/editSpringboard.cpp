@@ -45,7 +45,7 @@ namespace ObjEdit {
         delete tfJumpHeight;
         delete butPick;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjSpringboard::Action(const gcn::ActionEvent &actionEvent) {

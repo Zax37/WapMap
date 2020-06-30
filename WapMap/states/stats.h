@@ -38,7 +38,7 @@ namespace State {
         virtual bool Think();
 
         virtual bool Render();
-        //virtual void GainFocus(int iReturnCode);
+        //virtual void GainFocus(ReturnCode code);
 
         WWD::Parser *hMap;
         gcn::Gui *gui;

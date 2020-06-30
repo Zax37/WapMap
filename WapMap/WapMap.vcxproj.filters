@@ -201,9 +201,6 @@
     <ClCompile Include="states\editing_ww.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="states\error.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="states\imageDetails.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -579,6 +576,9 @@
     <ClCompile Include="..\shared\guichan\focusevent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="states\dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bodyQuadTree.h">
@@ -774,9 +774,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\editing_ww.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="states\error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\imageDetails.h">
@@ -1011,6 +1008,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\cWMD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

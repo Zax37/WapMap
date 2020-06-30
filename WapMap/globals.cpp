@@ -4,17 +4,18 @@
 #include "../shared/commonFunc.h"
 #include "funcConsole.h"
 #include "version.h"
-#include "states/error.h"
+#include "states/dialog.h"
 #include "langID.h"
-#include "cInterfaceSheet.h"
 #include "cBrush.h"
 #include <direct.h>
 #include "globlua.h"
+#include "resources.h"
 #include <sstream>
 #include <process.h>
 #include <string>
 
 cGlobals *GV;
+hgeQuad q = {};
 extern HGE *hge;
 cInterfaceSheet *_ghGfxInterface;
 
@@ -79,6 +80,7 @@ void cGlobals::GetDesktopResolution(int& horizontal, int& vertical)
 }
 
 cGlobals::cGlobals() {
+    q.blend = BLEND_DEFAULT;
 #ifdef SHOWMEMUSAGE
     fMemUsageTimer = 0.0f;
 #endif
@@ -143,7 +145,7 @@ cGlobals::cGlobals() {
             sprintf(tmp2, "unknown error");
         sprintf(tmp, "Unable to load language '%s' (%s).", lang, tmp2);
         Console->Printf("~r~%s~w~", tmp);
-        MessageBox(0, tmp, PRODUCT_NAME, MB_OK | MB_ICONERROR);
+        State::MessageBox(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR);
         exit(123);
     }
 
@@ -249,6 +251,7 @@ cGlobals::~cGlobals() {
     delete gcnParts.sprPBarFL;
     delete gcnParts.sprPBarFM;
     delete gcnParts.sprPBarFR;
+    delete gcnParts.sprIconQuestion;
     delete gcnParts.sprIconInfo;
     delete gcnParts.sprIconError;
     delete gcnParts.sprIconWarning;
@@ -266,6 +269,17 @@ void cGlobals::Init() {
     InitializeCriticalSection(&csMemUsage);
     _beginthread(_ThreadingMemUsage, 0, this);
 #endif
+
+    HINSTANCE instance = GetModuleHandle(NULL);
+
+    cursors[DEFAULT] = LoadCursor(NULL, IDC_ARROW);
+    cursors[TEXT] = LoadCursor(NULL, IDC_IBEAM);
+    cursors[DRAG] = LoadCursor(NULL, IDC_SIZEALL);
+    cursors[HAND] = LoadCursor(instance, MAKEINTRESOURCE(HAND_CURSOR));
+    cursors[GRAB] = LoadCursor(instance, MAKEINTRESOURCE(GRAB_CURSOR));
+    cursors[ZOOM_IN] = LoadCursor(instance, MAKEINTRESOURCE(ZOOM_IN_CURSOR));
+    cursors[ZOOM_OUT] = LoadCursor(instance, MAKEINTRESOURCE(ZOOM_OUT_CURSOR));
+
     editState = NULL;
     char exe_name[MAX_PATH + 1];
     exe_name[MAX_PATH] = '\0';
@@ -441,7 +455,6 @@ void cGlobals::Init() {
 
     hGfxInterface = new cInterfaceSheet;
     _ghGfxInterface = hGfxInterface;
-    hGfxInterface->sprMainBackground = new hgeSprite(texMain, 896, 896, 128, 128);
 
     for (int state = 0; state < 4; state++) {
         hGfxInterface->sprBreadcrumb[state][0] = new hgeSprite(texMain, 950, 792 + 26 * state, 5, 26);
@@ -483,9 +496,10 @@ void cGlobals::Init() {
         for (int x = 0; x < 4; x++)
             hGfxInterface->sprSlider[y][x] = new hgeSprite(texMain, 928 + x * 12, 757 + y * 12, 12, (y ? 15 : 12));
 
-    hGfxInterface->sprSliderBG[0] = new hgeSprite(texMain, 928, 784, 5, 5);
-    hGfxInterface->sprSliderBG[1] = new hgeSprite(texMain, 933, 784, 5, 5);
-    hGfxInterface->sprSliderBG[2] = new hgeSprite(texMain, 971, 784, 5, 5);
+    for (int i = 0; i < 3; ++i) {
+        hGfxInterface->sprSliderBG[0][i] = new hgeSprite(texMain, 896, 736 + i * 5, 5, 5);
+        hGfxInterface->sprSliderBG[1][i] = new hgeSprite(texMain, 928 + i * 5, 784, 5, 5);
+    }
 
     for (int i = 0; i < 3; i++) {
         hGfxInterface->sprScrollbar[0][i][0] = new hgeSprite(texMain, 904 + i * 24, 736, 9, 16);
@@ -527,7 +541,7 @@ void cGlobals::Init() {
         variant = 1;
 
     sprLogoBig = new hgeSprite(texMain, 0, 640 + variant * 80, 300, 80);
-    sprLogoCaption = new hgeSprite(texMain, 768, 160, 19, 22);
+    sprLogoCaption = new hgeSprite(texMain, 780, 172, 20, 20);
 
     sprBlank = new hgeSprite(texMain, 640, 120, 6, 6);
 
@@ -582,15 +596,21 @@ void cGlobals::Init() {
     gcnParts.sprPBarEM = new hgeSprite(texMain, offX + 14, offY, 3, 31);
     gcnParts.sprPBarER = new hgeSprite(texMain, offX + 19, offY, 3, 31);
 
-    gcnParts.sprIconInfo = new hgeSprite(texMain, 320, 0, 64, 64);
-    gcnParts.sprIconError = new hgeSprite(texMain, 384, 69, 64, 64);
-    gcnParts.sprIconWarning = new hgeSprite(texMain, 320, 69, 64, 64);
+    offX = 768, offY = 960;
+    gcnParts.sprIconQuestion = new hgeSprite(texMain, offX, offY, 64, 64);
+    offX += 64;
+    gcnParts.sprIconInfo = new hgeSprite(texMain, offX, offY, 64, 64);
+    offX += 64;
+    gcnParts.sprIconWarning = new hgeSprite(texMain, offX, offY, 64, 64);
+    offX += 64;
+    gcnParts.sprIconError = new hgeSprite(texMain, offX, offY, 64, 64);
 
     sprSmiley = new hgeSprite(texMain, 736, 128, 32, 32);
     sprSmiley->SetHotSpot(16, 16);
 
-    sprDottedLineHorizontal = new hgeSprite(texMain, 765, 0, 102, 5);
-    sprDottedLineVertical = new hgeSprite(texMain, 760, 0, 5, 102);
+    sprDottedLineCorner = new hgeSprite(texMain, 768, 160, 12, 12);
+    sprDottedLineHorizontal = new hgeSprite(texMain, 784, 160, 16, 4);
+    sprDottedLineVertical = new hgeSprite(texMain, 768, 176, 4, 16);
 
     sprArrowVerticalU = new hgeSprite(texMain, 867, 0, 48, 37);
     sprArrowVerticalM = new hgeSprite(texMain, 867, 37, 48, 128);
@@ -790,6 +810,8 @@ void cGlobals::Init() {
     colOutline = 0xFF585858;
 
     colFontWhite = 0xFFe1e1e1;
+
+    colActive = 0xFF1585e2;
 }
 
 void cGlobals::ResetWD() {
@@ -825,8 +847,8 @@ void cGlobals::ExecuteLua(const char *script, bool popuponerror) {
         if (luaL_dostring(conL, script)) {
             Console->Printf("~r~Lua parser error: %s~w~", lua_tostring(conL, -1));
             if (popuponerror) {
-                StateMgr->Push(new State::Error(Lang->GetString("Strings", Lang_LuaError), lua_tostring(conL, -1),
-                                                ST_ER_ICON_FATAL, ST_ER_BUT_OK, 0));
+                StateMgr->Push(new State::Dialog(Lang->GetString("Strings", Lang_LuaError), lua_tostring(conL, -1),
+                                                 ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
             }
         }
     }
@@ -871,4 +893,18 @@ void cGlobals::RenderLogoWithVersion(int x, int y, int alpha) {
 
 void cGlobals::SetCursor(APP_CURSOR cursor) {
     ::SetCursor(cursors[cursor]);
+}
+
+void cGlobals::SliderDrawBar(int dx, int dy, bool orient, int size, int type, DWORD col) {
+    for (int i = 0; i < 3; i++)
+        hGfxInterface->sprScrollbar[orient][type][i]->SetColor(col);
+
+    hGfxInterface->sprScrollbar[orient][type][0]->Render(dx, dy);
+    if (orient) {
+        hGfxInterface->sprScrollbar[orient][type][1]->RenderStretch(dx, dy + 9, dx + 16, dy + size - 9);
+        hGfxInterface->sprScrollbar[orient][type][2]->Render(dx, dy + size - 9);
+    } else {
+        hGfxInterface->sprScrollbar[orient][type][1]->RenderStretch(dx + 9, dy, dx + size - 9, dy + 16);
+        hGfxInterface->sprScrollbar[orient][type][2]->Render(dx + size - 9, dy);
+    }
 }

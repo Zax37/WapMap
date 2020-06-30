@@ -49,9 +49,6 @@ namespace SHR {
         if (!HasTooltip() || !IsTooltipVisible()) return;
         int w = GV->fntMyriad16->GetStringWidth(m_szTooltip),
             h = GV->fntMyriad16->GetHeight() * m_iTooltipLC;
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
         q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0xFFf1edd7;
         int rx = m_iTooltipX, ry = m_iTooltipY;

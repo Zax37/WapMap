@@ -149,7 +149,7 @@ namespace SHR {
         }
     }
 
-    void RadBut::mouseDragged(MouseEvent &mouseEvent) {
+    void RadBut::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

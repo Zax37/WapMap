@@ -42,7 +42,7 @@ namespace SHR {
 
         virtual void mouseClicked(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
         virtual void mouseEntered(MouseEvent &mouseEvent);
 

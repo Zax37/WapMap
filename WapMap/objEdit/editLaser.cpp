@@ -60,7 +60,7 @@ namespace ObjEdit {
         delete tfDmg;
         delete tfTimeOff;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjLaser::Save() {

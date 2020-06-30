@@ -291,7 +291,9 @@ enum LangID {
     Lang_SmallScreenWarning_Message,
     Lang_FilesDragged_Unsupported,
     Lang_FilesDragged_MapsToOpen,
-    Lang_FilesDragged_AndMore
+    Lang_FilesDragged_AndMore,
+    Lang_Retry,
+    Lang_Skip
 };
 
 enum LangTooltipID {

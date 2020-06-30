@@ -67,7 +67,7 @@ namespace ObjEdit {
         for (int i = 0; i < 31; i++)
             delete rbType[i];
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjTreasure::Action(const gcn::ActionEvent &actionEvent) {
@@ -90,7 +90,7 @@ namespace ObjEdit {
                         hTempObj->SetLogic("GlitterlessPowerup");
                     }
                     hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iTreasuresID[i]).first.c_str());
-                    hState->vPort->MarkToRedraw(1);
+                    hState->vPort->MarkToRedraw();
                     break;
                 }
         }

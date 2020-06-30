@@ -46,7 +46,6 @@
  */
 
 #include "guichan/gui.hpp"
-
 #include "guichan/basiccontainer.hpp"
 #include "guichan/exception.hpp"
 #include "guichan/focushandler.hpp"
@@ -57,6 +56,7 @@
 #include "guichan/mouseinput.hpp"
 #include "guichan/mouselistener.hpp"
 #include "guichan/widget.hpp"
+#include "guichan/dragevent.hpp"
 
 namespace gcn {
     Gui::Gui()
@@ -425,7 +425,9 @@ namespace gcn {
                                  MouseEvent::DRAGGED,
                                  mLastMouseDragButton,
                                  mouseInput.getX(),
-                                 mouseInput.getY());
+                                 mouseInput.getY(),
+                                 false, false,
+                                 mouseInput.getTimeStamp() - mLastMousePressTimeStamp);
         } else {
             Widget *sourceWidget = getMouseEventSource(mouseInput.getX(), mouseInput.getY());
             distributeMouseEvent(sourceWidget,
@@ -473,6 +475,8 @@ namespace gcn {
 
         mFocusHandler->setDraggedWidget(sourceWidget);
         mLastMouseDragButton = mouseInput.getButton();
+        mDragStartX = mouseInput.getX();
+        mDragStartY = mouseInput.getY();
 
         mLastMousePressButton = mouseInput.getButton();
         mLastMousePressTimeStamp = mouseInput.getTimeStamp();
@@ -595,7 +599,8 @@ namespace gcn {
                                    int x,
                                    int y,
                                    bool force,
-                                   bool toSourceOnly) {
+                                   bool toSourceOnly,
+                                   unsigned delta) {
         Widget *parent = source;
         Widget *widget = source;
 
@@ -641,36 +646,37 @@ namespace gcn {
                 std::list<MouseListener *> mouseListeners = widget->_getMouseListeners();
 
                 // Send the event to all mouse listeners of the widget.
-                for (std::list<MouseListener *>::iterator it = mouseListeners.begin();
-                     it != mouseListeners.end();
-                     ++it) {
+                for (auto & mouseListener : mouseListeners) {
                     switch (mouseEvent.getType()) {
                         case MouseEvent::ENTERED:
-                            (*it)->mouseEntered(mouseEvent);
+                            mouseListener->mouseEntered(mouseEvent);
                             break;
                         case MouseEvent::EXITED:
-                            (*it)->mouseExited(mouseEvent);
+                            mouseListener->mouseExited(mouseEvent);
                             break;
                         case MouseEvent::MOVED:
-                            (*it)->mouseMoved(mouseEvent);
+                            mouseListener->mouseMoved(mouseEvent);
                             break;
                         case MouseEvent::PRESSED:
-                            (*it)->mousePressed(mouseEvent);
+                            mouseListener->mousePressed(mouseEvent);
                             break;
                         case MouseEvent::RELEASED:
-                            (*it)->mouseReleased(mouseEvent);
+                            mouseListener->mouseReleased(mouseEvent);
                             break;
                         case MouseEvent::WHEEL_MOVED_UP:
-                            (*it)->mouseWheelMovedUp(mouseEvent);
+                            mouseListener->mouseWheelMovedUp(mouseEvent);
                             break;
                         case MouseEvent::WHEEL_MOVED_DOWN:
-                            (*it)->mouseWheelMovedDown(mouseEvent);
+                            mouseListener->mouseWheelMovedDown(mouseEvent);
                             break;
-                        case MouseEvent::DRAGGED:
-                            (*it)->mouseDragged(mouseEvent);
+                        case MouseEvent::DRAGGED: {
+                            int distX = x - mDragStartX, distY = y - mDragStartY;
+                            DragEvent dragEvent(mouseEvent, sqrt(distX * distX + distY * distY), delta);
+                            mouseListener->mouseDragged(dragEvent);
                             break;
+                        }
                         case MouseEvent::CLICKED:
-                            (*it)->mouseClicked(mouseEvent);
+                            mouseListener->mouseClicked(mouseEvent);
                             break;
                         default:
                             throw GCN_EXCEPTION("Unknown mouse event type.");

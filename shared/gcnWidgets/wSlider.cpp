@@ -9,20 +9,6 @@ extern HGE *hge;
 using namespace gcn;
 
 namespace SHR {
-    void sliderDrawBar(int dx, int dy, bool orient, int size, int type, DWORD col) {
-        for (int i = 0; i < 3; i++)
-            _ghGfxInterface->sprScrollbar[orient][type][i]->SetColor(col);
-
-        _ghGfxInterface->sprScrollbar[orient][type][0]->Render(dx, dy);
-        if (orient) {
-            _ghGfxInterface->sprScrollbar[orient][type][1]->RenderStretch(dx, dy + 9, dx + 16, dy + size - 9);
-            _ghGfxInterface->sprScrollbar[orient][type][2]->Render(dx, dy + size - 9);
-        } else {
-            _ghGfxInterface->sprScrollbar[orient][type][1]->RenderStretch(dx + 9, dy, dx + size - 9, dy + 16);
-            _ghGfxInterface->sprScrollbar[orient][type][2]->Render(dx + size - 9, dy);
-        }
-
-    }
 
     Slider::Slider(double scaleEnd) {
         mDragged = false;
@@ -96,13 +82,13 @@ namespace SHR {
 
         if (mStyle == DEFAULT) {
             bool orient = (mOrientation == VERTICAL);
-            sliderDrawBar(dx, dy, orient, (orient ? getHeight() : getWidth()), 0, 0xFFFFFFFF);
+            GV->SliderDrawBar(dx, dy, orient, (orient ? getHeight() : getWidth()), 0, 0xFFFFFFFF);
             if (orient)
                 dy += getHeight() - getMarkerPosition() - getMarkerLength();
             else
                 dx += getMarkerPosition();
             if (isEnabled())
-                sliderDrawBar(dx, dy, orient, getMarkerLength(), 1, 0xFFFFFFFF);
+                GV->SliderDrawBar(dx, dy, orient, getMarkerLength(), 1, 0xFFFFFFFF);
             int markDimX = (orient ? 16 : getMarkerLength()),
                 markDimY = (orient ? getMarkerLength() : 16);
             bool markerFocus = (mHasMouse && mx > dx && my > dy && mx < dx + markDimX && my < dy + markDimY);
@@ -121,14 +107,14 @@ namespace SHR {
                 if (fTimer < 0.0f) fTimer = 0.0f;
             }
             if (isEnabled())
-                sliderDrawBar(dx, dy, orient, getMarkerLength(), 2,
-                              SETA(0xFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
+                GV->SliderDrawBar(dx, dy, orient, getMarkerLength(), 2,
+                                  SETA(0xFFFFFF, (unsigned char) (fTimer * 2.5f * 255.0f)));
         } else {
             int markSpr = (mStyle == POINTER);
             if (mOrientation == HORIZONTAL) {
-                _ghGfxInterface->sprSliderBG[0]->Render(dx, dy + 3);
-                _ghGfxInterface->sprSliderBG[1]->RenderStretch(dx + 5, dy + 3, dx + getWidth() - 5, dy + 8);
-                _ghGfxInterface->sprSliderBG[2]->Render(dx + getWidth() - 5, dy + 3);
+                _ghGfxInterface->sprSliderBG[1][0]->Render(dx, dy + 3);
+                _ghGfxInterface->sprSliderBG[1][1]->RenderStretch(dx + 5, dy + 3, dx + getWidth() - 5, dy + 8);
+                _ghGfxInterface->sprSliderBG[1][2]->Render(dx + getWidth() - 5, dy + 3);
 
                 for (double vKey : vKeys) {
                     int off = valueToMarkerPosition(vKey) + 7;
@@ -250,7 +236,7 @@ namespace SHR {
         return mForceKeyValue;
     }
 
-    void Slider::mouseDragged(MouseEvent &mouseEvent) {
+    void Slider::mouseDragged(DragEvent &mouseEvent) {
         if (getOrientation() == HORIZONTAL) {
             int npos = mouseEvent.getX() - getMarkerLength() / 2;
             for (size_t i = 0; i < vKeys.size(); i++) {

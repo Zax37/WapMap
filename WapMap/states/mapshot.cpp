@@ -5,7 +5,7 @@
 #include "../langID.h"
 #include "editing_ww.h"
 #include "../returncodes.h"
-#include "error.h"
+#include "dialog.h"
 #include "../../shared/commonFunc.h"
 
 extern HGE *hge;
@@ -99,8 +99,8 @@ void State::MapShot::Init() {
     targTemp = hge->Target_Create(tempw, temph, 0);
     if (!targTemp) {
         GV->Console->Printf("~w~Mapshot: ~r~Error allocating temporary surface (~y~%d~r~x~y~%d ~r~px).", tempw, temph);
-        GV->StateMgr->Push(new State::Error(GETL2("Mapshot", Lang_Ms_Error), GETL2("Mapshot", Lang_Ms_NotEnoughMem),
-                                            ST_ER_ICON_WARNING, ST_ER_BUT_OK, 1));
+        GV->StateMgr->Push(new State::Dialog(GETL2("Mapshot", Lang_Ms_Error), GETL2("Mapshot", Lang_Ms_NotEnoughMem),
+                                             ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_OK));
         return;
     } else
         GV->Console->Printf("~w~Mapshot: ~g~Temporary surface allocated (~y~%d~g~x~y~%d ~g~px).", tempw, temph);
@@ -148,7 +148,7 @@ void State::MapShot::Init() {
             stMain->fCamX = x * tempw * (1 / fScale);
             stMain->fCamY = y * temph * (1 / fScale);
 
-            stMain->vPort->MarkToRedraw(1);
+            stMain->vPort->MarkToRedraw();
             stMain->vPort->Update();
 
             hge->Gfx_BeginScene(targTemp);
@@ -246,10 +246,7 @@ void State::MapShot::Init() {
 
     fclose(hFile);
 
-    returnCode *rc = new returnCode;
-    rc->Type = RC_MapShot;
-    rc->Ptr = 1;
-    _popMe((int) rc);
+    _popMe({ ReturnCodeType::MapShot, 1 });
     GV->Console->Printf("~w~Mapshot: ~g~Done.");
 }
 
@@ -293,9 +290,6 @@ bool State::MapShot::Render() {
     return 0;
 }
 
-void State::MapShot::GainFocus(int iReturnCode, bool bFlipped) {
-    returnCode *rc = new returnCode;
-    rc->Type = RC_MapShot;
-    rc->Ptr = 0;
-    _popMe((int) rc);
+void State::MapShot::GainFocus(ReturnCode<void> code, bool bFlipped) {
+    _popMe({ ReturnCodeType::MapShot, 0 });
 }

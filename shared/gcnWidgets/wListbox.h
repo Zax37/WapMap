@@ -56,7 +56,7 @@ namespace SHR {
 
         virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
         virtual void mouseMoved(MouseEvent &mouseEvent);
 
@@ -65,6 +65,14 @@ namespace SHR {
         virtual int getTextXOffset() const { return 2; }
 
         int findIndexOf(const std::string& option);
+
+        /**
+         * Sets the scroll area to be opaque, that is sets the scoll area
+         * to display its background.
+         *
+         * @param opaque True if the scoll area should be opaque, false otherwise.
+         */
+        void setOpaque(bool opaque);
 
     protected:
         void distributeValueChangedEvent();
@@ -77,6 +85,12 @@ namespace SHR {
         typedef SelectionListenerList::iterator SelectionListenerIterator;
 
         friend class TextDropDown;
+
+        /**
+         * True if the list should be opaque (that is
+         * display its background), false otherwise.
+         */
+        bool mOpaque;
     };
 }
 

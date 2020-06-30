@@ -49,19 +49,12 @@
 #include "guichan/hge/hgeimageloader.hpp"
 #include "guichan/exception.hpp"
 
+extern HGE* hge;
+
 namespace gcn {
-    HGE *HGEImageLoader::mHGE = NULL;
-
-    HGEImageLoader::HGEImageLoader() {
-        mHGE = hgeCreate(HGE_VERSION);
-    }
-
-    HGEImageLoader::~HGEImageLoader() {
-        mHGE->Release();
-    }
 
     Image *HGEImageLoader::load(const std::string &filename, bool convertToDisplayFormat) {
-        HTEXTURE texture = mHGE->Texture_Load(filename.c_str());
+        HTEXTURE texture = hge->Texture_Load(filename.c_str());
 
         if (texture == NULL) {
             throw GCN_EXCEPTION(std::string("Unable to load: ") + filename);

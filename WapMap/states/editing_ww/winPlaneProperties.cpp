@@ -1,10 +1,11 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../error.h"
+#include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../../databanks/tiles.h"
+#include "../../version.h"
 
 extern HGE *hge;
 
@@ -13,20 +14,10 @@ void State::EditingWW::DrawPlaneProperties() {
     winpmMain->getAbsolutePosition(dx, dy);
 
     if (lbpmPlanes->getSelected() != -1) {
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 126, dx + winpmMain->getWidth(), dy + 126, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 127, dx + winpmMain->getWidth(), dy + 127, 0xFF5c5c5c);
+        //hge->Gfx_RenderLine(dx + 254 - 30, dy + 122, dx + winpmMain->getWidth() - 10, dy + 122, GV->colLineBright);
 
-        //hge->Gfx_RenderLine(dx+254-35, dy+163, dx+254+276-35, dy+163, 0xFF1f1f1f);
-        //hge->Gfx_RenderLine(dx+254-35, dy+164, dx+254+276-35, dy+164, 0xFF5c5c5c);
-
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 255, dx + winpmMain->getWidth(), dy + 255, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 256, dx + winpmMain->getWidth(), dy + 256, 0xFF5c5c5c);
-
-        hge->Gfx_RenderLine(dx + 254 - 35, dy + 24, dx + 254 - 35, dy + winpmMain->getHeight(), 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 255 - 35, dy + 24, dx + 255 - 35, dy + winpmMain->getHeight(), 0xFF5c5c5c);
-
-        hge->Gfx_RenderLine(dx + 253 + 277 - 35, dy + 24, dx + 253 + 277 - 35, dy + 255, 0xFF1f1f1f);
-        hge->Gfx_RenderLine(dx + 254 + 277 - 35, dy + 24, dx + 254 + 277 - 35, dy + 255, 0xFF5c5c5c);
+        hge->Gfx_RenderLine(dx + 255 - 35, dy + 32, dx + 255 - 35, dy + winpmMain->getHeight() - 8, GV->colLineBright);
+        hge->Gfx_RenderLine(dx + 254 + 277 - 40, dy + 32, dx + 254 + 277 - 40, dy + winpmMain->getHeight() - 8, GV->colLineBright);
 
         if (atoi(tfpmPlaneSizeX->getText().c_str()) != ipmSizeX ||
             atoi(tfpmPlaneSizeY->getText().c_str()) != ipmSizeY) {
@@ -41,7 +32,7 @@ void State::EditingWW::DrawPlaneProperties() {
 void State::EditingWW::SyncPlaneProperties() {
     if (hParser != NULL && lbpmPlanes->getSelected() == hParser->GetPlanesCount()) {
         if (winpmMain->getWidth() != 735) {
-            winpmMain->setX(winpmMain->getX() - (735 / 2 - 225 / 2));
+            winpmMain->setX(winpmMain->getX() - (735 - 220) / 2);
         }
         winpmMain->setWidth(735);
         labpmName->setVisible(1);
@@ -115,7 +106,7 @@ void State::EditingWW::SyncPlaneProperties() {
     } else if (hParser != NULL && lbpmPlanes->getSelected() < hParser->GetPlanesCount() &&
                lbpmPlanes->getSelected() >= 0) {
         if (winpmMain->getWidth() != 735) {
-            winpmMain->setX(winpmMain->getX() - (735 / 2 - 225 / 2));
+            winpmMain->setX(winpmMain->getX() - (735 - 225) / 2);
         }
         winpmMain->setWidth(735);
         WWD::Plane *pl = hParser->GetPlane(lbpmPlanes->getSelected());
@@ -209,7 +200,10 @@ void State::EditingWW::SyncPlaneProperties() {
         butpmDelete->setVisible(1);
         butpmDelete->setEnabled(1);
     } else {
-        winpmMain->setWidth(225);
+        if (winpmMain->getWidth() != 220) {
+            winpmMain->setX(winpmMain->getX() + (735 - 220) / 2);
+        }
+        winpmMain->setWidth(220);
         labpmName->setVisible(0);
         tfpmName->setVisible(0);
         labpmTileSet->setVisible(0);
@@ -248,6 +242,7 @@ void State::EditingWW::SyncPlaneProperties() {
         cbpmAutoTileSize->setVisible(0);
         butpmSave->setVisible(0);
         butpmDelete->setVisible(0);
+        ddpmTileSet->setListModel(0);
     }
 
     //lbpmPlanes->setHeight(hParser->GetPlanesCount()*19);
@@ -262,45 +257,38 @@ void State::EditingWW::SavePlaneProperties() {
     for (int i = 0; i < hParser->GetPlanesCount(); i++) {
         if (!strcmp(tfpmName->getText().c_str(), hParser->GetPlane(i)->GetName()) && lbpmPlanes->getSelected() != i) {
             GV->StateMgr->Push(
-                    new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "NameTaken"), ST_ER_ICON_WARNING,
-                                     ST_ER_BUT_OK, 0));
+                    new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "NameTaken"), ST_DIALOG_ICON_ERROR));
             return;
         }
     }
     if (!bAddingNew && (pl->GetFlags() & WWD::Flag_p_MainPlane) && !cbpmFlagMainPlane->isSelected()) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "MainPlaneUncheck"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "MainPlaneUncheck"), ST_DIALOG_ICON_ERROR));
         return;
     }
     if (tfpmName->getText().length() == 0) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "NoPlaneName"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "NoPlaneName"), ST_DIALOG_ICON_ERROR));
         return;
     }
     if (tfpmName->getText().length() > 64) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "PlaneNameTooLong"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "PlaneNameTooLong"), ST_DIALOG_ICON_ERROR));
         return;
     }
     if (atoi(tfpmPlaneSizeX->getText().c_str()) <= 0 || atoi(tfpmPlaneSizeY->getText().c_str()) <= 0) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "InvalidPlaneSize"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidPlaneSize"), ST_DIALOG_ICON_ERROR));
         return;
     }
     if (atoi(tfpmMovX->getText().c_str()) < 0 || atoi(tfpmMovY->getText().c_str()) < 0) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "InvalidMoveMod"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidMoveMod"), ST_DIALOG_ICON_ERROR));
         return;
     }
     if (atoi(tfpmTileSizeX->getText().c_str()) <= 0 || atoi(tfpmTileSizeY->getText().c_str()) <= 0) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "InvalidTileSize"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidTileSize"), ST_DIALOG_ICON_ERROR));
         return;
     }
     bool bChange = 0, bZCoordchange = 0, bDimChange = 0;
@@ -424,20 +412,17 @@ void State::EditingWW::SavePlaneProperties() {
     }*/
 
     if (cbpmFlagMainPlane->isSelected() != pl->GetFlag(WWD::Flag_p_MainPlane)) {
-        bool bDo = 1;
+        bool bDo = true;
         for (int i = 0; i < hParser->GetPlanesCount(); i++) {
             if (hParser->GetPlane(i)->GetFlag(WWD::Flag_p_MainPlane)) {
                 if (hParser->GetPlane(i)->GetObjectsCount() > 0) {
-                    //int ret = ErrorStandalone(GETL(Lang_Message), GETL2S("PlaneProperties", "MainPlaneObjectsDrop"), ST_ER_ICON_WARNING, ST_ER_BUT_OKCANCEL, 1);
                     char tmp[256];
                     sprintf(tmp, GETL2S("PlaneProperties", "MainPlaneObjectsDrop"), hParser->GetPlane(i)->GetName(),
                             hParser->GetPlane(i)->GetObjectsCount());
-                    int ret = MessageBox(hge->System_GetState(HGE_HWND), tmp, GETL(Lang_Message),
-                                         MB_ICONWARNING | MB_OKCANCEL);
-                    bDo = (ret == IDOK);
+                    bDo = State::MessageBox(PRODUCT_NAME, tmp, ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_YES;
                 }
                 if (bDo) {
-                    hParser->GetPlane(i)->SetFlag(WWD::Flag_p_MainPlane, 0);
+                    hParser->GetPlane(i)->SetFlag(WWD::Flag_p_MainPlane, false);
                     while (hParser->GetPlane(i)->GetObjectsCount() > 0)
                         hParser->GetPlane(i)->DeleteObjectByIterator(0);
                     hPlaneData[i]->ObjectData.bEmpty = 1;
@@ -448,8 +433,8 @@ void State::EditingWW::SavePlaneProperties() {
             }
         }
         if (bDo) {
-            bChange = 1;
-            pl->SetFlag(WWD::Flag_p_MainPlane, 1);
+            bChange = true;
+            pl->SetFlag(WWD::Flag_p_MainPlane, true);
             plMain = pl;
             hPlaneData[lbpmPlanes->getSelected()]->ObjectData.bEmpty = 0;
             hPlaneData[lbpmPlanes->getSelected()]->ObjectData.hQuadTree = new cObjectQuadTree(pl, SprBank);
@@ -460,7 +445,7 @@ void State::EditingWW::SavePlaneProperties() {
                         pl->GetPlaneHeightPx() / 2);
                 hParser->SetStartX(pl->GetPlaneWidthPx() / 2);
                 hParser->SetStartY(pl->GetPlaneHeightPx() / 2);
-                MessageBox(hge->System_GetState(HGE_HWND), tmp, GETL(Lang_Message), MB_ICONINFORMATION | MB_OK);
+                State::MessageBox(PRODUCT_NAME, tmp, ST_DIALOG_ICON_INFO);
             }
             //delete hStartingPosObj;
             hStartingPosObj = new WWD::Object();
@@ -513,8 +498,8 @@ void State::EditingWW::SavePlaneProperties() {
 void State::EditingWW::DeletePlaneProperties() {
     if (hParser->GetPlane(lbpmPlanes->getSelected())->GetFlags() & WWD::Flag_p_MainPlane) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Message), GETL2S("PlaneProperties", "MainPlaneDelete"), ST_ER_ICON_WARNING,
-                                 ST_ER_BUT_OK, 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "MainPlaneDelete"), ST_DIALOG_ICON_WARNING,
+                                  ST_DIALOG_BUT_OK));
         return;
     }
     int is = lbpmPlanes->getSelected();
@@ -535,7 +520,7 @@ void State::EditingWW::DeletePlaneProperties() {
     MDI->GetActiveDoc()->hPlaneData.erase(MDI->GetActiveDoc()->hPlaneData.begin() + is);
     hParser->DeletePlane(is);
     MarkUnsaved();
-    vPort->MarkToRedraw(1);
+    vPort->MarkToRedraw();
     SyncPlaneProperties();
 }
 
@@ -549,114 +534,114 @@ void State::EditingWW::SetAnchorPlaneProperties(int anchor) {
     }
     ipmAnchor = anchor;
     if (anchor == 1) {
-        butpmResUL->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResU->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResUL->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResU->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
         butpmResUR->setIcon(NULL);
 
-        butpmResL->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
-        butpmResC->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownRight] : GV->sprIcons[Icon_UpLeft]);
+        butpmResL->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
+        butpmResC->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownRight] : GV->sprIcons16[Icon16_UpLeft]);
         butpmResR->setIcon(NULL);
 
         butpmResDL->setIcon(NULL);
         butpmResD->setIcon(NULL);
         butpmResDR->setIcon(NULL);
     } else if (anchor == 2) {
-        butpmResUL->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResU->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResUR->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResUL->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResU->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResUR->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
 
-        butpmResL->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownLeft] : GV->sprIcons[Icon_UpRight]);
-        butpmResC->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
-        butpmResR->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownRight] : GV->sprIcons[Icon_UpLeft]);
+        butpmResL->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownLeft] : GV->sprIcons16[Icon16_UpRight]);
+        butpmResC->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
+        butpmResR->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownRight] : GV->sprIcons16[Icon16_UpLeft]);
 
         butpmResDL->setIcon(NULL);
         butpmResD->setIcon(NULL);
         butpmResDR->setIcon(NULL);
     } else if (anchor == 3) {
         butpmResUL->setIcon(NULL);
-        butpmResU->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResUR->setIcon(GV->sprIcons[Icon_Anchor]);
+        butpmResU->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResUR->setIcon(GV->sprIcons16[Icon16_Anchor]);
 
         butpmResL->setIcon(NULL);
-        butpmResC->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownLeft] : GV->sprIcons[Icon_UpRight]);
-        butpmResR->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
+        butpmResC->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownLeft] : GV->sprIcons16[Icon16_UpRight]);
+        butpmResR->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
 
         butpmResDL->setIcon(NULL);
         butpmResD->setIcon(NULL);
         butpmResDR->setIcon(NULL);
 
     } else if (anchor == 4) {
-        butpmResUL->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
-        butpmResU->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpRight] : GV->sprIcons[Icon_DownLeft]);
+        butpmResUL->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
+        butpmResU->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpRight] : GV->sprIcons16[Icon16_DownLeft]);
         butpmResUR->setIcon(NULL);
 
-        butpmResL->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResC->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResL->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResC->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
         butpmResR->setIcon(NULL);
 
-        butpmResDL->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
-        butpmResD->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownRight] : GV->sprIcons[Icon_UpLeft]);
+        butpmResDL->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
+        butpmResD->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownRight] : GV->sprIcons16[Icon16_UpLeft]);
         butpmResDR->setIcon(NULL);
     } else if (anchor == 5) {
-        butpmResUL->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpLeft] : GV->sprIcons[Icon_DownRight]);
-        butpmResU->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
-        butpmResUR->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpRight] : GV->sprIcons[Icon_DownLeft]);
+        butpmResUL->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpLeft] : GV->sprIcons16[Icon16_DownRight]);
+        butpmResU->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
+        butpmResUR->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpRight] : GV->sprIcons16[Icon16_DownLeft]);
 
-        butpmResL->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResC->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResR->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResL->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResC->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResR->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
 
-        butpmResDL->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownLeft] : GV->sprIcons[Icon_UpRight]);
-        butpmResD->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
-        butpmResDR->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownRight] : GV->sprIcons[Icon_UpLeft]);
+        butpmResDL->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownLeft] : GV->sprIcons16[Icon16_UpRight]);
+        butpmResD->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
+        butpmResDR->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownRight] : GV->sprIcons16[Icon16_UpLeft]);
     } else if (anchor == 6) {
         butpmResUL->setIcon(NULL);
-        butpmResU->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpLeft] : GV->sprIcons[Icon_DownRight]);
-        butpmResUR->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
+        butpmResU->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpLeft] : GV->sprIcons16[Icon16_DownRight]);
+        butpmResUR->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
 
         butpmResL->setIcon(NULL);
-        butpmResC->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResR->setIcon(GV->sprIcons[Icon_Anchor]);
+        butpmResC->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResR->setIcon(GV->sprIcons16[Icon16_Anchor]);
 
         butpmResDL->setIcon(NULL);
-        butpmResD->setIcon(bXb && bYb ? GV->sprIcons[Icon_DownLeft] : GV->sprIcons[Icon_UpRight]);
-        butpmResDR->setIcon(bYb ? GV->sprIcons[Icon_Down] : GV->sprIcons[Icon_Up]);
+        butpmResD->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_DownLeft] : GV->sprIcons16[Icon16_UpRight]);
+        butpmResDR->setIcon(bYb ? GV->sprIcons16[Icon16_Down] : GV->sprIcons16[Icon16_Up]);
 
     } else if (anchor == 7) {
         butpmResUL->setIcon(NULL);
         butpmResU->setIcon(NULL);
         butpmResUR->setIcon(NULL);
 
-        butpmResL->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
-        butpmResC->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpRight] : GV->sprIcons[Icon_DownLeft]);
+        butpmResL->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
+        butpmResC->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpRight] : GV->sprIcons16[Icon16_DownLeft]);
         butpmResR->setIcon(NULL);
 
-        butpmResDL->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResD->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResDL->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResD->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
         butpmResDR->setIcon(NULL);
     } else if (anchor == 8) {
         butpmResUL->setIcon(NULL);
         butpmResU->setIcon(NULL);
         butpmResUR->setIcon(NULL);
 
-        butpmResL->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpLeft] : GV->sprIcons[Icon_DownRight]);
-        butpmResC->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
-        butpmResR->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpRight] : GV->sprIcons[Icon_DownLeft]);
+        butpmResL->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpLeft] : GV->sprIcons16[Icon16_DownRight]);
+        butpmResC->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
+        butpmResR->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpRight] : GV->sprIcons16[Icon16_DownLeft]);
 
-        butpmResDL->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResD->setIcon(GV->sprIcons[Icon_Anchor]);
-        butpmResDR->setIcon(bXb ? GV->sprIcons[Icon_Right] : GV->sprIcons[Icon_Left]);
+        butpmResDL->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResD->setIcon(GV->sprIcons16[Icon16_Anchor]);
+        butpmResDR->setIcon(bXb ? GV->sprIcons16[Icon16_Right] : GV->sprIcons16[Icon16_Left]);
     } else if (anchor == 9) {
         butpmResUL->setIcon(NULL);
         butpmResU->setIcon(NULL);
         butpmResUR->setIcon(NULL);
 
         butpmResL->setIcon(NULL);
-        butpmResC->setIcon(bXb && bYb ? GV->sprIcons[Icon_UpLeft] : GV->sprIcons[Icon_DownRight]);
-        butpmResR->setIcon(bYb ? GV->sprIcons[Icon_Up] : GV->sprIcons[Icon_Down]);
+        butpmResC->setIcon(bXb && bYb ? GV->sprIcons16[Icon16_UpLeft] : GV->sprIcons16[Icon16_DownRight]);
+        butpmResR->setIcon(bYb ? GV->sprIcons16[Icon16_Up] : GV->sprIcons16[Icon16_Down]);
 
         butpmResDL->setIcon(NULL);
-        butpmResD->setIcon(bXb ? GV->sprIcons[Icon_Left] : GV->sprIcons[Icon_Right]);
-        butpmResDR->setIcon(GV->sprIcons[Icon_Anchor]);
+        butpmResD->setIcon(bXb ? GV->sprIcons16[Icon16_Left] : GV->sprIcons16[Icon16_Right]);
+        butpmResDR->setIcon(GV->sprIcons16[Icon16_Anchor]);
     }
 }

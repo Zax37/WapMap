@@ -1,16 +1,12 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../error.h"
+#include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../cInterfaceSheet.h"
 #include "../../databanks/imageSets.h"
 
 extern HGE *hge;
-
-void State::EditingWW::DrawLogicBrowser() {
-
-}
 
 void State::EditingWW::SyncDB_ImageSets() {
     sadbFramesImg->setVisible(dbAssetsImg->getSelected() != -1);

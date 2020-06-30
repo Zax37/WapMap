@@ -5,6 +5,8 @@
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#include "../states/dialog.h"
+#include "../version.h"
 
 extern HGE *hge;
 
@@ -334,7 +336,7 @@ namespace ObjEdit {
         delete butGenChain;
         delete butCloseChain;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     int cEditObjElevPath::GetMoveDir(int x, int y) {
@@ -372,10 +374,9 @@ namespace ObjEdit {
             }
             if (vSteps.size() == 8) {
                 if (!bChangeQuestioned) {
-                    bChangeQuestioned = 1;
-                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
-                                   GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDNO)
-                        return;
+                    bChangeQuestioned = true;
+                    if (State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
+                                          ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
                 }
                 vSteps.pop_back();
                 CloseChain(bChangeQuestioned);
@@ -396,10 +397,9 @@ namespace ObjEdit {
                 return;
             }
             if (!bChangeQuestioned) {
-                bChangeQuestioned = 1;
-                if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
-                               GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDNO)
-                    return;
+                bChangeQuestioned = true;
+                if (State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
+                                      ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
             }
             vSteps.pop_back();
             SynchronizeObj();
@@ -417,13 +417,8 @@ namespace ObjEdit {
             endY += GetMoveY(i);
         }
         if ((endX != initX || endY != initY) &&
-            MessageBox(hge->System_GetState(HGE_HWND), GETL2S("EditObj_ElevPath", "MsgDifferentEnd"),
-                       GETL(Lang_Message), MB_YESNO | MB_ICONWARNING) == IDNO)
-            return;
-        int tmp = atoi(tfSpeed->getText().c_str());
-        if (tmp <= 0)
-            tmp = 125;
-        hTempObj->SetParam(WWD::Param_Speed, tmp);
+            State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgDifferentEnd"),
+                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
     }
 
     void cEditObjElevPath::Action(const gcn::ActionEvent &actionEvent) {
@@ -467,17 +462,15 @@ namespace ObjEdit {
             SynchronizeObj();
         } else if (actionEvent.getSource() == tddImageSet) {
             hTempObj->SetImageSet(tddImageSet->getText().c_str());
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == butGenChain) {
             int tmp = atoi(tfSpeed->getText().c_str());
             if (tmp <= 0)
                 tmp = 125;
             hTempObj->SetParam(WWD::Param_Speed, tmp);
 
-            if (ChangesMade())
-                if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("EditObj_ElevPath", "MsgGenChainChangesMade"),
-                               GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDNO)
-                    return;
+            if (ChangesMade() && State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgGenChainChangesMade"),
+                                                   ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
 
             int iPosX = hTempObj->GetParam(WWD::Param_LocationX), iPosY = hTempObj->GetParam(WWD::Param_LocationY);
             int iModX = iPosX, iModY = iPosY;
@@ -675,7 +668,7 @@ namespace ObjEdit {
                     vSteps[iDragStep].second = abs(move);
                     SynchronizeObj();
                     ChangeActiveStep();
-                    hState->vPort->MarkToRedraw(1);
+                    hState->vPort->MarkToRedraw();
                 }
             }
             return;
@@ -713,9 +706,6 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 145, dx + win->getWidth(), dy + 145, 0xFF1f1f1f);
         hge->Gfx_RenderLine(dx, dy + 146, dx + win->getWidth(), dy + 146, 0xFF5c5c5c);
 
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
         SHR::SetQuad(&q, 0xFF545454,
                      dx + lbSteps->getX() + 2, dy + lbSteps->getY() + 16,
                      dx + lbSteps->getX() + lbSteps->getWidth() + 2, dy + lbSteps->getY() + 152 + 16);

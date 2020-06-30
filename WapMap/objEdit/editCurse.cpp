@@ -49,7 +49,7 @@ namespace ObjEdit {
         if (!bAnySelected) {
             rbCurses[0]->setSelected(1);
             hTempObj->SetImageSet(CURSES[0]);
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
     }
 
@@ -57,7 +57,7 @@ namespace ObjEdit {
         for (int i = 0; i < 6; i++)
             delete rbCurses[i];
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCurse::Action(const gcn::ActionEvent &actionEvent) {
@@ -68,7 +68,7 @@ namespace ObjEdit {
         for (int i = 0; i < 6; i++)
             if (actionEvent.getSource() == rbCurses[i]) {
                 hTempObj->SetImageSet(CURSES[i]);
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
                 return;
             }
     }

@@ -32,7 +32,7 @@ cmmbTile::cmmbTile(int startX) : cModeMenuBar(startX) {
     ddActivePlane = new SHR::DropDown();
     ddActivePlane->setListModel(new State::EditingWWlModel(GV->editState, LMODEL_PLANES));
     ddActivePlane->setDimension(gcn::Rectangle(0, 0, 150, 20));
-    ddActivePlane->addActionListener(GV->editState->al);
+    ddActivePlane->addActionListener(GV->editState->mainListener);
     ddActivePlane->SetGfx(&GV->gcnParts);
     ddActivePlane->adjustHeight();
     ddActivePlane->SetTooltip(GETL2("Tooltip", Lang_TT_ActivePlane));
@@ -378,7 +378,7 @@ void cmmbObject::RebuildContext() {
     //conNewObject->AddElement(NOBJCON_NEXT, GETL2S("ContextNewObj", "Next"), GV->sprIcons16[Icon16_Down]);
 
     GV->editState->conmodAtEmpty->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 1/*3*/ ? conNewObject : NULL);
-    GV->editState->conmodPaste->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 1/*3*/ ? conNewObject : NULL);
+    GV->editState->conmodAtEmptyPaste->GetElementByID(OBJMENU_NEWOBJ)->SetCascade(conNewObject->GetElementsCount() > 1/*3*/ ? conNewObject : NULL);
 
     if (conNewObject->GetElementsCount() > 1/*3*/) {
         /*int passn = 0;

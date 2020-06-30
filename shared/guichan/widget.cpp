@@ -272,7 +272,7 @@ namespace gcn {
 
         if (visible) {
             distributeShownEvent();
-        } else if (!visible) {
+        } else {
             distributeHiddenEvent();
         }
     }

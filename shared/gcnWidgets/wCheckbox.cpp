@@ -79,7 +79,7 @@ namespace SHR {
         graphics->setColor(gcn::Color(0xe1e1e1, isEnabled() ? 0xFF : 0x77));
 
         graphics->pushClipArea(getDimension());
-        graphics->drawText(getCaption(), 18, 0);
+        graphics->drawText(getCaption(), 20, 0);
     }
 
     bool CBox::isSelected() const {
@@ -114,7 +114,7 @@ namespace SHR {
         }
     }
 
-    void CBox::mouseDragged(MouseEvent &mouseEvent) {
+    void CBox::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 
@@ -122,7 +122,7 @@ namespace SHR {
         int height = getFont()->getHeight();
 
         setHeight(height < 16 ? 16 : height);
-        setWidth(getFont()->getWidth(mCaption) + 18);
+        setWidth(getFont()->getWidth(mCaption) + 20);
     }
 
     void CBox::toggleSelected() {

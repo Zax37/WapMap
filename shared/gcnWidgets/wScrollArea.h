@@ -190,78 +190,6 @@ namespace SHR {
         int getScrollbarWidth() const;
 
         /**
-         * Sets the amount to scroll in pixels when the left scroll button is
-         * pushed.
-         *
-         * @param amount The amount to scroll in pixels.
-         * @see getLeftButtonScrollAmount
-         */
-        void setLeftButtonScrollAmount(int amount);
-
-        /**
-         * Sets the amount to scroll in pixels when the right scroll button is
-         * pushed.
-         *
-         * @param amount The amount to scroll in pixels.
-         * @see getRightButtonScrollAmount
-         */
-        void setRightButtonScrollAmount(int amount);
-
-        /**
-         * Sets the amount to scroll in pixels when the up scroll button is
-         * pushed.
-         *
-         * @param amount The amount to scroll in pixels.
-         * @see getUpButtonScrollAmount
-         */
-        void setUpButtonScrollAmount(int amount);
-
-        /**
-         * Sets the amount to scroll in pixels when the down scroll button is
-         * pushed.
-         *
-         * @param amount The amount to scroll in pixels.
-         * @see getDownButtonScrollAmount
-         */
-        void setDownButtonScrollAmount(int amount);
-
-        /**
-         * Gets the amount to scroll in pixels when the left scroll button is
-         * pushed.
-         *
-         * @return The amount to scroll in pixels.
-         * @see setLeftButtonScrollAmount
-         */
-        int getLeftButtonScrollAmount() const;
-
-        /**
-         * Gets the amount to scroll in pixels when the right scroll button is
-         * pushed.
-         *
-         * @return The amount to scroll in pixels.
-         * @see setRightButtonScrollAmount
-         */
-        int getRightButtonScrollAmount() const;
-
-        /**
-         * Gets the amount to scroll in pixels when the up scroll button is
-         * pushed.
-         *
-         * @return The amount to scroll in pixels.
-         * @see setUpButtonScrollAmount
-         */
-        int getUpButtonScrollAmount() const;
-
-        /**
-         * Gets the amount to scroll in pixels when the down scroll button is
-         * pushed.
-         *
-         * @return The amount to scroll in pixels.
-         * @see setDownButtonScrollAmount
-         */
-        int getDownButtonScrollAmount() const;
-
-        /**
          * Sets the scroll area to be opaque, that is sets the scoll area
          * to display its background.
          *
@@ -302,15 +230,17 @@ namespace SHR {
 
         // Inherited from MouseListener
 
-        virtual void mousePressed(gcn::MouseEvent &mouseEvent);
+        void mousePressed(gcn::MouseEvent &mouseEvent) override;
 
-        virtual void mouseReleased(gcn::MouseEvent &mouseEvent);
+        void mouseReleased(gcn::MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(gcn::MouseEvent &mouseEvent);
+        void mouseDragged(gcn::DragEvent &dragEvent) override;
 
-        virtual void mouseWheelMovedUp(gcn::MouseEvent &mouseEvent);
+        void mouseWheelMovedUp(gcn::MouseEvent &mouseEvent) override;
 
-        virtual void mouseWheelMovedDown(gcn::MouseEvent &mouseEvent);
+        void mouseWheelMovedDown(gcn::MouseEvent &mouseEvent) override;
+
+        void mouseExited(gcn::MouseEvent& mouseEvent) override;
 
     protected:
         /**
@@ -322,93 +252,9 @@ namespace SHR {
         virtual void drawBackground(gcn::Graphics *graphics);
 
         /**
-         * Draws the up button.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawUpButton(gcn::Graphics *graphics);
-
-        /**
-         * Draws the down button.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawDownButton(gcn::Graphics *graphics);
-
-        /**
-         * Draws the left button.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawLeftButton(gcn::Graphics *graphics);
-
-        /**
-         * Draws the right button.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawRightButton(gcn::Graphics *graphics);
-
-        /**
-         * Draws the vertical scroll bar.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawVBar(gcn::Graphics *graphics);
-
-        /**
-         * Draws the horizontal scroll bar.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawHBar(gcn::Graphics *graphics);
-
-        /**
-         * Draws the vertical marker.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawVMarker(gcn::Graphics *graphics);
-
-        /**
-         * Draws the horizontal marker.
-         *
-         * @param graphics a Graphics object to draw with.
-         */
-        virtual void drawHMarker(gcn::Graphics *graphics);
-
-        /**
          * Checks the policies for the scroll bars.
          */
         virtual void checkPolicies();
-
-        /**
-         * Gets the up button dimension.
-         *
-         * @return the dimension of the up button.
-         */
-        gcn::Rectangle getUpButtonDimension();
-
-        /**
-         * Gets the down button dimension.
-         *
-         * @return the dimension of the down button.
-         */
-        gcn::Rectangle getDownButtonDimension();
-
-        /**
-         * Gets the left button dimension.
-         *
-         * @return the dimension of the left button.
-         */
-        gcn::Rectangle getLeftButtonDimension();
-
-        /**
-         * Gets the right button dimension.
-         *
-         * @return the dimension of the right button.
-         */
-        gcn::Rectangle getRightButtonDimension();
 
         /**
          * Gets the vertical scrollbar dimension.
@@ -538,6 +384,8 @@ namespace SHR {
          * display its background), false otherwise.
          */
         bool mOpaque;
+
+        float fTimerV, fTimerH;
     };
 }
 

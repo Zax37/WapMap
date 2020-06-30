@@ -3,5 +3,9 @@
 
 #define EXE_ICON 100
 #define WM_UPDATER 101
+#define HAND_CURSOR 102
+#define GRAB_CURSOR 103
+#define ZOOM_IN_CURSOR 104
+#define ZOOM_OUT_CURSOR 105
 
 #endif //RESOURCES_H

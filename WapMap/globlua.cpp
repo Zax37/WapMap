@@ -187,7 +187,7 @@ int gv_wmCreateObject(lua_State *L) //string logic, string imgset, int x, int y,
     obj->SetUserData(new cObjUserData(obj));
     GV->editState->hPlaneData[planeid]->ObjectData.hQuadTree->UpdateObject(obj);
     lua_pushinteger(L, (int) obj);
-    GV->editState->vPort->MarkToRedraw(1);
+    GV->editState->vPort->MarkToRedraw();
     return 1;
 }
 

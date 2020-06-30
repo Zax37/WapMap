@@ -52,7 +52,7 @@ namespace ObjEdit {
                 }
             } else
                 hTempObj->SetImageSet("LEVEL_TOWERCANNONRIGHT");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
 
         bOrient = rbType[1]->isSelected();
@@ -146,7 +146,7 @@ namespace ObjEdit {
         delete labSpeedX;
         delete labSpeedY;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjWallCannon::_Think(bool bConsumed) {
@@ -207,7 +207,7 @@ namespace ObjEdit {
                 hTempObj->SetLogic("TowerCannonLeft");
                 hTempObj->SetImageSet("LEVEL_TOWERCANNONLEFT");
             }
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
             if (bOrient) {
                 if (!bSkullCannon) {
                     hTempObj->SetParam(WWD::Param_LocationX, hTempObj->GetParam(WWD::Param_LocationX) - 49);
@@ -226,7 +226,7 @@ namespace ObjEdit {
                 hTempObj->SetLogic("TowerCannonRight");
                 hTempObj->SetImageSet("LEVEL_TOWERCANNONRIGHT");
             }
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
             if (!bOrient) {
                 if (!bSkullCannon) {
                     hTempObj->SetParam(WWD::Param_LocationX, hTempObj->GetParam(WWD::Param_LocationX) + 49);

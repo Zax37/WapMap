@@ -30,7 +30,6 @@ namespace ObjEdit {
         tbText->setMinimalSize(300, 100);
         tbText->addActionListener(hAL);
 
-
         saText = new SHR::ScrollArea();
         saText->setContent(tbText);
         saText->setBackgroundColor(0x3c3c3c);
@@ -53,20 +52,17 @@ namespace ObjEdit {
         butAlign[1]->setIconColor(0x55FFFFFF);
         butAlign[2]->setIconColor(0x55FFFFFF);
         for (int i = 0; i < 3; i++) {
-            butAlign[i]->removeActionListener(GV->editState->al);
+            butAlign[i]->removeActionListener(GV->editState->mainListener);
             butAlign[i]->addActionListener(hAL);
         }
         iAlign = 0;
 
         GenerateText();
 
-        GV->editState->vObjectsForbidHL.push_back(hTempObj);
-
         win->add(_butSave, 150, 220);
     }
 
     cEditObjText::~cEditObjText() {
-        GV->editState->vObjectsForbidHL.clear();
         if (!ObjectSaved()) {
             for (int i = 1; i < hObjects.size(); i++) {
                 GV->editState->GetActivePlane()->DeleteObject(hObjects[i]);
@@ -81,7 +77,7 @@ namespace ObjEdit {
         delete saText;
         delete tbText;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     int cEditObjText::GetCharFrame(char c) {
@@ -274,7 +270,7 @@ namespace ObjEdit {
         }else if( iAlign == 2 ){
 
         }*/
-        GV->editState->vPort->MarkToRedraw(1);
+        GV->editState->vPort->MarkToRedraw();
         delete[] text;
     }
 
@@ -316,7 +312,7 @@ namespace ObjEdit {
                 iDragY = hTempObj->GetParam(WWD::Param_LocationY);
                 areaX += diffx;
                 areaY += diffy;
-                GV->editState->vPort->MarkToRedraw(1);
+                GV->editState->vPort->MarkToRedraw();
             }
         }
         if (!bMouseConsumed) {
@@ -346,9 +342,9 @@ namespace ObjEdit {
 
     void cEditObjText::RenderObjectOverlay() {
         int ax1 = GV->editState->Wrd2ScrX(GV->editState->GetActivePlane(), areaX),
-                ay1 = GV->editState->Wrd2ScrY(GV->editState->GetActivePlane(), areaY),
-                ax2 = GV->editState->Wrd2ScrX(GV->editState->GetActivePlane(), areaX + areaW),
-                ay2 = GV->editState->Wrd2ScrY(GV->editState->GetActivePlane(), areaY + areaH);
+            ay1 = GV->editState->Wrd2ScrY(GV->editState->GetActivePlane(), areaY),
+            ax2 = GV->editState->Wrd2ScrX(GV->editState->GetActivePlane(), areaX + areaW),
+            ay2 = GV->editState->Wrd2ScrY(GV->editState->GetActivePlane(), areaY + areaH);
         hge->Gfx_RenderLine(ax1, ay1, ax2, ay1, 0xFFFF0000);
         hge->Gfx_RenderLine(ax1, ay2, ax2, ay2, 0xFFFF0000);
         hge->Gfx_RenderLine(ax1, ay1, ax1, ay2, 0xFFFF0000);

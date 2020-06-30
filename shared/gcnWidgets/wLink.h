@@ -90,7 +90,7 @@ namespace SHR {
 
         virtual void mouseReleased(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
     protected:
         /**

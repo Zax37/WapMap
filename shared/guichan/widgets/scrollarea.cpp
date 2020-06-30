@@ -313,7 +313,7 @@ namespace gcn {
         mouseEvent.consume();
     }
 
-    void ScrollArea::mouseDragged(MouseEvent &mouseEvent) {
+    void ScrollArea::mouseDragged(DragEvent &mouseEvent) {
         if (mIsVerticalMarkerDragged) {
             int pos = mouseEvent.getY() - getVerticalBarDimension().y - mVerticalMarkerDragOffset;
             int length = getVerticalMarkerDimension().height;

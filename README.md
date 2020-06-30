@@ -1,19 +1,20 @@
-# WapMap
+![WapMap](res/copy/logo.png)
 
 ## Info
 
 WapMap is a fanmade WAP32 file editor, originally developped by kijanek6 in 2010-2013.
-It's mostly known as Claw level editor, but it used to support Gruntz and Get Medieval maps too at some point(and to some extent).
+It's mostly known as Claw level editor, but it also supports Gruntz and Get Medieval maps (to some extent).
 
-For the upcoming, 10th birthday of the editor, I decided to bring it back, and finally managed to build the thing myself.
+For the 10th birthday of the editor, I decided to bring it back - starting with bugfixes, then adding some new features,
+and finally doing a full redesign.
 
 WapMap, as most of kijanek's projects at the time, depended on HGE(Haaf's Game Engine), which he edited when needed.
-Sadly, in the package, which I got from him, there was no source files of that version, only linking files.
+Sadly, in the package, which I got from him, there was no source files of that version, only linking files, but bit
+after bit, I managed to re-implement most of his changes.
 
-He planned on rewriting the rendering to SFML, but he failed to get it working and abandoned the project.
-
-Since I don't have source code for some of the changes in HGE, which kijanek made, I've cloned the HGE github repository,
-merged with the header files from his version and re-implemented most of the needed new functionalities.
+At some point WapMap was meant to be partially rewritten with the usage of SFML, but kijanek failed to
+get it working and abandoned the project. I was considering doing it, but it would probably be easier to
+rewrite the whole thing then, and I decided not to do that, but keep my legacy alive.
 
 ## Building
 
@@ -32,7 +33,8 @@ git clone https://github.com/lua/lua
 
 4. Build the dependencies (I used CMake). You'll need to download DirectX 9 SDK (June 2010), as HGE's readme says.
 
-5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
+5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it
+next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
 
 6. Open WapMap/WapMap/WapMap.sln in Visual Studio 2019 and run it!
 

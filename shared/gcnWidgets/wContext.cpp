@@ -66,7 +66,7 @@ namespace SHR {
             fShowTimer -= hge->Timer_GetDelta();
             if (fShowTimer <= 0.0f) {
                 fShowTimer = 0.0f;
-                setVisible(0);
+                setVisible(false);
             }
         }
 
@@ -77,10 +77,6 @@ namespace SHR {
         getAbsolutePosition(x, y);
 
         hge->Gfx_SetClipping();
-
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
         SHR::SetQuad(&q, SETA(0x0F0F0F, galpha), x, y, x + getWidth() - 1, y + getHeight() - 1);
         hge->Gfx_RenderQuad(&q);
 
@@ -98,7 +94,7 @@ namespace SHR {
             }
         }
 
-        int yOff = y;
+        int yOff = ++y;
         int borderColor = 0x1d1d1d;
 
         for (int i = 0; i < vElements.size(); i++) {
@@ -106,7 +102,7 @@ namespace SHR {
                 ++separatorsIt;
                 ++y;
                 hge->Gfx_RenderLine(x, y, x + getWidth(), y, SETA(borderColor, galpha));
-                ++y;
+                y += 2;
             }
 
             if (vElements[i]->fTimer > 0.0f) {
@@ -162,6 +158,7 @@ namespace SHR {
 
             y += iRowHeight;
         }
+        y += 1;
 
         hge->Gfx_RenderLine(x + topLineXOffset, yOff, x + getWidth(), yOff, SETA(borderColor, galpha));
         hge->Gfx_RenderLine(x, y, x + getWidth(), y, SETA(borderColor, galpha));
@@ -190,7 +187,7 @@ namespace SHR {
             if (banyhasicon[i] || mReserveIconSpace[i])
                 w += 20;
         setWidth(w + 40);
-        setHeight(vElements.size() * iRowHeight + 1 + vSeparators.size() * 2);
+        setHeight(vElements.size() * iRowHeight + 2 + vSeparators.size() * 3);
     }
 
     void Context::mousePressed(MouseEvent &mouseEvent) {
@@ -202,13 +199,27 @@ namespace SHR {
 
     void Context::mouseMoved(MouseEvent &mouseEvent) {
         if (bHide) return;
-        int n = mouseEvent.getY() / iRowHeight;
+        int y = mouseEvent.getY();
+        int n = y / iRowHeight;
+        auto sepIt = vSeparators.begin();
+        while (sepIt != vSeparators.end() && *sepIt < n) {
+            if (y % iRowHeight < 3) {
+                --n;
+            }
+            y -= 3;
+            ++sepIt;
+        }
+        if (sepIt != vSeparators.end() && *sepIt == n && y % iRowHeight < 3) {
+            if (iSelected != -1) vElements[iSelected]->SetFocused(0, true);
+            iSelected = iSelectedID = -1;
+            return;
+        }
         if (n >= vElements.size()) n = vElements.size() - 1;
         if (n == iSelected) return;
         if (iSelected >= vElements.size()) iSelected = -1;
-        bool switchcascade = !(iSelected != -1 && vElements[iSelected]->GetCascade() == vElements[n]->GetCascade());
-        if (iSelected != -1) vElements[iSelected]->SetFocused(0, switchcascade);
-        vElements[n]->SetFocused(1, switchcascade);
+        bool switchCascade = !(iSelected != -1 && vElements[iSelected]->GetCascade() == vElements[n]->GetCascade());
+        if (iSelected != -1) vElements[iSelected]->SetFocused(0, switchCascade);
+        vElements[n]->SetFocused(true, switchCascade);
         OpenSubContext(n);
         bool dist = (iSelected != n);
         iSelectedID = vElements[n]->GetID();
@@ -258,7 +269,7 @@ namespace SHR {
         }
     }
 
-    void Context::mouseDragged(MouseEvent &mouseEvent) {
+    void Context::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

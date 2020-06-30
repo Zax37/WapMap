@@ -47,7 +47,7 @@ enum WindowsVer {
     OS_10,
 };
 
-enum EnumGfxIcons {
+enum Gfx32Icons {
     Icon_New = 0,
     Icon_Open,
     Icon_Save,
@@ -276,12 +276,26 @@ enum Gfx16Icons {
     Icon16_Package,
     Icon16_AppliedPartially,
     Icon16_Lock,
+    Icon16_UpRight,
+    Icon16_DownRight,
+    Icon16_DownLeft,
+    Icon16_Right,
+    Icon16_Left,
+    Icon16_UpLeft,
+    Icon16_Anchor,
+    Icon16_Mirror,
+    Icon16_Invert,
     Gfx16Icons_Count
 };
 
 enum APP_CURSOR {
     DEFAULT = 0,
     TEXT,
+    DRAG,
+    HAND,
+    GRAB,
+    ZOOM_IN,
+    ZOOM_OUT,
 
     CURSORS_COUNT
 };
@@ -315,6 +329,8 @@ public:
 
     void RenderLogoWithVersion(int x, int y, int alpha = 255);
 
+    void SliderDrawBar(int dx, int dy, bool orient, int size, int type, DWORD col);
+
     HTEXTURE texMain;
     HTEXTURE texLevels;
     hgeSprite *sprLevels[18];
@@ -325,7 +341,7 @@ public:
 
     hgeSprite *sprCaptionMinimze[2], *sprCaptionClose[2];
 
-    hgeSprite *sprDottedLineHorizontal, *sprDottedLineVertical;
+    hgeSprite *sprDottedLineCorner, *sprDottedLineHorizontal, *sprDottedLineVertical;
     hgeSprite *sprArrowVerticalU, *sprArrowVerticalM, *sprArrowVerticalD;
 
     hgeSprite *sprLevelsMicro16[14];
@@ -414,9 +430,10 @@ public:
     void UpdateMemUsage();
 #endif
 
-    DWORD colBase, colBaseDark, colLineDark, colLineBright, colOutline, colFontWhite;
+    DWORD colBase, colBaseDark, colLineDark, colLineBright, colOutline, colFontWhite, colActive;
 };
 
 extern cGlobals *GV;
+extern hgeQuad q;
 
 #endif

@@ -48,44 +48,35 @@ namespace SHR {
 
         void removeSelectionListener(SelectionListener *selectionListener);
 
-
-        virtual void draw(Graphics *graphics);
-
-        void setBaseColor(const Color &color);
-
-        void setBackgroundColor(const Color &color);
-
-        void setForegroundColor(const Color &color);
-
-        void setFont(Font *font);
-
-        void setSelectionColor(const Color &color);
+        void draw(Graphics *graphics) override;
 
         virtual gcn::Rectangle getChildrenArea();
 
-        virtual void focusLost(const FocusEvent &event);
+        void focusGained(const FocusEvent &event) override;
 
-        virtual void action(const ActionEvent &actionEvent);
+        void focusLost(const FocusEvent &event) override;
 
-        virtual void death(const Event &event);
+        void action(const ActionEvent &actionEvent) override;
 
-        virtual void keyPressed(KeyEvent &keyEvent);
+        void death(const Event &event) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void keyPressed(KeyEvent &keyEvent) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mousePressed(MouseEvent &mouseEvent) override;
 
-        virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseWheelMovedDown(MouseEvent &mouseEvent);
+        void mouseWheelMovedUp(MouseEvent &mouseEvent) override;
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        void mouseWheelMovedDown(MouseEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void mouseDragged(DragEvent &mouseEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual void valueChanged(const SelectionEvent &event);
+        void mouseExited(MouseEvent &mouseEvent) override;
+
+        void valueChanged(const SelectionEvent &event) override;
 
         void SetGfx(guiParts *n) { hGfx = n; };
 
@@ -99,7 +90,6 @@ namespace SHR {
         void distributeValueChangedEvent();
 
         bool mDroppedDown;
-        bool mPushed;
         bool mHasMouse;
         int mFoldedUpHeight;
         int mSelected = 0;
@@ -114,6 +104,7 @@ namespace SHR {
         SelectionListenerList mSelectionListeners;
         typedef SelectionListenerList::iterator SelectionListenerIterator;
         float fFocusTimer;
+        bool mKeyboardFocus;
 
         guiParts *hGfx;
     };

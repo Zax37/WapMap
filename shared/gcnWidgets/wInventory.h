@@ -39,7 +39,7 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
         cInventoryItem GetItem() { return mItem; };
 

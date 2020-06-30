@@ -5,19 +5,11 @@
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
 #include "guichan/widget.hpp"
-
 #include <vector>
 
 using namespace gcn;
 
 namespace SHR {
-    /**
-     * An implementation of a slider where a user can select different values by
-     * sliding between a start value and an end value of a scale.
-     *
-     * If the selected value is changed an action event will be sent to all
-     * action listeners of the slider.
-     */
     class GCN_CORE_DECLSPEC Slider :
             public gcn::Widget,
             public MouseListener,
@@ -188,7 +180,7 @@ namespace SHR {
 
         virtual void mousePressed(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
         virtual void mouseWheelMovedUp(MouseEvent &mouseEvent);
 

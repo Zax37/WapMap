@@ -160,18 +160,19 @@ namespace State {
     public:
         ObjProp(EditingWW *main, WWD::Object *obj, bool bMove = 0);
 
-        virtual bool Opaque() { return 0; };
+        bool Opaque() override { return false; };
 
-        virtual void Init();
+        void Init() override;
 
-        virtual void Destroy();
+        void Destroy() override;
 
-        virtual bool Think();
+        bool Think() override;
 
-        virtual bool Render();
+        bool Render() override;
 
-        virtual void GainFocus(int iReturnCode, bool bFlipped);
-        //virtual void GainFocus(int iReturnCode);
+        void GainFocus(ReturnCode<void> code, bool bFlipped) override;
+
+        void OnResize() override;
 
         WWD::Object *hObj;
         gcn::Gui *gui;

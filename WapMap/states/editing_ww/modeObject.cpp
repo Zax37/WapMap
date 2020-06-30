@@ -1,13 +1,10 @@
 #include "../editing_ww.h"
-#include "../../globals.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../objprop.h"
-#include <math.h>
-
+#include <cmath>
 #include "../../cNativeController.h"
-
 #include "../../objEdit/editCurse.h"
 #include "../../objEdit/editElevPath.h"
 #include "../../objEdit/editCheckpoint.h"
@@ -35,13 +32,12 @@
 #include "../../objEdit/editEnemy.h"
 #include "../../objEdit/editText.h"
 #include "../../objEdit/editFloorSpike.h"
-
 #include "../../databanks/logics.h"
-
-extern HGE *hge;
+#include "../dialog.h"
+#include "../../version.h"
 
 void EditingWW_ObjDeletionCB(WWD::Object *obj) {
-    State::EditingWW *st = (State::EditingWW *) (GV->StateMgr->GetState());
+    auto *st = (State::EditingWW *) (GV->StateMgr->GetState());
     st->NotifyObjectDeletion(obj);
 }
 
@@ -92,40 +88,27 @@ void State::EditingWW::ObjectOverlay() {
                 y2 = my;
         }
 
-        hgeQuad q;
-        q.blend = BLEND_DEFAULT;
-        q.tex = 0;
-        SHR::SetQuad(&q, 0x7700ffd8, x1, y1, x2, y2);
-        hge->Gfx_RenderQuad(&q);
-        hge->Gfx_RenderLine(x1 - 1, y1, x2, y1, 0xFFFF0000);
-        hge->Gfx_RenderLine(x1, y1, x1, y2, 0xFFFF0000);
-        hge->Gfx_RenderLine(x2, y1, x2, y2, 0xFFFF0000);
-        hge->Gfx_RenderLine(x1, y2, x2, y2, 0xFFFF0000);
+        vPort->ClipScreen();
+        RenderAreaRect(WWD::Rect(x1, y1, x2, y2));
     }
-    if (bObjDragSelection && hParser != NULL && iMode == EWW_MODE_OBJECT) {
-        int x1 = Wrd2ScrX(GetActivePlane(), iObjDragOrigX), x2 = mx,
-            y1 = Wrd2ScrY(GetActivePlane(), iObjDragOrigY), y2 = my;
+    if (bDragSelection && hParser != NULL && iMode == EWW_MODE_OBJECT) {
+        int x1 = Wrd2ScrX(GetActivePlane(), iDragSelectionOrigX), x2 = mx,
+            y1 = Wrd2ScrY(GetActivePlane(), iDragSelectionOrigY), y2 = my;
 
         if (x1 > x2) std::swap(x1, x2);
         if (y1 > y2) std::swap(y1, y2);
 
-        if (x2 - x1 > 2 && y2 - y1 > 2) {
-            hgeQuad q;
-            q.blend = BLEND_DEFAULT;
-            q.tex = 0;
-            SHR::SetQuad(&q, 0x77ffcc00, x1, y1, x2, y2);
-            hge->Gfx_RenderQuad(&q);
-            hge->Gfx_RenderLine(x1 - 1, y1, x2, y1, 0xFFFF0000);
-            hge->Gfx_RenderLine(x1, y1, x1, y2, 0xFFFF0000);
-            hge->Gfx_RenderLine(x2, y1, x2, y2, 0xFFFF0000);
-            hge->Gfx_RenderLine(x1, y2, x2, y2, 0xFFFF0000);
+        if (x2 - x1 > 2 || y2 - y1 > 2) {
+            vPort->ClipScreen();
+            RenderAreaRect(WWD::Rect(x1, y1, x2, y2));
+
             if (iActiveTool == EWW_TOOL_OBJSELAREA) {
                 int wmX = Scr2WrdX(GetActivePlane(), mx),
                     wmY = Scr2WrdY(GetActivePlane(), my);
-                int minX = iObjDragOrigX > wmX ? wmX : iObjDragOrigX,
-                    minY = iObjDragOrigY > wmY ? wmY : iObjDragOrigY,
-                    maxX = iObjDragOrigX > wmX ? iObjDragOrigX : wmX,
-                    maxY = iObjDragOrigY > wmY ? iObjDragOrigY : wmY;
+                int minX = iDragSelectionOrigX > wmX ? wmX : iDragSelectionOrigX,
+                    minY = iDragSelectionOrigY > wmY ? wmY : iDragSelectionOrigY,
+                    maxX = iDragSelectionOrigX > wmX ? iDragSelectionOrigX : wmX,
+                    maxY = iDragSelectionOrigY > wmY ? iDragSelectionOrigY : wmY;
                 GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d, %s: %d", 0,
                                         GETL(Lang_MinX), minX, GETL(Lang_MinY), minY);
                 GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
@@ -136,45 +119,50 @@ void State::EditingWW::ObjectOverlay() {
                 GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y + 20, HGETEXT_LEFT, "~w~%s: ~y~%d~w~, %s: ~y~%d", 0,
                                         GETL(Lang_MaxX), maxX, GETL(Lang_MaxY), maxY);
             } else {
-                GV->fntMyriad16->printf(q.v[2].x + 25, q.v[2].y + 1, HGETEXT_LEFT, "~l~%s: %d", 0,
-                                        GETL(Lang_SelectedObjects), vObjectsHL.size());
-                GV->fntMyriad16->printf(q.v[2].x + 24, q.v[2].y, HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
-                                        GETL(Lang_SelectedObjects), vObjectsHL.size());
+                int count = vObjectsHL.size();
+
+                if (hge->Input_GetKeyState(HGEK_SHIFT)) {
+                    for (auto obj : vObjectsPicked) {
+                        if (std::find(vObjectsHL.begin(), vObjectsHL.end(), obj) == vObjectsHL.end())
+                            ++count;
+                        else --count;
+                    }
+                }
+
+                GV->fntMyriad16->printf(x2 + 25, y2 + 1, HGETEXT_LEFT, "~l~%s: %d", 0,
+                                        GETL(Lang_SelectedObjects), count);
+                GV->fntMyriad16->printf(x2 + 24, y2, HGETEXT_LEFT, "~w~%s: ~y~%d", 0,
+                                        GETL(Lang_SelectedObjects), count);
             }
         }
     }
-    if ((iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_MOVEOBJECT ||
-         iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->IsMovingObject())
+    if (((iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_MOVEOBJECT) ||
+         (iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->IsMovingObject()))
         && conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
-        int diffx, diffy;
+        int diffX, diffY;
         if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
-            diffx = GetUserDataFromObj(vObjectsPicked[0])->GetX() - vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
-            diffy = GetUserDataFromObj(vObjectsPicked[0])->GetY() - vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
+            diffX = GetUserDataFromObj(vObjectsPicked[0])->GetX() - vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
+            diffY = GetUserDataFromObj(vObjectsPicked[0])->GetY() - vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
         } else if (iActiveTool == EWW_TOOL_EDITOBJ) {
-            diffx = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationX) - hEditObj->_iMoveInitX;
-            diffy = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationY) - hEditObj->_iMoveInitY;
+            diffX = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationX) - hEditObj->_iMoveInitX;
+            diffY = hEditObj->GetTempObj()->GetParam(WWD::Param_LocationY) - hEditObj->_iMoveInitY;
         }
-        GV->fntMyriad16->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffx);
-        GV->fntMyriad16->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffy);
-        GV->fntMyriad16->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffx);
-        GV->fntMyriad16->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffy);
+        GV->fntMyriad16->printf(mx + 26, my + 1, HGETEXT_LEFT, "~l~X: %+d", 0, diffX);
+        GV->fntMyriad16->printf(mx + 26, my + 21, HGETEXT_LEFT, "~l~Y: %+d", 0, diffY);
+        GV->fntMyriad16->printf(mx + 25, my, HGETEXT_LEFT, "~w~X: ~y~%+d", 0, diffX);
+        GV->fntMyriad16->printf(mx + 25, my + 20, HGETEXT_LEFT, "~w~Y: ~y~%+d", 0, diffY);
     }
 }
 
 bool State::EditingWW::ObjectThink(bool pbConsumed) {
-    if (bOpenObjContext)
-        if (fObjContextX != fCamX || fObjContextY != fCamY) {
-            bOpenObjContext = 0;
-        }
-
     if (iActiveTool == EWW_TOOL_EDITOBJ && hEditObj->Kill()) {
         bool bAddNext = hEditObj->IsAddingNext();
-        int objmoverelx, objmoverely;
-        void *specialptr = NULL;
+        int objectMoveRelX, objectMoveRelY;
+        void *specialPtr = NULL;
         if (bAddNext) {
-            objmoverelx = vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
-            objmoverely = vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
-            specialptr = hEditObj->GenerateNextObjectData();
+            objectMoveRelX = vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
+            objectMoveRelY = vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
+            specialPtr = hEditObj->GenerateNextObjectData();
         }
         std::vector<WWD::Object *> vObjToPick;
         if (hEditObj->iType == ObjEdit::enText && ((ObjEdit::cEditObjText *) hEditObj)->ObjectSaved()) {
@@ -185,22 +173,22 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         hEditObj->GetWindowPosition(winX, winY);
 
         SetTool(EWW_TOOL_NONE);
-        if (vObjToPick.size() > 0)
+        if (!vObjToPick.empty())
             vObjectsPicked = vObjToPick;
         if (bAddNext) {
-            WWD::Object *nobj = new WWD::Object(vObjectsPicked[0]);
-            nobj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
-            nobj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), vPort->GetY() + vPort->GetHeight() / 2));
-            GetActivePlane()->AddObjectAndCalcID(nobj);
-            nobj->SetUserData(new cObjUserData(nobj));
-            hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(nobj);
+            auto *newObj = new WWD::Object(vObjectsPicked[0]);
+            newObj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
+            newObj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), vPort->GetY() + vPort->GetHeight() / 2));
+            GetActivePlane()->AddObjectAndCalcID(newObj);
+            newObj->SetUserData(new cObjUserData(newObj));
+            hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(newObj);
             vObjectsPicked.clear();
-            vObjectsPicked.push_back(nobj);
+            vObjectsPicked.push_back(newObj);
             objContext->EmulateClickID(OBJMENU_EDIT);
-            hEditObj->_iMoveInitX = objmoverelx;
-            hEditObj->_iMoveInitY = objmoverely;
-            hEditObj->ApplyDataFromPrevObject(specialptr);
-            bEditObjDelete = 1;
+            hEditObj->_iMoveInitX = objectMoveRelX;
+            hEditObj->_iMoveInitY = objectMoveRelY;
+            hEditObj->ApplyDataFromPrevObject(specialPtr);
+            bEditObjDelete = true;
             hEditObj->SetWindowPosition(winX, winY);
         } else if (bEditObjDelete) {
             std::vector<WWD::Object*> tmp = vObjectsPicked;
@@ -209,22 +197,14 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             }
             bEditObjDelete = false;
         }
-        vPort->MarkToRedraw(1);
+        vPort->MarkToRedraw();
     }
 
     if (iActiveTool == EWW_TOOL_EDITOBJ)
         hEditObj->Think(pbConsumed);
 
     if (pbConsumed) {
-        if (objContext->isVisible()) {
-            if ((fObjContextX - fCamX) != 0 || (fObjContextY - fCamY) != 0) {
-                objContext->setX(objContext->getX() + (fObjContextX - fCamX));
-                objContext->setY(objContext->getY() + (fObjContextY - fCamY));
-                fObjContextX = fCamX;
-                fObjContextY = fCamY;
-            }
-        }
-        return 1;
+        return true;
     }
 
     float mx, my;
@@ -234,347 +214,42 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             int x = Scr2WrdX(GetActivePlane(), mx), y = Scr2WrdY(GetActivePlane(), my);
             std::vector<WWD::Object *> picked = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(
                     x, y, 1, 1);
-            if (picked.size() != 0) {
-                WWD::Object *aligntoobj = NULL;
-                for (int i = 0; i < vObjectsPicked.size(); i++)
-                    if (vObjectsPicked[i] == picked[0]) {
-                        aligntoobj = picked[0];
+            if (!picked.empty()) {
+                WWD::Object *alignToObj = NULL;
+                for (auto & object : vObjectsPicked)
+                    if (object == picked[0]) {
+                        alignToObj = picked[0];
                         break;
                     }
-                if (aligntoobj != 0) {
-                    for (int i = 0; i < vObjectsPicked.size(); i++) {
+                if (alignToObj != 0) {
+                    for (auto & object : vObjectsPicked) {
                         if (bObjectAlignAxis)
-                            vObjectsPicked[i]->SetParam(WWD::Param_LocationY,
-                                                        aligntoobj->GetParam(WWD::Param_LocationY));
+                            object->SetParam(WWD::Param_LocationY,
+                                             alignToObj->GetParam(WWD::Param_LocationY));
                         else
-                            vObjectsPicked[i]->SetParam(WWD::Param_LocationX,
-                                                        aligntoobj->GetParam(WWD::Param_LocationX));
-                        GetUserDataFromObj(vObjectsPicked[i])->SyncToObj();
+                            object->SetParam(WWD::Param_LocationX,
+                                             alignToObj->GetParam(WWD::Param_LocationX));
+                        GetUserDataFromObj(object)->SyncToObj();
                     }
                     SetTool(EWW_TOOL_NONE);
-                    pbConsumed = 1;
-                    vPort->MarkToRedraw(1);
+                    vPort->MarkToRedraw();
                 }
             }
         }
-    } else if (iActiveTool == EWW_TOOL_NONE) {
-        if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON) &&
-            !bObjDragSelection) {
-            bObjDragSelection = 1;
-            iObjDragOrigX = Scr2WrdX(GetActivePlane(), mx);
-            iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
-        } else if (hge->Input_GetKeyState(HGEK_LBUTTON) && bObjDragSelection && vPort->GetWidget()->isMouseOver() &&
-                   !pbConsumed) {
-            int actx = Scr2WrdX(GetActivePlane(), mx),
-                acty = Scr2WrdY(GetActivePlane(), my);
-            int x = std::min(iObjDragOrigX, actx),
-                y = std::min(iObjDragOrigY, acty),
-                w = std::max(iObjDragOrigX, actx) - x,
-                h = std::max(iObjDragOrigY, acty) - y;
-            vObjectsHL = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(x, y, w, h);
-            vObjectsForbidHL.clear();
-            if (hge->Input_GetKeyState(HGEK_CTRL)) {
-                for (int i = 0; i < vObjectsPicked.size(); i++)
-                    for (int y = 0; y < vObjectsHL.size(); y++)
-                        if (vObjectsPicked[i] == vObjectsHL[y]) {
-                            vObjectsForbidHL.push_back(vObjectsHL[y]);
-                            vObjectsHL.erase(vObjectsHL.begin() + y);
-                        }
-            } else if (hge->Input_GetKeyState(HGEK_SHIFT)) {
-                for (int y = 0; y < vObjectsHL.size(); y++) {
-                    bool bfound = 0;
-                    for (int i = 0; i < vObjectsPicked.size(); i++)
-                        if (vObjectsPicked[i] == vObjectsHL[y]) {
-                            bfound = 1;
-                            break;
-                        }
-                    if (bfound)
-                        vObjectsHL.erase(vObjectsHL.begin() + y);
-                }
-            } else if (hge->Input_GetKeyState(HGEK_ALT)) {
-                for (int y = 0; y < vObjectsHL.size(); y++) {
-                    for (int i = 0; i < vObjectsPicked.size(); i++)
-                        if (vObjectsPicked[i] == vObjectsHL[y]) {
-                            vObjectsForbidHL.push_back(vObjectsHL[y]);
-                            vObjectsHL.erase(vObjectsHL.begin() + y);
-                            y--;
-                        }
-                }
-                vObjectsHL.clear();
-            }
-        } else if (bObjDragSelection) {
-            bObjDragSelection = 0;
-            int actx = Scr2WrdX(GetActivePlane(), mx),
-                acty = Scr2WrdY(GetActivePlane(), my);
-            if (actx == iObjDragOrigX && acty == iObjDragOrigY && vObjectsHL.size() > 1) {
-                int selid = -1;
-                for (int i = 0; i < vObjectsPicked.size(); i++)
-                    for (int y = 0; y < vObjectsHL.size(); y++)
-                        if (vObjectsPicked[i] == vObjectsHL[y])
-                            selid = y;
-                if (!hge->Input_GetKeyState(HGEK_CTRL) && !hge->Input_GetKeyState(HGEK_SHIFT) &&
-                    !hge->Input_GetKeyState(HGEK_ALT))
-                    vObjectsPicked.clear();
-                if (selid == -1) {
-                    int maxz = -100000, selit = -1;
-                    for (int i = 0; i < vObjectsHL.size(); i++)
-                        if (vObjectsHL[i]->GetParam(WWD::Param_LocationZ) > maxz) {
-                            selit = i;
-                            maxz = vObjectsHL[i]->GetParam(WWD::Param_LocationZ);
-                        }
-                    vObjectsPicked.push_back(vObjectsHL[selit]);
-                } else
-                    vObjectsPicked.push_back(vObjectsHL[(selid + 1) % vObjectsHL.size()]);
-            } else {
-                if (!hge->Input_GetKeyState(HGEK_CTRL) && !hge->Input_GetKeyState(HGEK_SHIFT) &&
-                    !hge->Input_GetKeyState(HGEK_ALT))
-                    vObjectsPicked = vObjectsHL;
-                else {
-                    for (int i = 0; i < vObjectsHL.size(); i++) {
-                        bool found = 0;
-                        for (int j = 0; j < vObjectsPicked.size(); j++) {
-                            if (vObjectsPicked[j] == vObjectsHL[i])
-                                found = 1;
-                        }
-                        if (!found)
-                            vObjectsPicked.push_back(vObjectsHL[i]);
-                    }
-                    for (int i = 0; i < vObjectsForbidHL.size(); i++)
-                        for (int j = 0; j < vObjectsPicked.size(); j++) {
-                            if (vObjectsPicked[j] == vObjectsForbidHL[i]) {
-                                vObjectsPicked.erase(vObjectsPicked.begin() + j);
-                                j--;
-                            }
-                        }
-                }
-            }
-            vObjectsHL.clear();
-            vObjectsForbidHL.clear();
-        }
-
-        if (hge->Input_KeyUp(HGEK_LBUTTON)) {
-            DWORD time = GetTickCount();
-            if (vObjectsPicked.size() == 1) {
-                int mwx = Scr2WrdX(GetActivePlane(), mx), mwy = Scr2WrdY(GetActivePlane(), my);
-                std::vector<WWD::Object *> mouseobj = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(
-                        mwx, mwy, mwx + 1, mwy + 1);
-                bool found = 0;
-                for (int i = 0; i < mouseobj.size(); i++)
-                    if (mouseobj[i] == vObjectsPicked[0]) {
-                        found = 1;
-                        break;
-                    }
-                if (found) {
-                    cObjUserData *ud = GetUserDataFromObj(vObjectsPicked[0]);
-                    int objcnt = 0;
-                    for (int i = 0; i < ud->GetReferencedCellsCount(); i++)
-                        objcnt += ud->GetReferencedCell(i)->GetObjectsCount();
-                    if (fDoubleClickTimer >= 0 && fDoubleClickTimer < 0.5 && iDoubleClickX == mx &&
-                        iDoubleClickY == my) {
-                        if (IsEditableObject(vObjectsPicked[0], NULL))
-                            OpenObjectEdit(vObjectsPicked[0]);
-                        else
-                            OpenObjectWindow(vObjectsPicked[0]);
-                        fDoubleClickTimer = -1;
-                    } else {
-                        fDoubleClickTimer = 0;
-                        iDoubleClickX = mx;
-                        iDoubleClickY = my;
-                    }
-                }
-            } else
-                fDoubleClickTimer = -1;
-        }
-
-        if (hge->Input_KeyDown(HGEK_LBUTTON) || hge->Input_KeyDown(HGEK_RBUTTON) || hge->Input_KeyUp(HGEK_RBUTTON)) {
-            if (objContext->isVisible()) {
-                if (!(mx > objContext->getX() &&
-                      mx < objContext->getX() + objContext->getWidth() &&
-                      my > objContext->getY() &&
-                      my < objContext->getY() + objContext->getHeight())) {
-                    objContext->setVisible(0);
-                    return 0;
-                }
-            }
-
-            if ((hge->Input_KeyDown(HGEK_RBUTTON) || hge->Input_KeyUp(HGEK_RBUTTON)) && !bObjDragSelection) {
-                std::vector<WWD::Object *> selobjs = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(
-                        Scr2WrdX(GetActivePlane(), mx), Scr2WrdY(GetActivePlane(), my), 1, 1);
-                sort(selobjs.begin(), selobjs.end(), ObjSortCoordZ);
-                if (selobjs.size() != NULL) {
-                    WWD::Object *selobj = 0;
-                    bool ok = 0;
-                    for (int y = 0; y < selobjs.size(); y++) {
-                        for (int i = 0; i < vObjectsPicked.size(); i++)
-                            if (selobjs[y] == vObjectsPicked[i]) {
-                                ok = 1;
-                                selobj = selobjs[y];
-                                break;
-                            }
-                        if (ok) break;
-                    }
-                    if (ok && conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
-                        if (hge->Input_KeyDown(HGEK_RBUTTON)) {
-                            fObjPropMouseX = mx;
-                            fObjPropMouseY = my;
-                        } else if (hge->Input_KeyUp(HGEK_RBUTTON) && mx == fObjPropMouseX && my == fObjPropMouseY) {
-                            bOpenObjContext = 1;
-                            fObjContextX = fCamX;
-                            fObjContextY = fCamY;
-                            if (vObjectsPicked.size() == 1) {
-                                if (vObjectsPicked[0] == hStartingPosObj) {
-                                    bool canTestFromPos = hNativeController->IsValid() &&
-                                                          hNativeController->IsCrazyHookAvailable() &&
-                                                          strlen(hParser->GetFilePath()) > 0;
-                                    conmodSpawnPoint->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
-                                    objContext->SetModel(conmodSpawnPoint);
-                                } else {
-                                    SHR::Context *con = (SHR::Context *) 1;
-                                    bool spec = AreObjectSpecificOptionsAvailable(vObjectsPicked[0], &con);
-                                    if (IsEditableObject(vObjectsPicked[0]))
-                                        objContext->SetModel(conmodEditableObject);
-                                    else
-                                        objContext->SetModel(conmodObject);
-                                    if (!strcmp(vObjectsPicked[0]->GetLogic(), "CustomLogic") &&
-                                        hCustomLogics->GetLogicByName(vObjectsPicked[0]->GetName()) != 0) {
-                                        objContext->AddElement(OBJMENU_EDITLOGIC, GETL2S("Various", "ContextEditLogic"),
-                                                               GV->sprIcons16[Icon16_Code],
-                                                               objContext->GetElementByID(OBJMENU_PROPERTIES));
-                                    }
-                                    if (spec) {
-                                        objContext->AddElement(OBJMENU_SPECIFICPROP, GETL2S("Various", "ContextAdv"),
-                                                               GV->sprIcons16[Icon16_PropertyTree],
-                                                               objContext->GetElementByID(OBJMENU_PROPERTIES));
-                                        objContext->GetElementByID(OBJMENU_SPECIFICPROP)->SetCascade(con);
-                                    }
-                                }
-                            } else
-                                objContext->SetModel(conmodObjectMultiple);
-
-                            for (int flag = 0; flag < 8; flag++) {
-                                SHR::Context *hmyContext = objFlagDrawContext;
-                                int flagtype = 0, flagpos = flag, menupos = OBJMENU_FLAGS_DRAW + flag + 1;
-                                if (flag > 3 && flag < 8) {
-                                    flagtype = 1;
-                                    flagpos -= 4;
-                                    menupos = OBJMENU_FLAGS_DYNAMIC + flagpos + 1;
-                                    hmyContext = objFlagDynamicContext;
-                                } /*else if (flag > 7) {
-                                    flagtype = 2;
-                                    flagpos -= 8;
-                                    menupos = OBJMENU_FLAGS_ADDITIONAL + flagpos + 1;
-                                    hmyContext = objFlagAddContext;
-                                }*/
-                                int binaryval = pow(2, flagpos);
-                                bool valset = 0;
-                                unsigned char fval = 0;
-
-                                for (size_t obji = 0; obji < vObjectsPicked.size(); obji++) {
-                                    if (vObjectsPicked[obji] == hStartingPosObj) continue;
-                                    int aqflag;
-                                    if (flagtype == 0) aqflag = int(vObjectsPicked[obji]->GetDrawFlags());
-                                    else if (flagtype == 1) aqflag = int(vObjectsPicked[obji]->GetDynamicFlags());
-                                    else if (flagtype == 2) aqflag = int(vObjectsPicked[obji]->GetAddFlags());
-                                    bool flagval = (aqflag & binaryval);
-                                    if (!valset) {
-                                        fval = flagval;
-                                        valset = 1;
-                                    } else {
-                                        if (flagval != fval)
-                                            fval = 2;
-                                    }
-                                }
-
-                                hgeSprite *ico = 0;
-                                if (fval == 1) ico = GV->sprIcons16[Icon16_Applied];
-                                else if (fval == 2) ico = GV->sprIcons16[Icon16_AppliedPartially];
-
-                                hmyContext->GetElementByID(menupos)->SetIcon(ico, 0);
-                            }
-
-                            objContext->adjustSize();
-                            objContext->setPosition(mx, my);
-                            if (mx + objContext->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
-                                objContext->setX(mx - objContext->getWidth());
-                            if (my + objContext->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
-                                objContext->setY(my - objContext->getHeight());
-                            objContext->setVisible(1);
-                        }
-                    } else {
-                        objContext->setVisible(0);
-                    }
-                } else {
-                    //vObjectsPicked.clear();
-                    objContext->setVisible(0);
-                }
-
-                if (!objContext->isVisible() && !bObjDragSelection) {
-                    if (bOpenObjContext && hge->Input_KeyUp(HGEK_RBUTTON) &&
-                        conMain->getWidgetAt(mx, my) == vPort->GetWidget()) {
-                        objContext->setVisible(1);
-                        bOpenObjContext = 0;
-                    } else if (hge->Input_KeyDown(HGEK_RBUTTON)) {
-                        bOpenObjContext = 1;
-                        fObjContextX = fCamX;
-                        fObjContextY = fCamY;
-                    }
-
-                    objContext->setPosition(mx, my);
-                    fObjContextX = fCamX;
-                    fObjContextY = fCamY;
-                    if (!vObjectClipboard.empty()) {
-                        char ncap[256];
-                        if (vObjectClipboard.size() == 1)
-                            sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), vObjectClipboard[0]->GetLogic());
-                        else
-                            sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), GETL(Lang_ManyObjects));
-                        conmodPaste->GetElementByID(OBJMENU_PASTE)->SetCaption(ncap);
-
-                        bool canTestFromPos = hNativeController->IsValid() &&
-                                           hNativeController->IsCrazyHookAvailable() &&
-                                           strlen(hParser->GetFilePath()) > 0;
-                        conmodPaste->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
-
-                        objContext->SetModel(conmodPaste);
-                    } else {
-                        bool canTestFromPos = hNativeController->IsValid() &&
-                                              hNativeController->IsCrazyHookAvailable() &&
-                                              strlen(hParser->GetFilePath()) > 0;
-                        conmodAtEmpty->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
-
-                        objContext->SetModel(conmodAtEmpty);
-                    }
-                    objContext->adjustSize();
-                }
-
-            }
-        }
-
-        if (objContext->isVisible()) {
-            if ((fObjContextX - fCamX) != 0 || (fObjContextY - fCamY) != 0) {
-                objContext->setX(objContext->getX() + (fObjContextX - fCamX));
-                objContext->setY(objContext->getY() + (fObjContextY - fCamY));
-                fObjContextX = fCamX;
-                fObjContextY = fCamY;
-            }
-        }
-
-        fObjPickLastMx = mx;
-        fObjPickLastMy = my;
     } else if (iActiveTool == EWW_TOOL_OBJSELAREA) {
         if (toolsaAction == TOOL_OBJSA_PICKALL) {
             if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON) &&
-                !bObjDragSelection) {
-                bObjDragSelection = true;
-                iObjDragOrigX = Scr2WrdX(GetActivePlane(), mx);
-                iObjDragOrigY = Scr2WrdY(GetActivePlane(), my);
-            } else if (bObjDragSelection && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
+                !bDragSelection) {
+                bDragSelection = true;
+                iDragSelectionOrigX = Scr2WrdX(GetActivePlane(), mx);
+                iDragSelectionOrigY = Scr2WrdY(GetActivePlane(), my);
+            } else if (bDragSelection && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
                 int wmx = Scr2WrdX(GetActivePlane(), mx), wmy = Scr2WrdY(GetActivePlane(), my);
-                toolsaMinX = iObjDragOrigX > wmx ? wmx : iObjDragOrigX;
-                toolsaMinY = iObjDragOrigY > wmy ? wmy : iObjDragOrigY;
-                toolsaMaxX = iObjDragOrigX < wmx ? wmx : iObjDragOrigX;
-                toolsaMaxY = iObjDragOrigY < wmy ? wmy : iObjDragOrigY;
-                bObjDragSelection = false;
+                toolsaMinX = iDragSelectionOrigX > wmx ? wmx : iDragSelectionOrigX;
+                toolsaMinY = iDragSelectionOrigY > wmy ? wmy : iDragSelectionOrigY;
+                toolsaMaxX = iDragSelectionOrigX < wmx ? wmx : iDragSelectionOrigX;
+                toolsaMaxY = iDragSelectionOrigY < wmy ? wmy : iDragSelectionOrigY;
+                bDragSelection = false;
                 char label[200];
                 sprintf(label, "~w~X1: ~y~%d~w~ Y1: ~y~%d~w~ X2: ~y~%d~w~ Y2: ~y~%d~l~",
                         toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
@@ -631,121 +306,20 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                 toolsaAction = TOOL_OBJSA_NONE;
             }
         }
-    } else if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
-        //If object was moved.
-        if ((fObjPickLastMx != Scr2WrdX(GetActivePlane(), mx) || fObjPickLastMy != Scr2WrdY(GetActivePlane(), my)) &&
-            !hge->Input_GetKeyState(HGEK_RBUTTON)) {
-            //Move vector.
-            int wmx = Scr2WrdX(GetActivePlane(), mx),
-                wmy = Scr2WrdY(GetActivePlane(), my);
-            int diffx = wmx - iMoveRelX, diffy = wmy - iMoveRelY;
-            //For every selected object
-            for (auto & object : vObjectsPicked) {
-                //Get base (initial) object coords
-                int basex = object->GetParam(WWD::Param_LocationX), basey = object->GetParam(
-                        WWD::Param_LocationY);
-                //Align on X and Y axis when SHIFT is hold down.
-                if (hge->Input_GetKeyState(HGEK_SHIFT)) {
-                    float ratio;
-                    if (diffy != 0)
-                        ratio = float(diffx) / float(diffy);
-                    else
-                        ratio = 2;
-                    if (ratio >= -0.50f && ratio <= 0.50)
-                        GetUserDataFromObj(object)->SetPos(basex, basey + diffy);
-                    else if (ratio > 1.5f || ratio < -1.5f)
-                        GetUserDataFromObj(object)->SetPos(basex + diffx, basey);
-                    else {
-                        int diff = std::min(abs(diffx), abs(diffy));
-                        if (diffy < 0) {
-                            if (ratio < -0.5f && ratio > -1.5f) //upright
-                                GetUserDataFromObj(object)->SetPos(basex + diff, basey - diff);
-                            else if (ratio > 0.5f && ratio < 1.5f) //upleft
-                                GetUserDataFromObj(object)->SetPos(basex - diff, basey - diff);
-                        } else {
-                            if (ratio < -0.5f && ratio > -1.5f) //downleft
-                                GetUserDataFromObj(object)->SetPos(basex - diff, basey + diff);
-                            else if (ratio > 0.5f && ratio < 1.5f) //downright
-                                GetUserDataFromObj(object)->SetPos(basex + diff, basey + diff);
-                        }
-                    }
-                    //Align to grid/tile center when CONTROL is hold down.
-                } else if (hge->Input_GetKeyState(HGEK_CTRL)) {
-                    int diffmodulox = (basex + diffx) % 64;
-                    int diffmoduloy = (basey + diffy) % 64;
-                    int modx = 0, mody = 0;
-
-                    if (diffmodulox > 16 && diffmodulox < 48) modx += 32;
-                    else if (diffmodulox >= 48) modx += 64;
-
-                    if (diffmoduloy > 16 && diffmoduloy < 48) mody += 32;
-                    else if (diffmoduloy >= 48) mody += 64;
-
-                    diffx -= diffmodulox - modx;
-                    diffy -= diffmoduloy - mody;
-                    //Apply
-                    GetUserDataFromObj(object)->SetPos(basex + diffx, basey + diffy);
-                    //No align.
-                } else {
-                    //Stick to guides
-                    if (MDI->GetActiveDoc()->vGuides.size() > 0 && vObjectsPicked.size() == 1) {
-                        bool xalign = 0, yalign = 0;
-                        for (size_t i = 0; i < GV->editState->MDI->GetActiveDoc()->vGuides.size(); i++) {
-                            stGuideLine gl = GV->editState->MDI->GetActiveDoc()->vGuides[i];
-                            if (gl.iPos < 0) continue;
-                            if (gl.bOrient == GUIDE_HORIZONTAL && !yalign && abs(wmy - gl.iPos) < 10 ||
-                                gl.bOrient == GUIDE_VERTICAL && !xalign && abs(wmx - gl.iPos) < 10) {
-                                if (gl.bOrient == GUIDE_HORIZONTAL) {
-                                    diffy = wmy - iMoveRelY + gl.iPos - wmy;
-                                    yalign = 1;
-                                } else {
-                                    diffx = wmx - iMoveRelX + gl.iPos - wmx;
-                                    xalign = 1;
-                                }
-                            }
-                        }
-                    }
-                    GetUserDataFromObj(object)->SetPos(basex + diffx, basey + diffy);
-                }
-            }
-            fObjPickLastMx = Scr2WrdX(GetActivePlane(), mx);
-            fObjPickLastMy = Scr2WrdY(GetActivePlane(), my);
-            vPort->MarkToRedraw(1);
-        }
-        if (hge->Input_KeyDown(HGEK_LBUTTON)) {
-            UpdateMovedObjectWithRects(vObjectsPicked);
-            SetTool(EWW_TOOL_NONE);
-            MarkUnsaved();
-        } else if (hge->Input_KeyDown(HGEK_ESCAPE)) {
-            if (bEditObjDelete) {
-                std::vector<WWD::Object *> tmp = vObjectsPicked;
-                for (auto & object : tmp) {
-                    GetActivePlane()->DeleteObject(object);
-                }
-            }
-            else {
-                for (auto &object : vObjectsPicked) {
-                    GetUserDataFromObj(object)->SyncToObj();
-                }
-            }
-            SetTool(EWW_TOOL_NONE);
-            vPort->MarkToRedraw(true);
-            bEditObjDelete = false;
-        }
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
         if (vObjectsBrushCB.empty()) {
             SetTool(EWW_TOOL_NONE);
         } else {
             if (bObjBrushDrawing) {
                 if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
-                    bObjBrushDrawing = 0;
+                    bObjBrushDrawing = false;
                 } else {
                     float distance = DISTANCE(iobjbrLastDrawnX,
                                               iobjbrLastDrawnY,
                                               Scr2WrdX(GetActivePlane(), mx),
                                               Scr2WrdY(GetActivePlane(), my));
-                    float percDist = distance / sliobrDistance->getValue();
-                    if (percDist > 1) percDist = 1;
+                    // float percDist = distance / sliobrDistance->getValue();
+                    // if (percDist > 1) percDist = 1;
                     // CURSOR COLORING DEPENDING ON DISTANCE
                     // dwCursorColor = SETR(SETB(0xFF00FF00, int((1 - percDist) * 255)), int((1 - percDist) * 255));
                     if (distance > sliobrDistance->getValue()) {
@@ -763,21 +337,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                 bObjBrushDrawing = true;
             }
         }
-
-        if (objContext->isVisible()) {
-            if ((fObjContextX - fCamX) != 0 || (fObjContextY - fCamY) != 0) {
-                objContext->setX(objContext->getX() + (fObjContextX - fCamX));
-                objContext->setY(objContext->getY() + (fObjContextY - fCamY));
-                fObjContextX = fCamX;
-                fObjContextY = fCamY;
-            }
-        }
-
-        fObjPickLastMx = mx;
-        fObjPickLastMy = my;
-        //bObjectMenuRollout
     }
-    return 0;
+    return false;
 }
 
 void State::EditingWW::OpenObjectWindow(WWD::Object *obj, bool bMove) {
@@ -905,7 +466,7 @@ const char* State::EditingWW::GetDefaultElevatorImageSet() {
 }
 
 void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
-    WWD::Object *obj = new WWD::Object();
+    auto *obj = new WWD::Object();
     if (hmbObject->GetContext()->isVisible() && hmbObject->GetContext()->GetSelectedID() != -1) {
         obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), objContext->getX()));
         obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), objContext->getY()));
@@ -915,7 +476,7 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
     }
     obj->SetParam(WWD::Param_LocationI, -1);
 
-    bool bDoContext = 1;
+    bool bDoContext = true;
     if (widg == hmbObject->butIconCurse) {
         obj->SetLogic("CursePowerup");
         obj->SetImageSet("GAME_CURSES_FREEZE");
@@ -945,11 +506,11 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
     } else if (widg == hmbObject->butIconMapPiece) {
         obj->SetLogic("EndOfLevelPowerup");
         obj->SetImageSet("GAME_MAPPIECE");
-        bDoContext = 0;
+        bDoContext = false;
     } else if (widg == hmbObject->butIconPowderKeg) {
         obj->SetLogic("PowderKeg");
         obj->SetImageSet("LEVEL_POWDERKEG");
-        bDoContext = 0;
+        bDoContext = false;
     } else if (widg == hmbObject->butIconCannon) {
         if (hParser->GetBaseLevel() == 9) {
             obj->SetLogic("SkullCannon");
@@ -1088,8 +649,8 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         hge->Input_SetMousePos(Wrd2ScrX(GetActivePlane(), iMoveRelX),
                                Wrd2ScrY(GetActivePlane(), iMoveRelY));
     }
-    bEditObjDelete = 1;
-    vPort->MarkToRedraw(1);
+    bEditObjDelete = true;
+    vPort->MarkToRedraw();
 }
 
 bool State::EditingWW::AreObjectSpecificOptionsAvailable(WWD::Object *obj, SHR::Context **conMod) {
@@ -1098,14 +659,14 @@ bool State::EditingWW::AreObjectSpecificOptionsAvailable(WWD::Object *obj, SHR::
         !strcmp(obj->GetLogic(), "BossWarp")) {
         if (conMod != 0)
             *conMod = advcon_Warp;
-        return 1;
+        return true;
     } else if (!strcmp(obj->GetLogic(), "FrontCrate") || !strcmp(obj->GetLogic(), "FrontStackedCrates") ||
                !strcmp(obj->GetLogic(), "BehindCrate") || !strcmp(obj->GetLogic(), "BackStackedCrates")) {
         if (conMod != 0)
             *conMod = advcon_Container;
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 std::vector<cInventoryItem> State::EditingWW::GetContainerItems(WWD::Object *obj) {
@@ -1116,9 +677,9 @@ void State::EditingWW::UpdateSearchResults() {
     vObjSearchResults.clear();
     if (szObjSearchBuffer == NULL || strlen(szObjSearchBuffer) == 0) {
         winSearchObj->setHeight(135);
-        labObjSearchResults->setVisible(0);
-        butObjSearchSelectAll->setVisible(0);
-        sliSearchObj->setVisible(0);
+        labObjSearchResults->setVisible(false);
+        butObjSearchSelectAll->setVisible(false);
+        sliSearchObj->setVisible(false);
         return;
     }
     char *comp2 = szObjSearchBuffer;
@@ -1134,41 +695,46 @@ void State::EditingWW::UpdateSearchResults() {
             comp = (const char *) SHR::ToLower(comp);
 
         if (strstr(comp, comp2) != NULL) {
-            vObjSearchResults.push_back(
-                    std::pair<int, int>(i, GetActivePlane()->GetObjectByIterator(i)->GetParam(WWD::Param_ID)));
+            vObjSearchResults.emplace_back(i, GetActivePlane()->GetObjectByIterator(i)->GetParam(WWD::Param_ID));
 
             if (!cbObjSearchCaseSensitive->isSelected())
                 delete[](char *) comp;
         }
     }
     if (!cbObjSearchCaseSensitive->isSelected()) delete[] comp2;
-    int normalheight = int(135 + vObjSearchResults.size() * 140);
-    sliSearchObj->setVisible(normalheight > 515);
+    int normalHeight = int(135 + vObjSearchResults.size() * 140);
+    sliSearchObj->setVisible(normalHeight > 515);
     sliSearchObj->setScaleEnd(vObjSearchResults.size() * 140 - 387);
     sliSearchObj->setValue(vObjSearchResults.size() * 140 - 387);
-    int winheight = winSearchObj->getHeight();
-    winheight = std::min(normalheight, 515);
-    winSearchObj->setHeight(winheight);
-    if (vObjSearchResults.size() == 0) {
+    int winHeight = std::min(normalHeight, 515);
+    winSearchObj->setHeight(winHeight);
+    if (vObjSearchResults.empty()) {
         labObjSearchResults->setCaption(GETL2S("ObjectSearch", "NoResults"));
     } else {
         char tmp[128];
         sprintf(tmp, "%s: ~y~%d~l~", GETL2S("ObjectSearch", "FoundResults"), vObjSearchResults.size());
         labObjSearchResults->setCaption(tmp);
     }
-    butObjSearchSelectAll->setVisible(vObjSearchResults.size() > 0);
+    butObjSearchSelectAll->setVisible(!vObjSearchResults.empty());
     labObjSearchResults->adjustSize();
-    labObjSearchResults->setVisible(1);
+    labObjSearchResults->setVisible(true);
 }
 
-void State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt) {
+bool State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& vector, bool prompt) {
     bool reCalculate = false;
     if (prompt) {
-        for (auto &object : vector) {
+        for (auto object : vector) {
             if (object->ShouldPromptForRectChange(hParser)) {
-                if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "MsgRecalcMinMaxXY"),
-                               GETL(Lang_Message), MB_YESNO | MB_ICONINFORMATION) == IDYES) {
-                    reCalculate = true;
+                switch (State::MessageBox(PRODUCT_NAME, GETL2S("Various", "MsgRecalcMinMaxXY"),
+                                      ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNOCANCEL)) {
+                    case RETURN_YES:
+                        reCalculate = true;
+                    break;
+                    case RETURN_CANCEL:
+                        for (auto obj : vector) {
+                            GetUserDataFromObj(obj)->SyncToObj();
+                        }
+                        return false;
                 }
                 break;
             }
@@ -1176,10 +742,10 @@ void State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& ve
     } else {
         reCalculate = true;
     }
-    for (auto & obj : vector) {
+    for (auto obj : vector) {
         if (reCalculate || (strstr(obj->GetLogic(), "Elevator") && strcmp(obj->GetLogic(), "SlidingElevator") != 0)) {
-            int diffX = GetUserDataFromObj(obj)->GetX() - obj->GetParam(WWD::Param_LocationX),
-                diffY = GetUserDataFromObj(obj)->GetY() - obj->GetParam(WWD::Param_LocationY);
+            int diffX = obj->GetX() - obj->GetParam(WWD::Param_LocationX),
+                diffY = obj->GetY() - obj->GetParam(WWD::Param_LocationY);
 
             if (!strcmp(obj->GetLogic(), "Shake")) {
                 WWD::Rect attackRect = obj->GetAttackRect();
@@ -1203,14 +769,15 @@ void State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& ve
                                   obj->GetParam(WWD::Param_MaxY) + diffY);
             }
         }
-        obj->SetParam(WWD::Param_LocationX, GetUserDataFromObj(obj)->GetX());
-        obj->SetParam(WWD::Param_LocationY, GetUserDataFromObj(obj)->GetY());
+        obj->SetParam(WWD::Param_LocationX, obj->GetX());
+        obj->SetParam(WWD::Param_LocationY, obj->GetY());
         hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
         if (obj == hStartingPosObj) {
-            hParser->SetStartX(GetUserDataFromObj(obj)->GetX());
-            hParser->SetStartY(GetUserDataFromObj(obj)->GetY());
+            hParser->SetStartX(obj->GetX());
+            hParser->SetStartY(obj->GetY());
         }
     }
+    return true;
 }
 
 void State::EditingWW::ObjectBrush(int x, int y) {
@@ -1246,7 +813,7 @@ void State::EditingWW::ObjectBrush(int x, int y) {
     }
 
     MarkUnsaved();
-    vPort->MarkToRedraw(true);
+    vPort->MarkToRedraw();
 }
 
 void State::EditingWW::OnResize() {
@@ -1255,4 +822,28 @@ void State::EditingWW::OnResize() {
         GV->iScreenH = hge->System_GetState(HGE_SCREENHEIGHT);
     }
     FixInterfacePositions();
+}
+
+void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically) {
+    if (objects.size() < 2 || (!horizontally && !vertically)) return;
+    int minX = objects[0]->GetX(), minY = objects[0]->GetY(), maxX = minX, maxY = minY;
+
+    for (int i = 1; i < objects.size(); ++i) {
+        if (objects[i]->GetX() > maxX) maxX = objects[i]->GetX();
+        else if (objects[i]->GetX() < minX) minX = objects[i]->GetX();
+
+        if (objects[i]->GetY() > maxY) maxY = objects[i]->GetY();
+        else if (objects[i]->GetY() < minY) minY = objects[i]->GetY();
+    }
+
+    int x = minX + maxX, y = minY + maxY;
+
+    for (WWD::Object *object : objects) {
+        if (horizontally) object->SetParam(WWD::Param_LocationX, x - object->GetX());
+        if (vertically) object->SetParam(WWD::Param_LocationY, y - object->GetY());
+        GetUserDataFromObj(object)->SyncToObj();
+    }
+
+    vPort->MarkToRedraw();
+    MarkUnsaved();
 }

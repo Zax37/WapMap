@@ -52,25 +52,21 @@
 #include "guichan/rectangle.hpp"
 #include "guichan/hge/hgeimage.hpp"
 
+extern HGE* hge;
+extern hgeQuad q;
+
 namespace gcn {
-    HGE *HGEGraphics::mHGE = NULL;
 
     HGEGraphics::HGEGraphics()
             : mClipNull(false) {
-        mHGE = hgeCreate(HGE_VERSION);
-
         mHardwareColor = 0;
-    }
-
-    HGEGraphics::~HGEGraphics() {
-        mHGE->Release();
     }
 
     void HGEGraphics::_beginDraw() {
         pushClipArea(Rectangle(0,
                                0,
-                               mHGE->System_GetState(HGE_SCREENWIDTH),
-                               mHGE->System_GetState(HGE_SCREENHEIGHT)));
+                               hge->System_GetState(HGE_SCREENWIDTH),
+                               hge->System_GetState(HGE_SCREENHEIGHT)));
     }
 
     void HGEGraphics::_endDraw() {
@@ -90,9 +86,9 @@ namespace gcn {
             mClipNull = true;
         } else {
             mClipNull = false;
-            mHGE->Gfx_SetTransform(top.xOffset,
+            hge->Gfx_SetTransform(top.xOffset,
                                    top.yOffset);
-            mHGE->Gfx_SetClipping(top.x,
+            hge->Gfx_SetClipping(top.x,
                                   top.y,
                                   top.width,
                                   top.height);
@@ -104,7 +100,7 @@ namespace gcn {
         Graphics::popClipArea();
 
         if (mClipStack.empty()) {
-            mHGE->Gfx_SetClipping();
+            hge->Gfx_SetClipping();
 
             return;
         } else {
@@ -117,9 +113,9 @@ namespace gcn {
                 mClipNull = true;
             } else {
                 mClipNull = false;
-                mHGE->Gfx_SetTransform(top.xOffset,
+                hge->Gfx_SetTransform(top.xOffset,
                                        top.yOffset);
-                mHGE->Gfx_SetClipping(top.x,
+                hge->Gfx_SetClipping(top.x,
                                       top.y,
                                       top.width,
                                       top.height);
@@ -171,7 +167,7 @@ namespace gcn {
         x += top.xOffset;
         y += top.yOffset;
 
-        mHGE->Gfx_RenderLine(x, y, x + 1, y, mHardwareColor);
+        hge->Gfx_RenderLine(x, y, x + 1, y, mHardwareColor);
     }
 
     void HGEGraphics::drawLine(int x1, int y1, int x2, int y2) {
@@ -217,7 +213,7 @@ namespace gcn {
         x2 += top.xOffset;
         y2 += top.yOffset;
 
-        mHGE->Gfx_RenderLine(x1, y1, x2, y2, mHardwareColor);
+        hge->Gfx_RenderLine(x1, y1, x2, y2, mHardwareColor);
     }
 
     void HGEGraphics::drawRectangle(const Rectangle &rectangle) {
@@ -237,10 +233,10 @@ namespace gcn {
         x2 += top.xOffset;
         y2 += top.yOffset;
 
-        mHGE->Gfx_RenderLine(x1, y1 + 1, x2, y1, mHardwareColor);
-        mHGE->Gfx_RenderLine(x2, y1 + 1, x2, y2 - 1, mHardwareColor);
-        mHGE->Gfx_RenderLine(x2, y2, x1 + 1, y2, mHardwareColor);
-        mHGE->Gfx_RenderLine(x1 + 1, y2, x1 + 1, y1 + 1, mHardwareColor);
+        hge->Gfx_RenderLine(x1, y1 + 1, x2, y1, mHardwareColor);
+        hge->Gfx_RenderLine(x2, y1 + 1, x2, y2 - 1, mHardwareColor);
+        hge->Gfx_RenderLine(x2, y2, x1 + 1, y2, mHardwareColor);
+        hge->Gfx_RenderLine(x1 + 1, y2, x1 + 1, y1 + 1, mHardwareColor);
     }
 
     void HGEGraphics::fillRectangle(const Rectangle &rectangle) {
@@ -263,34 +259,28 @@ namespace gcn {
         x2 += top.xOffset;
         y2 += top.yOffset;
 
-        hgeQuad quad;
+        q.v[0].x = x1;
+        q.v[0].y = y1;
+        q.v[0].col = mHardwareColor;
 
-        quad.tex = NULL;
+        q.v[1].x = x2;
+        q.v[1].y = y1;
+        q.v[1].col = mHardwareColor;
 
-        quad.v[0].x = x1;
-        quad.v[0].y = y1;
-        quad.v[0].col = mHardwareColor;
+        q.v[2].x = x2;
+        q.v[2].y = y2;
+        q.v[2].col = mHardwareColor;
 
-        quad.v[1].x = x2;
-        quad.v[1].y = y1;
-        quad.v[1].col = mHardwareColor;
-
-        quad.v[2].x = x2;
-        quad.v[2].y = y2;
-        quad.v[2].col = mHardwareColor;
-
-        quad.v[3].x = x1;
-        quad.v[3].y = y2;
-        quad.v[3].col = mHardwareColor;
+        q.v[3].x = x1;
+        q.v[3].y = y2;
+        q.v[3].col = mHardwareColor;
 
         int i;
         for (i = 0; i < 4; ++i) {
-            quad.v[i].z = 0.5f;
+            q.v[i].z = 0.5f;
         }
 
-        quad.blend = BLEND_DEFAULT;
-
-        mHGE->Gfx_RenderQuad(&quad);
+        hge->Gfx_RenderQuad(&q);
     }
 
     void HGEGraphics::setColor(const Color &color) {

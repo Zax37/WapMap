@@ -106,13 +106,13 @@ namespace State {
         return false;
     }
 
-    void ImageDetails::GainFocus(int iReturnCode, bool bFlipped) {
+    void ImageDetails::GainFocus(ReturnCode<void> code, bool bFlipped) {
 
     }
 
     void ImageDetails::action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == myWin || actionEvent.getSource() == butReturn) {
-            _popMe(0);
+            _popMe({});
             return;
         } else if (actionEvent.getSource() == sliZoom) {
             float fVal = sliZoom->getValue();

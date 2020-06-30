@@ -221,7 +221,7 @@ namespace gcn {
         mMoved = false;
     }
 
-    void Window::mouseDragged(MouseEvent &mouseEvent) {
+    void Window::mouseDragged(DragEvent &mouseEvent) {
         if (mouseEvent.isConsumed() || mouseEvent.getSource() != this) {
             return;
         }

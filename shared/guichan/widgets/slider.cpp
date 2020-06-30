@@ -176,7 +176,7 @@ namespace gcn {
         }
     }
 
-    void Slider::mouseDragged(MouseEvent &mouseEvent) {
+    void Slider::mouseDragged(DragEvent &mouseEvent) {
         if (getOrientation() == HORIZONTAL) {
             setValue(markerPositionToValue(mouseEvent.getX() - getMarkerLength() / 2));
         } else {

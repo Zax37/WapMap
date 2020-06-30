@@ -412,7 +412,7 @@ namespace ObjEdit {
         for (int i = 0; i < rbType.size(); ++i)
             if (actionEvent.getSource() == rbType[i]) {
                 UpdateEnemyObject(hTempObj, vstrpTypes[i]);
-                GV->editState->vPort->MarkToRedraw(true);
+                GV->editState->vPort->MarkToRedraw();
                 RebuildWindow();
                 return;
             }

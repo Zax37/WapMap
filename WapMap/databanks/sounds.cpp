@@ -126,7 +126,7 @@ void cBankSound::BatchProcessEnd(cDataController *hDC) {
     _ghProgressInfo.iDetailedEnd = 100000;
     _ghProgressInfo.strDetailedCaption = "Sorting...";
     SortAssets();
-    if (hDC->GetLooper() != 0)
+    if (hDC->GetLooper())
         hDC->GetLooper()->Tick();
     for (size_t i = 0; i < m_vAssets.size(); i++) {
         char buf[256];
@@ -137,7 +137,7 @@ void cBankSound::BatchProcessEnd(cDataController *hDC) {
             hDC->GetLooper()->Tick();
         m_vAssets[i]->Load();
     }
-    bBatchProcessing = 0;
+    bBatchProcessing = false;
 }
 
 void cBankSound::ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles) {

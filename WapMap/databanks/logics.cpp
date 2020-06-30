@@ -1,6 +1,7 @@
 #include "logics.h"
 
 #include <algorithm>
+#include <filesystem>
 #include "../../shared/cProgressInfo.h"
 #include "../../shared/commonFunc.h"
 #include "../globals.h"
@@ -52,14 +53,16 @@ void cCustomLogic::Save() {
 }
 
 void cCustomLogic::DeleteFile() {
-    std::string strAbsPath = GetFile().hFeed->GetAbsoluteLocation();
-    strAbsPath.push_back('/');
-    strAbsPath += GetFile().strPath;
-    remove(strAbsPath.c_str());
+    remove(GetPath().c_str());
+}
+
+std::string cCustomLogic::GetPath() {
+    return GetFile().hFeed->GetAbsoluteLocation() + '\\' + GetFile().strPath;
 }
 
 cBankLogic::cBankLogic(WWD::Parser *hParser) : cAssetBank(hParser) {
     hGlobalScript = 0;
+    selectWhenAdding = false;
 }
 
 cBankLogic::~cBankLogic() {
@@ -76,9 +79,9 @@ void cBankLogic::RegisterLogic(cCustomLogic *h) {
 }
 
 cCustomLogic *cBankLogic::GetLogicByName(const char *pszID) {
-    for (size_t i = 0; i < m_vAssets.size(); i++)
-        if (!strcmp(m_vAssets[i]->GetName(), pszID))
-            return m_vAssets[i];
+    for (auto & m_vAsset : m_vAssets)
+        if (!strcmp(m_vAsset->GetName(), pszID))
+            return m_vAsset;
     return 0;
 }
 
@@ -100,70 +103,58 @@ void cBankLogic::BatchProcessStart(cDataController *hDC) {
     _ghProgressInfo.strGlobalCaption = "Loading custom logics...";
 }
 
-bool cBankLogic::RenameLogic(cCustomLogic *hLogic, std::string strName) {
-    if (strName == "main") return 0;
+bool cBankLogic::RenameLogic(cCustomLogic *hLogic, const std::string& strName) {
+    if (strName == "main") return false;
     cFile origFile = hLogic->GetFile();
 
-    std::string dirpath = "";
+    std::string dirPath;
     if (origFile.strPath.find_last_of("/\\") != std::string::npos)
-        dirpath = origFile.strPath.substr(0, origFile.strPath.find_last_of("/\\"));
-    std::string nFilePath = dirpath;
+        dirPath = origFile.strPath.substr(0, origFile.strPath.find_last_of("/\\"));
+    std::string nFilePath = dirPath;
     nFilePath += '/';
     nFilePath += strName;
     nFilePath += ".lua";
 
-    std::string absOrigPath = origFile.hFeed->GetAbsoluteLocation();
-    absOrigPath += '/';
-    absOrigPath += origFile.strPath;
+    std::filesystem::path absOrigPath(hLogic->GetPath(), std::filesystem::path::format::native_format);
+    std::filesystem::path absNewPath(origFile.hFeed->GetAbsoluteLocation() + '/' + nFilePath,
+            std::filesystem::path::format::native_format);
 
-    std::string absNewPath = origFile.hFeed->GetAbsoluteLocation();
-    absNewPath += '/';
-    absNewPath += nFilePath;
+    if (std::filesystem::exists(absNewPath)) {
+        std::string s1 = absOrigPath.make_preferred().string(), s2 = absNewPath.make_preferred().string();
+        if (std::equal(s1.begin(), s1.end(), s2.begin(), s2.end(),[](char a, char b) {
+            return tolower(a) == tolower(b);
+        })) {
+            origFile.strPath = nFilePath;
+            hLogic->SetFile(origFile);
+            hLogic->SetName(strName);
+            SortLogics();
 
-    FILE *f = fopen(absNewPath.c_str(), "rb");
-    if (f != 0) {
-        fclose(f);
+            for (int i = 0; i < m_vAssets.size(); ++i) {
+                if (m_vAssets[i] == hLogic) {
+                    GV->editState->lbbrlLogicList->setSelected(i);
+                    GV->editState->SyncLogicBrowser();
+                    break;
+                }
+            }
+
+            return rename(absOrigPath.string().c_str(), absNewPath.string().c_str()) == 0;
+        } else {
+            return false;
+        }
+    }
+
+    selectWhenAdding = true;
+
+    if (rename(absOrigPath.string().c_str(), absNewPath.string().c_str()) != 0) {
+        selectWhenAdding = false;
         return false;
     }
-    if (rename(absOrigPath.c_str(), absNewPath.c_str()) != 0)
-        return false;
-    origFile.strPath = nFilePath;
-    hLogic->SetFile(origFile);
-    hLogic->SetName(strName);
-    SortLogics();
+
     return true;
 }
 
-void cBankLogic::ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles) {
-    std::vector<cCustomLogic *> vN;
-    for (size_t i = 0; i < vFiles.size(); i++) {
-        size_t lastdot = vFiles[i].strPath.rfind('.');
-        if (lastdot == std::string::npos || lastdot == vFiles[i].strPath.length() - 1) continue;
-        std::string ext = vFiles[i].strPath.substr(lastdot + 1);
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        if (ext.compare("lua") != 0) continue;
-        std::string logicname = vFiles[i].strPath.substr(0, lastdot);
-        size_t slash = logicname.find_last_of("/\\");
-        if (slash != std::string::npos) {
-            logicname = logicname.substr(slash + 1);
-        }
-        cCustomLogic *n = new cCustomLogic(vFiles[i], logicname);
-        vN.push_back(n);
-        if (logicname == "main")
-            hGlobalScript = n;
-        else
-            m_vAssets.push_back(n);
-        hClientAP->RegisterAsset(n);
-    }
-    SortLogics();
-    while (!vN.empty()) {
-        vN.front()->Load();
-        vN.erase(vN.begin());
-    }
-}
-
 std::string cBankLogic::GetMountPointForFile(std::string strFilePath, std::string strPrefix) {
-    return std::string("/LOGICS/") + strFilePath;
+    return std::string("/LOGICS/") + strPrefix + strFilePath;
 }
 
 cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEntry mountEntry) {
@@ -174,6 +165,17 @@ cAsset *cBankLogic::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEn
     auto customLogic = new cCustomLogic(mountEntry.vFiles[0], filename);
     m_vAssets.push_back(customLogic);
     SortLogics();
+
+    if (selectWhenAdding) {
+        for (int i = 0; i < m_vAssets.size(); ++i) {
+            if (m_vAssets[i] == customLogic) {
+                GV->editState->lbbrlLogicList->setSelected(i);
+                selectWhenAdding = false;
+                GV->editState->SyncLogicBrowser();
+                break;
+            }
+        }
+    }
 
     if (filename == "main") {
         hGlobalScript = customLogic;
@@ -190,6 +192,12 @@ void cBankLogic::DeleteAsset(cAsset *hLogic) {
 
     for (size_t i = 0; i < m_vAssets.size(); i++) {
         if (m_vAssets[i] == hLogic) {
+            if (GV->editState->lbbrlLogicList->getSelected() == i) {
+                GV->editState->lbbrlLogicList->setSelected(-1);
+                GV->editState->SyncLogicBrowser();
+            } else if (GV->editState->lbbrlLogicList->getSelected() > i) {
+                GV->editState->lbbrlLogicList->setSelected(GV->editState->lbbrlLogicList->getSelected() - 1);
+            }
             m_vAssets.erase(m_vAssets.begin() + i);
             break;
         }

@@ -86,10 +86,6 @@ namespace SHR {
         bool hasMouse = mx > dx && my > dy && mx < dx + getWidth() && my < dy + getHeight();
         UpdateTooltip(hasMouse);
 
-        if (hasMouse && isEnabled()) {
-            GV->SetCursor(TEXT);
-        }
-
         renderFrame(dx, dy, getWidth(), getHeight(), getAlpha(), 0);
         if (fFocusTimer > 0)
             renderFrame(dx, dy, getWidth(), getHeight(), (fFocusTimer * 5.0f * 255.0f) * getAlphaModifier(), 1);
@@ -101,9 +97,6 @@ namespace SHR {
         fnt->Render(dx + 5 - mXScroll, ceil(dy + getHeight() / 2) - 1, HGETEXT_LEFT | HGETEXT_MIDDLE, mText.c_str(), true);
 
         if (mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
-            hgeQuad q;
-            q.tex = 0;
-            q.blend = BLEND_DEFAULT;
             int starti, endi;
             if (mCaretPosition < mSelectionPosition) {
                 starti = mCaretPosition;
@@ -125,20 +118,34 @@ namespace SHR {
         graphics->popClipArea();
     }
 
+    void TextField::mouseMoved(MouseEvent &mouseEvent) {
+        if (isEnabled()) {
+            GV->SetCursor(TEXT);
+        }
+    }
+
     void TextField::mousePressed(MouseEvent &mouseEvent) {
         if (mouseEvent.getButton() == MouseEvent::LEFT) {
             mCaretPosition = getFont()->getStringIndexAt(mText, mouseEvent.getX() + mXScroll);
             mSelectionPosition = -1;
             fixScroll();
         }
+
+        if (isEnabled()) {
+            GV->SetCursor(TEXT);
+        }
     }
 
-    void TextField::mouseDragged(MouseEvent &mouseEvent) {
+    void TextField::mouseDragged(DragEvent &mouseEvent) {
         if (mText.length() != 0) {
             mSelectionPosition = getFont()->getStringIndexAt(mText, mouseEvent.getX() + mXScroll);
             fixScroll();
         }
         mouseEvent.consume();
+
+        if (isEnabled()) {
+            GV->SetCursor(TEXT);
+        }
     }
 
     void TextField::deleteSelection() {
@@ -349,11 +356,5 @@ namespace SHR {
 
     void TextField::setMaxLength(int n) {
         iMaxLength = n;
-    }
-
-    void TextField::mouseMoved(MouseEvent &mouseEvent) {
-        if (isEnabled()) {
-            GV->SetCursor(TEXT);
-        }
     }
 }

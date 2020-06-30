@@ -46,24 +46,20 @@
  */
 
 #include "guichan/hge/hgeimage.hpp"
-
 #include "guichan/exception.hpp"
 
-namespace gcn {
-    HGE *HGEImage::mHGE = NULL;
+extern HGE* hge;
 
+namespace gcn {
     HGEImage::HGEImage(HTEXTURE texture, bool autoFree)
             : mTexture(texture),
               mAutoFree(autoFree) {
-        mHGE = hgeCreate(HGE_VERSION);
     }
 
     HGEImage::~HGEImage() {
         if (mAutoFree) {
             free();
         }
-
-        mHGE->Release();
     }
 
     void HGEImage::free() {
@@ -72,7 +68,7 @@ namespace gcn {
             mHGESprite = NULL;
         }
 
-        mHGE->Texture_Free(mTexture);
+        hge->Texture_Free(mTexture);
     }
 
     hgeSprite *HGEImage::getSprite() const {
@@ -80,23 +76,23 @@ namespace gcn {
     }
 
     int HGEImage::getWidth() const {
-        return mHGE->Texture_GetWidth(mTexture, true);
+        return hge->Texture_GetWidth(mTexture, true);
     }
 
     int HGEImage::getHeight() const {
-        return mHGE->Texture_GetHeight(mTexture, true);
+        return hge->Texture_GetHeight(mTexture, true);
     }
 
     Color HGEImage::getPixel(int x, int y) {
-        DWORD *pLockPtr = mHGE->Texture_Lock(mTexture);
+        DWORD *pLockPtr = hge->Texture_Lock(mTexture);
 
         if (pLockPtr == NULL) {
             throw GCN_EXCEPTION("Locking of the texture failed. HGE only support locking of 32bit textures.");
         }
 
-        DWORD color = pLockPtr[x + y * mHGE->Texture_GetWidth(mTexture, true)];
+        DWORD color = pLockPtr[x + y * hge->Texture_GetWidth(mTexture, true)];
 
-        mHGE->Texture_Unlock(mTexture);
+        hge->Texture_Unlock(mTexture);
 
         return Color(GETR(color),
                      GETG(color),
@@ -107,27 +103,27 @@ namespace gcn {
     void HGEImage::putPixel(int x, int y, const Color &color) {
         DWORD hardwareColor = ARGB(color.a, color.r, color.g, color.b);
 
-        DWORD *pLockPtr = mHGE->Texture_Lock(mTexture, false);
+        DWORD *pLockPtr = hge->Texture_Lock(mTexture, false);
 
         if (pLockPtr == NULL) {
             throw GCN_EXCEPTION("Locking of the texture failed. HGE only support locking of 32bit textures.");
         }
 
-        pLockPtr[x + y * mHGE->Texture_GetWidth(mTexture, true)] = hardwareColor;
+        pLockPtr[x + y * hge->Texture_GetWidth(mTexture, true)] = hardwareColor;
 
-        mHGE->Texture_Unlock(mTexture);
+        hge->Texture_Unlock(mTexture);
     }
 
     void HGEImage::convertToDisplayFormat() {
-        DWORD *pLockPtr = mHGE->Texture_Lock(mTexture);
+        DWORD *pLockPtr = hge->Texture_Lock(mTexture);
 
         if (pLockPtr == NULL) {
             throw GCN_EXCEPTION("Locking of the texture failed. HGE only support locking of 32bit textures.");
         }
 
         int i;
-        int end = mHGE->Texture_GetWidth(mTexture, true) *
-                  mHGE->Texture_GetHeight(mTexture, true);
+        int end = hge->Texture_GetWidth(mTexture, true) *
+                  hge->Texture_GetHeight(mTexture, true);
 
         for (i = 0; i < end; i++) {
             DWORD color = pLockPtr[i];
@@ -138,12 +134,12 @@ namespace gcn {
             }
         }
 
-        mHGE->Texture_Unlock(mTexture);
+        hge->Texture_Unlock(mTexture);
 
         mHGESprite = new hgeSprite(mTexture,
                                    0,
                                    0,
-                                   mHGE->Texture_GetWidth(mTexture, true),
-                                   mHGE->Texture_GetHeight(mTexture, true));
+                                   hge->Texture_GetWidth(mTexture, true),
+                                   hge->Texture_GetHeight(mTexture, true));
     }
 }

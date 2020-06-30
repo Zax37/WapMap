@@ -69,9 +69,9 @@ namespace SHR {
         hGfx = Parts;
         sprIcon = psprIcon;
         colIcon = 0xFFFFFFFF;
-        bRenderBG = 1;
+        bRenderBG = true;
         fTimer = 0;
-        bBlinkState = 0;
+        bBlinkState = false;
         adjustSize();
     }
 
@@ -181,7 +181,7 @@ namespace SHR {
             }
 
             if (sprIcon != 0) {
-                int iconY = getHeight() / 2 - sprIcon->GetHeight() / 2;
+                int iconY = floor((getHeight() - sprIcon->GetHeight()) / 2) - 1;
                 sprIcon->SetColor((!isEnabled() && !bRenderBG) ? 0x55FFFFFF : SETA(colIcon, getAlpha()));
                 sprIcon->Render(x + iconX, y + iconY);
                 if (fTimer > 0.0f && isEnabled()) {
@@ -199,7 +199,7 @@ namespace SHR {
             graphics->drawText(getCaption(), textX, textY, getAlignment());
         } else if (sprIcon != 0) {
             int iconX = (getWidth() - sprIcon->GetWidth()) / 2;
-            int iconY = (getHeight() - sprIcon->GetHeight()) / 2;
+            int iconY = floor((getHeight() - sprIcon->GetHeight()) / 2) - 1;
             sprIcon->SetColor((!isEnabled() && !bRenderBG) ? 0x55FFFFFF : SETA(colIcon, getAlpha()));
             sprIcon->Render(x + iconX, y + iconY);
             if (fTimer > 0.0f && isEnabled()) {
@@ -266,7 +266,7 @@ namespace SHR {
         }
     }
 
-    void But::mouseDragged(MouseEvent &mouseEvent) {
+    void But::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

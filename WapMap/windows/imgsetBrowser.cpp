@@ -3,7 +3,6 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../../shared/commonFunc.h"
-#include "../cInterfaceSheet.h"
 #include "../states/imageImport.h"
 #include "../states/imageDetails.h"
 #include "../databanks/imageSets.h"
@@ -19,21 +18,20 @@ winImageSetBrowser::winImageSetBrowser() {
     iHighlightedIS = iHighlightedF = -1;
     myWin = new SHR::Win(&GV->gcnParts, GETL2S("Win_ImageSetBrowser", "WinCaption"));
     myWin->setDimension(gcn::Rectangle(0, 0, 950, 600));
-    myWin->setVisible(0);
-    myWin->setClose(1);
+    myWin->setVisible(false);
+    myWin->setClose(true);
     myWin->addActionListener(this);
 
     labImageSets = new SHR::Lab(GETL2S("Win_ImageSetBrowser", "ImageSets"));
     labImageSets->adjustSize();
-    myWin->add(labImageSets, 5, 10);
+    myWin->add(labImageSets, 8, 15);
 
     conImageSets = new SHR::Container();
     conImageSets->setDimension(gcn::Rectangle(0, 0, 100, 100));
-    conImageSets->setOpaque(0);
+    conImageSets->setOpaque(false);
     saImageSets = new SHR::ScrollArea(conImageSets, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
-    saImageSets->setDimension(gcn::Rectangle(0, 0, CONST_IMGSETBROWSER_ISLISTW, 530));
-    saImageSets->setOpaque(0);
-    myWin->add(saImageSets, 5, 29);
+    saImageSets->setDimension(gcn::Rectangle(0, 0, CONST_IMGSETBROWSER_ISLISTW, 520));
+    myWin->add(saImageSets, 5, 35);
     conImageSets->setWidth(saImageSets->getChildrenArea().width);
 
     conFrames = new SHR::Container();
@@ -69,13 +67,13 @@ winImageSetBrowser::winImageSetBrowser() {
     if (labFrameCount->getWidth() > caplen) caplen = labFrameCount->getWidth();
 
     labImageSetNameV = new SHR::Lab("");
-    labImageSetNameV->setColor(0xFFFFFF);
+    labImageSetNameV->setColor(0xFFFFFFFF);
     myWin->add(labImageSetNameV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 15);
     labImageSetChecksumV = new SHR::Lab("");
-    labImageSetChecksumV->setColor(0xFFFFFF);
+    labImageSetChecksumV->setColor(0xFFFFFFFF);
     myWin->add(labImageSetChecksumV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 35);
     labFrameCountV = new SHR::Lab("");
-    labFrameCountV->setColor(0xFFFFFF);
+    labFrameCountV->setColor(0xFFFFFFFF);
     myWin->add(labFrameCountV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 55);
 
     butAddFrames = new SHR::But(GV->hGfxInterface, GETL2S("Win_ImageSetBrowser", "AddFrames"));
@@ -134,27 +132,27 @@ winImageSetBrowser::winImageSetBrowser() {
     if (labFrameOrigin->getWidth() > caplen) caplen = labFrameOrigin->getWidth();
 
     labFrameIDV = new SHR::Lab("");
-    labFrameIDV->setColor(0xFFFFFF);
+    labFrameIDV->setColor(0xFFFFFFFF);
     myWin->add(labFrameIDV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 90);
 
     labImageDimV = new SHR::Lab("");
-    labImageDimV->setColor(0xFFFFFF);
+    labImageDimV->setColor(0xFFFFFFFF);
     myWin->add(labImageDimV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 110);
     labImageFileNameV = new SHR::Lab("");
-    labImageFileNameV->setColor(0xFFFFFF);
+    labImageFileNameV->setColor(0xFFFFFFFF);
     myWin->add(labImageFileNameV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 130);
     labImagePathV = new SHR::Lab("");
-    labImagePathV->setColor(0xFFFFFF);
+    labImagePathV->setColor(0xFFFFFFFF);
     myWin->add(labImagePathV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 150);
 
     labFrameChecksumV = new SHR::Lab("");
-    labFrameChecksumV->setColor(0xFFFFFF);
+    labFrameChecksumV->setColor(0xFFFFFFFF);
     myWin->add(labFrameChecksumV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 170);
     labFrameModDateV = new SHR::Lab("");
-    labFrameModDateV->setColor(0xFFFFFF);
+    labFrameModDateV->setColor(0xFFFFFFFF);
     myWin->add(labFrameModDateV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 190);
     labFrameOriginV = new SHR::Lab("");
-    labFrameOriginV->setColor(0xFFFFFF);
+    labFrameOriginV->setColor(0xFFFFFFFF);
     myWin->add(labFrameOriginV, CONST_IMGSETBROWSER_ISLISTW + 25 + caplen, 210);
 
     butChangeFrameID = new SHR::But(GV->hGfxInterface, GETL2S("Win_ImageSetBrowser", "ChangeID"));
@@ -291,11 +289,7 @@ void winImageSetBrowser::Draw(int piCode) {
                         GV->colLineBright);
 
 
-    hge->Gfx_SetClipping(dx + 6, dy + 45, CONST_IMGSETBROWSER_ISLISTW - 9, 530);
-    for (int y = 0; y <= 530 / 128; y++)
-        for (int x = 0; x <= (CONST_IMGSETBROWSER_ISLISTW - 9) / 128; x++)
-            GV->hGfxInterface->sprMainBackground->Render(dx + 6 + x * 128, dy + 45 + y * 128);
-    //hge->Gfx_Clear(0xFFFF00FF);
+    hge->Gfx_SetClipping(dx + 8, dy + 51, CONST_IMGSETBROWSER_ISLISTW - 9, 520);
     if (bank->GetAssetsCount() > 0) {
         int startSet = saImageSets->getVerticalScrollAmount() / CONST_IMGSETBROWSER_LISTSETH;
         for (int i = startSet; i < bank->GetAssetsCount() &&
@@ -313,9 +307,6 @@ void winImageSetBrowser::Draw(int piCode) {
             if (!ico) ico = GV->sprSmiley;
 
             if (i == iSelectedImageSet || i == iHighlightedIS) {
-                hgeQuad q;
-                q.blend = BLEND_ALPHAADD | BLEND_COLORADD;
-                q.tex = 0;
                 SHR::SetQuad(&q, (i == iSelectedImageSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY,
                              drawX + (CONST_IMGSETBROWSER_ISLISTW - 13), drawY + CONST_IMGSETBROWSER_LISTSETH);
                 hge->Gfx_RenderQuad(&q);
@@ -377,34 +368,30 @@ void winImageSetBrowser::Draw(int piCode) {
         cSprBankAsset *tsPick = bank->GetAssetByIterator(iSelectedImageSet);
 
         int tilesPerRow = (tilePickW / CONST_IMGSETBROWSER_FRAMEICOSIZE),
-                rowCount = tilePickH / (CONST_IMGSETBROWSER_FRAMEICOSIZE + 20) + 2;
-        int borderoffset = (tilePickW - (tilesPerRow * CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2;
+            rowCount = tilePickH / (CONST_IMGSETBROWSER_FRAMEICOSIZE + 20) + 2;
+        int borderOffset = (tilePickW - (tilesPerRow * CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2;
         int scroll = saFrames->getVerticalScrollAmount();
         if (scroll < 0) scroll = 0;
 
         hge->Gfx_SetClipping(tilePickX, tilePickY, tilePickW, tilePickH);
-        for (int y = 0; y <= tilePickH / 128; y++)
-            for (int x = 0; x <= tilePickW / 128; x++)
-                GV->hGfxInterface->sprMainBackground->Render(tilePickX + x * 128, tilePickY + y * 128);
-
         if (bSingleGroup) {
-            RenderFrameGroup(*hSingleGroup, tilePickX + borderoffset, tilePickY + 10 - scroll);
+            RenderFrameGroup(*hSingleGroup, tilePickX + borderOffset, tilePickY + 10 - scroll);
         } else {
-            int ypos = 0;
+            int yPos = 0;
             for (int i = 0; i < 3; i++)
                 if (vtGroups[i].size() > 0) {
-                    int drawX = tilePickX + borderoffset,
-                            drawY = tilePickY + 10 - scroll + ypos;
+                    int drawX = tilePickX + borderOffset,
+                            drawY = tilePickY + 10 - scroll + yPos;
                     const char *label = 0;
                     if (i == 0) label = GETL2S("Win_ImageSetBrowser", "GroupREZ");
                     else if (i == 1) label = GETL2S("Win_ImageSetBrowser", "GroupClaw");
                     else if (i == 2) label = GETL2S("Win_ImageSetBrowser", "GroupCustom");
-                    hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderoffset * 2, drawY + 15,
+                    hge->Gfx_RenderLine(drawX, drawY + 15, drawX + tilePickW - borderOffset * 2, drawY + 15,
                                         0xFFe1e1e1);
                     GV->fntMyriad16->SetColor(0xFFFFFFFF);
                     GV->fntMyriad16->Render(drawX, drawY, HGETEXT_LEFT, label, 0);
                     RenderFrameGroup(vtGroups[i], drawX, drawY + 20);
-                    ypos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
+                    yPos += 20 + (vtGroups[i].size() / tilesPerRow + 1) * 80;
                 }
         }
     }
@@ -548,13 +535,15 @@ void winImageSetBrowser::Synchronize() {
 }
 
 void winImageSetBrowser::Open() {
-    myWin->setVisible(1);
+    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
+                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
+    myWin->setVisible(true);
     myWin->getParent()->moveToTop(myWin);
     Synchronize();
 }
 
 void winImageSetBrowser::Close() {
-    myWin->setVisible(0);
+    myWin->setVisible(false);
 }
 
 void winImageSetBrowser::action(const ActionEvent &actionEvent) {
@@ -628,7 +617,7 @@ void winImageSetBrowser::RenderFrameGroup(std::vector<cSprBankAssetIMG *> tiles,
         cSprBankAssetIMG *tile = tiles[i];
 
         DWORD colBorder = GV->colLineBright;
-        if (tile == selTile) colBorder = 0xFF1585e2;
+        if (tile == selTile) colBorder = GV->colActive;
         else if (tile == hlTile) colBorder = TILE_HIGHLIGHT_COLOR;
 
         int iPreviewDim = CONST_IMGSETBROWSER_FRAMEICOSIZE - 10;

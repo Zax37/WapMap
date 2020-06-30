@@ -74,7 +74,7 @@ namespace ObjEdit {
         delete tfTime;
         delete cbDontDisappear;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjSpecialPowerup::Save() {
@@ -96,7 +96,7 @@ namespace ObjEdit {
                 tfTime->setEnabled(i == 3 || i == 7);
                 cbDontDisappear->setEnabled(i == 4 || i == 5 || i == 6);
                 hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iSpecialPowerupID[i]).first.c_str());
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
             }
     }
 

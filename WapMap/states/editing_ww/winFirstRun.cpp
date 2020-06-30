@@ -1,6 +1,6 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../error.h"
+#include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../windows/options.h"
@@ -14,21 +14,21 @@ void State::EditingWW::FirstRun_Open() {
     }
     FirstRun_data = new win_FirstRun;
     FirstRun_data->win = new SHR::Win(&GV->gcnParts, GETL2S("FirstRun", "Caption"));
-    int height = GV->fntMyriad16->GetHeightb(370, GETL2S("FirstRun", "Text")) + 80;
+    int height = GV->fntMyriad16->GetStringBlockHeight(370, GETL2S("FirstRun", "Text")) + 100;
     FirstRun_data->win->setDimension(gcn::Rectangle(0, 0, 400, height + 60));
     FirstRun_data->win->setClose(1);
-    FirstRun_data->win->addActionListener(al);
+    FirstRun_data->win->addActionListener(mainListener);
     conMain->add(FirstRun_data->win, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200,
                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - (height + 100) / 2);
 
     FirstRun_data->setClawDir = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "SetClawDir"));
     FirstRun_data->setClawDir->setDimension(gcn::Rectangle(0, 0, 200, 33));
-    FirstRun_data->setClawDir->addActionListener(al);
+    FirstRun_data->setClawDir->addActionListener(mainListener);
     FirstRun_data->win->add(FirstRun_data->setClawDir, 12, height - 5);
 
     FirstRun_data->website = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "JoinDiscord"));
     FirstRun_data->website->setDimension(gcn::Rectangle(0, 0, 150, 33));
-    FirstRun_data->website->addActionListener(al);
+    FirstRun_data->website->addActionListener(mainListener);
     FirstRun_data->win->add(FirstRun_data->website, 225, height - 5);
 
     FirstRun_data->vp = new WIDG::Viewport(vp, VP_FIRSTRUN);

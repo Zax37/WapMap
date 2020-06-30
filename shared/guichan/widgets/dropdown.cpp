@@ -336,7 +336,7 @@ namespace gcn {
         mIsDragged = false;
     }
 
-    void DropDown::mouseDragged(MouseEvent &mouseEvent) {
+    void DropDown::mouseDragged(DragEvent &mouseEvent) {
         mIsDragged = true;
 
         mouseEvent.consume();

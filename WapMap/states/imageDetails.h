@@ -31,7 +31,7 @@ namespace State {
 
         virtual bool Render();
 
-        virtual void GainFocus(int iReturnCode, bool bFlipped);
+        virtual void GainFocus(ReturnCode<void> code, bool bFlipped);
 
         void action(const gcn::ActionEvent &actionEvent);
 

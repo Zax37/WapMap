@@ -30,3 +30,7 @@ END
 
 EXE_ICON	ICON	"../res/100.ico"
 WM_UPDATER	TEXT	"../res/WMUpdater.exe"
+HAND_CURSOR CURSOR  "../res/HAND.cur"
+GRAB_CURSOR CURSOR  "../res/GRAB.cur"
+ZOOM_IN_CURSOR CURSOR  "../res/ZOOM_IN.cur"
+ZOOM_OUT_CURSOR CURSOR  "../res/ZOOM_OUT.cur"

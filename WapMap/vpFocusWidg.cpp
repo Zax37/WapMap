@@ -39,7 +39,7 @@ void vpFoc::mouseReleased(MouseEvent &mouseEvent) {
     mouseEvent.consume();
 }
 
-void vpFoc::mouseDragged(MouseEvent &mouseEvent) {
+void vpFoc::mouseDragged(DragEvent &mouseEvent) {
     if (mouseEvent.isConsumed() || mouseEvent.getSource() != this) {
         return;
     }

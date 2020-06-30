@@ -221,7 +221,7 @@ namespace gcn {
         }
     }
 
-    void RadioButton::mouseDragged(MouseEvent &mouseEvent) {
+    void RadioButton::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

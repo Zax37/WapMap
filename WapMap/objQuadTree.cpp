@@ -1,20 +1,20 @@
 #include "objQuadTree.h"
-
 #include "globals.h"
 #include "cObjectUserData.h"
 #include "databanks/imageSets.h"
+#include "states/editing_ww.h"
 
 cObjectQuadTree::cObjectQuadTree(WWD::Plane *owner, cBankImageSet *bank) {
     m_hBank = bank;
-    iTypicalCellW = owner->GetPlaneWidthPx();
-    iTypicalCellH = owner->GetPlaneHeightPx();
+    iTypicalCellW = owner->GetPlaneWidthPx() + 2 * WORKSPACE_MARGINS_SIZE;
+    iTypicalCellH = owner->GetPlaneHeightPx() + 2 * WORKSPACE_MARGINS_SIZE;
     while (!(iTypicalCellW < QUAD_CELL_DIM || iTypicalCellH < QUAD_CELL_DIM)) {
         iTypicalCellW /= 2;
         iTypicalCellH /= 2;
     }
 
     m_hMainParent = this;
-    Init(owner, 0, 0, owner->GetPlaneWidthPx(), owner->GetPlaneHeightPx());
+    Init(owner, -WORKSPACE_MARGINS_SIZE, -WORKSPACE_MARGINS_SIZE, owner->GetPlaneWidthPx() + 2 * WORKSPACE_MARGINS_SIZE, owner->GetPlaneHeightPx() + 2 * WORKSPACE_MARGINS_SIZE);
     m_hMainParent = NULL;
     Fill(owner);
 }
@@ -66,20 +66,17 @@ void cObjectQuadTree::UpdateObject(WWD::Object *obj) {
         return;
     }
 
-    //float x[4], y[4];
-    //GetObjectVertices(&x[0], &y[0]);
     cObjectQuadTree *cells[4];
     GetObjectCells(obj, cells);
     cObjUserData *ud = GetUserDataFromObj(obj);
     ud->ClearCellReferences();
-    for (int i = 0; i < 4; i++)
-        if (cells[i] != NULL)
-            cells[i]->AddObject(obj);
+    for (auto & cell : cells)
+        if (cell != NULL)
+            cell->AddObject(obj);
 }
 
 void cObjectQuadTree::GetObjectCells(WWD::Object *obj, cObjectQuadTree *cells[4]) {
-    //float posx = obj->GetParam(WWD::Param_LocationX), posy = obj->GetParam(WWD::Param_LocationY);
-    float posx = GetUserDataFromObj(obj)->GetX(), posy = GetUserDataFromObj(obj)->GetY();
+    float posX = obj->GetX(), posY = obj->GetY();
 
     cSprBankAsset *asset = GetBank()->GetAssetByID(obj->GetImageSet());
     int iw, ih;
@@ -90,52 +87,45 @@ void cObjectQuadTree::GetObjectCells(WWD::Object *obj, cObjectQuadTree *cells[4]
         ih = GV->sprSmiley->GetHeight();
         GV->sprSmiley->GetHotSpot(&ihx, &ihy);
     } else {
-        int sprcount = asset->GetSpritesCount();
-        int maxw = 0, maxh = 0;
-        for (int z = 0; z < sprcount; z++) {
+        int count = asset->GetSpritesCount();
+        iw = 0;
+        ih = 0;
+        for (int z = 0; z < count; z++) {
             hgeSprite* spr = asset->GetIMGByIterator(z)->GetSprite();
-            if (spr) {
-                if (spr->GetWidth() > maxw) {
-                    maxw = spr->GetWidth();
-                    float tmp;
-                    spr->GetHotSpot(&ihx, &tmp);
-                }
-                if (spr->GetHeight() > maxh) {
-                    maxh = spr->GetHeight();
-                    float tmp;
-                    spr->GetHotSpot(&tmp, &ihy);
-                }
+            if (!spr) {
+                spr = GV->sprSmiley;
             }
-            else {
-                iw = GV->sprSmiley->GetWidth();
-                ih = GV->sprSmiley->GetHeight();
-                GV->sprSmiley->GetHotSpot(&ihx, &ihy);
+
+            if (spr->GetWidth() > iw) {
+                iw = spr->GetWidth();
+                float tmp;
+                spr->GetHotSpot(&ihx, &tmp);
+            }
+
+            if (spr->GetHeight() > ih) {
+                ih = spr->GetHeight();
+                float tmp;
+                spr->GetHotSpot(&tmp, &ihy);
             }
         }
-        iw = maxw;
-        ih = maxh;
     }
 
-    //hgeSprite * spr = bank->GetObjectSprite(obj);
     float x[4], y[4];
-
     float hsx, hsy;
     hsx = ihx;
     hsy = ihy;
-    //spr->GetHotSpot(&hsx, &hsy);
     float sprw = iw / 2, sprh = ih / 2;
     hsx -= sprw;
     hsy -= sprh;
-    x[0] = posx - sprw - hsx;
-    y[0] = posy - sprw - hsx;
-    x[1] = posx + sprw - hsx;
-    y[1] = posy - sprw - hsx;
-    x[2] = posx + sprw - hsy;
-    y[2] = posy + sprw - hsy;
-    x[3] = posx - sprw - hsx;
-    y[3] = posy + sprw - hsx;
+    x[0] = posX - sprw - hsx;
+    y[0] = posY - sprw - hsx;
+    x[1] = posX + sprw - hsx;
+    y[1] = posY - sprw - hsx;
+    x[2] = posX + sprw - hsy;
+    y[2] = posY + sprw - hsy;
+    x[3] = posX - sprw - hsx;
+    y[3] = posY + sprw - hsx;
 
-    //cObjectQuadTree * cells[4];
     for (int z = 0; z < 4; z++) {
         cells[z] = GetCellByCoords(x[z], y[z]);
     }
@@ -163,9 +153,9 @@ void cObjectQuadTree::Fill(WWD::Plane *owner) {
           if( cells[z] == cells[y] && z != y )
            cells[z] = NULL;*/
 
-        for (int z = 0; z < 4; z++)
-            if (cells[z] != NULL)
-                cells[z]->AddObject(obj);
+        for (auto & cell : cells)
+            if (cell != NULL)
+                cell->AddObject(obj);
         //cells[z]->m_vObjects.push_back(obj);
 
         /*if( (x1 > m_iX && x1 < m_iX+m_iCellW && y1 > m_iY && y1 < m_iY+m_iCellH) ||
@@ -180,13 +170,13 @@ void cObjectQuadTree::Init(WWD::Plane *owner, int x, int y, int w, int h) {
     m_iX = x;
     m_iY = y;
     if (w < QUAD_CELL_DIM || h < QUAD_CELL_DIM) {
-        m_bIsContainer = 1;
+        m_bIsContainer = true;
         m_iCellW = w;
         m_iCellH = h;
-        for (int i = 0; i < 4; i++)
-            m_hCells[i] = 0;
+        for (auto & m_hCell : m_hCells)
+            m_hCell = 0;
     } else {
-        m_bIsContainer = 0;
+        m_bIsContainer = false;
         m_iCellW = w / 2;
         m_iCellH = h / 2;
         m_hCells[0] = new cObjectQuadTree(owner, x, y, m_iCellW, m_iCellH, m_hMainParent);
@@ -198,8 +188,8 @@ void cObjectQuadTree::Init(WWD::Plane *owner, int x, int y, int w, int h) {
 
 cObjectQuadTree::~cObjectQuadTree() {
     if (!m_bIsContainer) {
-        for (int i = 0; i < 4; i++)
-            delete m_hCells[i];
+        for (auto & m_hCell : m_hCells)
+            delete m_hCell;
     }
 }
 
@@ -211,13 +201,13 @@ WWD::Object *cObjectQuadTree::GetObjectByWorldPosition(int x, int y) {
             y > m_iY + m_iCellH)
             return NULL;
 
-        for (int i = 0; i < m_vObjects.size(); i++) {
-            WWD::Rect box = GetBank()->GetObjectRenderRect(m_vObjects[i]);
+        for (auto & m_vObject : m_vObjects) {
+            WWD::Rect box = GetBank()->GetObjectRenderRect(m_vObject);
             if (x > box.x1 &&
                 x < box.x1 + box.x2 &&
                 y > box.y1 &&
                 y < box.y1 + box.y2)
-                return m_vObjects[i];
+                return m_vObject;
         }
         return NULL;
     } else {
@@ -239,12 +229,12 @@ WWD::Object *cObjectQuadTree::GetObjectByWorldPosition(int x, int y) {
 }
 
 bool cObjectQuadTree::RectsCollideOrOverlap(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
-    bool collide = 0, overlap = 0;
-    if (x1 > x2 && x1 < x2 + w2 && y1 > y2 && y1 < y2 + h2 ||
-        x1 + w1 > x2 && x1 + w1 < x2 + w2 && y1 > y2 && y1 < y2 + h2 ||
-        x1 + w1 > x2 && x1 + w1 < x2 + w2 && y1 + h1 > y2 && y1 + h1 < y2 + h2 ||
-        x1 > x2 && x1 < x2 + w2 && y1 + h1 > y2 && y1 + h1 < y2 + h2)
-        collide = 1;
+    bool collide = false, overlap = false;
+    if ((x1 > x2 && x1 < x2 + w2 && y1 > y2 && y1 < y2 + h2) ||
+        (x1 + w1 > x2 && x1 + w1 < x2 + w2 && y1 > y2 && y1 < y2 + h2) ||
+        (x1 + w1 > x2 && x1 + w1 < x2 + w2 && y1 + h1 > y2 && y1 + h1 < y2 + h2) ||
+        (x1 > x2 && x1 < x2 + w2 && y1 + h1 > y2 && y1 + h1 < y2 + h2))
+        collide = true;
 
     int minx, miny, maxx, maxy;
     if (x1 < x2) {
@@ -263,10 +253,9 @@ bool cObjectQuadTree::RectsCollideOrOverlap(int x1, int y1, int w1, int h1, int 
     }
 
     if (!((maxx - minx) > (w1 + w2) || (maxy - miny) > (h1 + h2)))
-        overlap = 1;
+        overlap = true;
 
-    if (overlap || collide) return 1;
-    else return 0;
+    return overlap || collide;
 }
 
 std::vector<WWD::Object *> cObjectQuadTree::GetObjectsByArea(int x, int y, int w, int h) {
@@ -277,11 +266,11 @@ std::vector<WWD::Object *> cObjectQuadTree::GetObjectsByArea(int x, int y, int w
             y > m_iY+m_iCellH ) return NULL;*/
         std::vector<WWD::Object *> ret;
 
-        for (auto it = m_vObjects.begin(); it != m_vObjects.end(); ++it) {
-            WWD::Rect box = GetBank()->GetObjectRenderRect(*it);
+        for (auto & m_vObject : m_vObjects) {
+            WWD::Rect box = GetBank()->GetObjectRenderRect(m_vObject);
 
             if (RectsCollideOrOverlap(x, y, w, h, box.x1, box.y1, box.x2, box.y2))
-                ret.push_back(*it);
+                ret.push_back(m_vObject);
         }
         return ret;
     } else {
@@ -294,9 +283,9 @@ std::vector<WWD::Object *> cObjectQuadTree::GetObjectsByArea(int x, int y, int w
             ret[1] = m_hCells[2]->GetObjectsByArea(x, y, w, h);
         if (RectsCollideOrOverlap(x, y, w, h, m_iX, m_iY + m_iCellH, m_iCellW, m_iCellH))
             ret[2] = m_hCells[3]->GetObjectsByArea(x, y, w, h);
-        for (int z = 0; z < 3; z++) {
-            for (int i = 0; i < ret[z].size(); i++) {
-                mainret.push_back(ret[z][i]);
+        for (auto & z : ret) {
+            for (int i = 0; i < z.size(); i++) {
+                mainret.push_back(z[i]);
             }
         }
         for (int a = 0; a < mainret.size(); a++) {

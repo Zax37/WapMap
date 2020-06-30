@@ -25,7 +25,7 @@ void State::EditingWW::HandleMirrorAndInvertHotkeys()
 	}
 
 	MarkUnsaved();
-	vPort->MarkToRedraw(true);
+	vPort->MarkToRedraw();
 }
 
 void State::EditingWW::HandleHotkeys() {
@@ -46,7 +46,7 @@ void State::EditingWW::HandleHotkeys() {
             iTileSelectX1 = iTileSelectY1 = 0;
             iTileSelectX2 = GetActivePlane()->GetPlaneWidth() - 1;
             iTileSelectY2 = GetActivePlane()->GetPlaneHeight() - 1;
-            vPort->MarkToRedraw(1);
+            vPort->MarkToRedraw();
         } else if (iMode == EWW_MODE_OBJECT) {
             vObjectsPicked = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->GetObjectsByArea(0, 0,
                                                                                                     GetActivePlane()->GetPlaneWidthPx(),
@@ -77,13 +77,13 @@ void State::EditingWW::HandleHotkeys() {
         tilContext->EmulateClickID(TILMENU_CUT);
     } else if (bFocus && iMode == EWW_MODE_TILE && MDI->GetActiveDoc()->hTileClipboard != NULL &&
                (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V) ||
-                bFocus && hge->Input_GetKeyState(HGEK_TAB) && hge->Input_KeyDown(HGEK_LBUTTON))) {
+                bFocus && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_LBUTTON))) {
         tilContext->EmulateClickID(TILMENU_PASTE);
     } else if (bFocus && iMode == EWW_MODE_TILE && hge->Input_KeyDown(HGEK_DELETE) &&
                iTileSelectX1 != -1 && iTileSelectX2 != -1 && iTileSelectY1 != -1 && iTileSelectY2 != -1) {
         tilContext->EmulateClickID(TILMENU_DELETE);
-    } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V) &&
-               !vObjectClipboard.empty() && iMode == EWW_MODE_OBJECT) {
+    } else if (bFocus && ((hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V)) || (hge->Input_GetKeyState(HGEK_ALT)
+    && hge->Input_KeyDown(HGEK_LBUTTON))) && !vObjectClipboard.empty() && iMode == EWW_MODE_OBJECT) {
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
         objContext->setX(mx);
@@ -97,16 +97,16 @@ void State::EditingWW::HandleHotkeys() {
         if (hge->Input_KeyDown(HGEK_R)) {
             SetTool(EWW_TOOL_PENCIL);
             iTilePicked = EWW_TILE_ERASE;
-            vPort->MarkToRedraw(true);
+            vPort->MarkToRedraw();
         }
         else if (hge->Input_KeyDown(HGEK_P) && (iActiveTool == EWW_TOOL_PENCIL || iActiveTool == EWW_TOOL_FILL)) {
             iTilePicked = EWW_TILE_PIPETTE;
-            vPort->MarkToRedraw(true);
+            vPort->MarkToRedraw();
         }
         else if (hge->Input_KeyDown(HGEK_F)) {
             SetTool(EWW_TOOL_PENCIL);
             iTilePicked = EWW_TILE_FILL;
-            vPort->MarkToRedraw(true);
+            vPort->MarkToRedraw();
         }
 
         int iOldP = iTilePicked;
@@ -116,12 +116,12 @@ void State::EditingWW::HandleHotkeys() {
                 (iActiveTool == EWW_TOOL_BRUSH &&
                  iTilePicked + 1 < hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushesCount())) {
                 iTilePicked++;
-                vPort->MarkToRedraw(true);
+                vPort->MarkToRedraw();
             }
         } else if (hge->Input_KeyDown(HGEK_SUBTRACT)) {
             if (iTilePicked > 0) {
                 iTilePicked--;
-                vPort->MarkToRedraw(true);
+                vPort->MarkToRedraw();
             }
         }
         if (iOldP != iTilePicked && iActiveTool == EWW_TOOL_BRUSH) {
@@ -154,7 +154,7 @@ void State::EditingWW::HandleHotkeys() {
             object->SetParam(WWD::Param_LocationY, posY);
             GetUserDataFromObj(object)->SyncToObj();
         }
-        vPort->MarkToRedraw(true);
+        vPort->MarkToRedraw();
         MarkUnsaved();
     } else if ((hge->Input_KeyDown(HGEK_M) || hge->Input_KeyDown(HGEK_I)) && iMode == EWW_MODE_OBJECT && !vObjectsPicked.empty() && vPort->GetWidget()->isMouseOver()) {
 		HandleMirrorAndInvertHotkeys();
@@ -179,10 +179,10 @@ void State::EditingWW::HandleHotkeys() {
         cbutActiveMode->setSelectedEntryID(!cbutActiveMode->getSelectedEntryID(), 1);
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_G)) {
         hPlaneData[GetActivePlaneID()]->bDrawGrid = !hPlaneData[GetActivePlaneID()]->bDrawGrid;
-        vPort->MarkToRedraw(1);
+        vPort->MarkToRedraw();
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_B)) {
         hPlaneData[GetActivePlaneID()]->bDrawBoundary = !hPlaneData[GetActivePlaneID()]->bDrawBoundary;
-        vPort->MarkToRedraw(1);
+        vPort->MarkToRedraw();
     } else if (bFocus && iMode == EWW_MODE_OBJECT && vObjectsPicked.size() == 1) {
         if (hge->Input_KeyDown(HGEK_C)) {
             fCamX = GetUserDataFromObj(vObjectsPicked[0])->GetX() - vPort->GetWidth() / 2 / fZoom;

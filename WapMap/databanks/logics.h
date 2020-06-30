@@ -2,7 +2,7 @@
 #define H_C_LOGICSBANK
 
 #include <vector>
-#include <guichan/listModel.hpp>
+#include <guichan/listmodel.hpp>
 #include "../cDataController.h"
 
 class cCustomLogic : public cAsset {
@@ -18,7 +18,6 @@ protected:
     friend class cBankLogic;
 
 public:
-
     virtual void Load();
 
     virtual void Unload();
@@ -30,12 +29,15 @@ public:
     void DeleteFile();
 
     std::string GetContent() { return strContent; };
+
+    std::string GetPath();
 };
 
 class cBankLogic : public gcn::ListModel, public cAssetBank {
 private:
     std::vector<cCustomLogic *> m_vAssets;
     cCustomLogic *hGlobalScript;
+    bool selectWhenAdding;
 
 public:
     cBankLogic(WWD::Parser *hParser);
@@ -46,6 +48,8 @@ public:
 
     void RegisterLogic(cCustomLogic *h);
 
+    void SelectWhenAddingNextLogic() { selectWhenAdding = true; }
+
     cCustomLogic *GetGlobalScript() { return hGlobalScript; };
 
     cCustomLogic *GetLogicByName(const char *pszID);
@@ -55,18 +59,14 @@ public:
         return m_vAssets[iIT];
     }
 
-    int GetLogicsCount() { return m_vAssets.size(); };
-
     //inherited
     std::string getElementAt(int i);
 
     int getNumberOfElements();
 
-    bool RenameLogic(cCustomLogic *hLogic, std::string strName);
+    bool RenameLogic(cCustomLogic *hLogic, const std::string& strName);
 
     void SortLogics();
-
-    virtual void ProcessAssets(cAssetPackage *hClientAP, std::vector<cFile> vFiles);
 
     const std::string& GetFolderName() override {
         static const std::string name = "LOGICS";

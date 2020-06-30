@@ -2,7 +2,7 @@
 #include "states/editing_ww.h"
 #include "../shared/commonFunc.h"
 #include "langID.h"
-#include "states/error.h"
+#include "states/dialog.h"
 #include "cNativeController.h"
 #include "states/stats.h"
 #include "states/loadmap.h"
@@ -19,7 +19,7 @@ extern HGE *hge;
 cAppMenu_Entry::cAppMenu_Entry(std::string lab, Gfx16Icons ico) {
     strLabel = lab;
     iIcon = ico;
-    bEnabled = 1;
+    bEnabled = true;
     hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     hContext->hide();
     GV->editState->conMain->add(hContext, 400, 400);
@@ -333,9 +333,6 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
     }
 
     if (fTimer > 0.0f) {
-        hgeQuad q;
-        q.tex = 0;
-        q.blend = BLEND_DEFAULT;
         SHR::SetQuad(&q, 0xFFFFFFFF, x, y + 2, x + w, y + h - 2 * (!unfolded));
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = unfolded ? SETA(0x0F0F0F, hContext->getAlpha()) : SETA(0xFFFFFF, fTimer * 0x50 / 0.4f);
         hge->Gfx_RenderQuad(&q);
@@ -476,8 +473,6 @@ void cAppMenu::keyPressed(KeyEvent &keyEvent) {
             }
             break;
         case Key::DOWN:
-        case Key::ENTER:
-        case Key::SPACE:
             if (iOpened == -1 && iSelected != -1) {
                 switchTo(iSelected);
                 hEntries[iOpened]->GetContext()->SelectNext();
@@ -488,13 +483,14 @@ void cAppMenu::keyPressed(KeyEvent &keyEvent) {
                 closeCurrent();
             } else {
                 iSelected = -1;
+                GV->editState->vPort->GetWidget()->requestFocus();
             }
             break;
         case Key::LEFT_ALT:
             if (iSelected == -1 && iOpened == -1) {
                 iSelected = 0;
             } else {
-                GV->editState->kl->stopAltMenu();
+                //GV->editState->mainListener->stopAltMenu();
                 closeCurrent();
                 iSelected = -1;
             }
@@ -532,6 +528,8 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         int id = hEntries[AppMenu_Edit]->GetContext()->GetSelectedID();
         if (id == APPMEN_EDIT_WORLD) {
             if (GV->editState->winWorld->isVisible()) GV->editState->SyncWorldOptionsWithParser();
+            GV->editState->winWorld->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winWorld->getWidth() / 2,
+                                                    hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winWorld->getHeight() / 2);
             GV->editState->winWorld->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winWorld);
         } else if (id == APPMEN_EDIT_PLANES) {
@@ -541,16 +539,18 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             GV->editState->winpmMain->setVisible(true);
             GV->editState->SyncPlaneProperties();
         } else if (id == APPMEN_EDIT_TILEPROP) {
+            GV->editState->winTileProp->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winTileProp->getWidth() / 2,
+                                                  hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winTileProp->getHeight() / 2);
             GV->editState->winTileProp->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winTileProp);
         } else if (id == APPMEN_EDIT_WORLDSCRIPT) {
             if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
-                MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "GlobalScriptDocumentSave"),
-                           PRODUCT_NAME, MB_OK | MB_ICONERROR);
+                State::MessageBox(PRODUCT_NAME, GETL2S("Win_LogicBrowser", "GlobalScriptDocumentSave"),
+                                  ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK);
             } else {
                 if (GV->editState->hCustomLogics->GetGlobalScript() == 0) {
-                    if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Win_LogicBrowser", "NoGlobalScript"),
-                                   PRODUCT_NAME, MB_YESNO | MB_ICONWARNING) == IDYES) {
+                    if (State::MessageBox(PRODUCT_NAME, GETL2S("Win_LogicBrowser", "NoGlobalScript"),
+                                          ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_YES) {
                         GV->editState->hDataCtrl->FixCustomDir();
                         GV->editState->hDataCtrl->OpenCodeEditor("main", true);
                     }
@@ -563,8 +563,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
     } else if (actionEvent.getSource() == conOpenMRU) {
         hEntries[AppMenu_File]->GetContext()->setVisible(false);
         conOpenMRU->setVisible(false);
-        GV->StateMgr->Push(
-                new State::LoadMap(GV->editState->hMruList->GetRecentlyUsedFile(conOpenMRU->GetSelectedID())));
+        GV->editState->vstrMapsToLoad.emplace_back(GV->editState->hMruList->GetRecentlyUsedFile(conOpenMRU->GetSelectedID()));
     } else if (actionEvent.getSource() == hEntries[AppMenu_WapMap]->GetContext()) {
         int id = hEntries[AppMenu_WapMap]->GetContext()->GetSelectedID();
         if (id == APPMEN_WM_SETTINGS) {
@@ -578,7 +577,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_WM_SITE) {
 
         }
-        hEntries[AppMenu_WapMap]->GetContext()->setVisible(0);
+        hEntries[AppMenu_WapMap]->GetContext()->setVisible(false);
     } else if (actionEvent.getSource() == hEntries[AppMenu_View]->GetContext()) {
         int id = hEntries[AppMenu_View]->GetContext()->GetSelectedID();
         if (id == APPMEN_VIEW_RULERS) {
@@ -586,21 +585,21 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_VIEW_GUIDELINES) {
             GV->editState->bShowGuideLines = !GV->editState->bShowGuideLines;
             hEntries[AppMenu_View]->GetContext()->GetElementByID(APPMEN_VIEW_GUIDELINES)->SetIcon(
-                    GV->editState->bShowGuideLines ? GV->sprIcons16[Icon16_Applied] : NULL, 1);
+                    GV->editState->bShowGuideLines ? GV->sprIcons16[Icon16_Applied] : NULL, true);
         } else if (id == APPMEN_VIEW_TILEPROP) {
             GV->editState->bDrawTileProperties = !GV->editState->bDrawTileProperties;
-            GV->editState->vPort->MarkToRedraw(1);
+            GV->editState->vPort->MarkToRedraw();
             hEntries[AppMenu_View]->GetContext()->GetElementByID(APPMEN_VIEW_TILEPROP)->SetIcon(
-                    GV->editState->bDrawTileProperties ? GV->sprIcons16[Icon16_Applied] : NULL, 1);
+                    GV->editState->bDrawTileProperties ? GV->sprIcons16[Icon16_Applied] : NULL, true);
         }
         iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == conPlanesVisibilityList) {
         int id = conPlanesVisibilityList->GetSelectedID();
         GV->editState->hPlaneData[id]->bDraw = !GV->editState->hPlaneData[id]->bDraw;
-        GV->editState->vPort->MarkToRedraw(1);
+        GV->editState->vPort->MarkToRedraw();
         SyncPlaneVisibility();
         if (GV->editState->hPlaneData[id]->bDraw) {
-            conPlaneVisibility->setVisible(1);
+            conPlaneVisibility->setVisible(true);
         }
         iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == conPlaneVisibility) {
@@ -615,7 +614,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         }
         if (GV->editState->hPlaneData[pl]->hRB != 0)
             GV->editState->hPlaneData[pl]->hRB->Redraw();
-        GV->editState->vPort->MarkToRedraw(1);
+        GV->editState->vPort->MarkToRedraw();
         SyncPlaneSelectedVisibility();
         iOpened = AppMenu_View;
     } else if (actionEvent.getSource() == hEntries[AppMenu_Tools]->GetContext()) {
@@ -625,12 +624,12 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_TOOLS_MEASURE)
             GV->editState->SetTool(EWW_TOOL_MEASURE);
         else if (id == APPMEN_TOOLS_MAPSHOT) {
-            GV->editState->winMapShot->setVisible(1);
+            GV->editState->winMapShot->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winMapShot);
         } else if (id == APPMEN_TOOLS_STATS) {
             GV->StateMgr->Push(new State::MapStats(GV->editState->hParser));
         }
-        hEntries[AppMenu_Tools]->GetContext()->setVisible(0);
+        hEntries[AppMenu_Tools]->GetContext()->setVisible(false);
     } else if (actionEvent.getSource() == hEntries[AppMenu_Assets]->GetContext()) {
         int id = hEntries[AppMenu_Assets]->GetContext()->GetSelectedID();
         if (id == APPMEN_ASSETS_TILES) {
@@ -638,13 +637,15 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_ASSETS_IMAGESETS) {
             GV->editState->hwinImageSetBrowser->Open();
         } else if (id == APPMEN_ASSETS_LOGICS) {
-            GV->editState->winLogicBrowser->setVisible(1);
+            GV->editState->winLogicBrowser->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - GV->editState->winLogicBrowser->getWidth()) / 2,
+                                                        (hge->System_GetState(HGE_SCREENHEIGHT) - GV->editState->winLogicBrowser->getHeight()) / 2);
+            GV->editState->winLogicBrowser->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winLogicBrowser);
         } else {
-            GV->editState->winDB->setVisible(1);
+            GV->editState->winDB->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winDB);
         }
-        hEntries[AppMenu_Assets]->GetContext()->setVisible(0);
+        hEntries[AppMenu_Assets]->GetContext()->setVisible(false);
     }
 }
 
@@ -659,7 +660,7 @@ void cAppMenu::NotifyRulersSwitch() {
     //SetFolded(IsFolded());
     GV->editState->FixInterfacePositions();
     hEntries[AppMenu_View]->GetContext()->GetElementByID(APPMEN_VIEW_RULERS)->SetIcon(
-        GV->editState->hRulers->IsVisible() ? GV->sprIcons16[Icon16_Applied] : NULL, 1);
+        GV->editState->hRulers->IsVisible() ? GV->sprIcons16[Icon16_Applied] : NULL, true);
 }
 
 void cAppMenu::mouseExited(MouseEvent &mouseEvent) {

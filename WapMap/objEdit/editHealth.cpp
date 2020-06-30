@@ -52,7 +52,7 @@ namespace ObjEdit {
         for (int i = 0; i < 11; i++)
             delete rbType[i];
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjHealth::Action(const gcn::ActionEvent &actionEvent) {
@@ -67,7 +67,7 @@ namespace ObjEdit {
                 else if (i == 8) hTempObj->SetLogic("SpecialPowerup");
                 else hTempObj->SetLogic("MagicPowerup");
                 hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iHealthID[i]).first.c_str());
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
             }
     }
 

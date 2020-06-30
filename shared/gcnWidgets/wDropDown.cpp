@@ -13,12 +13,11 @@ namespace SHR {
     DropDown::DropDown(gcn::ListModel *listModel,
                        SHR::ScrollArea *scrollArea,
                        SHR::ListBox *listBox) {
-        mHasMouse = 0;
-        mScrollDisabled = 0;
+        mHasMouse = false;
+        mScrollDisabled = false;
         setWidth(100);
         setFocusable(true);
         mDroppedDown = false;
-        mPushed = false;
         mIsDragged = false;
 
         setInternalFocusHandler(&mInternalFocusHandler);
@@ -59,6 +58,7 @@ namespace SHR {
         adjustHeight();
 
         fFocusTimer = 0;
+        mKeyboardFocus = false;
     }
 
     DropDown::~DropDown() {
@@ -90,15 +90,11 @@ namespace SHR {
 
         unsigned char alpha = getAlpha();
 
-        ClipRectangle rect = graphics->getCurrentClipArea();
         int x, y;
         getAbsolutePosition(x, y);
 
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
-
-        bool buttonfoc = (isEnabled() && mHasMouse && mx > x + getWidth() - 20 && mx < x + getWidth() && my > y &&
-                          my < y + h);
 
         if (mDroppedDown && fFocusTimer < 0.4f) {
             fFocusTimer += hge->Timer_GetDelta();
@@ -106,10 +102,10 @@ namespace SHR {
         } else if (!mDroppedDown && fFocusTimer > 0.2f) {
             fFocusTimer -= hge->Timer_GetDelta();
             if (fFocusTimer < 0.2f) fFocusTimer = 0.2f;
-        } else if (isFocused() && fFocusTimer < 0.2f) {
+        } else if (mKeyboardFocus && fFocusTimer < 0.2f) {
             fFocusTimer += hge->Timer_GetDelta();
             if (fFocusTimer > 0.2f) fFocusTimer = 0.2f;
-        } else if (!isFocused() && fFocusTimer > 0.0f) {
+        } else if (!mKeyboardFocus && fFocusTimer > 0.0f) {
             fFocusTimer -= hge->Timer_GetDelta();
             if (fFocusTimer < 0.0f) fFocusTimer = 0.0f;
         }
@@ -125,7 +121,6 @@ namespace SHR {
         // Push a clip area so the other drawings don't need to worry
         // about the border.
         graphics->pushClipArea(gcn::Rectangle(1, 1, getWidth() - 2, h - 2));
-        const gcn::Rectangle currentClipArea = graphics->getCurrentClipArea();
 
         if (mListBox->getListModel() && mSelected >= 0) {
             graphics->setColor(gcn::Color(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * alpha / 255.f));
@@ -137,23 +132,17 @@ namespace SHR {
         graphics->popClipArea();
 
         if (mDroppedDown) {
-            // Draw a border around the children.
-            /*graphics->setColor(gcn::Color(0x000000, alpha));
-            graphics->drawRectangle(gcn::Rectangle(0,
-                                                   mFoldedUpHeight,
-                                                   getWidth(),
-                                                   getHeight() - mFoldedUpHeight));*/
             drawChildren(graphics);
             hge->Gfx_RenderLine(x, y + mFoldedUpHeight + 1, x + getWidth(), y + mFoldedUpHeight + 1, SETA(0x178ce1, alpha));
         }
     }
 
     void DropDown::mouseEntered(MouseEvent &mouseEvent) {
-        mHasMouse = 1;
+        mHasMouse = true;
     }
 
     void DropDown::mouseExited(MouseEvent &mouseEvent) {
-        mHasMouse = 0;
+        mHasMouse = false;
     }
 
     int DropDown::getSelected() const {
@@ -168,7 +157,7 @@ namespace SHR {
     }
 
     void DropDown::keyPressed(KeyEvent &keyEvent) {
-        if (keyEvent.isConsumed())
+        if (keyEvent.isConsumed() || !mKeyboardFocus)
             return;
 
         Key key = keyEvent.getKey();
@@ -195,7 +184,6 @@ namespace SHR {
             && mouseEvent.getButton() == MouseEvent::LEFT
             && !mDroppedDown
             && mouseEvent.getSource() == this) {
-            mPushed = true;
             dropDown();
             requestModalMouseInputFocus();
         }
@@ -207,7 +195,6 @@ namespace SHR {
                  && mouseEvent.getButton() == MouseEvent::LEFT
                  && mDroppedDown
                  && mouseEvent.getSource() == this) {
-            mPushed = false;
             foldUp();
             releaseModalMouseInputFocus();
         }
@@ -216,17 +203,12 @@ namespace SHR {
                  || mouseEvent.getY() >= getHeight()
                  || mouseEvent.getX() < 0
                  || mouseEvent.getX() >= getWidth()) {
-            mPushed = false;
             foldUp();
             releaseModalMouseInputFocus();
         }
     }
 
     void DropDown::mouseReleased(MouseEvent &mouseEvent) {
-        if (mIsDragged) {
-            mPushed = false;
-        }
-
         // Released outside of widget. Can happen when we have modal input focus.
         if ((0 > mouseEvent.getY()
              || mouseEvent.getY() >= getHeight()
@@ -239,14 +221,12 @@ namespace SHR {
             if (mIsDragged) {
                 foldUp();
             }
-        } else if (mouseEvent.getButton() == MouseEvent::LEFT) {
-            mPushed = false;
         }
 
         mIsDragged = false;
     }
 
-    void DropDown::mouseDragged(MouseEvent &mouseEvent) {
+    void DropDown::mouseDragged(DragEvent &mouseEvent) {
         mIsDragged = true;
 
         mouseEvent.consume();
@@ -328,9 +308,14 @@ namespace SHR {
         }
     }
 
+    void DropDown::focusGained(const FocusEvent &event) {
+        mKeyboardFocus = event.isKeyboardFocus();
+    }
+
     void DropDown::focusLost(const FocusEvent &event) {
         foldUp();
         mInternalFocusHandler.focusNone();
+        mKeyboardFocus = false;
     }
 
 
@@ -365,54 +350,6 @@ namespace SHR {
         return gcn::Rectangle();
     }
 
-    void DropDown::setBaseColor(const Color &color) {
-        if (mInternalScrollArea) {
-            mScrollArea->setBaseColor(color);
-        }
-
-        if (mInternalListBox) {
-            mListBox->setBaseColor(color);
-        }
-
-        Widget::setBaseColor(color);
-    }
-
-    void DropDown::setBackgroundColor(const Color &color) {
-        if (mInternalScrollArea) {
-            mScrollArea->setBackgroundColor(color);
-        }
-
-        if (mInternalListBox) {
-            mListBox->setBackgroundColor(color);
-        }
-
-        Widget::setBackgroundColor(color);
-    }
-
-    void DropDown::setForegroundColor(const Color &color) {
-        if (mInternalScrollArea) {
-            mScrollArea->setForegroundColor(color);
-        }
-
-        if (mInternalListBox) {
-            mListBox->setForegroundColor(color);
-        }
-
-        Widget::setForegroundColor(color);
-    }
-
-    void DropDown::setFont(Font *font) {
-        if (mInternalScrollArea) {
-            mScrollArea->setFont(font);
-        }
-
-        if (mInternalListBox) {
-            mListBox->setFont(font);
-        }
-
-        Widget::setFont(font);
-    }
-
     void DropDown::mouseWheelMovedUp(MouseEvent &mouseEvent) {
         if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled && mDroppedDown) {
             mouseEvent.consume();
@@ -427,14 +364,6 @@ namespace SHR {
         if (isFocused() && mouseEvent.getSource() == this && !mScrollDisabled && mDroppedDown) {
             mouseEvent.consume();
             mListBox->setSelected(mListBox->getSelected() + 1);
-        }
-    }
-
-    void DropDown::setSelectionColor(const Color &color) {
-        Widget::setSelectionColor(color);
-
-        if (mInternalListBox) {
-            mListBox->setSelectionColor(color);
         }
     }
 

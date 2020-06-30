@@ -197,7 +197,7 @@ namespace SHR {
                 throw GCN_EXCEPTION("Unknown alignment.");
         }
 
-        graphics->setColor(0xFFFFFFFF);
+        graphics->setColor(0xFFFFFF);
         graphics->setFont(getFont());
         //graphics->pushClipArea(gcn::Rectangle(0, 0, getWidth(), getTitleBarHeight() - 1));
         graphics->drawText(getCaption(), textX, textY, getAlignment());
@@ -255,7 +255,7 @@ namespace SHR {
         mMoved = false;
     }
 
-    void Win::mouseDragged(MouseEvent &mouseEvent) {
+    void Win::mouseDragged(DragEvent &mouseEvent) {
         if (mouseEvent.isConsumed() || mouseEvent.getSource() != this || bHide) {
             return;
         }

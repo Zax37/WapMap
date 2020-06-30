@@ -104,7 +104,7 @@ namespace SHR {
 
         virtual void mouseExited(MouseEvent &mouseEvent);
 
-        virtual void mouseDragged(MouseEvent &mouseEvent);
+        virtual void mouseDragged(DragEvent &mouseEvent);
 
         virtual void keyPressed(KeyEvent &keyEvent);
 

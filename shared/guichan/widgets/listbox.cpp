@@ -235,7 +235,7 @@ namespace gcn {
         }
     }
 
-    void ListBox::mouseDragged(MouseEvent &mouseEvent) {
+    void ListBox::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

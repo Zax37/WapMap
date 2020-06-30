@@ -25,9 +25,6 @@ namespace SHR {
             _ghGfxInterface->sprTextField[version][6]->RenderStretch(dx + 4, dy + h - 4, dx + w - 4, dy + h + 3);
             _ghGfxInterface->sprTextField[version][7]->Render(dx + w - 4, dy + h - 4);
 
-            hgeQuad q;
-            q.tex = 0;
-            q.blend = BLEND_DEFAULT;
             for (int i = 0; i < 4; i++) q.v[i].z = 0;
             q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = SETA(0x232323, alpha);
             q.v[0].x = dx + 1;

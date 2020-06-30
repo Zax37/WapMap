@@ -1,5 +1,5 @@
 #include "loadmap.h"
-#include "error.h"
+#include "dialog.h"
 #include "editing_ww.h"
 #include "../globals.h"
 #include "../../shared/gcnWidgets/wContainer.h"
@@ -18,6 +18,7 @@
 #include "../databanks/sounds.h"
 #include "../databanks/anims.h"
 #include "../databanks/logics.h"
+#include "../version.h"
 
 extern HGE *hge;
 
@@ -136,19 +137,20 @@ void State::LoadMap::Init() {
 #endif
         char tmp[256];
         sprintf(tmp,
-                "%s (WWD).\n%s:\n%s: %d",
+                "%s. \n%s:\n%s: %d",
                 GETL(Lang_ErrorOpeningFile),
                 GETL(Lang_ErrorInfo),
                 GETL(Lang_Number),
                 exc.iErrorCode);
-        GV->StateMgr->Push(new State::Error(GETL(Lang_ErrorOpening), tmp, ST_ER_ICON_FATAL, ST_ER_BUT_OK, 1));
+        GV->StateMgr->Push(new State::Dialog(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR));
         return;
     }
     ParallelTrigger();
 
     if (!GV->editState->ValidateLevelName(hParser->GetName(), 0) && alt_ptr == 0) {
-        if (MessageBox(hge->System_GetState(HGE_HWND), GETL2S("Various", "BadNamePrompt"), hParser->GetName(),
-                       MB_YESNO | MB_ICONWARNING) == IDYES) {
+        // hParser->GetName()
+        if (State::MessageBox(PRODUCT_NAME, GETL2S("Various", "BadNamePrompt"),
+                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_YES) {
             char *fixname = GV->editState->FixLevelName(hParser->GetBaseLevel(), hParser->GetName());
             hParser->SetName(fixname);
             delete[] fixname;
@@ -284,10 +286,7 @@ void State::LoadMap::Init() {
         }
     }*/
 
-    returnCode *rc = new returnCode;
-    rc->Type = RC_LoadMap;
-    rc->Ptr = (int) dd;
-    _popMe((int) rc);
+    _popMe({ ReturnCodeType::LoadMap, (int)dd });
 
     WWD::_ghProgressCallback = 0;
     WWD::_ghProgressInfo = 0;
@@ -334,12 +333,8 @@ bool State::LoadMap::Render() {
     return false;
 }
 
-void State::LoadMap::GainFocus(int iReturnCode, bool bFlipped) {
-    delete ((returnCode *) iReturnCode);
-    returnCode *rc = new returnCode;
-    rc->Type = RC_LoadMap;
-    rc->Ptr = 0;
-    _popMe((int) rc);
+void State::LoadMap::GainFocus(ReturnCode<void> code, bool bFlipped) {
+    _popMe({ ReturnCodeType::LoadMap, 0 });
 }
 
 void State::LoadMap::ParallelTrigger() {

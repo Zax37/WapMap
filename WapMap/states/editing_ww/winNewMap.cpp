@@ -1,9 +1,10 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../error.h"
+#include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../loadmap.h"
+#include "../../version.h"
 
 extern HGE *hge;
 
@@ -16,7 +17,7 @@ void State::EditingWW::NewMap_Open() {
     NewMap_data->winNewMap = new SHR::Win(&GV->gcnParts, GETL2S("NewMap", "NewMap"));
     NewMap_data->winNewMap->setDimension(gcn::Rectangle(0, 0, 650, 585));
     NewMap_data->winNewMap->setClose(1);
-    NewMap_data->winNewMap->addActionListener(al);
+    NewMap_data->winNewMap->addActionListener(mainListener);
     NewMap_data->winNewMap->setVisible(0);
     NewMap_data->winNewMap->setVisible(1);
     conMain->add(NewMap_data->winNewMap, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 325,
@@ -48,13 +49,13 @@ void State::EditingWW::NewMap_Open() {
 
     NewMap_data->tfName = new SHR::TextField();
     NewMap_data->tfName->setDimension(gcn::Rectangle(0, 0, 275 - NewMap_data->labName->getWidth(), 20));
-    NewMap_data->tfName->addActionListener(al);
+    NewMap_data->tfName->addActionListener(mainListener);
     NewMap_data->tfName->setMarkedInvalid(1);
     NewMap_data->winNewMap->add(NewMap_data->tfName, 35 + NewMap_data->labName->getWidth(), 15);
 
     NewMap_data->tfAuthor = new SHR::TextField();
     NewMap_data->tfAuthor->setDimension(gcn::Rectangle(0, 0, 275 - NewMap_data->labAuthor->getWidth(), 20));
-    NewMap_data->tfAuthor->addActionListener(al);
+    NewMap_data->tfAuthor->addActionListener(mainListener);
     NewMap_data->tfAuthor->setMarkedInvalid(1);
     NewMap_data->winNewMap->add(NewMap_data->tfAuthor, 335 + NewMap_data->labAuthor->getWidth(), 15);
 
@@ -82,7 +83,7 @@ void State::EditingWW::NewMap_Open() {
 
     NewMap_data->butOK = new SHR::But(GV->hGfxInterface, "OK");
     NewMap_data->butOK->setDimension(gcn::Rectangle(0, 0, 100, 33));
-    NewMap_data->butOK->addActionListener(al);
+    NewMap_data->butOK->addActionListener(mainListener);
     NewMap_data->butOK->setEnabled(0);
     NewMap_data->winNewMap->add(NewMap_data->butOK, 275, 530);
 
@@ -181,8 +182,7 @@ void State::EditingWW::NewMap_OK() {
             NewMap_data->tfPlaneHeight->getText().c_str());
     if (plw < 50 || plh < 50) {
         GV->StateMgr->Push(
-                new State::Error(GETL(Lang_Error), GETL2S("NewMap", "InvalidPlaneSize"), ST_ER_ICON_FATAL, ST_ER_BUT_OK,
-                                 0));
+                new State::Dialog(PRODUCT_NAME, GETL2S("NewMap", "InvalidPlaneSize"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
         return;
     }
     //repo.PrintStructure();

@@ -143,7 +143,7 @@ namespace gcn {
         }
     }
 
-    void TextField::mouseDragged(MouseEvent &mouseEvent) {
+    void TextField::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

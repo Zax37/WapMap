@@ -170,7 +170,7 @@ namespace ObjEdit {
         delete labDelay;
         delete labDamage;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjProjectile::SetDirection(int dir) {
@@ -295,7 +295,7 @@ namespace ObjEdit {
                     if (GV->editState->hParser->GetBaseLevel() == 14) {
                         hTempObj->SetImageSet("LEVEL_SHOOTERS_LAUNCHLEFT");
                         hTempObj->SetAnim(hTempObj->GetImageSet());
-                        GV->editState->vPort->MarkToRedraw(1);
+                        GV->editState->vPort->MarkToRedraw();
                     } else {
                         strcpy(dirstr, "RIGHT");
                     }
@@ -309,7 +309,7 @@ namespace ObjEdit {
                     if (GV->editState->hParser->GetBaseLevel() == 14) {
                         hTempObj->SetImageSet("LEVEL_SHOOTERS_LAUNCHRIGHT");
                         hTempObj->SetAnim(hTempObj->GetImageSet());
-                        GV->editState->vPort->MarkToRedraw(1);
+                        GV->editState->vPort->MarkToRedraw();
                     } else {
                         strcpy(dirstr, "LEFT");
                     }
@@ -319,7 +319,7 @@ namespace ObjEdit {
                     sprintf(logic, "LEVEL_SHOOTERS_PUFFDART%s", dirstr);
                     hTempObj->SetImageSet(logic);
                     hTempObj->SetAnim(hTempObj->GetImageSet());
-                    GV->editState->vPort->MarkToRedraw(1);
+                    GV->editState->vPort->MarkToRedraw();
                 }
                 for (int y = 0; y < 4; y++)
                     butDir[y]->setHighlight(y == i);

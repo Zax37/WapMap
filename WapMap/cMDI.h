@@ -169,6 +169,8 @@ public:
     void UpdateMaxTabSize();
 
     void BackToLastActive() { SetActiveDocIt(m_iLastActiveDoc); }
+
+    bool IsDocAlreadyOpen(const std::string& path);
 };
 
 #endif

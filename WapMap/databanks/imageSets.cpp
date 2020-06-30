@@ -2,15 +2,10 @@
 #include "tiles.h"
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
-
 #include "../states/editing_ww.h"
-
-#include "../globals.h"
-
 #include "../../shared/HashLib/hashlibpp.h"
 #include "../cTextureAtlas.h"
 #include "../cParallelLoop.h"
-#include "../../shared/cProgressInfo.h"
 
 extern structProgressInfo _ghProgressInfo;
 extern HGE *hge;
@@ -29,17 +24,16 @@ cBankImageSet::cBankImageSet(WWD::Parser *hParser) : cAssetBank(hParser) {
 }
 
 cBankImageSet::~cBankImageSet() {
-    for (int i = 0; i < m_vAssets.size(); i++) {
-        delete m_vAssets[i];
-        m_vAssets[i] = 0;
+    for (auto & m_vAsset : m_vAssets) {
+        delete m_vAsset;
     }
     delete myAtlaser;
 }
 
 cSprBankAsset *cBankImageSet::GetAssetByID(const char *pszID) {
-    for (int i = 0; i < m_vAssets.size(); i++) {
-        if (!strcmp(m_vAssets[i]->strID.c_str(), pszID)) {
-            return m_vAssets[i];
+    for (auto & m_vAsset : m_vAssets) {
+        if (!strcmp(m_vAsset->strID.c_str(), pszID)) {
+            return m_vAsset;
         }
     }
     return NULL;
@@ -51,9 +45,8 @@ cSprBankAsset::cSprBankAsset(std::string id) {
 }
 
 cSprBankAsset::~cSprBankAsset() {
-    for (int i = 0; i < m_vSprites.size(); i++) {
-        delete m_vSprites[i];
-        m_vSprites[i] = 0;
+    for (auto & m_vSprite : m_vSprites) {
+        delete m_vSprite;
     }
 }
 
@@ -94,7 +87,7 @@ void cSprBankAssetIMG::Load() {
     size_t lp = GetFile().strPath.find_last_of('/');
     _strName = GetFile().strPath.substr((lp == std::string::npos ? 0 : lp + 1));
 
-    _bLoaded = 1;
+    _bLoaded = true;
 }
 
 void cSprBankAssetIMG::Unload() {
@@ -102,12 +95,12 @@ void cSprBankAssetIMG::Unload() {
     ((cBankImageSet *) _hBank)->GetTextureAtlaser()->DeleteSprite(imgSprite);
     delete imgSprite;
     imgSprite = 0;
-    _bLoaded = 0;
+    _bLoaded = false;
 }
 
 cSprBankAssetIMG::cSprBankAssetIMG(int it, cBankImageSet *par, cSprBankAsset *is, int id) {
-    _bLoaded = 0;
-    _bForceReload = 0;
+    _bLoaded = false;
+    _bForceReload = false;
     hIS = is;
     m_iID = id;
     m_iIT = it;
@@ -282,8 +275,8 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
     float sprw = ret.x2 / 2, sprh = ret.y2 / 2;
     hsx -= sprw;
     hsy -= sprh;
-    ret.x1 = (GetUserDataFromObj(obj)->GetX() - sprw - hsx);
-    ret.y1 = (GetUserDataFromObj(obj)->GetY() - sprh - hsy);
+    ret.x1 = (obj->GetX() - sprw - hsx);
+    ret.y1 = (obj->GetY() - sprh - hsy);
     if (!strcmp(obj->GetLogic(), "BreakPlank")) {
         for (int z = 0; z < obj->GetParam(WWD::Param_Width) - 1; z++)
             ret.x2 += 64;
@@ -340,28 +333,27 @@ void cBankImageSet::BatchProcessEnd(cDataController *hDC) {
     SortAssets();
     myAtlaser->Pack();
     int spritec = 0;
-    for (size_t i = 0; i < m_vAssets.size(); i++)
-        spritec += m_vAssets[i]->m_vSprites.size();
+    for (auto & m_vAsset : m_vAssets)
+        spritec += m_vAsset->m_vSprites.size();
     GV->Console->Printf("%d images in %d image sets found. Loading...", spritec, m_vAssets.size());
 
     int progress = 0;
-    for (size_t i = 0; i < m_vAssets.size(); i++) {
-        bool bAffected = 0;
-        for (size_t x = 0; x < m_vAssets[i]->m_vSprites.size(); x++) {
-            if (m_vAssets[i]->m_vSprites[x]->IsLoaded())
+    for (auto & m_vAsset : m_vAssets) {
+        bool bAffected = false;
+        for (size_t x = 0; x < m_vAsset->m_vSprites.size(); x++) {
+            if (m_vAsset->m_vSprites[x]->IsLoaded())
                 continue;
             char buf[256];
-            sprintf(buf, "Rendering: %s [%d/%d]", m_vAssets[i]->GetID(), x, m_vAssets[i]->m_vSprites.size());
+            sprintf(buf, "Rendering: %s [%d/%d]", m_vAsset->GetID(), x, m_vAsset->m_vSprites.size());
             _ghProgressInfo.strDetailedCaption = buf;
             _ghProgressInfo.iDetailedProgress = 50000 + (float(progress) / float(spritec)) * 50000.0f;
-            if (looper != 0)
-                looper->Tick();
-            m_vAssets[i]->m_vSprites[x]->Load();
+            if (looper) looper->Tick();
+            m_vAsset->m_vSprites[x]->Load();
             progress++;
-            bAffected = 1;
+            bAffected = true;
         }
         if (bAffected)
-            m_vAssets[i]->UpdateHash();
+            m_vAsset->UpdateHash();
     }
 }
 

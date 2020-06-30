@@ -145,7 +145,7 @@ namespace ObjEdit {
         delete tfOffset;
         delete cbAlwaysOn;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjTogglePeg::Save() {
@@ -184,7 +184,7 @@ namespace ObjEdit {
         for (int i = 0; i < 3; i++)
             if (rbType[i] != 0 && actionEvent.getSource() == rbType[i]) {
                 hTempObj->SetImageSet(vszDefaultImgsets[i].c_str());
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
             }
     }
 

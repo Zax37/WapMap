@@ -129,7 +129,7 @@ namespace SHR {
         distributeActionEvent();
     }
 
-    void InvTab::mouseDragged(MouseEvent &mouseEvent) {
+    void InvTab::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 }

@@ -116,7 +116,7 @@ namespace SHR {
         }
     }
 
-    void Tree::mouseDragged(MouseEvent &mouseEvent) {
+    void Tree::mouseDragged(DragEvent &mouseEvent) {
         mouseEvent.consume();
     }
 

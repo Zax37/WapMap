@@ -51,7 +51,7 @@ namespace ObjEdit {
         delete labCounter;
         delete labWidth;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjBreakPlank::Save() {
@@ -65,7 +65,7 @@ namespace ObjEdit {
         } else if (actionEvent.getSource() == tfWidth) {
             int nw = atoi(tfWidth->getText().c_str());
             hTempObj->SetParam(WWD::Param_Width, nw);
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         }
     }
 
@@ -95,7 +95,7 @@ namespace ObjEdit {
             if (neww < 0) neww = 0;
             if (neww != hTempObj->GetParam(WWD::Param_Width)) {
                 hTempObj->SetParam(WWD::Param_Width, neww);
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
                 char tmp[32];
                 sprintf(tmp, "%d", neww);
                 tfWidth->setText(tmp);

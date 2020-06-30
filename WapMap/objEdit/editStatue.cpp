@@ -159,7 +159,7 @@ namespace ObjEdit {
             delete invTabs[i];
         delete win;
         delete hInventory;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjStatue::Save() {
@@ -200,10 +200,10 @@ namespace ObjEdit {
                 hTempObj->SetParam(WWD::Param_Health, 999);
         } else if (actionEvent.getSource() == tfWarpX) {
             hTempObj->SetParam(WWD::Param_SpeedX, atoi(tfWarpX->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == tfWarpY) {
             hTempObj->SetParam(WWD::Param_SpeedY, atoi(tfWarpY->getText().c_str()));
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == butWarpPick) {
             bPick = !bPick;
             tfWarpX->setEnabled(!bPick);

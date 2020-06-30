@@ -114,12 +114,6 @@ void REZ::Parser::ReadDir(Dir *phDir, int piRLevel) {
         } else {
             ptr = new File();
         }
-        /*} catch(...){
-         printf("BAD_ALLOC\n");
-        }*/
-        //if( ptr == NULL )
-        // printf("ERROR W CHUJ\n");
-        //printf("step 0.5\n");
         ptr->m_hOwner = phDir->m_hOwner;
         m_isSource->LLEN(&ptr->m_uiOffset, 4);
         m_isSource->LLEN(&ptr->m_uiLen, 4);

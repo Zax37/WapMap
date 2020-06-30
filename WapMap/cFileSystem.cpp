@@ -138,26 +138,26 @@ void cDiscFeed::ResetModificationFlag() {
 }
 
 time_t cDiscFeed::GetFileModTime(const char *path) {
-    std::string npath = (bIsHDD ? path : strAbsoluteLocation + "/" + path);
-    struct stat filestatus;
-    if (stat(npath.c_str(), &filestatus) >= 0)
-        return filestatus.st_mtime;
+    std::string filePath = (bIsHDD ? path : strAbsoluteLocation + '/' + path);
+    struct stat fileStatus {};
+    if (stat(filePath.c_str(), &fileStatus) >= 0)
+        return fileStatus.st_mtime;
     return 0;
 }
 
 bool cDiscFeed::FileExists(const char *path) {
-    std::string npath = (bIsHDD ? std::string(path)
-                                : strAbsoluteLocation + "/" + std::string(path));
-    FILE *f = fopen(npath.c_str(), "rb");
-    if (!f) return 0;
+    std::string filePath = (bIsHDD ? path
+                                   : strAbsoluteLocation + '/' + path);
+    FILE *f = fopen(filePath.c_str(), "rb");
+    if (!f) return false;
     fclose(f);
-    return 1;
+    return true;
 }
 
-void cDiscFeed::SetFileContent(const char *path, std::string strContent) {
-    std::string realpath = (bIsHDD ? std::string(path)
-                                   : strAbsoluteLocation + "/" + std::string(path));
-    FILE *f = fopen(realpath.c_str(), "wb");
+void cDiscFeed::SetFileContent(const char *path, const std::string& strContent) {
+    std::string filePath = (bIsHDD ? path
+                                   : strAbsoluteLocation + '/' + path);
+    FILE *f = fopen(filePath.c_str(), "wb");
     if (!f) return;
     fwrite(strContent.c_str(), strContent.length(), 1, f);
     fclose(f);
@@ -165,8 +165,8 @@ void cDiscFeed::SetFileContent(const char *path, std::string strContent) {
 
 unsigned char *cDiscFeed::GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart,
                                          unsigned int iReadLen) {
-    std::string realPath(bIsHDD ? path : strAbsoluteLocation + "/" + std::string(path));
-    FILE *f = fopen(realPath.c_str(), "rb");
+    std::string filePath(bIsHDD ? path : strAbsoluteLocation + '/' + path);
+    FILE *f = fopen(filePath.c_str(), "rb");
     if (!f) {
         oiDataLength = 0;
         return 0;
@@ -174,7 +174,7 @@ unsigned char *cDiscFeed::GetFileContent(const char *path, unsigned int &oiDataL
     fseek(f, 0, SEEK_END);
     int ifilelen = ftell(f);
     fseek(f, 0, SEEK_SET);
-    if (iReadStart >= ifilelen || iReadLen != 0 && iReadLen + iReadStart > ifilelen) {
+    if (iReadStart >= ifilelen || (iReadLen != 0 && iReadLen + iReadStart > ifilelen)) {
         oiDataLength = 0;
         fclose(f);
         return 0;
@@ -211,30 +211,27 @@ std::vector<std::string> cDiscFeed::GetNewFiles() {
 }
 
 int cDiscFeed::GetFileSize(const char *path) {
-    std::string npath = (bIsHDD ? std::string(path)
-                                : strAbsoluteLocation + "/" + std::string(path));
-    struct stat filestatus;
-    if (stat(npath.c_str(), &filestatus) >= 0)
-        return filestatus.st_size;
+    std::string filePath = (bIsHDD ? path
+                                   : strAbsoluteLocation + '/' + path);
+    struct stat fileStatus {};
+    if (stat(filePath.c_str(), &fileStatus) >= 0)
+        return fileStatus.st_size;
     return 0;
 }
 
 bool cDiscFeed::DirectoryExists(const char *path) {
     std::string abspath = (bIsHDD ? std::string(path)
-                                  : strAbsoluteLocation + "/" + std::string(path));
-    HANDLE hFind = INVALID_HANDLE_VALUE;
+                                  : strAbsoluteLocation + '/' + path);
+    HANDLE hFind;
     WIN32_FIND_DATA fdata;
     hFind = FindFirstFile(abspath.c_str(), &fdata);
-    if (hFind == INVALID_HANDLE_VALUE) return 0;
-    return 1;
+    return hFind != INVALID_HANDLE_VALUE;
 }
 
 std::vector<std::string> cDiscFeed::GetDirectoryContents(const char *path, bool bRecursive) {
-    std::string pstr = std::string(path);
-    //std::transform(pstr.begin(), pstr.end(), pstr.begin(), ::tolower);
     std::string abspath = (bIsHDD ? std::string(path)
-                                  : strAbsoluteLocation + "/" + std::string(path)) + "/*";
-    std::vector<std::string> r;
+                                  : strAbsoluteLocation + '/' + path) + "/*";
+    std::vector<std::string> r = {};
     HANDLE hFind = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA fdata;
     hFind = FindFirstFile(abspath.c_str(), &fdata);
@@ -242,28 +239,30 @@ std::vector<std::string> cDiscFeed::GetDirectoryContents(const char *path, bool 
 
     do {
         if (fdata.cFileName[0] == '.' &&
-            (fdata.cFileName[1] == '.' && fdata.cFileName[2] == '\0' || fdata.cFileName[1] == '\0'))
+            ((fdata.cFileName[1] == '.' && fdata.cFileName[2] == '\0') || fdata.cFileName[1] == '\0'))
             continue;
         std::string entry = fdata.cFileName;
-        //std::transform(entry.begin(), entry.end(), entry.begin(), ::tolower);
         r.push_back(entry);
         if (bRecursive) {
-            std::string np = pstr + "/" + entry;
-            std::vector<std::string> r2 = GetDirectoryContents(np.c_str(), 1);
-            for (size_t z = 0; z < r2.size(); z++)
-                r.push_back(entry + "/" + r2[z]);
+            std::string np(path);
+            np += '/';
+            np += entry;
+            std::vector<std::string> r2 = GetDirectoryContents(np.c_str(), true);
+            entry += '/';
+            for (const auto & fileName : r2)
+                r.push_back(entry + fileName);
         }
     } while (FindNextFile(hFind, &fdata) != 0);
     return r;
 }
 
-cRezFeed::cRezFeed(std::string strPath) {
+cRezFeed::cRezFeed(const std::string& strPath) {
     strAbsoluteLocation = strPath;
-    iModificationFlag = 0;
+    iModificationFlag = false;
     iModTime = 0;
     myType = Feed_REZ;
     hREZ = new REZ::Parser(strPath.c_str());
-    UpdateModificationFlag();
+    cRezFeed::UpdateModificationFlag();
 }
 
 cRezFeed::~cRezFeed() {
@@ -276,27 +275,23 @@ time_t cRezFeed::GetFileModTime(const char *path) {
 
 int cRezFeed::GetFileSize(const char *path) {
     REZ::Element *el = hREZ->GetRoot()->GetElement(path);
-    if (el != 0)
-        return el->GetSize();
-    return 0;
+    return el && el->GetSize();
 }
 
 bool cRezFeed::FileExists(const char *path) {
     REZ::Element *el = hREZ->GetRoot()->GetElement(path);
-    if (!el) return 0;
-    return el->IsFile();
+    return el && el->IsFile();
 }
 
-unsigned char *
-cRezFeed::GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart, unsigned int iReadEnd) {
+unsigned char * cRezFeed::GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart, unsigned int iReadEnd) {
     REZ::Element *el = hREZ->GetRoot()->GetElement(path);
     if (!el || !el->IsFile()) {
         oiDataLength = 0;
         return 0;
     };
-    REZ::File *f = (REZ::File *) el;
+    auto *file = (REZ::File *) el;
     int dl = 0;
-    unsigned char *p = (unsigned char *) f->GetData(&dl);
+    unsigned char *p = (unsigned char *) file->GetData(&dl);
     oiDataLength = dl;
     return p;
 }
@@ -311,29 +306,27 @@ void cRezFeed::ReadingStop() {
 
 void cRezFeed::Reload() {
     hREZ->Reload();
-    iModificationFlag = 0;
+    iModificationFlag = false;
 }
 
 bool cRezFeed::DirectoryExists(const char *path) {
     REZ::Element *el = hREZ->GetRoot()->GetElement(path);
-    if (!el) return 0;
-    return el->IsDir();
+    return el && el->IsDir();
 }
 
 std::vector<std::string> cRezFeed::GetDirectoryContents(const char *path, bool bRecursive) {
     REZ::Element *el = hREZ->GetRoot()->GetElement(path);
-    std::vector<std::string> r;
+    std::vector<std::string> r = {};
     if (!el || !el->IsDir()) return r;
-    REZ::Dir *d = (REZ::Dir *) el;
-    for (int i = 0; i < d->GetElementsCount(); i++) {
-        std::string tempstr = std::string(d->GetElement(i)->GetName());
-        //std::transform(tempstr.begin(), tempstr.end(), tempstr.begin(), ::tolower);
+    auto *dir = (REZ::Dir *) el;
+    for (int i = 0; i < dir->GetElementsCount(); i++) {
+        std::string tempstr = std::string(dir->GetElement(i)->GetName());
         r.push_back(tempstr);
-        if (d->GetElement(i)->IsDir() && bRecursive) {
+        if (dir->GetElement(i)->IsDir() && bRecursive) {
             std::string npath(path);
             npath.append("/");
-            npath.append(d->GetElement(i)->GetName());
-            std::vector<std::string> x = GetDirectoryContents(npath.c_str(), 1);
+            npath.append(dir->GetElement(i)->GetName());
+            std::vector<std::string> x = GetDirectoryContents(npath.c_str(), true);
             while (!x.empty()) {
                 std::string pn = tempstr;
                 pn.append("/");
@@ -349,7 +342,7 @@ std::vector<std::string> cRezFeed::GetDirectoryContents(const char *path, bool b
 void cRezFeed::UpdateModificationFlag() {
     time_t n = hREZ->GetActualModTime();
     if (iModTime != 0 && n != iModTime) {
-        iModificationFlag = 1;
+        iModificationFlag = true;
     }
     iModTime = n;
 }

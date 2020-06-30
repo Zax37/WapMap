@@ -69,7 +69,7 @@ namespace ObjEdit {
         delete tfSpeed;
         delete tfOffset;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjRope::Save() {

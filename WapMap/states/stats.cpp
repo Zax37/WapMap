@@ -185,7 +185,7 @@ bool State::MapStats::Think() {
                             exc.getLine());
     }
     if (bKill)
-        _popMe(0);
+        _popMe({});
     return 0;
 }
 
@@ -209,9 +209,6 @@ bool State::MapStats::Render() {
             } else
                 dy += 20 * i;
 
-            hgeQuad q;
-            q.tex = 0;
-            q.blend = BLEND_DEFAULT;
             SHR::SetQuad(&q, el.iColor, dx, dy + 5, dx + 10, dy + 15);
             hge->Gfx_RenderQuad(&q);
             GV->fntMyriad16->printf(dx + 15, dy, HGETEXT_LEFT, "%s ~l~(~y~%d~l~)", 0, el.szDesc, el.iPart);

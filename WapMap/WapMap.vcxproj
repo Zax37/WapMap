@@ -349,6 +349,7 @@
     <ClCompile Include="objedit\winInventoryPickbox.cpp" />
     <ClCompile Include="objQuadTree.cpp" />
     <ClCompile Include="rendering\cRenderableItem.cpp" />
+    <ClCompile Include="states\dialog.cpp" />
     <ClCompile Include="states\editing_ww.cpp" />
     <ClCompile Include="states\editing_ww\alActionListener.cpp" />
     <ClCompile Include="states\editing_ww\cLayerRenderBuffer.cpp" />
@@ -363,7 +364,6 @@
     <ClCompile Include="states\editing_ww\winFirstRun.cpp" />
     <ClCompile Include="states\editing_ww\winNewMap.cpp" />
     <ClCompile Include="states\editing_ww\winPlaneProperties.cpp" />
-    <ClCompile Include="states\error.cpp" />
     <ClCompile Include="states\imageDetails.cpp" />
     <ClCompile Include="states\imageImport.cpp" />
     <ClCompile Include="states\loadmap.cpp" />
@@ -506,8 +506,8 @@
     <ClInclude Include="rendering\cRenderableItem.h" />
     <ClInclude Include="resources.h" />
     <ClInclude Include="returncodes.h" />
+    <ClInclude Include="states\dialog.h" />
     <ClInclude Include="states\editing_ww.h" />
-    <ClInclude Include="states\error.h" />
     <ClInclude Include="states\imageDetails.h" />
     <ClInclude Include="states\imageImport.h" />
     <ClInclude Include="states\loadmap.h" />

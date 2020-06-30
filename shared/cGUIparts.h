@@ -10,7 +10,7 @@ namespace SHR {
     public:
         hgeSprite *sprPBarFL, *sprPBarFM, *sprPBarFR, *sprPBarEL, *sprPBarEM, *sprPBarER;
 
-        hgeSprite *sprIconInfo, *sprIconWarning, *sprIconError;
+        hgeSprite *sprIconQuestion, *sprIconInfo, *sprIconWarning, *sprIconError;
 
         gcn::HGEImageFont *gcnfntMyriad13, *gcnfntMyriad10, *gcnfntSystem;
     };

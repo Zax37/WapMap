@@ -101,7 +101,7 @@ namespace ObjEdit {
             delete invTabs[i];
         delete win;
         delete hInventory;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCrabNest::Save() {

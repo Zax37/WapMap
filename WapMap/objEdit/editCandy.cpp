@@ -185,7 +185,7 @@ namespace ObjEdit {
         delete saImgPick;
 
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCandy::Action(const gcn::ActionEvent &actionEvent) {
@@ -222,7 +222,7 @@ namespace ObjEdit {
 			GetUserDataFromObj(hTempObj)->SetZ(z);
 			hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationZ, z);
 			UpdateLogic();
-			hState->vPort->MarkToRedraw(1);
+			hState->vPort->MarkToRedraw();
 		} else for (int i = 0; i < 3; ++i) if (actionEvent.getSource() == rbType[i]) {
 			int z = 0;
 			switch (i) {
@@ -245,7 +245,7 @@ namespace ObjEdit {
 			hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationZ, z);
 			zCoord->setEnabled(i == 2);
 			UpdateLogic();
-			hState->vPort->MarkToRedraw(1);
+			hState->vPort->MarkToRedraw();
 			break;
 		}
     }
@@ -271,7 +271,7 @@ namespace ObjEdit {
 		float time = hge->Timer_GetTime();
 		int frame = time * 5;
 
-		GV->hGfxInterface->sprMainBackground->RenderStretch(dx, dy, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT);
+		//GV->hGfxInterface->sprMainBackground->RenderStretch(dx, dy, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT);
 
 		float dyo = dy - saImgPick->getVerticalScrollAmount();
 
@@ -316,7 +316,7 @@ namespace ObjEdit {
 				}
 
 				if (imgSet == asImageSetPick && (!nani || asFramePick == frame)) {
-					colBorder = 0xFF1585e2;
+					colBorder = GV->colActive;
 				}
 
 				hge->Gfx_RenderLine(drawX + 1, drawY + 1, drawX + IMAGE_TILE_WIDTH - 2, drawY + 1, colBorder);
@@ -441,7 +441,7 @@ namespace ObjEdit {
 			}
 			UpdateLogic();
 			hTempObj->SetImageSet(asImageSetPick->GetID());
-			hState->vPort->MarkToRedraw(1);
+			hState->vPort->MarkToRedraw();
 
 			if (animation->isEnabled() && animation->getText() != "GAME_CYCLE100") {
 				hTempObj->SetAnim(animation->getText().c_str());

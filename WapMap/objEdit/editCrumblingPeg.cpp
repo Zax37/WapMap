@@ -35,7 +35,7 @@ namespace ObjEdit {
             if (!rbType[0]->isSelected() && !rbType[1]->isSelected()) {
                 rbType[0]->setSelected(1);
                 hTempObj->SetImageSet("LEVEL_CRUMBLINPEG2");
-                hState->vPort->MarkToRedraw(1);
+                hState->vPort->MarkToRedraw();
             }
             win->setHeight(win->getHeight() + 90);
             win->setY(win->getY() - 90);
@@ -61,7 +61,7 @@ namespace ObjEdit {
                 delete rbType[i];
         delete cbNoRespawn;
         delete win;
-        hState->vPort->MarkToRedraw(1);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjCrumblingPeg::Action(const gcn::ActionEvent &actionEvent) {
@@ -70,10 +70,10 @@ namespace ObjEdit {
             return;
         } else if (rbType[0] != 0 && actionEvent.getSource() == rbType[0]) {
             hTempObj->SetImageSet("LEVEL_CRUMBLINPEG2");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (rbType[1] != 0 && actionEvent.getSource() == rbType[1]) {
             hTempObj->SetImageSet("LEVEL_CRUMBLINPEG1");
-            hState->vPort->MarkToRedraw(1);
+            hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == cbNoRespawn) {
             if (cbNoRespawn->isSelected())
                 hTempObj->SetLogic("CrumblingPegNoRespawn");
