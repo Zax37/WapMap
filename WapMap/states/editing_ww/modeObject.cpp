@@ -468,8 +468,8 @@ const char* State::EditingWW::GetDefaultElevatorImageSet() {
 void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
     auto *obj = new WWD::Object();
     if (hmbObject->GetContext()->isVisible() && hmbObject->GetContext()->GetSelectedID() != -1) {
-        obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), objContext->getX()));
-        obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), objContext->getY()));
+        obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), contextX));
+        obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), contextY));
     } else {
         obj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
         obj->SetParam(WWD::Param_LocationY, Scr2WrdY(GetActivePlane(), vPort->GetY() + vPort->GetHeight() / 2));
@@ -839,11 +839,12 @@ void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool hor
     int x = minX + maxX, y = minY + maxY;
 
     for (WWD::Object *object : objects) {
-        if (horizontally) object->SetParam(WWD::Param_LocationX, x - object->GetX());
-        if (vertically) object->SetParam(WWD::Param_LocationY, y - object->GetY());
-        GetUserDataFromObj(object)->SyncToObj();
+        if (horizontally) GetUserDataFromObj(object)->SetX(x - object->GetX());
+        if (vertically) GetUserDataFromObj(object)->SetY(y - object->GetY());
     }
 
-    vPort->MarkToRedraw();
-    MarkUnsaved();
+    if (UpdateMovedObjectWithRects(objects, true)) {
+        MarkUnsaved();
+        vPort->MarkToRedraw();
+    }
 }

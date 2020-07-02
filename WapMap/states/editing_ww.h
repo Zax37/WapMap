@@ -46,7 +46,7 @@ typedef unsigned char byte;
 typedef unsigned long DWORD;
 #endif
 
-#define WORKSPACE_MARGINS_SIZE 1200
+#define WORKSPACE_MARGINS_SIZE 1000
 
 #define SIM_ROPE_DEFAULT_SPEED 3.000f //in seconds
 #define SIM_TOGGLEPEG_DEFAULT_ON 1.500f //in secs
@@ -354,7 +354,7 @@ namespace State {
 
         void Render(int x = 0, int y = 0, float fZoom = 1.0f);
 
-        void Redraw() { bRedraw = 1; };
+        void Redraw() { bRedraw = true; };
 
         void GfxLost();
 
@@ -508,6 +508,8 @@ namespace State {
 
         void mouseExited(MouseEvent& mouseEvent) override;
 
+        int contextX, contextY;
+
         SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmFlipContext, *objmSpaceContext; //basic contexts
         SHR::Context *objFlagContext, *objFlagDrawContext, *objFlagAddContext, *objFlagDynamicContext; //flags contexts
         SHR::Context *advcon_Warp, *advcon_Container; //advanced contexts (object specific)
@@ -574,7 +576,7 @@ namespace State {
 
         SHR::ScrollArea *sabrlLogicList;
         SHR::ListBox *lbbrlLogicList;
-        SHR::But *butbrlNew, *butbrlEdit, *butbrlEditExternal, *butbrlDelete, *butbrlBrowseDir, *butbrlRename;
+        SHR::But *butbrlNew, *butbrlEdit, *butbrlDelete, *butbrlBrowseDir, *butbrlRename;
         SHR::Lab *labbrlLogics, *labbrlLogicName, *labbrlFilePath, *labbrlFileSize, *labbrlFileChecksum, *labbrlFileModDate,
                  *labbrlLogicNameV, *labbrlFilePathV, *labbrlFileSizeV, *labbrlFileChecksumV, *labbrlFileModDateV;
 

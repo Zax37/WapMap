@@ -356,6 +356,7 @@ public:
     hgeSprite *sprTabCloseButton, *sprTabCloseButtonFocused;
     hgeSprite *sprTabAddButton, *sprTabAddButtonFocused;
     hgeSprite *sprHomepageBackButton;
+    hgeSprite *sprSnowflake;
 
     hgeSprite *sprTile;
     hgeFont *fntMyriad10, *fntMyriad20, *fntSystem17, *fntMyriad16, *fntMyriad80, *fntMinimal;
@@ -364,7 +365,7 @@ public:
     gcn::HGEGraphics *gcnGraphics;
     gcn::HGEImageLoader *gcnImageLoader;
 
-    bool bKijan, bZax;
+    bool bKijan, bZax, bWinter;
     hgeSprite *sprKijan, *sprZax;
 
     char *szLastOpenPath, *szLastSavePath;

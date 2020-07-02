@@ -83,14 +83,7 @@ namespace State {
         } else if (actionEvent.getSource() == m_hOwn->butbrlEdit) {
             cCustomLogic *logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
             m_hOwn->hDataCtrl->OpenCodeEditor(logic);
-        }
-            //else if (actionEvent.getSource() == m_hOwn->butbrlEditExternal) {
-            // REMOVED
-            /*cCustomLogic * logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
-            std::string path = m_hOwn->hDataCtrl->GetFeed(DB_FEED_CUSTOM)->GetAbsoluteLocation() + "/LOGICS/" + logic->GetName() + ".lua";
-            printf("%d\n", ShellExecute(hge->System_GetState(HGE_HWND), "open", path.c_str(), "", "", SW_SHOWNORMAL));*/
-            //}
-        else if (actionEvent.getSource() == m_hOwn->butbrlDelete) {
+        } else if (actionEvent.getSource() == m_hOwn->butbrlDelete) {
             cCustomLogic *logic = m_hOwn->hCustomLogics->GetLogicByIterator(m_hOwn->lbbrlLogicList->getSelected());
             std::string path = logic->GetPath();
             if (GV->fntMyriad16->GetStringWidth(path.c_str()) > 345) {
@@ -643,16 +636,14 @@ namespace State {
                         }
                     }
                 } else if (m_hOwn->tilContext->GetSelectedID() == TILMENU_PASTE) {
-                    bool bChanges = 0;
-                    float mx, my;
-                    hge->Input_GetMousePos(&mx, &my);
-                    int tx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx) / m_hOwn->GetActivePlane()->GetTileWidth(),
-                        ty = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my) / m_hOwn->GetActivePlane()->GetTileHeight();
+                    bool bChanges = false;
+                    int tx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->contextX) / m_hOwn->GetActivePlane()->GetTileWidth(),
+                        ty = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->contextY) / m_hOwn->GetActivePlane()->GetTileHeight();
                     for (int i = 0, y = ty; y < ty + m_hOwn->MDI->GetActiveDoc()->iTileCBh; ++y)
                         for (int x = tx; x < tx + m_hOwn->MDI->GetActiveDoc()->iTileCBw; ++x, ++i) {
                             WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);
                             if (tile && *tile != m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i]) {
-                                bChanges = 1;
+                                bChanges = true;
                                 *tile = m_hOwn->MDI->GetActiveDoc()->hTileClipboard[i];
                             }
                         }
@@ -697,10 +688,8 @@ namespace State {
                     }
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_TESTFROMHERE) {
                     if (strlen(m_hOwn->MDI->GetActiveDoc()->hParser->GetFilePath()) > 0) {
-                        int contextX, contextY;
-                        m_hOwn->objContext->getAbsolutePosition(contextX, contextY);
-                        int worldX = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), contextX),
-                                worldY = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), contextY);
+                        int worldX = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->contextX),
+                            worldY = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->contextY);
                         m_hOwn->hNativeController->RunGame(m_hOwn->MDI->GetActiveDoc()->hParser->GetFilePath(), worldX,
                                                            worldY);
                     }
@@ -766,9 +755,9 @@ namespace State {
                     if (m_hOwn->vObjectClipboard.empty()) return;
                     m_hOwn->vObjectsPicked.clear();
                     float x = int(m_hOwn->fCamX * (m_hOwn->GetActivePlane()->GetMoveModX() / 100.0f) * m_hOwn->fZoom) +
-                              m_hOwn->objContext->getX();
+                              m_hOwn->contextX - m_hOwn->vPort->GetX();
                     float y = int(m_hOwn->fCamY * (m_hOwn->GetActivePlane()->GetMoveModY() / 100.0f) * m_hOwn->fZoom) +
-                              m_hOwn->objContext->getY() - m_hOwn->vPort->GetY();
+                              m_hOwn->contextY - m_hOwn->vPort->GetY();
 
                     x = x / m_hOwn->fZoom;
                     y = y / m_hOwn->fZoom;
@@ -785,9 +774,15 @@ namespace State {
                         GetUserDataFromObj(object)->SetPos(x + diffX, y + diffY);
                     }
 
+                    m_hOwn->vPort->MarkToRedraw();
                     if (m_hOwn->UpdateMovedObjectWithRects(m_hOwn->vObjectsPicked)) {
                         m_hOwn->MarkUnsaved();
                         m_hOwn->vPort->MarkToRedraw();
+                    } else {
+                        std::vector<WWD::Object *> tmp = m_hOwn->vObjectsPicked;
+                        for (auto &i : tmp) {
+                            m_hOwn->GetActivePlane()->DeleteObject(i);
+                        }
                     }
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_USEASBRUSH) {
                     for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
@@ -807,7 +802,7 @@ namespace State {
                         m_hOwn->objContext->GetSelectedID() == OBJMENU_SPACE) {
                     return;
                 }
-                m_hOwn->objContext->setVisible(0);
+                m_hOwn->objContext->setVisible(false);
             } else if (actionEvent.getSource() == m_hOwn->objFlagDrawContext ||
                        actionEvent.getSource() == m_hOwn->objFlagDynamicContext ||
                        actionEvent.getSource() == m_hOwn->objFlagAddContext) {
@@ -826,16 +821,16 @@ namespace State {
 				}*/
                 int flagbinaryval = pow(2, flagpos);
 
-                for (size_t obji = 0; obji < m_hOwn->vObjectsPicked.size(); obji++) {
-                    if (m_hOwn->vObjectsPicked[obji] == m_hOwn->hStartingPosObj)
+                for (auto & obj : m_hOwn->vObjectsPicked) {
+                    if (obj == m_hOwn->hStartingPosObj)
                         continue;
                     int aqflag = 0;
                     if (hCallingContext == m_hOwn->objFlagDrawContext) {
-                        aqflag = int(m_hOwn->vObjectsPicked[obji]->GetDrawFlags());
+                        aqflag = int(obj->GetDrawFlags());
                     } else if (hCallingContext == m_hOwn->objFlagDynamicContext) {
-                        aqflag = int(m_hOwn->vObjectsPicked[obji]->GetDynamicFlags());
+                        aqflag = int(obj->GetDynamicFlags());
                     } else if (hCallingContext == m_hOwn->objFlagAddContext) {
-                        aqflag = int(m_hOwn->vObjectsPicked[obji]->GetAddFlags());
+                        aqflag = int(obj->GetAddFlags());
                     }
                     if (valuetoset && (aqflag & flagbinaryval) > 0)
                         continue;
@@ -844,14 +839,14 @@ namespace State {
                     else
                         aqflag -= flagbinaryval;
                     if (hCallingContext == m_hOwn->objFlagDrawContext) {
-                        m_hOwn->vObjectsPicked[obji]->SetDrawFlags((WWD::OBJ_DRAW_FLAGS) aqflag);
+                        obj->SetDrawFlags((WWD::OBJ_DRAW_FLAGS) aqflag);
                     } else if (hCallingContext == m_hOwn->objFlagDynamicContext) {
-                        m_hOwn->vObjectsPicked[obji]->SetDynamicFlags((WWD::OBJ_DYNAMIC_FLAGS) aqflag);
+                        obj->SetDynamicFlags((WWD::OBJ_DYNAMIC_FLAGS) aqflag);
                     } else if (hCallingContext == m_hOwn->objFlagAddContext) {
-                        m_hOwn->vObjectsPicked[obji]->SetAddFlags((WWD::OBJ_ADD_FLAGS) aqflag);
+                        obj->SetAddFlags((WWD::OBJ_ADD_FLAGS) aqflag);
                     }
                     if (hCallingContext == m_hOwn->objFlagDrawContext)
-                        GetUserDataFromObj(m_hOwn->vObjectsPicked[obji])->SyncToObj();
+                        GetUserDataFromObj(obj)->SyncToObj();
                 }
 
                 hCallingContext->GetElementByID(menupos)->SetIcon(valuetoset ? GV->sprIcons16[Icon16_Applied] : 0);
@@ -912,7 +907,7 @@ namespace State {
                         r.y2 = vals[3];
                         m_hOwn->vObjectsPicked[0]->SetUserRect(i, r);
                     }
-                    m_hOwn->objContext->setVisible(0);
+                    m_hOwn->objContext->setVisible(false);
                     m_hOwn->vPort->MarkToRedraw();
                 }
             } else if (actionEvent.getSource() == m_hOwn->objZCoordContext) {
@@ -976,7 +971,7 @@ namespace State {
             } else if (actionEvent.getSource() == m_hOwn->sliHor) {
                 m_hOwn->fCamX = m_hOwn->sliHor->getValue();
             } else if (actionEvent.getSource() == m_hOwn->sliVer) {
-                m_hOwn->fCamY = m_hOwn->sliVer->getScaleEnd() - m_hOwn->sliVer->getValue();
+                m_hOwn->fCamY = m_hOwn->sliVer->getValue();
             } else if (actionEvent.getSource() == m_hOwn->sliobrDistance) {
                 char tmp[128];
                 sprintf(tmp, "%s: %.0fpx", GETL(Lang_BrushInterval), m_hOwn->sliobrDistance->getValue());
@@ -1110,9 +1105,9 @@ namespace State {
                 if (GV->editState->hmbObject->GetContext()->isVisible() &&
                         GV->editState->hmbObject->GetContext()->GetSelectedID() != -1) {
                     obj->SetParam(WWD::Param_LocationX,
-                                  m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->objContext->getX()));
+                                  m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), m_hOwn->contextX));
                     obj->SetParam(WWD::Param_LocationY,
-                                  m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->objContext->getY()));
+                                  m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), m_hOwn->contextY));
                     bFromContext = true;
                 } else {
                     obj->SetParam(WWD::Param_LocationX, m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(),
@@ -1306,9 +1301,14 @@ namespace State {
                 if (keyEvent.isControlPressed()) {
                     switch (keyEvent.getKey().getValue()) {
                         case 'd':
-                            if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty()) {
-                                for (auto &object : m_hOwn->vObjectsPicked) {
-                                    object = new WWD::Object(object);
+                            if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty() && m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                                for (auto it = m_hOwn->vObjectsPicked.begin(); it != m_hOwn->vObjectsPicked.end(); ++it) {
+                                    if (*it == m_hOwn->hStartingPosObj) {
+                                        it = m_hOwn->vObjectsPicked.erase(it);
+                                        if (it == m_hOwn->vObjectsPicked.end()) break;
+                                        continue;
+                                    }
+                                    auto object = new WWD::Object(*it);
                                     object->SetUserData(new cObjUserData(object));
                                     m_hOwn->plMain->AddObjectAndCalcID(object);
                                     GetUserDataFromObj(object)->SyncToObj();
@@ -1316,10 +1316,26 @@ namespace State {
                                             object);
                                 }
 
+                                if (m_hOwn->vObjectsPicked.empty()) {
+                                    m_hOwn->vObjectsPicked.emplace_back(m_hOwn->hStartingPosObj);
+                                    return;
+                                }
+
                                 m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
                                 m_hOwn->bEditObjDelete = true;
                                 m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetParam(WWD::Param_LocationX);
                                 m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetParam(WWD::Param_LocationY);
+
+                                float mx, my;
+                                hge->Input_GetMousePos(&mx, &my);
+                                int wmx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx),
+                                    wmy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my);
+
+                                for (auto &object : m_hOwn->vObjectsPicked) {
+                                    GetUserDataFromObj(object)->SetPos(object->GetX() + wmx - m_hOwn->iMoveRelX,
+                                                                       object->GetY() + wmy - m_hOwn->iMoveRelY);
+                                }
+                                m_hOwn->vPort->MarkToRedraw();
                             }
                             break;
                         case 'n':
@@ -1350,6 +1366,17 @@ namespace State {
                             break;
                         case 'r':
                             m_hOwn->hRulers->SetVisible(!m_hOwn->hRulers->IsVisible());
+                            break;
+                        case 'v':
+                            if (m_hOwn->iMode == EWW_MODE_OBJECT && m_hOwn->iActiveTool == EWW_TOOL_NONE && !m_hOwn->vObjectClipboard.empty()) {
+                                float mx, my;
+                                hge->Input_GetMousePos(&mx, &my);
+                                if (m_hOwn->conMain->getWidgetAt(mx, my) == m_hOwn->vPort->GetWidget()) {
+                                    m_hOwn->contextX = mx;
+                                    m_hOwn->contextY = my;
+                                    m_hOwn->objContext->EmulateClickID(OBJMENU_PASTE);
+                                }
+                            }
                             break;
                     }
                 } else if (keyEvent.isAltPressed()) {
@@ -1397,6 +1424,22 @@ namespace State {
             }
         } else if (keyEvent.getKey() == 'z' && m_hOwn->iActiveTool < EWW_TOOL_ZOOM) {
             m_hOwn->SetTool(EWW_TOOL_ZOOM);
+        } else if (keyEvent.getKey() == 'g' && m_hOwn->iMode == EWW_MODE_OBJECT
+                   && !m_hOwn->vObjectsPicked.empty() && m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+            m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
+            m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetX();
+            m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetY();
+
+            float mx, my;
+            hge->Input_GetMousePos(&mx, &my);
+            int wmx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx),
+                    wmy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my);
+
+            for (auto &object : m_hOwn->vObjectsPicked) {
+                GetUserDataFromObj(object)->SetPos(object->GetX() + wmx - m_hOwn->iMoveRelX,
+                                                   object->GetY() + wmy - m_hOwn->iMoveRelY);
+            }
+            m_hOwn->vPort->MarkToRedraw();
         }
     }
 
@@ -1433,22 +1476,6 @@ namespace State {
                         }
                         break;
                 }
-            }
-        }
-
-        if (m_hOwn->objContext->isVisible()) {
-            if (!(mouseEvent.getX() > m_hOwn->objContext->getX() - 4 &&
-                  mouseEvent.getX() < m_hOwn->objContext->getX() + m_hOwn->objContext->getWidth() + 4 &&
-                  mouseEvent.getY() > m_hOwn->objContext->getY() - 4 &&
-                  mouseEvent.getY() < m_hOwn->objContext->getY() + m_hOwn->objContext->getHeight() + 4)) {
-                m_hOwn->objContext->setVisible(false);
-            }
-        } else if (m_hOwn->tilContext->isVisible()) {
-            if (!(mouseEvent.getX() > m_hOwn->tilContext->getX() - 4 &&
-                  mouseEvent.getX() < m_hOwn->tilContext->getX() + m_hOwn->tilContext->getWidth() + 4 &&
-                  mouseEvent.getY() > m_hOwn->tilContext->getY() - 4 &&
-                  mouseEvent.getY() < m_hOwn->tilContext->getY() + m_hOwn->tilContext->getHeight() + 4)) {
-                m_hOwn->tilContext->setVisible(false);
             }
         }
     }
@@ -1570,8 +1597,8 @@ namespace State {
 
         if (bDragDropScroll) {
             GV->SetCursor(GRAB);
-            fCamX -= ((dragEvent.getX() - dragDropX) / fZoom) / (GetActivePlane()->GetMoveModX() / 100.0f);
-            fCamY -= ((dragEvent.getY() - dragDropY) / fZoom) / (GetActivePlane()->GetMoveModY() / 100.0f);
+            fCamX -= ((dragEvent.getX() - dragDropX) / fZoom);
+            fCamY -= ((dragEvent.getY() - dragDropY) / fZoom);
             dragDropX = dragEvent.getX();
             dragDropY = dragEvent.getY();
         } else if (iActiveTool == EWW_TOOL_ZOOM) {
@@ -1609,8 +1636,8 @@ namespace State {
                 && dragEvent.getDragTime() > 20 && dragEvent.getDragDistance() > 3) {
                 if (bDragSelection) {
                     int x = Scr2WrdX(GetActivePlane(), dragEvent.getX() + vPort->GetX()),
-                            y = Scr2WrdY(GetActivePlane(), dragEvent.getY() + vPort->GetY()),
-                            w, h;
+                        y = Scr2WrdY(GetActivePlane(), dragEvent.getY() + vPort->GetY()),
+                        w, h;
 
                     if (x > iDragSelectionOrigX) {
                         w = x - iDragSelectionOrigX;
@@ -1641,11 +1668,7 @@ namespace State {
     void State::EditingWW::mousePressed(MouseEvent &mouseEvent) {
         if (hParser == NULL) return;
 
-        if (objContext->isVisible()) {
-            objContext->setVisible(false);
-        } else if (tilContext->isVisible()) {
-            tilContext->setVisible(false);
-        } else if (hge->Input_GetKeyState(HGEK_SPACE)) {
+        if (hge->Input_GetKeyState(HGEK_SPACE)) {
             if (mouseEvent.getButton() == MouseEvent::LEFT) {
                 bDragDropScroll = true;
                 dragDropX = mouseEvent.getX();
@@ -1659,138 +1682,175 @@ namespace State {
             dragDropX = mouseEvent.getX();
             dragDropY = mouseEvent.getY();
             GV->SetCursor(mouseEvent.isAltPressed() ? ZOOM_OUT : ZOOM_IN);
-        } else if (iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_NONE) {
-             if (mouseEvent.getButton() == MouseEvent::LEFT) {
-                if (vObjectsHL.empty()) {
-                    bDragSelection = true;
-                    iDragSelectionOrigX = Scr2WrdX(GetActivePlane(), mouseEvent.getX() + vPort->GetX());
-                    iDragSelectionOrigY = Scr2WrdY(GetActivePlane(), mouseEvent.getY() + vPort->GetY());
-                } else {
-                    if (!CURRENT_SELECTION_IS_HOVERED) {
-                        if (mouseEvent.isShiftPressed()) {
-                            vObjectsPicked.push_back(vObjectsHL[0]);
-                        } else {
-                            vObjectsPicked = vObjectsHL;
-                        }
-                        selectionKeyObject = vObjectsHL[0];
-                    } else if (mouseEvent.isShiftPressed()) {
-                        vObjectsPicked.erase(std::remove(vObjectsPicked.begin(), vObjectsPicked.end(),
-                                                         vObjectsHL[0]), vObjectsPicked.end());
-                        if (selectionKeyObject == vObjectsHL[0]) {
-                            if (vObjectsPicked.empty()) {
-                                selectionKeyObject = NULL;
-                            } else {
-                                selectionKeyObject = vObjectsPicked.back();
-                            }
-                        }
-                    }
-                }
-            } else if (mouseEvent.getButton() == MouseEvent::RIGHT) {
-                vObjectsHL.clear();
-                vPort->MarkToRedraw();
-                if (vObjectsPicked.empty()) {
-                    bool canTestFromPos = hNativeController->IsValid() &&
-                                          hNativeController->IsCrazyHookAvailable() &&
-                                          strlen(hParser->GetFilePath()) > 0;
-                    if (vObjectClipboard.empty()) {
-                        conmodAtEmpty->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
-                        objContext->SetModel(conmodAtEmpty);
-                    } else {
-                        char ncap[256];
-                        if (vObjectClipboard.size() == 1)
-                            sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), vObjectClipboard[0]->GetLogic());
-                        else
-                            sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), GETL(Lang_ManyObjects));
-                        conmodAtEmptyPaste->GetElementByID(OBJMENU_PASTE)->SetCaption(ncap);
-                        conmodAtEmptyPaste->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
+        } else if (iMode == EWW_MODE_OBJECT) {
+             if (iActiveTool == EWW_TOOL_NONE) {
+                 if (mouseEvent.getButton() == MouseEvent::LEFT) {
+                     if (mouseEvent.isAltPressed()) {
+                         if (!vObjectClipboard.empty()) {
+                             contextX = mouseEvent.getX() + vPort->GetX();
+                             contextY = mouseEvent.getY() + vPort->GetY();
+                             objContext->EmulateClickID(OBJMENU_PASTE);
+                         }
+                     } else if (vObjectsHL.empty()) {
+                         bDragSelection = true;
+                         iDragSelectionOrigX = Scr2WrdX(GetActivePlane(), mouseEvent.getX() + vPort->GetX());
+                         iDragSelectionOrigY = Scr2WrdY(GetActivePlane(), mouseEvent.getY() + vPort->GetY());
+                     } else {
+                         if (!CURRENT_SELECTION_IS_HOVERED) {
+                             if (mouseEvent.isShiftPressed()) {
+                                 vObjectsPicked.push_back(vObjectsHL[0]);
+                             } else {
+                                 vObjectsPicked = vObjectsHL;
+                             }
+                             selectionKeyObject = vObjectsHL[0];
+                         } else if (mouseEvent.isShiftPressed()) {
+                             vObjectsPicked.erase(std::remove(vObjectsPicked.begin(), vObjectsPicked.end(),
+                                                              vObjectsHL[0]), vObjectsPicked.end());
+                             if (selectionKeyObject == vObjectsHL[0]) {
+                                 if (vObjectsPicked.empty()) {
+                                     selectionKeyObject = NULL;
+                                 } else {
+                                     selectionKeyObject = vObjectsPicked.back();
+                                 }
+                             }
+                         }
+                     }
+                 } else if (mouseEvent.getButton() == MouseEvent::RIGHT) {
+                     contextX = mouseEvent.getX() + vPort->GetX();
+                     contextY = mouseEvent.getY() + vPort->GetY();
 
-                        objContext->SetModel(conmodAtEmptyPaste);
-                    }
-                } else {
-                    if (vObjectsPicked.size() == 1) {
-                        if (vObjectsPicked[0] == hStartingPosObj) {
-                            bool canTestFromPos = hNativeController->IsValid() &&
-                                                  hNativeController->IsCrazyHookAvailable() &&
-                                                  strlen(hParser->GetFilePath()) > 0;
-                            conmodSpawnPoint->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
-                            objContext->SetModel(conmodSpawnPoint);
-                        } else {
-                            auto *con = (SHR::Context *) 1;
-                            bool spec = AreObjectSpecificOptionsAvailable(vObjectsPicked[0], &con);
-                            if (IsEditableObject(vObjectsPicked[0]))
-                                objContext->SetModel(conmodEditableObject);
-                            else
-                                objContext->SetModel(conmodObject);
-                            if (!strcmp(vObjectsPicked[0]->GetLogic(), "CustomLogic") &&
-                                hCustomLogics->GetLogicByName(vObjectsPicked[0]->GetName()) != 0) {
-                                objContext->AddElement(OBJMENU_EDITLOGIC, GETL2S("Various", "ContextEditLogic"),
-                                                       GV->sprIcons16[Icon16_Code],
-                                                       objContext->GetElementByID(OBJMENU_PROPERTIES));
-                            }
-                            if (spec) {
-                                objContext->AddElement(OBJMENU_SPECIFICPROP, GETL2S("Various", "ContextAdv"),
-                                                       GV->sprIcons16[Icon16_PropertyTree],
-                                                       objContext->GetElementByID(OBJMENU_PROPERTIES));
-                                objContext->GetElementByID(OBJMENU_SPECIFICPROP)->SetCascade(con);
-                            }
-                        }
-                    } else {
-                        objContext->SetModel(conmodObjectMultiple);
-                    }
+                     if (vObjectsPicked.empty() && vObjectsHL.empty()) {
+                         vObjectsHL.clear();
+                         vPort->MarkToRedraw();
 
-                    for (int flag = 0; flag < 8; flag++) {
-                        SHR::Context *hmyContext = objFlagDrawContext;
-                        int flagtype = 0, flagpos = flag, menupos = OBJMENU_FLAGS_DRAW + flag + 1;
-                        if (flag > 3 && flag < 8) {
-                            flagtype = 1;
-                            flagpos -= 4;
-                            menupos = OBJMENU_FLAGS_DYNAMIC + flagpos + 1;
-                            hmyContext = objFlagDynamicContext;
-                        } //else if (flag > 7) {
-                        //flagtype = 2;
-                        //flagpos -= 8;
-                        //menupos = OBJMENU_FLAGS_ADDITIONAL + flagpos + 1;
-                        //hmyContext = objFlagAddContext;
-                        //}
-                        int binaryValue = pow(2, flagpos);
-                        bool valueSet = false;
-                        unsigned char fValue = 0;
+                         bool canTestFromPos = hNativeController->IsValid() &&
+                                               hNativeController->IsCrazyHookAvailable() &&
+                                               strlen(hParser->GetFilePath()) > 0;
+                         if (vObjectClipboard.empty()) {
+                             conmodAtEmpty->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
+                             objContext->SetModel(conmodAtEmpty);
+                         } else {
+                             char ncap[256];
+                             if (vObjectClipboard.size() == 1)
+                                 sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), vObjectClipboard[0]->GetLogic());
+                             else
+                                 sprintf(ncap, "%s: ~y~%s~l~", GETL(Lang_Paste), GETL(Lang_ManyObjects));
+                             conmodAtEmptyPaste->GetElementByID(OBJMENU_PASTE)->SetCaption(ncap);
+                             conmodAtEmptyPaste->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
 
-                        for (auto &picked : vObjectsPicked) {
-                            if (picked == hStartingPosObj) continue;
-                            int flags;
-                            if (flagtype == 0) flags = int(picked->GetDrawFlags());
-                            else if (flagtype == 1) flags = int(picked->GetDynamicFlags());
-                            else if (flagtype == 2) flags = int(picked->GetAddFlags());
-                            bool flagsNewValue = (flags & binaryValue);
-                            if (!valueSet) {
-                                fValue = flagsNewValue;
-                                valueSet = true;
-                            } else {
-                                if (flagsNewValue != fValue)
-                                    fValue = 2;
-                            }
-                        }
+                             objContext->SetModel(conmodAtEmptyPaste);
+                         }
+                     } else {
+                         int x = Scr2WrdX(GetActivePlane(), contextX),
+                             y = Scr2WrdY(GetActivePlane(), contextY);
 
-                        hgeSprite *ico = 0;
-                        if (fValue == 1) ico = GV->sprIcons16[Icon16_Applied];
-                        else if (fValue == 2) ico = GV->sprIcons16[Icon16_AppliedPartially];
+                         bool any = false;
 
-                        hmyContext->GetElementByID(menupos)->SetIcon(ico, 0);
-                    }
-                }
+                         for (auto obj : vObjectsPicked) {
+                             WWD::Rect box = SprBank->GetObjectRenderRect(obj);
+                             if (x > box.x1 &&
+                                 x < box.x1 + box.x2 &&
+                                 y > box.y1 &&
+                                 y < box.y1 + box.y2) {
+                                 any = true;
+                                 break;
+                             }
+                         }
 
-                int mx = mouseEvent.getX() + vPort->GetX(),
-                    my = mouseEvent.getY() + vPort->GetY();
+                         if (!any) {
+                             vObjectsPicked = vObjectsHL;
+                             if (vObjectsPicked.empty()) {
+                                 mousePressed(mouseEvent);
+                                 return;
+                             }
+                         }
 
-                objContext->adjustSize();
-                objContext->setPosition(mx, my);
-                if (mx + objContext->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
-                    objContext->setX(mx - objContext->getWidth());
-                if (my + objContext->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
-                    objContext->setY(my - objContext->getHeight());
-                objContext->setVisible(true);
-            }
+                         vObjectsHL.clear();
+                         vPort->MarkToRedraw();
+
+                         if (vObjectsPicked.size() == 1) {
+                             if (vObjectsPicked[0] == hStartingPosObj) {
+                                 bool canTestFromPos = hNativeController->IsValid() &&
+                                                       hNativeController->IsCrazyHookAvailable() &&
+                                                       strlen(hParser->GetFilePath()) > 0;
+                                 conmodSpawnPoint->GetElementByID(OBJMENU_TESTFROMHERE)->SetEnabled(canTestFromPos);
+                                 objContext->SetModel(conmodSpawnPoint);
+                             } else {
+                                 auto *con = (SHR::Context *) 1;
+                                 bool spec = AreObjectSpecificOptionsAvailable(vObjectsPicked[0], &con);
+                                 if (IsEditableObject(vObjectsPicked[0]))
+                                     objContext->SetModel(conmodEditableObject);
+                                 else
+                                     objContext->SetModel(conmodObject);
+                                 if (!strcmp(vObjectsPicked[0]->GetLogic(), "CustomLogic") &&
+                                     hCustomLogics->GetLogicByName(vObjectsPicked[0]->GetName()) != 0) {
+                                     objContext->AddElement(OBJMENU_EDITLOGIC, GETL2S("Various", "ContextEditLogic"),
+                                                            GV->sprIcons16[Icon16_Code],
+                                                            objContext->GetElementByID(OBJMENU_PROPERTIES));
+                                 }
+                                 if (spec) {
+                                     objContext->AddElement(OBJMENU_SPECIFICPROP, GETL2S("Various", "ContextAdv"),
+                                                            GV->sprIcons16[Icon16_PropertyTree],
+                                                            objContext->GetElementByID(OBJMENU_PROPERTIES));
+                                     objContext->GetElementByID(OBJMENU_SPECIFICPROP)->SetCascade(con);
+                                 }
+                             }
+                         } else {
+                             objContext->SetModel(conmodObjectMultiple);
+                         }
+
+                         for (int flag = 0; flag < 8; flag++) {
+                             SHR::Context *hmyContext = objFlagDrawContext;
+                             int flagtype = 0, flagpos = flag, menupos = OBJMENU_FLAGS_DRAW + flag + 1;
+                             if (flag > 3 && flag < 8) {
+                                 flagtype = 1;
+                                 flagpos -= 4;
+                                 menupos = OBJMENU_FLAGS_DYNAMIC + flagpos + 1;
+                                 hmyContext = objFlagDynamicContext;
+                             } //else if (flag > 7) {
+                             //flagtype = 2;
+                             //flagpos -= 8;
+                             //menupos = OBJMENU_FLAGS_ADDITIONAL + flagpos + 1;
+                             //hmyContext = objFlagAddContext;
+                             //}
+                             int binaryValue = pow(2, flagpos);
+                             bool valueSet = false;
+                             unsigned char fValue = 0;
+
+                             for (auto &picked : vObjectsPicked) {
+                                 if (picked == hStartingPosObj) continue;
+                                 int flags;
+                                 if (flagtype == 0) flags = int(picked->GetDrawFlags());
+                                 else if (flagtype == 1) flags = int(picked->GetDynamicFlags());
+                                 else if (flagtype == 2) flags = int(picked->GetAddFlags());
+                                 bool flagsNewValue = (flags & binaryValue);
+                                 if (!valueSet) {
+                                     fValue = flagsNewValue;
+                                     valueSet = true;
+                                 } else {
+                                     if (flagsNewValue != fValue)
+                                         fValue = 2;
+                                 }
+                             }
+
+                             hgeSprite *ico = 0;
+                             if (fValue == 1) ico = GV->sprIcons16[Icon16_Applied];
+                             else if (fValue == 2) ico = GV->sprIcons16[Icon16_AppliedPartially];
+
+                             hmyContext->GetElementByID(menupos)->SetIcon(ico, 0);
+                         }
+                     }
+
+                     objContext->adjustSize();
+                     objContext->setPosition(contextX, contextY);
+                     if (contextX + objContext->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
+                         objContext->setX(contextX - objContext->getWidth());
+                     if (contextY + objContext->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
+                         objContext->setY(contextY - objContext->getHeight());
+                     objContext->setVisible(true);
+                     objContext->requestFocus();
+                 }
+             }
         } else if (iMode == EWW_MODE_TILE && iActiveTool == EWW_TOOL_NONE) {
             if (mouseEvent.getButton() == MouseEvent::LEFT && !mouseEvent.isAltPressed()) {
                 bDragSelection = true;
@@ -1798,16 +1858,18 @@ namespace State {
                 iDragSelectionOrigY = Scr2WrdY(GetActivePlane(), mouseEvent.getY() + vPort->GetY());
                 iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
                 vPort->MarkToRedraw();
-            } else if (mouseEvent.getButton() == MouseEvent::RIGHT && iTileSelectX1 != -1) {
+            } else if (mouseEvent.getButton() == MouseEvent::RIGHT) {
                 int tx, ty, mx = mouseEvent.getX() + vPort->GetX(), my = mouseEvent.getY() + vPort->GetY();
                 tx = int(Scr2WrdX(GetActivePlane(), mx) / GetActivePlane()->GetTileWidth());
                 ty = int(Scr2WrdY(GetActivePlane(), my) / GetActivePlane()->GetTileHeight());
-                if (tx >= iTileSelectX1 && tx <= iTileSelectX2 && ty >= iTileSelectY1 && ty <= iTileSelectY2) {
+                if (iTileSelectX1 != -1 && tx >= iTileSelectX1 && tx <= iTileSelectX2 && ty >= iTileSelectY1 && ty <= iTileSelectY2) {
                     tilContext->SetModel(conmodTilesSelected);
                 } else if (MDI->GetActiveDoc()->hTileClipboard != NULL &&
                            !strcmp(MDI->GetActiveDoc()->hTileClipboardImageSet, GetActivePlane()->GetImageSet(0))) {
                     tilContext->SetModel(conmodTilesPaste);
-                }
+                } else return;
+                contextX = mx;
+                contextY = my;
                 tilContext->setPosition(mx, my);
                 tilContext->adjustSize();
                 if (mx + tilContext->getWidth() > hge->System_GetState(HGE_SCREENWIDTH))
@@ -1815,6 +1877,7 @@ namespace State {
                 if (my + tilContext->getHeight() > hge->System_GetState(HGE_SCREENHEIGHT))
                     tilContext->setY(my - tilContext->getHeight());
                 tilContext->setVisible(true);
+                tilContext->requestFocus();
             }
         }
     }
@@ -1868,6 +1931,7 @@ namespace State {
                             MarkUnsaved();
                         }
                         vPort->MarkToRedraw();
+                        bEditObjDelete = false;
                     } else if (iActiveTool == EWW_TOOL_NONE) {
                         if (vObjectsPicked.size() == 1 && mouseEvent.getClickCount() == 2) {
                             int mwx = Scr2WrdX(GetActivePlane(), mouseEvent.getX()),

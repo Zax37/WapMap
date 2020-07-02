@@ -531,16 +531,7 @@ void cGlobals::Init() {
     sprConsoleBG = new hgeSprite(texMain, 672, 192, 128, 128);
     Console->SetBG(sprConsoleBG);
 
-    SYSTEMTIME time;
-    GetLocalTime(&time);
-    int variant = 0;
-    if ((time.wMonth == 8 && time.wDay == 24) || (time.wMonth == 2 && time.wDay == 28)
-    || (time.wMonth == 12 && time.wDay == 31) || (time.wMonth == 1 && time.wDay == 1))
-        variant = 2;
-    else if ((time.wMonth == 12 && time.wDay > 15) || (time.wMonth == 1 && time.wDay < 3))
-        variant = 1;
-
-    sprLogoBig = new hgeSprite(texMain, 0, 640 + variant * 80, 300, 80);
+    sprLogoBig = new hgeSprite(texMain, 0, 640, 300, 80);
     sprLogoCaption = new hgeSprite(texMain, 780, 172, 20, 20);
 
     sprBlank = new hgeSprite(texMain, 640, 120, 6, 6);
@@ -787,13 +778,19 @@ void cGlobals::Init() {
     sprKijan->SetHotSpot(16, 16);
     sprZax = new hgeSprite(texMain, 768, 128, 32, 32);
     sprZax->SetHotSpot(16, 16);
+    sprSnowflake = new hgeSprite(texMain, 768, 96, 32, 32);
+    sprSnowflake->SetHotSpot(16, 16);
 
-    bKijan = bZax = false;
+    bKijan = bZax = bWinter = false;
     Console->AddModifiableBool("kijan", &bKijan);
     Console->AddModifiableBool("zax", &bZax);
     Console->AddModifiableBool("realsim", &bRealSim);
+    Console->AddModifiableBool("winter", &bWinter);
 
-    //SprBank = NULL;
+    SYSTEMTIME time;
+    GetLocalTime(&time);
+    if ((time.wMonth == 12 && time.wDay > 15) || (time.wMonth == 1 && time.wDay < 3))
+        bWinter = true;
 
     conL = NULL;
     ReloadLua();

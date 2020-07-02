@@ -76,19 +76,16 @@ void State::EditingWW::HandleHotkeys() {
                iTileSelectX1 != -1 && iTileSelectX2 != -1 && iTileSelectY1 != -1 && iTileSelectY2 != -1) {
         tilContext->EmulateClickID(TILMENU_CUT);
     } else if (bFocus && iMode == EWW_MODE_TILE && MDI->GetActiveDoc()->hTileClipboard != NULL &&
-               (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V) ||
-                bFocus && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_LBUTTON))) {
+               ((hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V)) ||
+                (bFocus && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_LBUTTON)))) {
+        float mx, my;
+        hge->Input_GetMousePos(&mx, &my);
+        contextX = mx;
+        contextY = my;
         tilContext->EmulateClickID(TILMENU_PASTE);
     } else if (bFocus && iMode == EWW_MODE_TILE && hge->Input_KeyDown(HGEK_DELETE) &&
                iTileSelectX1 != -1 && iTileSelectX2 != -1 && iTileSelectY1 != -1 && iTileSelectY2 != -1) {
         tilContext->EmulateClickID(TILMENU_DELETE);
-    } else if (bFocus && ((hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_V)) || (hge->Input_GetKeyState(HGEK_ALT)
-    && hge->Input_KeyDown(HGEK_LBUTTON))) && !vObjectClipboard.empty() && iMode == EWW_MODE_OBJECT) {
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-        objContext->setX(mx);
-        objContext->setY(my);
-        objContext->EmulateClickID(OBJMENU_PASTE);
     } else if (bFocus && hge->Input_KeyDown(HGEK_DELETE) && vObjectsPicked.size() != 0) {
         objContext->EmulateClickID(OBJMENU_DELETE);
     } else if (hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_GetKeyState(HGEK_ALT) && hge->Input_KeyDown(HGEK_P)) {

@@ -129,8 +129,8 @@ namespace gcn {
 
         graphics->setColor(faceColor);
 
+        int v = getMarkerPosition();
         if (getOrientation() == HORIZONTAL) {
-            int v = getMarkerPosition();
             graphics->fillRectangle(gcn::Rectangle(v + 1, 1, getMarkerLength() - 2, getHeight() - 2));
             graphics->setColor(highlightColor);
             graphics->drawLine(v, 0, v + getMarkerLength() - 1, 0);
@@ -144,7 +144,6 @@ namespace gcn {
                 graphics->drawRectangle(Rectangle(v + 2, 2, getMarkerLength() - 4, getHeight() - 4));
             }
         } else {
-            int v = (getHeight() - getMarkerLength()) - getMarkerPosition();
             graphics->fillRectangle(gcn::Rectangle(1, v + 1, getWidth() - 2, getMarkerLength() - 2));
             graphics->setColor(highlightColor);
             graphics->drawLine(0, v, 0, v + getMarkerLength() - 1);
@@ -169,7 +168,7 @@ namespace gcn {
             if (getOrientation() == HORIZONTAL) {
                 setValue(markerPositionToValue(mouseEvent.getX() - getMarkerLength() / 2));
             } else {
-                setValue(markerPositionToValue(getHeight() - mouseEvent.getY() - getMarkerLength() / 2));
+                setValue(markerPositionToValue(mouseEvent.getY() - getMarkerLength() / 2));
             }
 
             distributeActionEvent();
@@ -180,7 +179,7 @@ namespace gcn {
         if (getOrientation() == HORIZONTAL) {
             setValue(markerPositionToValue(mouseEvent.getX() - getMarkerLength() / 2));
         } else {
-            setValue(markerPositionToValue(getHeight() - mouseEvent.getY() - getMarkerLength() / 2));
+            setValue(markerPositionToValue(mouseEvent.getY() - getMarkerLength() / 2));
         }
 
         distributeActionEvent();
@@ -256,7 +255,7 @@ namespace gcn {
             w = getHeight();
         }
 
-        double pos = v / ((double) w - getMarkerLength());
+        double pos = v / double(w - getMarkerLength());
         return (1.0 - pos) * getScaleStart() + pos * getScaleEnd();
 
     }

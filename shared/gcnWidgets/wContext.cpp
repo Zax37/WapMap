@@ -169,7 +169,7 @@ namespace SHR {
     void Context::hide() {
         bHide = true;
         fShowTimer = 0;
-        setVisible(0);
+        setVisible(false);
     }
 
     void Context::adjustSize() {
@@ -270,13 +270,13 @@ namespace SHR {
     }
 
     void Context::mouseDragged(DragEvent &mouseEvent) {
-        mouseEvent.consume();
+        mouseMoved(mouseEvent);
     }
 
     void Context::focusLost(const FocusEvent &event) {
         mMousePressed = false;
         mKeyPressed = false;
-        setVisible(0);
+        setVisible(false);
     }
 
     void Context::AddElement(int id, const char *cap, hgeSprite *spr, ContextEl *after) {

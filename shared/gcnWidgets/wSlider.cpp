@@ -48,8 +48,8 @@ namespace SHR {
         addKeyListener(this);
         mStyle = DEFAULT;
         fTimer = 0;
-        mHasMouse = 0;
-        mForceKeyValue = 0;
+        mHasMouse = false;
+        mForceKeyValue = false;
     }
 
     void Slider::setScale(double scaleStart, double scaleEnd) {
@@ -84,7 +84,7 @@ namespace SHR {
             bool orient = (mOrientation == VERTICAL);
             GV->SliderDrawBar(dx, dy, orient, (orient ? getHeight() : getWidth()), 0, 0xFFFFFFFF);
             if (orient)
-                dy += getHeight() - getMarkerPosition() - getMarkerLength();
+                dy += getMarkerPosition();
             else
                 dx += getMarkerPosition();
             if (isEnabled())
@@ -173,8 +173,8 @@ namespace SHR {
 
         graphics->setColor(faceColor);
 
+        int v = getMarkerPosition();
         if (getOrientation() == HORIZONTAL) {
-            int v = getMarkerPosition();
             graphics->fillRectangle(gcn::Rectangle(v + 1, 1, getMarkerLength() - 2, getHeight() - 2));
             graphics->setColor(highlightColor);
             graphics->drawLine(v, 0, v + getMarkerLength() - 1, 0);
@@ -188,7 +188,6 @@ namespace SHR {
                 graphics->drawRectangle(gcn::Rectangle(v + 2, 2, getMarkerLength() - 4, getHeight() - 4));
             }
         } else {
-            int v = (getHeight() - getMarkerLength()) - getMarkerPosition();
             graphics->fillRectangle(gcn::Rectangle(1, v + 1, getWidth() - 2, getMarkerLength() - 2));
             graphics->setColor(highlightColor);
             graphics->drawLine(0, v, 0, v + getMarkerLength() - 1);
@@ -205,11 +204,11 @@ namespace SHR {
     }
 
     void Slider::mouseEntered(MouseEvent &mouseEvent) {
-        mHasMouse = 1;
+        mHasMouse = true;
     }
 
     void Slider::mouseExited(MouseEvent &mouseEvent) {
-        mHasMouse = 0;
+        mHasMouse = false;
     }
 
     void Slider::mousePressed(MouseEvent &mouseEvent) {
@@ -221,7 +220,7 @@ namespace SHR {
             if (getOrientation() == HORIZONTAL) {
                 setValue(markerPositionToValue(mouseEvent.getX() - getMarkerLength() / 2));
             } else {
-                setValue(markerPositionToValue(getHeight() - mouseEvent.getY() - getMarkerLength() / 2));
+                setValue(markerPositionToValue(mouseEvent.getY() - getMarkerLength() / 2));
             }
 
             distributeActionEvent();
@@ -237,27 +236,23 @@ namespace SHR {
     }
 
     void Slider::mouseDragged(DragEvent &mouseEvent) {
-        if (getOrientation() == HORIZONTAL) {
-            int npos = mouseEvent.getX() - getMarkerLength() / 2;
-            for (size_t i = 0; i < vKeys.size(); i++) {
-                int kpos = valueToMarkerPosition(vKeys[i]);
-                float spanl = kpos - 5, spanr = kpos + 5;
-                if (mForceKeyValue && getScaleEnd() != getScaleStart()) {
-                    spanl = (i > 0 ? (vKeys[i] - vKeys[i - 1]) / 2 : vKeys[i]);
-                    spanr = (i < vKeys.size() - 1 ? (vKeys[i + 1] - vKeys[i]) / 2 : getScaleEnd() - vKeys[i]);
-                    spanl = valueToMarkerPosition(vKeys[i] - spanl);
-                    spanr = valueToMarkerPosition(vKeys[i] + spanr);
-                    //spanr = float(getWidth())/float(getScaleEnd()-getScaleStart())*float(spanr);
-                }
-                if (npos >= spanl && npos <= spanr) {
-                    npos = kpos;
-                    break;
-                }
+        int npos = (getOrientation() == HORIZONTAL ? mouseEvent.getX() : mouseEvent.getY()) - getMarkerLength() / 2;
+        for (size_t i = 0; i < vKeys.size(); i++) {
+            int kpos = valueToMarkerPosition(vKeys[i]);
+            float spanl = kpos - 5, spanr = kpos + 5;
+            if (mForceKeyValue && getScaleEnd() != getScaleStart()) {
+                spanl = (i > 0 ? (vKeys[i] - vKeys[i - 1]) / 2 : vKeys[i]);
+                spanr = (i < vKeys.size() - 1 ? (vKeys[i + 1] - vKeys[i]) / 2 : getScaleEnd() - vKeys[i]);
+                spanl = valueToMarkerPosition(vKeys[i] - spanl);
+                spanr = valueToMarkerPosition(vKeys[i] + spanr);
+                //spanr = float(getWidth())/float(getScaleEnd()-getScaleStart())*float(spanr);
             }
-            setValue(markerPositionToValue(npos));
-        } else {
-            setValue(markerPositionToValue(getHeight() - mouseEvent.getY() - getMarkerLength() / 2));
+            if (npos >= spanl && npos <= spanr) {
+                npos = kpos;
+                break;
+            }
         }
+        setValue(markerPositionToValue(npos));
 
         distributeActionEvent();
 
@@ -314,11 +309,11 @@ namespace SHR {
             }
         } else {
             if (key.getValue() == Key::UP) {
-                setValue(getValue() + getStepLength());
+                setValue(getValue() - getStepLength());
                 distributeActionEvent();
                 keyEvent.consume();
             } else if (key.getValue() == Key::DOWN) {
-                setValue(getValue() - getStepLength());
+                setValue(getValue() + getStepLength());
                 distributeActionEvent();
                 keyEvent.consume();
             }
@@ -392,14 +387,14 @@ namespace SHR {
     }
 
     void Slider::mouseWheelMovedUp(MouseEvent &mouseEvent) {
-        setValue(getValue() + getStepLength());
+        setValue(getValue() - getStepLength());
         distributeActionEvent();
 
         mouseEvent.consume();
     }
 
     void Slider::mouseWheelMovedDown(MouseEvent &mouseEvent) {
-        setValue(getValue() - getStepLength());
+        setValue(getValue() + getStepLength());
         distributeActionEvent();
 
         mouseEvent.consume();

@@ -6,15 +6,17 @@
 
 cObjectQuadTree::cObjectQuadTree(WWD::Plane *owner, cBankImageSet *bank) {
     m_hBank = bank;
-    iTypicalCellW = owner->GetPlaneWidthPx() + 2 * WORKSPACE_MARGINS_SIZE;
-    iTypicalCellH = owner->GetPlaneHeightPx() + 2 * WORKSPACE_MARGINS_SIZE;
+    iTypicalCellW = owner->GetPlaneWidthPx() + 4 * WORKSPACE_MARGINS_SIZE;
+    iTypicalCellH = owner->GetPlaneHeightPx() + 4 * WORKSPACE_MARGINS_SIZE;
     while (!(iTypicalCellW < QUAD_CELL_DIM || iTypicalCellH < QUAD_CELL_DIM)) {
         iTypicalCellW /= 2;
         iTypicalCellH /= 2;
     }
 
     m_hMainParent = this;
-    Init(owner, -WORKSPACE_MARGINS_SIZE, -WORKSPACE_MARGINS_SIZE, owner->GetPlaneWidthPx() + 2 * WORKSPACE_MARGINS_SIZE, owner->GetPlaneHeightPx() + 2 * WORKSPACE_MARGINS_SIZE);
+    Init(owner, -2 * WORKSPACE_MARGINS_SIZE, -2 * WORKSPACE_MARGINS_SIZE,
+         owner->GetPlaneWidthPx() + 4 * WORKSPACE_MARGINS_SIZE,
+         owner->GetPlaneHeightPx() + 4 * WORKSPACE_MARGINS_SIZE);
     m_hMainParent = NULL;
     Fill(owner);
 }

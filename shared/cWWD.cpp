@@ -807,28 +807,45 @@ WWD::Plane::~Plane() {
 }
 
 WWD::Parser::~Parser() {
-    for (size_t i = 0; i < m_hPlanes.size(); i++)
-        delete m_hPlanes[i];
-    for (size_t i = 0; i < m_hTileAttribs.size(); i++)
-        delete m_hTileAttribs[i];
+    for (auto & m_hPlane : m_hPlanes)
+        delete m_hPlane;
+    for (auto & m_hTileAttrib : m_hTileAttribs)
+        delete m_hTileAttrib;
 }
 
 WWD::Tile *WWD::Plane::GetTile(int piX, int piY) {
-    if (piX < 0 || piY < 0) return 0;
-    if (piX >= m_Header.m_iW) {
+    if (piX < 0) {
+        if ((m_Header.m_iFlags & Flag_p_XWrapping) != 0) {
+            do {
+                piX += m_Header.m_iW;
+            } while (piX < 0);
+        } else {
+            return 0;
+        }
+    } else if (piX >= m_Header.m_iW) {
         if ((m_Header.m_iFlags & Flag_p_XWrapping) != 0) {
             piX = ClampX(piX);
         } else {
             return 0;
         }
     }
-    if (piY >= m_Header.m_iH) {
+
+    if (piY < 0) {
+        if ((m_Header.m_iFlags & Flag_p_YWrapping) != 0) {
+            do {
+                piY += m_Header.m_iH;
+            } while (piY < 0);
+        } else {
+            return 0;
+        }
+    } else if (piY >= m_Header.m_iH) {
         if ((m_Header.m_iFlags & Flag_p_YWrapping) != 0) {
             piY = ClampY(piY);
         } else {
             return 0;
         }
     }
+
     return &m_hTiles[rowOffsets[piY] + piX];
 }
 

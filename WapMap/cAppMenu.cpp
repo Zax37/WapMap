@@ -507,6 +507,9 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
                 GV->editState->NewMap_Open();
         } else if (id == APPMEN_FILE_OPEN) {
             GV->editState->OpenDocuments();
+        } else if (id == APPMEN_FILE_RECENT) {
+            iOpened = AppMenu_File;
+            return;
         } else if (id == APPMEN_FILE_EXPORT) {
             GV->editState->Export();
         } else if (id == APPMEN_FILE_EXIT) {

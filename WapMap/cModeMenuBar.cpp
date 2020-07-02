@@ -420,10 +420,10 @@ void cmmbObject::action(const gcn::ActionEvent &actionEvent) {
             RebuildContext();
             return;
         } else {
-            for (int i = 0; i < vContextElements.size(); i++)
-                if (vContextElements[i].iID == conNewObject->GetSelectedID()) {
-                    vContextElements[i].hButton->simulatePress();
-                    GV->editState->objContext->setVisible(0);
+            for (auto & vContextElement : vContextElements)
+                if (vContextElement.iID == conNewObject->GetSelectedID()) {
+                    vContextElement.hButton->simulatePress();
+                    GV->editState->objContext->setVisible(false);
                     return;
                 }
         }

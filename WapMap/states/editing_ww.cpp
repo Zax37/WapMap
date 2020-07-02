@@ -208,14 +208,14 @@ void State::EditingWW::Init() {
 
     sliVer = new SHR::Slider(100);
     sliVer->setOrientation(SHR::Slider::VERTICAL);
-    sliVer->setScaleStart(-WORKSPACE_MARGINS_SIZE);
+    sliVer->setScaleStart(0);
     sliVer->addActionListener(mainListener);
     sliVer->setMarkerLength(40);
     conMain->add(sliVer, 0, 0);
 
     sliHor = new SHR::Slider(100);
     sliHor->setOrientation(SHR::Slider::HORIZONTAL);
-    sliHor->setScaleStart(-WORKSPACE_MARGINS_SIZE);
+    sliHor->setScaleStart(0);
     sliHor->addActionListener(mainListener);
     sliHor->setMarkerLength(40);
     conMain->add(sliHor, 0, 0);
@@ -662,10 +662,10 @@ void State::EditingWW::Init() {
 
     winObjectBrush = new SHR::Win(&GV->gcnParts, GETL(Lang_BrushProperties));
     winObjectBrush->setDimension(gcn::Rectangle(0, 0, 330, 165));
-    winObjectBrush->setVisible(0);
-    winObjectBrush->setClose(1);
+    winObjectBrush->setVisible(false);
+    winObjectBrush->setClose(true);
     winObjectBrush->addActionListener(mainListener);
-    conMain->add(winObjectBrush, vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
+    conMain->add(winObjectBrush, 0, 0);
 
     char tmp[128];
     int offsetY = 18;
@@ -824,12 +824,6 @@ void State::EditingWW::Init() {
     butbrlEdit->setIcon(GV->sprIcons16[Icon16_Pencil]);
     butbrlEdit->setDimension(gcn::Rectangle(0, 0, 235, 26));
     butbrlEdit->addActionListener(mainListener);
-
-    /*butbrlEditExternal = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "OpenFile"));
-	butbrlEditExternal->setIcon(GV->sprIcons16[Icon16_Open]);
-	butbrlEditExternal->setDimension(gcn::Rectangle(0, 0, 235, 26));
-	butbrlEditExternal->addActionListener(mainListener);
-	winLogicBrowser->add(butbrlEditExternal, 310, 190);*/
 
     butbrlRename = new SHR::But(GV->hGfxInterface, GETL2S("Win_LogicBrowser", "Rename"));
     butbrlRename->setIcon(GV->sprIcons16[Icon16_WriteID]);
@@ -1991,31 +1985,34 @@ void State::EditingWW::Destroy() {
 
 bool State::EditingWW::Think() {
     GV->Console->Think();
-    if (fade_iAction == 0) {
-        fade_fAlpha -= hge->Timer_GetDelta() * 512;
-        if (fade_fAlpha < 0) {
-            fade_iAction++;
-            fade_fAlpha = 0;
-        }
-        return false;
-    } else if (fade_iAction == 1) {
-        fade_fTimer += hge->Timer_GetDelta();
-        if (fade_fTimer >= 0.5) {
-            fade_iAction++;
-            fade_fAlpha = 0;
-        }
-        return false;
-    } else if (fade_iAction == 2) {
-        fade_fAlpha += hge->Timer_GetDelta() * 512;
-        if (fade_fAlpha > 255) {
-            fade_iAction++;
-            GV->sprLogoBig->SetColor(0xFFFFFFFF);
-            GV->fntMyriad10->SetColor(0xFFFFFFFF);
-
-            ApplicationStartup();
-        } else {
+    switch (fade_iAction) {
+        case 0:
+            fade_fAlpha -= hge->Timer_GetDelta() * 512;
+            if (fade_fAlpha < 0) {
+                fade_iAction++;
+                fade_fAlpha = 0;
+            }
             return false;
-        }
+        case 1:
+            fade_fTimer += hge->Timer_GetDelta();
+            if (fade_fTimer >= 0.5) {
+                fade_iAction++;
+                fade_fAlpha = 0;
+            }
+            return false;
+        case 2:
+            fade_fAlpha += hge->Timer_GetDelta() * 256;
+            if (fade_fAlpha > 255) {
+                fade_iAction++;
+                GV->sprLogoBig->SetColor(0xFFFFFFFF);
+                GV->fntMyriad10->SetColor(0xFFFFFFFF);
+                GV->bWinter = false;
+                GV->sprSnowflake->SetColor(0xFFFFFFFF);
+
+                ApplicationStartup();
+            } else {
+                return false;
+            }
     }
 
     if (hServerIPC->Think())
@@ -2326,22 +2323,14 @@ bool State::EditingWW::Think() {
             if (fCameraMoveTimer > 0.1) fCameraMoveTimer -= 0.1;
             if (vPort->GetWidget()->isFocused() && bWindowFocused) {
                 if (hge->Input_GetKeyState(HGEK_UP)) {
-                    fCamY -= (int(fCamY) % GetActivePlane()->GetTileHeight() != 0 ? int(fCamY) %
-                                                                                    GetActivePlane()->GetTileHeight()
-                                                                                  : GetActivePlane()->GetTileHeight());
+                    fCamY -= GetActivePlane()->GetTileHeight();
                 } else if (hge->Input_GetKeyState(HGEK_DOWN)) {
-                    fCamY += (int(fCamY) % GetActivePlane()->GetTileHeight() != 0 ? int(fCamY) %
-                                                                                    GetActivePlane()->GetTileHeight()
-                                                                                  : GetActivePlane()->GetTileHeight());
+                    fCamY += GetActivePlane()->GetTileHeight();
                 }
                 if (hge->Input_GetKeyState(HGEK_LEFT)) {
-                    fCamX -= (int(fCamX) % GetActivePlane()->GetTileWidth() != 0 ? int(fCamX) %
-                                                                                   GetActivePlane()->GetTileWidth()
-                                                                                 : GetActivePlane()->GetTileWidth());
+                    fCamX -= GetActivePlane()->GetTileWidth();
                 } else if (hge->Input_GetKeyState(HGEK_RIGHT)) {
-                    fCamX += (int(fCamX) % GetActivePlane()->GetTileWidth() != 0 ? int(fCamX) %
-                                                                                   GetActivePlane()->GetTileWidth()
-                                                                                 : GetActivePlane()->GetTileWidth());
+                    fCamX += GetActivePlane()->GetTileWidth();
                 }
             }
         }
@@ -2362,7 +2351,7 @@ bool State::EditingWW::Think() {
         fCamY = hParser->GetMainPlane()->GetPlaneHeightPx() - vPort->GetHeight() / fZoom + WORKSPACE_MARGINS_SIZE;
 
     sliHor->setValue(fCamX);
-    sliVer->setValue(sliVer->getScaleEnd() - fCamY);
+    sliVer->setValue(fCamY);
 
     if (fCamLastX != fCamX || fCamLastY != fCamY) {
         vPort->MarkToRedraw();
@@ -2448,7 +2437,7 @@ void State::EditingWW::GainFocus(ReturnCode<void> code, bool bFlipped) {
                 SetTool(EWW_TOOL_OBJSELAREA);
             } else if (code.value == 1) {
                 objContext->EmulateClickID(OBJMENU_MOVE);
-            } else if (code.value == 2) {
+            } else if (code.value == 2 && !vObjectsPicked.empty()) {
                 GetActivePlane()->DeleteObject(vObjectsPicked[0]);
             }
         break;
@@ -2517,6 +2506,7 @@ void State::EditingWW::OpenTool(int iNewTool) {
             winTilePicker->setVisible(true);
         iLastBrushPlacedX = iLastBrushPlacedY = -1;
     } else if (iNewTool == EWW_TOOL_BRUSHOBJECT) {
+        winObjectBrush->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - winObjectBrush->getHeight());
         winObjectBrush->setVisible(true);
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
     } else if (iNewTool == EWW_TOOL_MEASURE) {
@@ -2655,12 +2645,26 @@ void State::EditingWW::UpdateScrollBars() {
         return;
     }
 
-    sliHor->setScaleStart(-WORKSPACE_MARGINS_SIZE);
-    sliVer->setScaleStart(-WORKSPACE_MARGINS_SIZE);
-    sliHor->setScaleEnd(hParser->GetMainPlane()->GetPlaneWidthPx() - vPort->GetWidth() / fZoom + WORKSPACE_MARGINS_SIZE);
-    sliVer->setScaleEnd(hParser->GetMainPlane()->GetPlaneHeightPx() - vPort->GetHeight() / fZoom + WORKSPACE_MARGINS_SIZE);
-    sliHor->adjustMarkerLength();
-    sliVer->adjustMarkerLength();
+    double seh = hParser->GetMainPlane()->GetPlaneWidthPx() - vPort->GetWidth() / fZoom + WORKSPACE_MARGINS_SIZE,
+           sev = hParser->GetMainPlane()->GetPlaneHeightPx() - vPort->GetHeight() / fZoom + WORKSPACE_MARGINS_SIZE;
+
+    if (seh > 0) {
+        sliHor->setVisible(true);
+        sliHor->setScaleStart(-WORKSPACE_MARGINS_SIZE);
+        sliHor->setScaleEnd(seh);
+        sliHor->adjustMarkerLength();
+    } else {
+        sliHor->setVisible(false);
+    }
+
+    if (sev > 0) {
+        sliVer->setVisible(true);
+        sliVer->setScaleStart(-WORKSPACE_MARGINS_SIZE);
+        sliVer->setScaleEnd(sev);
+        sliVer->adjustMarkerLength();
+    } else {
+        sliVer->setVisible(false);
+    }
 }
 
 void State::EditingWW::SwitchPlane() {
@@ -2902,20 +2906,27 @@ bool State::EditingWW::PromptExit() {
 
 int State::EditingWW::Scr2WrdX(WWD::Plane *pl, int px) {
     float x = int(fCamX * (pl->GetMoveModX() / 100.0f) * fZoom) + px - vPort->GetX();
-    x = x / fZoom;
-    return x;
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        x -= vPort->GetWidth() / 2.f * (1.0f - (pl->GetMoveModX() / 100.0f));
+    }
+    return x / fZoom;
 }
 
 int State::EditingWW::Scr2WrdY(WWD::Plane *pl, int py) {
     float y = int(fCamY * (pl->GetMoveModY() / 100.0f) * fZoom) + py - vPort->GetY();
-    y = y / fZoom;
-    return y;
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        y -= vPort->GetHeight() / 2.f * (1.0f - (pl->GetMoveModY() / 100.0f));
+    }
+    return y / fZoom;
 }
 
 int State::EditingWW::Wrd2ScrX(WWD::Plane *pl, int x) {
     x = x * fZoom;
     x += vPort->GetX();
     x -= int(fCamX * (pl->GetMoveModX() / 100.0f) * fZoom);
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        x += vPort->GetWidth() / 2.f * (1.0f - (pl->GetMoveModX() / 100.0f));
+    }
     return x;
 }
 
@@ -2923,18 +2934,27 @@ int State::EditingWW::Wrd2ScrY(WWD::Plane *pl, int y) {
     y = y * fZoom;
     y += vPort->GetY();
     y -= int(fCamY * (pl->GetMoveModY() / 100.0f) * fZoom);
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        y += vPort->GetHeight() / 2.f * (1.0f - (pl->GetMoveModY() / 100.0f));
+    }
     return y;
 }
 
 int State::EditingWW::Wrd2ScrXrb(WWD::Plane *pl, int x) {
     x = x * fZoom;
     x -= int(fCamX * (pl->GetMoveModX() / 100.0f) * fZoom);
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        x += vPort->GetWidth() / 2.f * (1.0f - (pl->GetMoveModX() / 100.0f));
+    }
     return x;
 }
 
 int State::EditingWW::Wrd2ScrYrb(WWD::Plane *pl, int y) {
     y = y * fZoom;
     y -= int(fCamY * (pl->GetMoveModY() / 100.0f) * fZoom);
+    if (!pl->GetFlag(WWD::Flag_p_MainPlane)) {
+        y += vPort->GetHeight() / 2.f * (1.0f - (pl->GetMoveModY() / 100.0f));
+    }
     return y;
 }
 

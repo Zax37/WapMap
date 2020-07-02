@@ -74,7 +74,7 @@ void cRulers::Think() {
     }
 }
 
-void cRulers::Render() {
+void cRulers:: Render() {
     if (!bVisible || !GV->editState->hParser) return;
     float zoom = GV->editState->fZoom;
     int iStartX, iStartY;
@@ -116,7 +116,7 @@ void cRulers::Render() {
                                 : (GV->editState->vPort->GetWidth() + 20) / (step * zoom)) + 1; i++) {
             int modx = (rl ? iStartY : iStartX) % step;
             int constoff = ((rl ? GV->editState->fCamY : GV->editState->fCamX) < 0) *
-                           (rl ? GV->editState->fCamY : GV->editState->fCamX) * -1;
+                           (rl ? GV->editState->fCamY : GV->editState->fCamX) * zoom * -1;
             int firstid = (rl ? iStartY : iStartX) / step;
             int type = 0, id = firstid + i;
             if (mode == EWW_MODE_OBJECT) {
