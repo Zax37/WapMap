@@ -2652,7 +2652,7 @@ void State::EditingWW::UpdateScrollBars() {
     double seh = hParser->GetMainPlane()->GetPlaneWidthPx() - vPort->GetWidth() / fZoom + WORKSPACE_MARGINS_SIZE,
            sev = hParser->GetMainPlane()->GetPlaneHeightPx() - vPort->GetHeight() / fZoom + WORKSPACE_MARGINS_SIZE;
 
-    if (seh > 0) {
+    if (seh + WORKSPACE_MARGINS_SIZE > 0) {
         sliHor->setVisible(true);
         sliHor->setScaleStart(-WORKSPACE_MARGINS_SIZE);
         sliHor->setScaleEnd(seh);
@@ -2661,7 +2661,7 @@ void State::EditingWW::UpdateScrollBars() {
         sliHor->setVisible(false);
     }
 
-    if (sev > 0) {
+    if (sev + WORKSPACE_MARGINS_SIZE > 0) {
         sliVer->setVisible(true);
         sliVer->setScaleStart(-WORKSPACE_MARGINS_SIZE);
         sliVer->setScaleEnd(sev);
