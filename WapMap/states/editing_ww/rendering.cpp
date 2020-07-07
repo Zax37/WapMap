@@ -527,8 +527,8 @@ void State::EditingWW::DrawTileProperties() {
 int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
     int rcount = 0;
 
-    int psx = Wrd2ScrXrb(hParser->GetMainPlane(), 0),
-        psy = Wrd2ScrYrb(hParser->GetMainPlane(), 0);
+    int psx = std::max(Wrd2ScrXrb(hParser->GetMainPlane(), 0), 0),
+        psy = std::max(Wrd2ScrYrb(hParser->GetMainPlane(), 0), 0);
 
     hge->Gfx_SetClipping(psx, psy, hParser->GetMainPlane()->GetPlaneWidthPx() * fZoom,
                          hParser->GetMainPlane()->GetPlaneHeightPx() * fZoom);
@@ -540,20 +540,17 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
         cammx *= (plane->GetMoveModX() / 100.0f);
         cammy *= (plane->GetMoveModY() / 100.0f);
 
-        cammx -= vPort->GetWidth() / 2.f * (1.0f - (plane->GetMoveModX() / 100.0f));
-        cammy -= vPort->GetHeight() / 2.f * (1.0f - (plane->GetMoveModY() / 100.0f));
-
-        if (plane->GetMoveModY() == 0) {
-            cammy = std::min(0, -psy);
+        if (plane->GetFlag(WWD::Flag_p_XWrapping)) {
+            cammx -= vPort->GetWidth() / 2.f * (1.0f - (plane->GetMoveModX() / 100.0f));
+        } else if (cammx < 0) {
+            cammx = -psx;
         }
 
-        /*if (!plane->GetFlag(WWD::Flag_p_XWrapping) && cammx < 0) {
-            cammx = 0;
+        if (plane->GetFlag(WWD::Flag_p_YWrapping)) {
+            cammy -= vPort->GetHeight() / 2.f * (1.0f - (plane->GetMoveModY() / 100.0f));
+        } else if (cammy < 0) {
+            cammy = -psy;
         }
-
-        if (!plane->GetFlag(WWD::Flag_p_YWrapping) && cammy < -dy) {
-            cammy = -dy;
-        }*/
     }
 
     int sx = floor(cammx / (plane->GetTileWidth() * fZoom)),
