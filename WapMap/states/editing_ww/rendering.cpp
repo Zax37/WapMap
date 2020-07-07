@@ -530,8 +530,8 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
     int psx = std::max(Wrd2ScrXrb(hParser->GetMainPlane(), 0), 0),
         psy = std::max(Wrd2ScrYrb(hParser->GetMainPlane(), 0), 0);
 
-    hge->Gfx_SetClipping(psx, psy, hParser->GetMainPlane()->GetPlaneWidthPx() * fZoom,
-                         hParser->GetMainPlane()->GetPlaneHeightPx() * fZoom);
+    hge->Gfx_SetClipping(psx - 1, psy - 1, std::min(Wrd2ScrXrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneWidthPx()), vPort->GetWidth()) + 1,
+                         std::min(Wrd2ScrYrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneHeightPx()), vPort->GetHeight()) + 1);
 
     float cammx = fCamX * fZoom,
           cammy = fCamY * fZoom;

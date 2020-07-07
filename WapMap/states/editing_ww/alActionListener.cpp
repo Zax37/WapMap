@@ -101,6 +101,8 @@ namespace State {
             m_hOwn->SetTool(EWW_TOOL_NONE);
         } else if (actionEvent.getSource() == m_hOwn->hmbTile->butIconWriteID) {
             m_hOwn->SetTool(EWW_TOOL_WRITEID);
+        } else if (actionEvent.getSource() == m_hOwn->hmbTile->butZoom) {
+            m_hOwn->SetTool(EWW_TOOL_ZOOM);
         } else if (actionEvent.getSource() == m_hOwn->tfWriteID) {
             if (m_hOwn->tfWriteID->getActionEventId() == "ENTER") {
                 m_hOwn->TextEditMoveToNextTile(true);

@@ -308,7 +308,7 @@ void winImageSetBrowser::Draw(int piCode) {
 
             if (i == iSelectedImageSet || i == iHighlightedIS) {
                 SHR::SetQuad(&q, (i == iSelectedImageSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY,
-                             drawX + (CONST_IMGSETBROWSER_ISLISTW - 13), drawY + CONST_IMGSETBROWSER_LISTSETH);
+                             drawX + (CONST_IMGSETBROWSER_ISLISTW - 16), drawY + CONST_IMGSETBROWSER_LISTSETH);
                 hge->Gfx_RenderQuad(&q);
             }
 

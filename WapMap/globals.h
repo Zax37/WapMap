@@ -141,7 +141,7 @@ enum Gfx32Icons {
     Icon_PowerUp,
     Icon_Enemy,
     Icon_Measure,
-    Icon_Zoom,
+    Icon_Search,
     Icon_Anchor,
     Icon_UpLeft,
     Icon_Map,
@@ -171,6 +171,7 @@ enum Gfx32Icons {
     Icon_HardDrive,
     Icon_Package,
     Icon_Spray,
+    Icon_Zoom,
     GfxIcons_Count
 };
 

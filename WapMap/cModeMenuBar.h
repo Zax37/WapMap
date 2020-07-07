@@ -72,7 +72,7 @@ protected:
 
 public:
     SHR::DropDown* ddActivePlane;
-    SHR::But *butIconSelect, *butIconPencil, *butIconBrush, *butIconFill, *butIconWriteID;
+    SHR::But *butIconSelect, *butIconPencil, *butIconBrush, *butIconFill, *butIconWriteID, *butZoom;
 
     cmmbTile(int startX);
 

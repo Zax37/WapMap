@@ -2537,6 +2537,9 @@ void State::EditingWW::OpenTool(int iNewTool) {
         hmbTile->butIconSelect->setHighlight(true);
         iTilePicked = EWW_TILE_NONE;
         GV->SetCursor(DEFAULT);
+    } else if (iNewTool == EWW_TOOL_ZOOM) {
+        hmbTile->butZoom->setHighlight(true);
+        GV->SetCursor(ZOOM_IN);
     }
 }
 
@@ -2595,24 +2598,25 @@ void State::EditingWW::CloseTool(int iNewTool) {
         bDragSelection = false;
         vPort->MarkToRedraw();
     } else if (iActiveTool == EWW_TOOL_ZOOM) {
-        GV->SetCursor(ZOOM_IN);
+        hmbTile->butZoom->setHighlight(false);
+        GV->SetCursor(DEFAULT);
     }
 }
 
 void State::EditingWW::MinimizeWindows() {
-    for (int i = 0; i < vWidgetsToMinimalise.size(); i++) {
-        if (vWidgetsToMinimalise[i]->isVisible()) {
-            vWidgetsToMinimalise[i]->setVisible(0);
-            vMinimalisedWidgets.push_back(vWidgetsToMinimalise[i]);
+    for (auto & i : vWidgetsToMinimalise) {
+        if (i->isVisible()) {
+            i->setVisible(false);
+            vMinimalisedWidgets.push_back(i);
         }
     }
     if (NewMap_data != 0)
-        NewMap_data->bKill = 1;
+        NewMap_data->bKill = true;
 }
 
 void State::EditingWW::MaximizeWindows() {
-    for (int i = 0; i < vMinimalisedWidgets.size(); i++)
-        vMinimalisedWidgets[i]->setVisible(1);
+    for (auto & vMinimalisedWidget : vMinimalisedWidgets)
+        vMinimalisedWidget->setVisible(true);
     vMinimalisedWidgets.clear();
 }
 

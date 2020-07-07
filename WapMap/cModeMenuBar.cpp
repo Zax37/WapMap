@@ -42,25 +42,28 @@ cmmbTile::cmmbTile(int startX) : cModeMenuBar(startX) {
     vSeparators.push_back(startX);
 
     butIconSelect = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Select, GV->editState->conMain);
-    butIconSelect->setRenderBG(0);
+    butIconSelect->setRenderBG(false);
     butIconSelect->SetTooltip(GETL2("Tooltip", Lang_TT_Select));
     startX += 32;
     butIconPencil = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Pencil, GV->editState->conMain);
-    butIconPencil->setRenderBG(0);
+    butIconPencil->setRenderBG(false);
     butIconPencil->SetTooltip(GETL2("Tooltip", Lang_TT_Pencil));
     startX += 32;
     butIconBrush = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Brush, GV->editState->conMain);
-    butIconBrush->setRenderBG(0);
+    butIconBrush->setRenderBG(false);
     butIconBrush->SetTooltip(GETL2("Tooltip", Lang_TT_Brush));
     startX += 32;
     butIconFill = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Fill, GV->editState->conMain);
-    butIconFill->setRenderBG(0);
+    butIconFill->setRenderBG(false);
     butIconFill->SetTooltip(GETL2("Tooltip", Lang_TT_Fill));
     startX += 32;
     butIconWriteID = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_WriteID, GV->editState->conMain);
-    butIconWriteID->setRenderBG(0);
+    butIconWriteID->setRenderBG(false);
     butIconWriteID->SetTooltip(GETL2("Tooltip", Lang_TT_WriteID));
     startX += 32;
+    butZoom = GV->editState->MakeButton(startX, LAY_MODEBAR_Y, Icon_Zoom, GV->editState->conMain);
+    butZoom->setRenderBG(false);
+    butZoom->SetTooltip(GETL2("Tooltip", Lang_TT_ZoomTool));
 }
 
 cmmbTile::~cmmbTile() {
@@ -70,6 +73,7 @@ cmmbTile::~cmmbTile() {
     delete butIconBrush;
     delete butIconFill;
     delete butIconWriteID;
+    delete butZoom;
 }
 
 void cmmbTile::_setVisible(bool bVis) {
@@ -79,6 +83,7 @@ void cmmbTile::_setVisible(bool bVis) {
     butIconBrush->setVisible(bVis);
     butIconFill->setVisible(bVis);
     butIconWriteID->setVisible(bVis);
+    butZoom->setVisible(bVis);
 }
 
 void cmmbTile::_setEnabled(bool bEn) {
@@ -88,6 +93,7 @@ void cmmbTile::_setEnabled(bool bEn) {
     butIconBrush->setEnabled(bEn);
     butIconFill->setEnabled(bEn);
     butIconWriteID->setEnabled(bEn);
+    butZoom->setEnabled(bEn);
 }
 
 cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
@@ -97,7 +103,7 @@ cmmbObject::cmmbObject(int startX) : cModeMenuBar(startX) {
 
     int yOff = LAY_MODEBAR_Y;
 
-    butIconSearchObject = GV->editState->MakeButton(69, yOff, Icon_Zoom, GV->editState->conMain, 1, 0);
+    butIconSearchObject = GV->editState->MakeButton(69, yOff, Icon_Search, GV->editState->conMain, 1, 0);
     butIconSearchObject->SetTooltip(GETL2("Tooltip", Lang_TT_SearchObject));
 
     int xOff = 360;

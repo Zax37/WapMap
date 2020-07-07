@@ -262,7 +262,7 @@ void winTileBrowser::Draw(int piCode) {
             cTile *ico = ts->GetTileByIterator(0);
 
             if (i == iSelectedTileSet || i == iHighlightedTS) {
-                SHR::SetQuad(&q, (i == iSelectedTileSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY, drawX + 202,
+                SHR::SetQuad(&q, (i == iSelectedTileSet ? 0x331796ff : 0x33a1a1a1), drawX, drawY, drawX + 198,
                              drawY + 68);
                 hge->Gfx_RenderQuad(&q);
             }
