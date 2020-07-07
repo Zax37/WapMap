@@ -6,34 +6,10 @@
 
 extern HGE *hge;
 
-void State::EditingWW::HandleMirrorAndInvertHotkeys()
-{
-	if (iActiveTool == EWW_TOOL_EDITOBJ) {
-		if (hEditObj->IsAnyInputFocused()) return;
-	}
-	int flag = hge->Input_KeyDown(HGEK_I) ? WWD::Flag_dr_Invert : WWD::Flag_dr_Mirror;
-
-	for (auto & object : vObjectsPicked) {
-		if (object->GetDrawFlags() & flag)
-			object->SetDrawFlags(
-			(WWD::OBJ_DRAW_FLAGS) (int(object->GetDrawFlags()) - flag));
-		else
-			object->SetDrawFlags(
-			(WWD::OBJ_DRAW_FLAGS) (int(object->GetDrawFlags()) + flag));
-
-		GetUserDataFromObj(object)->SyncToObj();
-	}
-
-	MarkUnsaved();
-	vPort->MarkToRedraw();
-}
-
 void State::EditingWW::HandleHotkeys() {
     if (iActiveTool == EWW_TOOL_EDITOBJ) {
         if (hge->Input_KeyDown(HGEK_ESCAPE)) {
-            hEditObj->SetKill(1);
-		} else if (hge->Input_KeyDown(HGEK_M) || hge->Input_KeyDown(HGEK_I)) {
-			HandleMirrorAndInvertHotkeys();
+            hEditObj->SetKill(true);
 		}
         return;
     }
@@ -153,8 +129,6 @@ void State::EditingWW::HandleHotkeys() {
         }
         vPort->MarkToRedraw();
         MarkUnsaved();
-    } else if ((hge->Input_KeyDown(HGEK_M) || hge->Input_KeyDown(HGEK_I)) && iMode == EWW_MODE_OBJECT && !vObjectsPicked.empty() && vPort->GetWidget()->isMouseOver()) {
-		HandleMirrorAndInvertHotkeys();
     } else if (bFocus && hge->Input_KeyDown(HGEK_HOME)) {
         fCamX = hParser->GetStartX() - (vPort->GetWidth() / 2 / fZoom);
         fCamY = hParser->GetStartY() - (vPort->GetHeight() / 2 / fZoom);

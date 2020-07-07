@@ -911,8 +911,6 @@ namespace State {
 
         void SetAnchorPlaneProperties(int anchor);
 
-        void HandleMirrorAndInvertHotkeys();
-
         void HandleHotkeys();
 
         //events
@@ -1102,6 +1100,7 @@ namespace State {
         void OnResize() override;
 
 		void FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically);
+		void MirrorObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically);
     };
 };
 

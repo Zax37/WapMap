@@ -543,6 +543,8 @@ namespace WWD {
         bool GetFlipX();
 
         bool GetFlipY();
+
+        void SetFlip(bool x, bool y);
     };
 
     struct PlaneHeader {

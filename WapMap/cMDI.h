@@ -136,6 +136,8 @@ public:
 
     void SaveCurrent();
 
+    bool CanBeClosed(int i);
+
     bool CloseDocByIt(int i);
 
     void DeleteDocByIt(int i);

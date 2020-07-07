@@ -1426,22 +1426,51 @@ namespace State {
             }
         } else if (keyEvent.getKey() == 'z' && m_hOwn->iActiveTool < EWW_TOOL_ZOOM) {
             m_hOwn->SetTool(EWW_TOOL_ZOOM);
-        } else if (keyEvent.getKey() == 'g' && m_hOwn->iMode == EWW_MODE_OBJECT
-                   && !m_hOwn->vObjectsPicked.empty() && m_hOwn->iActiveTool == EWW_TOOL_NONE) {
-            m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
-            m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetX();
-            m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetY();
+        } else if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty()) {
+            switch (keyEvent.getKey().getValue()) {
+                case 'g':
+                    if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
+                        m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetX();
+                        m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetY();
 
-            float mx, my;
-            hge->Input_GetMousePos(&mx, &my);
-            int wmx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx),
-                    wmy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my);
+                        float mx, my;
+                        hge->Input_GetMousePos(&mx, &my);
+                        int wmx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx),
+                            wmy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my);
 
-            for (auto &object : m_hOwn->vObjectsPicked) {
-                GetUserDataFromObj(object)->SetPos(object->GetX() + wmx - m_hOwn->iMoveRelX,
-                                                   object->GetY() + wmy - m_hOwn->iMoveRelY);
+                        for (auto &object : m_hOwn->vObjectsPicked) {
+                            GetUserDataFromObj(object)->SetPos(object->GetX() + wmx - m_hOwn->iMoveRelX,
+                                                               object->GetY() + wmy - m_hOwn->iMoveRelY);
+                        }
+                        m_hOwn->vPort->MarkToRedraw();
+                    }
+                break;
+                case 'm':
+                    m_hOwn->MirrorObjects(m_hOwn->vObjectsPicked, true, false);
+                    if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        for (auto object : m_hOwn->vObjectsPicked) {
+                            int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
+                            if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
+                            if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
+                            object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
+                        }
+                        m_hOwn->MarkUnsaved();
+                    }
+                    break;
+                case 'i':
+                    m_hOwn->MirrorObjects(m_hOwn->vObjectsPicked, false, true);
+                    if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        for (auto object : m_hOwn->vObjectsPicked) {
+                            int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
+                            if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
+                            if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
+                            object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
+                        }
+                        m_hOwn->MarkUnsaved();
+                    }
+                    break;
             }
-            m_hOwn->vPort->MarkToRedraw();
         }
     }
 

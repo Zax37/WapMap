@@ -56,9 +56,10 @@ int cObjectRenderWrapper::GetPriority() {
 }
 
 int cObjectRenderWrapper::Render() {
-    return GV->editState->RenderObject(hObject, GV->editState->Wrd2ScrXrb(GV->editState->plMain,
-                                       GetUserDataFromObj(hObject)->GetX()), GV->editState->Wrd2ScrYrb(GV->editState->plMain,
-                                       GetUserDataFromObj(hObject)->GetY()), 0xFFFFFFFF);
+    return GV->editState->RenderObject(hObject,
+            GV->editState->Wrd2ScrXrb(GV->editState->plMain, GetUserDataFromObj(hObject)->GetX()),
+            GV->editState->Wrd2ScrYrb(GV->editState->plMain, GetUserDataFromObj(hObject)->GetY()),
+            0xFFFFFFFF);
 }
 
 int cObjectRenderWrapper::GetUniqueOrderID() {

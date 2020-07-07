@@ -17,9 +17,11 @@ int cTabMDI::MaxTabWidth = 100;
 void cMDI::action(const gcn::ActionEvent &actionEvent) {
     if (actionEvent.getSource() == hContext) {
         if (hContext->GetSelectedID() == MDI_CONTEXT_RELOAD) {
-            bReloadingMap = true;
-            GV->StateMgr->Push(new State::LoadMap(m_vhDoc[m_iContextMenuFocusedDoc]->hParser->GetFilePath()));
-            hContext->setVisible(false);
+            if (CanBeClosed(m_iContextMenuFocusedDoc)) {
+                bReloadingMap = true;
+                GV->StateMgr->Push(new State::LoadMap(m_vhDoc[m_iContextMenuFocusedDoc]->hParser->GetFilePath()));
+                hContext->setVisible(false);
+            }
             return;
         } else if (hContext->GetSelectedID() == MDI_CONTEXT_PREVIOUSLYCLOSED)
             return;
@@ -430,50 +432,29 @@ void cMDI::PrepareDocToSave(int i) {
         GV->editState->SyncWorldOptionsWithParser();
 }
 
-bool cMDI::CloseDocByIt(int i) {
+bool cMDI::CanBeClosed(int i) {
     if (!m_vhDoc[i]->bSaved) {
         char text[256];
         sprintf(text, GETL2S("Various", "FileUnsavedPrompt"), m_vhDoc[i]->szFileName);
         switch (State::MessageBox(PRODUCT_NAME, text, ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNOCANCEL)) {
-        case RETURN_YES:
-            if (strlen(m_vhDoc[i]->hParser->GetFilePath()) == 0) {
-                OPENFILENAME ofn;
-                char szFileopen[512] = "\0";
-                ZeroMemory((&ofn), sizeof(OPENFILENAME));
-                ofn.lStructSize = sizeof(OPENFILENAME);
-                ofn.hwndOwner = hge->System_GetState(HGE_HWND);
-                ofn.lpstrFilter = "WapWorld Document (*.wwd)\0*.wwd\0Wszystkie pliki (*.*)\0*.*\0\0";
-                ofn.lpstrFile = szFileopen;
-                ofn.nMaxFile = sizeof(szFileopen);
-                ofn.lpstrDefExt = "wwd";
-                ofn.lpstrInitialDir = GV->szLastSavePath;
-                if (GetSaveFileName(&ofn)) {
-                    m_vhDoc[i]->hParser->SetFilePath((const char *) szFileopen);
-                    char *lastsave = SHR::GetDir(szFileopen);
-                    GV->SetLastSavePath(lastsave);
-                    delete[] lastsave;
+            case RETURN_YES:
+                if (strlen(m_vhDoc[i]->hParser->GetFilePath()) == 0) {
+                    GV->editState->SaveAs();
                 } else {
-                    return false;
+                    PrepareDocToSave(i);
+                    m_vhDoc[i]->hParser->CompileToFile(m_vhDoc[i]->hParser->GetFilePath());
                 }
-            }
-            try {
-                PrepareDocToSave(i);
-                m_vhDoc[i]->hParser->CompileToFile(m_vhDoc[i]->hParser->GetFilePath());
-            }
-            catch (WWD::Exception &exc) {
-#ifdef BUILD_DEBUG
-                GV->Console->Printf("~r~WWD exception: ~y~%d ~w~(~y~%s~w~:~y~%d~w~)", exc.iErrorCode, exc.szFile, exc.iLine);
-#else
-                GV->Console->Printf("~r~WWD exception ~y~%d", exc.iErrorCode);
-#endif
-                sprintf(text, GETL2S("Various", "UnableToSave"), m_vhDoc[i]->szFileName);
-                State::MessageBox(PRODUCT_NAME, text, ST_DIALOG_ICON_ERROR);
-            }
-            break;
-        case RETURN_CANCEL:
-            return false;
+                break;
+            case RETURN_CANCEL:
+                return false;
         }
     }
+    return true;
+}
+
+bool cMDI::CloseDocByIt(int i) {
+    if (!CanBeClosed(i)) return false;
+
     DeleteDocByIt(i);
     if (m_vhDoc.empty()) {
         GV->anyMapLoaded = false;

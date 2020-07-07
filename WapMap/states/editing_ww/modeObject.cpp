@@ -771,6 +771,10 @@ bool State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& ve
         }
         obj->SetParam(WWD::Param_LocationX, obj->GetX());
         obj->SetParam(WWD::Param_LocationY, obj->GetY());
+        int flags = obj->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
+        if (obj->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
+        if (obj->GetFlipY()) flags |= WWD::Flag_dr_Invert;
+        obj->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
         hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
         if (obj == hStartingPosObj) {
             hParser->SetStartX(obj->GetX());
@@ -847,4 +851,17 @@ void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool hor
         MarkUnsaved();
         vPort->MarkToRedraw();
     }
+}
+
+void State::EditingWW::MirrorObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically)
+{
+    if (!horizontally && !vertically) return;
+
+    for (auto & object : vObjectsPicked) {
+        bool flipX = horizontally == !(object->GetFlipX()),
+             flipY = vertically == !(object->GetFlipY());
+        object->SetFlip(flipX, flipY);
+    }
+
+    vPort->MarkToRedraw();
 }

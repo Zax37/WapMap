@@ -2737,12 +2737,12 @@ void State::EditingWW::SaveAs() {
     ofn.lpstrInitialDir = GV->szLastSavePath;
     if (GetSaveFileName(&ofn)) {
         hParser->SetFilePath((const char *) szFileopen);
-        bool ok = 0;
+        bool ok = false;
         try {
             MDI->PrepareDocToSave(MDI->GetActiveDocIt());
-            hParser->CompileToFile(szFileopen, 1);
+            hParser->CompileToFile(szFileopen, true);
             hDataCtrl->RelocateDocument(szFileopen);
-            ok = 1;
+            ok = true;
         }
         catch (WWD::Exception &exc) {
 #ifdef BUILD_DEBUG
@@ -2758,7 +2758,7 @@ void State::EditingWW::SaveAs() {
             MDI->GetActiveDoc()->szFileName = new char[size];
             strncpy(MDI->GetActiveDoc()->szFileName, fl, size - 1);
             MDI->GetActiveDoc()->szFileName[size - 1] = 0;
-            MDI->GetActiveDoc()->bSaved = 1;
+            MDI->GetActiveDoc()->bSaved = true;
             delete[] fl;
             MDI->UpdateCrashList();
         }

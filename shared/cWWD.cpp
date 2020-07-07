@@ -1100,6 +1100,17 @@ bool WWD::Object::GetFlipY() {
     return m_hUserData ? GetUserDataFromObj(this)->GetFlipY() : GetDrawFlags() & Flag_dr_Invert;
 }
 
+void WWD::Object::SetFlip(bool x, bool y) {
+    if (m_hUserData) {
+        GetUserDataFromObj(this)->SetFlip(x, y);
+    } else {
+        int flags = m_iFlagsDraw & (Flag_dr_NoDraw | Flag_dr_Flash);
+        if (x) flags |= Flag_dr_Mirror;
+        if (y) flags |= Flag_dr_Invert;
+        m_iFlagsDraw = (WWD::OBJ_DRAW_FLAGS)flags;
+    }
+}
+
 bool WWD::Object::ShouldPromptForRectChange(WWD::Parser* hParser) {
     if (hParser->GetGame() != Game_Claw && hParser->GetGame() != Game_Claw2) return false;
     return ((!strstr(m_szLogic, "Elevator")

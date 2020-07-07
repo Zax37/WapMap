@@ -277,10 +277,8 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
     hsy -= sprh;
     ret.x1 = (obj->GetX() - sprw - hsx);
     ret.y1 = (obj->GetY() - sprh - hsy);
-    if (!strcmp(obj->GetLogic(), "BreakPlank")) {
-        for (int z = 0; z < obj->GetParam(WWD::Param_Width) - 1; z++)
-            ret.x2 += 64;
-    } else if (!strcmp(obj->GetLogic(), "FrontStackedCrates") || !strcmp(obj->GetLogic(), "BackStackedCrates")) {
+
+    if (!strcmp(obj->GetLogic(), "FrontStackedCrates") || !strcmp(obj->GetLogic(), "BackStackedCrates")) {
         int irepeatnum = 0;
         for (int z = 0; z < 2; z++) {
             WWD::Rect tmprect = obj->GetUserRect(z);
@@ -294,11 +292,25 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
             ret.y1 -= 43;
             ret.y2 += 43;
         }
-    } else if (!strcmp(obj->GetLogic(), "PunkRat")) {
-        ret.x1 -= 29;
-        ret.x2 += 44;
-        ret.y2 += 46;
+    } else {
+        if (obj->GetFlipX()) {
+            ret.x1 += 2 * hsx;
+        }
+
+        if (obj->GetFlipY()) {
+            ret.y1 += 2 * hsy;
+        }
+
+        if (!strcmp(obj->GetLogic(), "BreakPlank")) {
+            for (int z = 0; z < obj->GetParam(WWD::Param_Width) - 1; z++)
+                ret.x2 += 64;
+        } else if (!strcmp(obj->GetLogic(), "PunkRat")) {
+            ret.x1 -= 29;
+            ret.x2 += 44;
+            ret.y2 += 46;
+        }
     }
+
     return ret;
 }
 
