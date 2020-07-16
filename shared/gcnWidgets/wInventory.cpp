@@ -1,18 +1,8 @@
 #include "wInventory.h"
-
-#include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
-#include "guichan/key.hpp"
 #include "guichan/mouseevent.hpp"
-#include "guichan/mouseinput.hpp"
-
 #include "../../WapMap/globals.h"
 #include "../../WapMap/states/editing_ww.h"
-
 #include "../../WapMap/databanks/imageSets.h"
-
-extern HGE *hge;
 
 namespace SHR {
     InvTab::InvTab(guiParts *Parts)

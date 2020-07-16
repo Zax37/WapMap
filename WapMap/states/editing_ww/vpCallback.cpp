@@ -18,8 +18,6 @@ namespace State {
             m_hOwn->DrawObjSearch();
         } else if (iCode == VP_FILLCOLOR) {
             m_hOwn->DrawSelectFillColor();
-        } else if (iCode == VP_NEWMAP) {
-            m_hOwn->NewMap_Think();
         } else if (iCode == VP_FIRSTRUN) {
             m_hOwn->FirstRun_Think();
         } else if (iCode == VP_PLANEPROPERTIES) {

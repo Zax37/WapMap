@@ -1,8 +1,4 @@
-#include <hge.h>
-#include <hgefont.h>
-#include <guichan/hge/hgeimagefont.hpp>
 #include "wListbox.h"
-
 #include "guichan/basiccontainer.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"

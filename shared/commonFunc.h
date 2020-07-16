@@ -3,13 +3,7 @@
 
 #ifdef WAP_MAP
 #define COMMON_SFS
-
-#include "hgeFont.h"
-
-#endif
-
-#ifdef WAP_GRAPHIC
-#include "hgeFont.h"
+#include "hgefont.h"
 #endif
 
 #include <windows.h>
@@ -17,9 +11,7 @@
 #include <vector>
 
 #ifdef COMMON_SFS
-
 #include "cSFS.h"
-
 #endif
 
 #ifndef DWORD
@@ -65,9 +57,7 @@ namespace SHR {
     bool CompareStringsIntSupport(const char *str1, const char *str2);
 
 #ifdef WAP_MAP
-
     void SetQuad(hgeQuad *q, DWORD col, float x1, float y1, float x2, float y2, float z = 1.0f);
-
 #endif
 
     std::vector<DisplayMode> GetDisplayModes();

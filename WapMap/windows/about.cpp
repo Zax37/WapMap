@@ -21,21 +21,14 @@ static const char* const usedLibsCreditLines[] {
         "JSON for Modern C++ - Copyright (c) 2013-2019 Niels Lohmann <http://nlohmann.me>."
 };
 
-winAbout::winAbout() {
-    myWin = new SHR::Win(&GV->gcnParts, GETL(Lang_About));
+winAbout::winAbout() : cWindow(GETL(Lang_About)) {
     int h = GV->sprLogoBig->GetHeight() + 105 + 22 * 4;
     for (auto line : usedLibsCreditLines) {
         h += GV->fntMyriad16->GetStringBlockHeight(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
     }
-    myWin->setDimension(gcn::Rectangle(0, 0, usedLibsCreditsBlockWidth + 2 * 32, h));
-    myWin->setVisible(0);
+    myWin.setDimension(gcn::Rectangle(0, 0, usedLibsCreditsBlockWidth + 2 * 32, h));
     vp = new WIDG::Viewport(this, 0);
-    myWin->add(vp, 0, 0);
-    myWin->setClose(1);
-}
-
-winAbout::~winAbout() {
-    delete myWin;
+    myWin.add(vp, 0, 0);
 }
 
 void winAbout::Think() {
@@ -43,9 +36,9 @@ void winAbout::Think() {
 }
 
 void winAbout::Draw(int piCode) {
-    unsigned char alpha = myWin->getAlpha();
+    unsigned char alpha = myWin.getAlpha();
     int dx, dy, logoW = GV->sprLogoBig->GetWidth();
-    myWin->getAbsolutePosition(dx, dy);
+    myWin.getAbsolutePosition(dx, dy);
 
     dx += 16;
 
@@ -76,15 +69,4 @@ void winAbout::Draw(int piCode) {
         GV->fntMyriad16->printfb(dx, dy, usedLibsCreditsBlockWidth, 200, 0, 0, line);
         dy += GV->fntMyriad16->GetStringBlockHeight(usedLibsCreditsBlockWidth, line) + usedLibsCreditsBlockLineSpacing;
     }
-}
-
-void winAbout::Open() {
-    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
-                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
-    myWin->setVisible(true);
-    myWin->getParent()->moveToTop(myWin);
-}
-
-void winAbout::Close() {
-    myWin->setVisible(false);
 }

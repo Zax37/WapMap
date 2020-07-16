@@ -245,8 +245,8 @@ void cMDI::RebuildContext(bool bForceRebuildBase) {
         catch (...) {
             icon = WWD::Game_Unknown;
         }
-        if (ibase != 0 && icon == WWD::Game_Claw) {
-            sprIcon = GV->sprLevelsMicro16[ibase - 1];
+        if (ibase != 0 && (icon == WWD::Game_Claw || icon == WWD::Game_Gruntz)) {
+            sprIcon = GV->sprLevelsMicro16[icon - WWD::Games_First][ibase - 1];
         } else {
             sprIcon = GV->sprGamesSmall[icon];
         }
@@ -286,6 +286,11 @@ void cMDI::DeleteDocByIt(int i) {
     else if (m_iActiveDoc > i) m_iActiveDoc--;
     else if (m_iActiveDoc == i && m_iActiveDoc >= m_vhDoc.size()) SetActiveDocIt(m_iActiveDoc - 1);
     else if (m_iActiveDoc == i) SetActiveDocIt(m_iActiveDoc);
+
+    for (; i < m_vhDoc.size(); ++i) {
+        --m_vhDoc[i]->hTab->index;
+    }
+
     cIO_WWDx *meta = (cIO_WWDx *) dd->hParser->GetCustomMetaSerializer();
     delete meta;
     delete dd->hTab;
@@ -608,9 +613,9 @@ int cTabMDI::Render(int x, int y, bool bdisabled, bool bselected) {
     }
 
     hge->Gfx_SetClipping(x, y, tabWidth - 18, LAY_MDI_H);
-    if (dd->hParser->GetGame() == WWD::Game_Claw && dd->hParser->GetBaseLevel() != 0) {
-        GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->SetColor(0xFFFFFFFF);
-        GV->sprLevelsMicro16[dd->hParser->GetBaseLevel() - 1]->Render(x + 9, y + 4);
+    if ((dd->hParser->GetGame() == WWD::Game_Claw || dd->hParser->GetGame() == WWD::Game_Gruntz) && dd->hParser->GetBaseLevel() != 0) {
+        GV->sprLevelsMicro16[dd->hParser->GetGame() - WWD::Games_First][dd->hParser->GetBaseLevel() - 1]->SetColor(0xFFFFFFFF);
+        GV->sprLevelsMicro16[dd->hParser->GetGame() - WWD::Games_First][dd->hParser->GetBaseLevel() - 1]->Render(x + 9, y + 4);
     } else {
         GV->sprGamesSmall[dd->hParser->GetGame()]->SetColor(0xFFFFFFFF);
         GV->sprGamesSmall[dd->hParser->GetGame()]->Render(x + 9, y + 4);

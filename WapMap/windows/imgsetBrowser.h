@@ -36,8 +36,6 @@ private:
 public:
     winImageSetBrowser();
 
-    ~winImageSetBrowser();
-
     virtual void Draw(int piCode);
 
     virtual void Think();
@@ -45,8 +43,6 @@ public:
     virtual void OnDocumentChange();
 
     virtual void Open();
-
-    virtual void Close();
 
     virtual void action(const ActionEvent &actionEvent);
 

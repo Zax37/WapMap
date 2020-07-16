@@ -1,126 +1,165 @@
 #include "cFileSystem.h"
 #include <algorithm>
+#include <utility>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <windows.h>
 #include "../shared/commonFunc.h"
 
-DWORD WINAPI _cDiscWatchdogThread(LPVOID phData) {
-    cDiscFeed *parent = (cDiscFeed *) phData;
-    char retbuffer[2048];
-    while (1) {
-        DWORD bytes = 0;
-        if (ReadDirectoryChangesW(parent->hDirToWatch, &retbuffer, 2048, 1,
-                                  FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, &bytes, 0, 0)) {
-            char *buffer = retbuffer;
-            FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *) buffer;
-            std::vector<std::string> vstrNewBuf, vstrModBuf, vstrDelBuf;
-            while (1) {
-
-                int namelen = fni->FileNameLength / 2;
-                WCHAR *namebuf = new WCHAR[namelen + 1];
-                for (int i = 0; i < namelen; i++)
-                    namebuf[i] = fni->FileName[i];
-                namebuf[namelen] = '\0';
-                char *cstr = new char[namelen + 1];
-                wcstombs(cstr, namebuf, namelen + 1);
-                delete[] namebuf;
-                std::string namestr = cstr;
-                delete[] cstr;
-
-                if (fni->Action == FILE_ACTION_ADDED) {
-                    vstrNewBuf.push_back(namestr);
-                } else if (fni->Action == FILE_ACTION_MODIFIED) {
-                    bool fnd = 0;
-                    for (size_t i = 0; i < vstrNewBuf.size(); i++)
-                        if (namestr.compare(vstrNewBuf[i]) == 0) {
-                            fnd = 1;
-                            break;
-                        }
-                    if (!fnd) {
-                        for (size_t i = 0; i < vstrModBuf.size(); i++) {
-                            if (namestr.compare(vstrModBuf[i]) == 0) {
-                                fnd = 1;
-                                break;
-                            }
-                        }
-                        if (!fnd) {
-                            vstrModBuf.push_back(namestr);
-                        }
-                    }
-                } else if (fni->Action == FILE_ACTION_REMOVED) {
-                    vstrDelBuf.push_back(namestr);
-                } else if (fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-                    vstrDelBuf.push_back(namestr);
-                } else if (fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-                    vstrNewBuf.push_back(namestr);
-                }
-
-                if (fni->NextEntryOffset == 0) break;
-                buffer += fni->NextEntryOffset;
-                fni = (FILE_NOTIFY_INFORMATION *) buffer;
-            }
-
-            EnterCriticalSection(&parent->myCS);
-            std::vector<std::string> *srcV[3] = {&vstrNewBuf, &vstrModBuf, &vstrDelBuf},
-                    *dstV[3] = {&parent->vstrNewFiles, &parent->vstrModFiles, &parent->vstrDelFiles};
-            for (int i = 0; i < 3; i++) {
-                while (!srcV[i]->empty()) {
-                    std::string strTranslatedPath = srcV[i]->at(0);
-                    size_t slashpos = strTranslatedPath.find('\\');
-                    while (slashpos != std::string::npos) {
-                        strTranslatedPath[slashpos] = '/';
-                        slashpos = strTranslatedPath.find('\\');
-                    }
-                    dstV[i]->push_back(strTranslatedPath);
-                    srcV[i]->erase(srcV[i]->begin());
-                }
-            }
-            LeaveCriticalSection(&parent->myCS);
-        }
-    }
-    return 0;
-}
-
 cDiscFeed::cDiscFeed(std::string strPath) {
-    strAbsoluteLocation = strPath;
+    strAbsoluteLocation = std::move(strPath);
     myType = Feed_HardDrive;
     bIsHDD = (strAbsoluteLocation.empty());
-    if (!bIsHDD)
+    hDirToWatch = INVALID_HANDLE_VALUE;
+    stop = false;
+    retrying = false;
+    if (!bIsHDD) {
         _CreateWatchdog();
-    else
-        hDirToWatch = INVALID_HANDLE_VALUE;
+    }
 }
 
 cDiscFeed::~cDiscFeed() {
-    if (hDirToWatch != INVALID_HANDLE_VALUE)
-        _DeleteWatchdog();
+    _DeleteWatchdog();
 }
 
 void cDiscFeed::Remount(std::string nPath) {
     strAbsoluteLocation = nPath;
     bIsHDD = (strAbsoluteLocation.empty());
-    if (hDirToWatch != INVALID_HANDLE_VALUE)
+    if (hDirToWatch != INVALID_HANDLE_VALUE) {
         _DeleteWatchdog();
-    if (!bIsHDD)
+        stop = false;
+    }
+    if (!bIsHDD) {
         _CreateWatchdog();
+    }
 }
 
-void cDiscFeed::_CreateWatchdog() {
-    InitializeCriticalSection(&myCS);
-    hDirToWatch = CreateFile(strAbsoluteLocation.c_str(), FILE_LIST_DIRECTORY,
-                             FILE_SHARE_READ | FILE_SHARE_DELETE | FILE_SHARE_WRITE, 0, OPEN_EXISTING,
-                             FILE_FLAG_BACKUP_SEMANTICS, 0);
-    DWORD dw;
-    hWatchThread = CreateThread(0, 0, _cDiscWatchdogThread, this, 0, &dw);
+bool cDiscFeed::_CreateWatchdog() {
+    hDirToWatch = CreateFile(strAbsoluteLocation.c_str(), FILE_LIST_DIRECTORY | GENERIC_READ,
+                             FILE_SHARE_READ | FILE_SHARE_DELETE | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
+    if (hDirToWatch == INVALID_HANDLE_VALUE) {
+        if (!retrying) {
+            retrying = true;
+            retry = std::async(std::launch::async, &cDiscFeed::_RetryCreateWatchdog, this);
+        }
+        return false;
+    } else {
+        stop = false;
+        watchdog = std::async(std::launch::async, &cDiscFeed::_WatchdogProc, this);
+        return true;
+    }
+}
+
+void cDiscFeed::_RetryCreateWatchdog()
+{
+    while (!stop && !_CreateWatchdog()) {
+        std::unique_lock<std::mutex> lock(cmutex);
+        cv.wait_for(lock, std::chrono::milliseconds(500));
+    }
+    retrying = false;
+}
+
+void cDiscFeed::_WatchdogProc() {
+#define LISTEN_FOR_CHANGES() ReadDirectoryChangesW(hDirToWatch, &changesBuffer, 2048, 1, \
+    FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &ovl, 0)
+
+    char changesBuffer[2048];
+    DWORD dw; OVERLAPPED ovl = {};
+    ovl.hEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+    if (!LISTEN_FOR_CHANGES()) {
+        retrying = true;
+        retry = std::async(std::launch::async, &cDiscFeed::_RetryCreateWatchdog, this);
+    } else {
+        while (!stop) {
+            std::unique_lock<std::mutex> lock(cmutex);
+            cv.wait_for(lock, std::chrono::milliseconds(500));
+            switch (WaitForSingleObject(ovl.hEvent, 0)) {
+            case WAIT_TIMEOUT:
+                continue;
+            case WAIT_OBJECT_0:
+                GetOverlappedResult(hDirToWatch, &ovl, &dw, TRUE);
+
+                {
+                    char* buffer = changesBuffer;
+                    auto* fni = (FILE_NOTIFY_INFORMATION*)buffer;
+                    std::vector<std::string> addedFiles, modifiedFiles, deletedFiles;
+                    while (true) {
+                        int namelen = fni->FileNameLength / 2;
+                        WCHAR* namebuf = new WCHAR[namelen + 1];
+                        for (int i = 0; i < namelen; i++)
+                            namebuf[i] = fni->FileName[i];
+                        namebuf[namelen] = '\0';
+                        char* cstr = new char[namelen + 1];
+                        wcstombs(cstr, namebuf, namelen + 1);
+                        delete[] namebuf;
+                        std::string namestr = cstr;
+                        delete[] cstr;
+
+                        switch (fni->Action) {
+                        case FILE_ACTION_ADDED:
+                        case FILE_ACTION_RENAMED_NEW_NAME:
+                            addedFiles.emplace_back(namestr);
+                            break;
+                        case FILE_ACTION_MODIFIED:
+                            if (std::find(addedFiles.begin(), addedFiles.end(), namestr) == addedFiles.end()
+                                && std::find(modifiedFiles.begin(), modifiedFiles.end(), namestr) == modifiedFiles.end()) {
+                                modifiedFiles.emplace_back(namestr);
+                            }
+                            break;
+                        case FILE_ACTION_REMOVED:
+                        case FILE_ACTION_RENAMED_OLD_NAME:
+                            deletedFiles.emplace_back(namestr);
+                            break;
+                        }
+
+                        if (fni->NextEntryOffset == 0) break;
+                        buffer += fni->NextEntryOffset;
+                        fni = (FILE_NOTIFY_INFORMATION*)buffer;
+                    }
+
+                    {
+                        std::vector<std::string>* srcV[3] = { &addedFiles, &modifiedFiles, &deletedFiles },
+                            * dstV[3] = { &vNewFiles, &vModFiles, &vDelFiles };
+                        for (int i = 0; i < 3; i++) {
+                            for (auto& strTranslatedPath : *srcV[i]) {
+                                size_t slashpos = strTranslatedPath.find('\\');
+                                while (slashpos != std::string::npos) {
+                                    strTranslatedPath[slashpos] = '/';
+                                    slashpos = strTranslatedPath.find('\\');
+                                }
+                                dstV[i]->emplace_back(strTranslatedPath);
+                            }
+                            srcV[i]->clear();
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            ResetEvent(ovl.hEvent);
+            if (!LISTEN_FOR_CHANGES()) {
+                retrying = true;
+                retry = std::async(std::launch::async, &cDiscFeed::_RetryCreateWatchdog, this);
+                return;
+            }
+        }
+    }
 }
 
 void cDiscFeed::_DeleteWatchdog() {
-    if (hDirToWatch == INVALID_HANDLE_VALUE) return;
-    TerminateThread(hWatchThread, 0);
-    CloseHandle(hDirToWatch);
-    hDirToWatch = INVALID_HANDLE_VALUE;
-    DeleteCriticalSection(&myCS);
+    stop = true;
+    if (retrying) {
+        cv.notify_all();
+        retry.wait();
+    } else {
+        cv.notify_all();
+        watchdog.wait();
+    }
+
+    if (hDirToWatch != INVALID_HANDLE_VALUE) {
+        CloseHandle(hDirToWatch);
+        hDirToWatch = INVALID_HANDLE_VALUE;
+    }
 }
 
 void cDiscFeed::UpdateModificationFlag() {
@@ -128,13 +167,13 @@ void cDiscFeed::UpdateModificationFlag() {
 }
 
 bool cDiscFeed::GetModificationFlag() {
-    return (!vstrNewFiles.empty() || !vstrModFiles.empty() || !vstrDelFiles.empty());
+    return (!vNewFiles.empty() || !vModFiles.empty() || !vDelFiles.empty());
 }
 
 void cDiscFeed::ResetModificationFlag() {
-    vstrNewFiles.clear();
-    vstrModFiles.clear();
-    vstrDelFiles.clear();
+    vNewFiles.clear();
+    vModFiles.clear();
+    vDelFiles.clear();
 }
 
 time_t cDiscFeed::GetFileModTime(const char *path) {
@@ -190,23 +229,20 @@ unsigned char *cDiscFeed::GetFileContent(const char *path, unsigned int &oiDataL
 }
 
 std::vector<std::string> cDiscFeed::GetModifiedFiles() {
-    EnterCriticalSection(&myCS);
-    std::vector<std::string> ret = vstrModFiles;
-    LeaveCriticalSection(&myCS);
+    std::unique_lock<std::mutex> lock(cmutex);
+    std::vector<std::string> ret = vModFiles;
     return ret;
 }
 
 std::vector<std::string> cDiscFeed::GetDeletedFiles() {
-    EnterCriticalSection(&myCS);
-    std::vector<std::string> ret = vstrDelFiles;
-    LeaveCriticalSection(&myCS);
+    std::unique_lock<std::mutex> lock(cmutex);
+    std::vector<std::string> ret = vDelFiles;
     return ret;
 }
 
 std::vector<std::string> cDiscFeed::GetNewFiles() {
-    EnterCriticalSection(&myCS);
-    std::vector<std::string> ret = vstrNewFiles;
-    LeaveCriticalSection(&myCS);
+    std::unique_lock<std::mutex> lock(cmutex);
+    std::vector<std::string> ret = vNewFiles;
     return ret;
 }
 

@@ -115,6 +115,7 @@ namespace gcn
          */
         int getY() const;
 
+        int offsetX(int off);
         int offsetY(int off);
 
         /**

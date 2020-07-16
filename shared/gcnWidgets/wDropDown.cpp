@@ -1,5 +1,4 @@
 #include "wDropDown.h"
-
 #include "guichan/exception.hpp"
 #include "guichan/key.hpp"
 #include "wListbox.h"

@@ -255,9 +255,6 @@
     <ClCompile Include="states\editing_ww\winFirstRun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="states\editing_ww\winNewMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="states\editing_ww\winPlaneProperties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -577,6 +574,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\newMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -143,7 +143,6 @@ void State::EditingWW::Init() {
 
     iTilePicked = EWW_TILE_NONE;
 
-    NewMap_data = 0;
     FirstRun_data = 0;
 
     GV->Console->Print("~w~Creating viewport...");
@@ -306,21 +305,22 @@ void State::EditingWW::Init() {
         hNativeController->SetArmorMode(atoi(GV->ini->GetValue("CrazyHook", "ArmorMode", "0")) != 0);
     }
 
+    hwinNewMap = new winNewMap();
     hwinOptions = new winOptions();
     hwinTileBrowser = new winTileBrowser();
     hwinImageSetBrowser = new winImageSetBrowser();
     hwinAbout = new winAbout();
+    hWindows.push_back(hwinNewMap);
     hWindows.push_back(hwinOptions);
     hWindows.push_back(hwinTileBrowser);
     hWindows.push_back(hwinImageSetBrowser);
     hWindows.push_back(hwinAbout);
 
-    for (size_t i = 0; i < hWindows.size(); i++) {
-        SHR::Win *win = hWindows[i]->GetWindow();
+    for (auto & hWindow : hWindows) {
+        SHR::Win *win = hWindow->GetWindow();
         if (win != 0) {
             conMain->add(win, hge->System_GetState(HGE_SCREENWIDTH) / 2 - win->getWidth() / 2,
                          hge->System_GetState(HGE_SCREENHEIGHT) / 2 - win->getHeight() / 2);
-            hWindows[i]->OnRegistered();
         }
     }
 
@@ -1568,6 +1568,8 @@ void State::EditingWW::Init() {
                         }
                         if (base > 0 && base < 15 && iCrashRetrieveIcon[linesCount] == WWD::Game_Claw) {
                             iCrashRetrieveIcon[linesCount] = 50 + base;
+                        } else if (base > 0 && base < 9 && iCrashRetrieveIcon[linesCount] == WWD::Game_Gruntz) {
+                            iCrashRetrieveIcon[linesCount] = 150 + base;
                         }
                         if (GV->fntMyriad16->GetStringWidth(temp.c_str()) > 460) {
                             do {
@@ -2032,9 +2034,9 @@ bool State::EditingWW::Think() {
         return false;
     }
 
-    if (NewMap_data != 0)
+    /*if (NewMap_data != 0)
         if (NewMap_data->bKill)
-            NewMap_Close();
+            NewMap_Close();*/
 
     if (FirstRun_data != 0)
         if (FirstRun_data->bKill)
@@ -2212,8 +2214,9 @@ bool State::EditingWW::Think() {
         }
     }
 
-    for (auto & hWindow : hWindows)
+    for (auto & hWindow : hWindows) {
         hWindow->Think();
+    }
 
     if (iMode == EWW_MODE_OBJECT) {
         bMouseConsumed = ObjectThink(bMouseConsumed);
@@ -2406,7 +2409,7 @@ void State::EditingWW::GainFocus(ReturnCode<void> code, bool bFlipped) {
                         }
                         bdots = 1;
                     }
-                    winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
+                    //winWelcome->setY(vPort->GetY() + vPort->GetHeight() / 2 - winWelcome->getHeight() / 2);
                 }
             } else {
                 MDI->UnlockMapReload();
@@ -2610,8 +2613,8 @@ void State::EditingWW::MinimizeWindows() {
             vMinimalisedWidgets.push_back(i);
         }
     }
-    if (NewMap_data != 0)
-        NewMap_data->bKill = true;
+    /*if (NewMap_data != 0)
+        NewMap_data->bKill = true;*/
 }
 
 void State::EditingWW::MaximizeWindows() {
@@ -3155,9 +3158,11 @@ void State::EditingWW::DocumentSwitched() {
         hAppMenu->SyncDocumentSwitched();
         hNativeController->SyncDocumentSwitched();
         hDataCtrl = NULL;
+
         for (cWindow* win : hWindows) {
             win->Close();
         }
+
         winTileProp->setVisible(false);
         FixInterfacePositions();
         iTileSelectX1 = iTileSelectY1 = iTileSelectX2 = iTileSelectY2 = -1;
@@ -3280,6 +3285,7 @@ void State::EditingWW::DocumentSwitched() {
     SwitchPlane();
     hAppMenu->SyncDocumentSwitched();
     hNativeController->SyncDocumentSwitched(hParser);
+
     for (cWindow* win : hWindows) {
         win->OnDocumentChange();
     }
@@ -3324,6 +3330,8 @@ void State::EditingWW::FileDraggedIn() {
                 }
                 if (base > 0 && base < 15 && iDraggedFileIcon[i] == WWD::Game_Claw) {
                     iDraggedFileIcon[i] = 50 + base;
+                } else if (base > 0 && base < 9 && iDraggedFileIcon[i] == WWD::Game_Gruntz) {
+                    iDraggedFileIcon[i] = 150 + base;
                 }
             }
 
@@ -3470,9 +3478,9 @@ void State::EditingWW::SaveWorldOptions() {
         return;
     }
     winWorld->setVisible(false);
-    bool bchange = 0;
+    bool bchange = false;
     if (strcmp(hParser->GetName(), tfwpName->getText().c_str()) != 0) {
-        bchange = 1;
+        bchange = true;
         char *fixname = FixLevelName(hParser->GetBaseLevel(), tfwpName->getText().c_str());
         hParser->SetName(fixname);
         tfwpName->setText(fixname);
@@ -3557,13 +3565,15 @@ void State::EditingWW::MruListUpdated() {
                 gt = WWD::Game_Unknown;
             }
 
+            hgeSprite *ico = GV->sprGamesSmall[gt];
             gamesLastOpened[i] = gt;
             if (gt == WWD::Game_Claw && base > 0 && base < 15) {
                 gamesLastOpened[i] = 50 + base;
+                ico = GV->sprLevelsMicro16[gt - WWD::Games_First][base - 1];
+            } else if (gt == WWD::Game_Gruntz && base > 0 && base < 9) {
+                gamesLastOpened[i] = 150 + base;
+                ico = GV->sprLevelsMicro16[gt - WWD::Games_First][base - 1];
             }
-
-            hgeSprite *ico = (gt == WWD::Game_Claw && base > 0 && base < 15 ? GV->sprLevelsMicro16[base - 1]
-                                                                            : GV->sprGamesSmall[gt]);
 
             lnkLastOpened[i] = new SHR::Link(tmp, ico);
             lnkLastOpened[i]->adjustSize();
@@ -3578,7 +3588,7 @@ void State::EditingWW::MruListUpdated() {
 }
 
 bool State::EditingWW::ValidateLevelName(const char *name, bool bAllowNoNum) {
-    bool bFoundNum = 0;
+    bool bFoundNum = false;
     for (int i = 0; i < strlen(name); i++) {
         if (name[i] >= 48 && name[i] <= 57) {
             if (bFoundNum) return 0;
@@ -3596,7 +3606,7 @@ bool State::EditingWW::ValidateLevelName(const char *name, bool bAllowNoNum) {
 }
 
 char *State::EditingWW::FixLevelName(int iBaseLvl, const char *name) {
-    if (ValidateLevelName(name, 0)) {
+    if (ValidateLevelName(name, false)) {
         char *r = new char[strlen(name) + 1];
         strcpy(r, name);
         return r;

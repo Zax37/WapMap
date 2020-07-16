@@ -143,7 +143,7 @@ void cAsset::SetFile(cFile nFile) {
 }
 
 cAssetPackage *cDataController::CreatePackage(std::string strPath, std::string strPref, int iLoadPolicy) {
-    cAssetPackage *ap = new cAssetPackage(this);
+    auto *ap = new cAssetPackage(this);
     ap->strPrefix = strPref;
     ap->iLoadPolicy = iLoadPolicy;
     ap->hParent = this;

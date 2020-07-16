@@ -91,6 +91,10 @@ namespace gcn {
         return mType;
     }
 
+    int MouseEvent::offsetX(int off) {
+        return mX += off;
+    }
+
     int MouseEvent::offsetY(int off) {
         return mY += off;
     }

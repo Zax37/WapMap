@@ -229,10 +229,16 @@ void cAppMenu::SyncMRU() {
         for (int i = 0; i < GV->editState->hMruList->GetFilesCount(); i++) {
             char *lab = SHR::GetFile(GV->editState->hMruList->GetRecentlyUsedFile(i));
             hgeSprite *ico;
-            if (GV->editState->gamesLastOpened[i] < 50)
+            if (GV->editState->gamesLastOpened[i] < 50) {
                 ico = GV->sprGamesSmall[GV->editState->gamesLastOpened[i]];
-            else
-                ico = GV->sprLevelsMicro16[GV->editState->gamesLastOpened[i] - 51];
+            } else {
+                int game = 0, ic = GV->editState->gamesLastOpened[i] - 50;
+                while (ic >= 50) {
+                    ++game;
+                    ic -= 50;
+                }
+                ico = GV->sprLevelsMicro16[game][ic - 1];
+            }
             conOpenMRU->AddElement(i, lab, ico);
             delete[] lab;
         }
@@ -503,8 +509,7 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
     if (actionEvent.getSource() == hEntries[AppMenu_File]->GetContext()) {
         int id = hEntries[AppMenu_File]->GetContext()->GetSelectedID();
         if (id == APPMEN_FILE_NEW) {
-            if (GV->editState->NewMap_data == 0)
-                GV->editState->NewMap_Open();
+            GV->editState->hwinNewMap->Open();
         } else if (id == APPMEN_FILE_OPEN) {
             GV->editState->OpenDocuments();
         } else if (id == APPMEN_FILE_RECENT) {

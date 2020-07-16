@@ -22,28 +22,14 @@ namespace WWD {
     }
 }
 
-WWD::Parser::Parser(void *ptr, uint32_t iLen, CustomMetaSerializer *hSerializer) {
+WWD::Parser::Parser(CustomMetaSerializer *hSerializer) {
     hMetaSerializer = hSerializer;
-    //piInfo = NULL;
     m_szFile[0] = '\0';
-    std::stringbuf *sb = new std::stringbuf(std::string((const char *) ptr, iLen), std::ios_base::in);
-    std::istream *str = new std::istream(sb);
-    if (str->fail())
-        throw WWD_EXCEPTION(Error_LoadingMemory);
-    LoadFromStream(str);
-    delete str;
-    delete sb;
 }
 
 WWD::Parser::Parser(const char *pszFilename, CustomMetaSerializer *hSerializer) {
     hMetaSerializer = hSerializer;
     strcpy(m_szFile, pszFilename);
-    std::ifstream str(pszFilename, std::ios_base::binary | std::ios_base::in);
-    if (str.fail())
-        throw WWD_EXCEPTION(Error_OpenAccess);
-    LoadFromStream(&str);
-
-    str.close();
 }
 
 void WWD::Parser::LoadFileHeader(std::istream *psSource) {
@@ -108,6 +94,8 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
     if (pos != m_Header.m_hPlanesStart) {
         psSource->seekg(m_Header.m_hPlanesStart - pos, std::ios_base::cur);
     }
+
+    psSource->sync();
 
     for (int i = 0; i < m_Header.m_iPlanesCount; i++) {
         Plane *pl = new Plane(false);
@@ -237,7 +225,7 @@ void WWD::Parser::LoadFromStream(std::istream *psSource) {
 #ifdef WAP_MAP
     if (_ghProgressInfo != 0) {
         _ghProgressInfo->iDetailedProgress = 6 * 28;
-        _ghProgressInfo->strDetailedCaption = "[ARETYBUTY KLOCKOW]";
+        _ghProgressInfo->strDetailedCaption = "[ATRYBUTY KLOCKOW]";
         _ghProgressCallback->Tick();
     }
 #endif // WAP_MAP

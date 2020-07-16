@@ -1,11 +1,9 @@
 #include "commonFunc.h"
-
 #include <string>
 #include <vector>
 #include <cmath>
 #include <cstdio>
 #include <ctime>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fstream>
 #include <direct.h>
@@ -13,11 +11,6 @@
 #ifdef WAP_MAP
 extern HGE *hge;
 #endif
-
-#ifdef WAP_GRAPHIC
-extern HGE * hge;
-#endif
-
 
 #ifdef COMMON_SFS
 
@@ -210,7 +203,7 @@ char *SHR::GetClipboard() {
 #ifdef WAP_MAP
     if (!OpenClipboard(hge->System_GetState(HGE_HWND))) {
 #else
-        if (!OpenClipboard(NULL)) {
+    if (!OpenClipboard(NULL)) {
 #endif
         return 0;
     }
@@ -230,7 +223,7 @@ int SHR::SetClipboard(const char *str) {
 #ifdef WAP_MAP
     if (!OpenClipboard(hge->System_GetState(HGE_HWND))) {
 #else
-        if (!OpenClipboard(NULL)) {
+    if (!OpenClipboard(NULL)) {
 #endif
         return 0;
     }
@@ -304,7 +297,7 @@ bool SHR::CompareStringsIntSupport(const char *str1, const char *str2) {
         }
         return i1 < i2;
     }
-    return 0;
+    return false;
 }
 
 #ifdef WAP_MAP

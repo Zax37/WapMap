@@ -1,7 +1,5 @@
 #include "cParallelLoop.h"
 #include <hge.h>
-#include <ctime>
-#include <cstdio>8
 
 extern HGE *hge;
 

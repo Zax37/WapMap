@@ -9,15 +9,9 @@ private:
 public:
     winAbout();
 
-    ~winAbout();
-
     virtual void Draw(int piCode);
 
     virtual void Think();
-
-    virtual void Open();
-
-    virtual void Close();
 };
 
 #endif // H_WIN_TILEBROWSER

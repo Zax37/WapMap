@@ -1,17 +1,7 @@
 #include "wContainer.h"
-
 #include "guichan/exception.hpp"
 #include "guichan/graphics.hpp"
-
-#ifdef WAP_MAP
-
 #include "../../WapMap/globals.h"
-
-#endif
-
-#ifdef WAP_GRAPHIC
-#include "../../WapGraphic/globals.h"
-#endif
 
 extern HGE *hge;
 

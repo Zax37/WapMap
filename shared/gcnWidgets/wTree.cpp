@@ -1,89 +1,76 @@
 #include "wTree.h"
-
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
 #include "guichan/mouseevent.hpp"
-#include "guichan/mouseinput.hpp"
-#include "guichan/mouseinput.hpp"
-
-#ifdef WAP_ARCHIVE
-#include "../../WapArchive/globals.h"
-#endif
-#ifdef WAP_GRAPHIC
-#include "../../WapGraphic/globals.h"
-#endif
-#ifdef WAP_MAP
-
 #include "../../WapMap/globals.h"
-
-#endif
+#include "../shared/commonFunc.h"
 
 extern HGE *hge;
 
 namespace SHR {
-    Tree::Tree(guiParts *Parts, const char *pszName, hgeSprite *psprIcon) : TreeFolder(pszName, psprIcon, NULL) {
-        mHasMouse = mKeyPressed = mMousePressed = 0;
+    Tree::Tree() : TreeFolder(NULL, NULL) {
+        mHasMouse = mKeyPressed = mMousePressed = false;
         setFocusable(true);
 
         addMouseListener(this);
         addKeyListener(this);
         addFocusListener(this);
-        hGfx = Parts;
-        adjustSize();
-        /*m_bStandalone = bStandalone;
-        szName = new char[strlen(pszName)+1];
-        strcpy(szName, pszName);
-        sprIcon = psprIcon;*/
-    }
 
-    void Tree::logic() {
-        if (m_iFocus != -1)
-            m_vElements[m_iFocus]->Logic();
+        m_iW = m_iH = m_iWex = m_iHex = 2;
+        m_bOpened = true;
+        m_hSelected = NULL;
     }
 
     void Tree::draw(Graphics *graphics) {
-        ClipRectangle rect = graphics->getCurrentClipArea();
         int x, y;
         getAbsolutePosition(x, y);
-
-        hge->Gfx_SetClipping();
         Render(x, y);
-        hge->Gfx_SetClipping(rect.x, rect.y, rect.width, rect.height);
     }
 
-    void Tree::mousePressed(MouseEvent &mouseEvent) {
-        if (mouseEvent.getButton() == MouseEvent::LEFT) {
-            mMousePressed = true;
-            mouseEvent.consume();
+    void TreeFolder::mousePressed(MouseEvent &mouseEvent) {
+        if (mouseEvent.getButton() != MouseEvent::LEFT) return;
+        if (mouseEvent.getY() < m_iH) {
+            //if (mouseEvent.getX() < 0 && mouseEvent.getX() > -20) {
+                SetOpened(!IsOpened());
+            /*} else {
+                TreeElement::mousePressed(mouseEvent);
+            }*/
+        } else {
+            mouseEvent.offsetX(-20);
+            mouseEvent.offsetY(-m_iH);
+            for (auto &m_vElement : m_vElements) {
+                if (mouseEvent.getY() < m_vElement->GetHeight()) {
+                    m_vElement->mousePressed(mouseEvent);
+                    return;
+                }
+                mouseEvent.offsetY(-m_vElement->GetHeight());
+            }
         }
     }
 
-    void Tree::mouseMoved(MouseEvent &mouseEvent) {
-        int x, y;
-        getAbsolutePosition(x, y);
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-        //mx -= x;
-        //my -= y;
-        x += 16;
-        y += 20;
-
+    void TreeFolder::mouseMoved(MouseEvent &mouseEvent) {
+        if (mouseEvent.getY() < m_iH) {
+            //TreeElement::mouseMoved(mouseEvent);
+            return;
+        }
+        LoseFocus();
+        mouseEvent.offsetX(-20);
+        mouseEvent.offsetY(-m_iH);
         for (int i = 0; i < m_vElements.size(); i++) {
-            if (mx > x &&
-                mx < x + m_vElements[i]->GetWidth() &&
-                my > y &&
-                my < y + m_vElements[i]->GetHeight()) {
-                if (m_iFocus == i) return;
+            if (mouseEvent.getY() < m_vElements[i]->GetHeight()) {
+                if (m_iFocus == i) {
+                    m_vElements[i]->mouseMoved(mouseEvent);
+                    return;
+                }
                 if (m_iFocus != -1) {
                     m_vElements[m_iFocus]->LoseFocus();
                 }
                 m_iFocus = i;
                 m_vElements[i]->GainFocus();
+                m_vElements[i]->mouseMoved(mouseEvent);
                 return;
             }
-            y += m_vElements[i]->GetHeight();
+            mouseEvent.offsetY(-m_vElements[i]->GetHeight());
         }
         if (m_iFocus != -1) {
             m_vElements[m_iFocus]->LoseFocus();
@@ -121,17 +108,17 @@ namespace SHR {
     }
 
     void Tree::keyPressed(KeyEvent &keyEvent) {
-        Key key = keyEvent.getKey();
+        /*Key key = keyEvent.getKey();
 
         if (key.getValue() == Key::ENTER
             || key.getValue() == Key::SPACE) {
             mKeyPressed = true;
             keyEvent.consume();
-        }
+        }*/
     }
 
     void Tree::keyReleased(KeyEvent &keyEvent) {
-        Key key = keyEvent.getKey();
+        /*Key key = keyEvent.getKey();
 
         if ((key.getValue() == Key::ENTER
              || key.getValue() == Key::SPACE)
@@ -139,7 +126,7 @@ namespace SHR {
             mKeyPressed = false;
             distributeActionEvent();
             keyEvent.consume();
-        }
+        }*/
     }
 
     void Tree::focusLost(const FocusEvent &event) {
@@ -147,127 +134,159 @@ namespace SHR {
         mKeyPressed = false;
     }
 
-    TreeElement::TreeElement(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent) {
-        szName = new char[strlen(pszName) + 1];
-        strcpy(szName, pszName);
+    TreeElement::TreeElement(const char *pszName, hgeSprite *psprIcon) {
+        if (pszName) {
+            szName = new char[strlen(pszName) + 1];
+            strcpy(szName, pszName);
+        } else {
+            szName = new char[1];
+            szName[0] = 0;
+        }
         sprIcon = psprIcon;
-        m_iW = GV->fntMyriad16->GetStringWidth(szName) + 16;
+        m_iW = GV->fntMyriad16->GetStringWidth(szName) + 24;
         m_iH = 20;
-        m_hParent = phParent;
+        m_hParent = NULL;
+        m_bFocused = m_bSelected = false;
     }
 
-    TreeFolder::TreeFolder(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent) : TreeElement(pszName,
-                                                                                                         psprIcon,
-                                                                                                         phParent) {
-        m_bOpened = 0;
+    TreeFolder::TreeFolder(const char *pszName, hgeSprite *psprIcon) : TreeElement(pszName,
+                                                                                                         psprIcon) {
+        m_bOpened = false;
         m_iWex = m_iW;
         m_iHex = m_iH;
         m_iFocus = -1;
     }
 
-    int TreeElement::Render(int x, int y) {
-        if (sprIcon != NULL)
-            sprIcon->Render(x, y);
-        GV->fntMyriad16->Render(x + 20, y, HGETEXT_LEFT, szName, 0);
-        return 20;
-    }
-
-    int TreeFolder::Render(int x, int y) {
-        int oldy = y;
-        if (sprIcon != NULL)
-            sprIcon->Render(x, y);
-        GV->fntMyriad16->Render(x + 16, y, HGETEXT_LEFT, szName, 0);
-        y += 20;
-        if (m_bOpened) {
-            x += 20;
-            for (int i = 0; i < m_vElements.size(); i++) {
-                y += m_vElements[i]->Render(x, y);
-            }
+    int Tree::Render(int x, int y) {
+        int oldY = y;
+        x += 24;
+        y += 2;
+        for (auto & m_vElement : m_vElements) {
+            y += m_vElement->Render(x, y);
         }
-        return y - oldy;
+        return y - oldY;
     }
 
-    int TreeElement::GetWidth() {
-        return m_iW;
-    }
-
-    int TreeElement::GetHeight() {
+    int TreeElement::Render(int x, int y) {
+        if (m_bSelected) {
+            SHR::SetQuad(&q, GV->colActive, x - 2, y, x + m_iW, y + m_iH);
+            hge->Gfx_RenderQuad(&q);
+        } else if (m_bFocused) {
+            SHR::SetQuad(&q, 0x22FFFFFF, x - 2, y, x + m_iW, y + m_iH);
+            hge->Gfx_RenderQuad(&q);
+        }
+        if (sprIcon != NULL) {
+            sprIcon->SetColor(0xFFFFFFFF);
+            sprIcon->Render(x, y + 2);
+        }
+        GV->fntMyriad16->Render(x + 20, y + 3, HGETEXT_LEFT, szName, 0);
         return m_iH;
     }
 
-    int TreeFolder::GetWidth() {
+    int TreeFolder::Render(int x, int y) {
+        int oldY = y;
+        TreeElement::Render(x, y);
+
+        int quarter = m_iH / 4;
+        SHR::SetQuad(&q, GV->colFontWhite, x - 12 - quarter, y + quarter, x - 12 + quarter, y + quarter * 3);
+        hge->Gfx_RenderQuad(&q, false);
+        hge->Gfx_RenderLine(x - 12 - quarter + 1, y + quarter * 2, x - 12 + quarter - 2, y + quarter * 2, GV->colFontWhite);
+        if (m_bOpened) {
+            hge->Gfx_RenderLine(x - 12, y + quarter * 3, x - 12, y + m_iH, GV->colFontWhite);
+        } else {
+            hge->Gfx_RenderLine(x - 12, y + quarter + 1, x - 12, y + quarter * 3 - 2, GV->colFontWhite);
+        }
+
+        y += m_iH;
+        if (m_bOpened && !m_vElements.empty()) {
+            hge->Gfx_RenderLine(x - 12, y, x - 12, y + m_iH * (m_vElements.size() - 0.5f), GV->colFontWhite);
+            x += 20;
+            for (auto & m_vElement : m_vElements) {
+                hge->Gfx_RenderLine(x - 32, y + m_iH / 2, x - 4, y + m_iH / 2, GV->colFontWhite);
+                y += m_vElement->Render(x, y);
+            }
+        }
+        return y - oldY;
+    }
+
+    int TreeElement::GetWidth() const {
+        return m_iW;
+    }
+
+    int TreeElement::GetHeight() const {
+        return m_iH;
+    }
+
+    int TreeFolder::GetWidth() const {
         if (m_bOpened)
             return m_iWex;
         else
             return m_iW;
     }
 
-    int TreeFolder::GetHeight() {
+    int TreeFolder::GetHeight() const {
         if (m_bOpened)
             return m_iHex;
         else
             return m_iH;
     }
 
-    int Tree::GetWidth() {
+    int Tree::GetWidth() const {
         return getWidth();
     }
 
-    int Tree::GetHeight() {
+    int Tree::GetHeight() const {
         return getHeight();
     }
 
     void TreeElement::GainFocus() {
-
+        m_bFocused = true;
     }
 
     void TreeElement::LoseFocus() {
+        m_bFocused = false;
+    }
 
+    void TreeElement::mousePressed(MouseEvent &mouseEvent) {
+        if (mouseEvent.getX() > 0) {
+            GetRoot()->SetSelectedElement(this);
+        }
     }
 
     void TreeFolder::GainFocus() {
-        printf("%s: gained\n", szName);
+        m_bFocused = true;
     }
 
     void TreeFolder::LoseFocus() {
-        printf("%s: lost\n", szName);
+        m_bFocused = false;
+
+        if (m_iFocus != -1) {
+            m_vElements[m_iFocus]->LoseFocus();
+            m_iFocus = -1;
+        }
     }
 
-    void TreeFolder::AddElement(TreeElement *phEl) {
-        //phEl->GetHeight()+GetHeight();
+    void TreeFolder::AddElement(const std::shared_ptr<TreeElement>& phEl) {
+        ((TreeFolder*)&*phEl)->m_hParent = this;
         m_iHex += phEl->GetHeight();
         m_iWex = std::max(m_iWex, phEl->GetWidth() + 20);
-        m_vElements.push_back(phEl);
+        m_vElements.emplace_back(phEl);
     }
 
     void Tree::adjustSize() {
-        if (m_bOpened) {
-            setWidth(m_iWex);
-            setHeight(m_iHex);
-        } else {
-            setWidth(m_iW);
-            setHeight(m_iH);
-        }
+        setWidth(m_iWex + 24);
+        setHeight(m_iHex);
     }
 
-    void TreeElement::Logic() {
-
-    }
-
-    void TreeFolder::Logic() {
-        float mx, my;
-        hge->Input_GetMousePos(&mx, &my);
-        if (mx != lmx || my != lmy) {
-
+    void Tree::SetSelectedElement(TreeElement *element) {
+        if (m_hSelected != NULL) {
+            m_hSelected->LoseSelection();
         }
-        lmx = mx;
-        lmy = my;
-        if (hge->Input_KeyDown(HGEK_LBUTTON)) {
-            printf("%s focus %d\n", szName, m_iFocus);
-            if (m_iFocus == -1) {
-                SetOpened(!IsOpened());
-            }
+        m_hSelected = element;
+        if (element) {
+            element->GainSelection();
         }
+        distributeActionEvent();
     }
 
     void TreeFolder::SetOpened(bool bn) {
@@ -283,13 +302,44 @@ namespace SHR {
     void TreeFolder::RecalculateSize() {
         m_iWex = m_iW;
         m_iHex = m_iH;
-        for (int i = 0; i < m_vElements.size(); i++) {
-            m_iHex += m_vElements[i]->GetHeight();
-            m_iWex = std::max(m_iWex, m_vElements[i]->GetWidth());
+        for (auto & m_vElement : m_vElements) {
+            m_iHex += m_vElement->GetHeight();
+            m_iWex = std::max(m_iWex, m_vElement->GetWidth());
         }
         if (m_hParent != NULL)
             m_hParent->RecalculateSize();
         else
             ((Tree *) this)->adjustSize();
+    }
+
+    TreeElement* TreeFolder::GetFocused() {
+        if (m_iFocus == -1) return this;
+        if (m_vElements[m_iFocus]->IsDir()) {
+            return ((TreeFolder*)(&*m_vElements[m_iFocus]))->GetFocused();
+        }
+        return &*m_vElements[m_iFocus];
+    }
+
+    class Tree *TreeElement::GetRoot() {
+        return m_hParent ? m_hParent->GetRoot() : (Tree*)this;
+    }
+
+    void TreeElement::mouseMoved(MouseEvent &mouseEvent) {
+        if (m_bFocused) {
+            m_bFocused = mouseEvent.getX() > 0;
+        } else if (mouseEvent.getX() > 0) {
+            if (IsDir()) {
+                LoseFocus();
+            }
+            GainFocus();
+        }
+    }
+
+    SHR::TreeFolder* TreeElement::GetParent() {
+        return m_hParent;
+    }
+
+    std::shared_ptr<TreeElement> TreeFolder::GetElement(int i) {
+        return m_vElements[i];
     }
 }

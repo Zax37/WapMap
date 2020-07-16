@@ -402,21 +402,21 @@ void cGlobals::Init() {
 //mkdir("res");
 //repo.Unpack();
 #endif
-    void *ptr;
+    char *ptr;
     int size;
 
-    ptr = repo.GetFileAsRawData("levels.png", &size);
+    /*ptr = repo.GetFileAsRawData("levels.png", &size);
     texLevels = hge->Texture_Load((const char *) ptr, size);
     delete[] ptr;
     //texLevels = hge->Texture_Load("res/levels.png");
     for (int i = 0; i < 18; i++)
-        sprLevels[i] = new hgeSprite(texLevels, (i % 3) * 300, int(i / 3) * 150, 300, 150);
+        sprLevels[i] = new hgeSprite(texLevels, (i % 3) * 300, int(i / 3) * 150, 300, 150);*/
 
     std::string line;
     ptr = repo.GetFileAsRawData("logicsClaw.wls", &size);
     //void * ptr = hge->Resource_Load("res/logicsClaw.wls", &size);
     {
-        std::istringstream istr(std::string((const char*)ptr, size));
+        std::istringstream istr(std::string(ptr, size));
         while (getline(istr, line)) {
             vstrClawLogics.push_back(line.substr(0, line.length() - 1));
         }
@@ -543,8 +543,12 @@ void cGlobals::Init() {
 
     sprCheckboard = new hgeSprite(texMain, 640, 0, 120, 120);
 
+    sprLevelsMicro16[WWD::Game_Claw - WWD::Games_First] = new hgeSprite*[14];
+    sprLevelsMicro16[WWD::Game_Gruntz - WWD::Games_First] = new hgeSprite*[8];
     for (int i = 0; i < 14; i++)
-        sprLevelsMicro16[i] = new hgeSprite(texMain, 416 + 16 * i, 0, 16, 16);
+        sprLevelsMicro16[WWD::Game_Claw - WWD::Games_First][i] = new hgeSprite(texMain, 416 + 16 * i, 0, 16, 16);
+    for (int i = 0; i < 8; i++)
+        sprLevelsMicro16[WWD::Game_Gruntz - WWD::Games_First][i] = new hgeSprite(texMain, 768, 16 * i, 16, 16);
 
     if (!strcmp(Lang->GetCode(), "RU")) {
         fntMyriad16 = SHR::LoadFontFromSFS(&repo, "16px_r.fnt", "16px_r.png");
@@ -778,7 +782,7 @@ void cGlobals::Init() {
     sprKijan->SetHotSpot(16, 16);
     sprZax = new hgeSprite(texMain, 768, 128, 32, 32);
     sprZax->SetHotSpot(16, 16);
-    sprSnowflake = new hgeSprite(texMain, 768, 96, 32, 32);
+    sprSnowflake = new hgeSprite(texMain, 800, 128, 32, 32);
     sprSnowflake->SetHotSpot(16, 16);
 
     bKijan = bZax = bWinter = false;

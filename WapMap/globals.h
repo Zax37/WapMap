@@ -333,8 +333,8 @@ public:
     void SliderDrawBar(int dx, int dy, bool orient, int size, int type, DWORD col);
 
     HTEXTURE texMain;
-    HTEXTURE texLevels;
-    hgeSprite *sprLevels[18];
+    //HTEXTURE texLevels;
+    //hgeSprite *sprLevels[18];
     hgeSprite *sprLogoBig, *sprLogoCaption;
     hgeSprite *sprIcons[GfxIcons_Count], *sprIcons16[Gfx16Icons_Count];
     hgeSprite *sprSmiley;
@@ -345,7 +345,7 @@ public:
     hgeSprite *sprDottedLineCorner, *sprDottedLineHorizontal, *sprDottedLineVertical;
     hgeSprite *sprArrowVerticalU, *sprArrowVerticalM, *sprArrowVerticalD;
 
-    hgeSprite *sprLevelsMicro16[14];
+    hgeSprite **sprLevelsMicro16[WWD::Games_Count];
 
     SHR::cConsole *Console;
     SHR::Interface *IF;

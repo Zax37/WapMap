@@ -5,12 +5,7 @@
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
 #include "guichan/mouseinput.hpp"
-
-#ifdef WAP_MAP
-
 #include "../../WapMap/globals.h"
-
-#endif
 
 namespace SHR {
     TextBox::TextBox() {

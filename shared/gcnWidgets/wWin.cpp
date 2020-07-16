@@ -1,22 +1,6 @@
 #include "wWin.h"
-
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
-#include "guichan/mouseinput.hpp"
-
-#include "hge.h"
-
-#ifdef WAP_MAP
-
 #include "../../WapMap/globals.h"
-
-#endif
-
-#ifdef WAP_GRAPHIC
-#include "../../WapGraphic/globals.h"
-#endif
-
 #include "../../WapMap/cInterfaceSheet.h"
 
 using namespace gcn;

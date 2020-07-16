@@ -530,8 +530,8 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
     int psx = std::max(Wrd2ScrXrb(hParser->GetMainPlane(), 0), 0),
         psy = std::max(Wrd2ScrYrb(hParser->GetMainPlane(), 0), 0);
 
-    hge->Gfx_SetClipping(psx - 1, psy - 1, std::min(Wrd2ScrXrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneWidthPx()), vPort->GetWidth()) + 1,
-                         std::min(Wrd2ScrYrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneHeightPx()), vPort->GetHeight()) + 1);
+    hge->Gfx_SetClipping(psx - 1, psy - 1, std::min(Wrd2ScrXrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneWidthPx()), vPort->GetWidth()) - psx + 2,
+                         std::min(Wrd2ScrYrb(hParser->GetMainPlane(), hParser->GetMainPlane()->GetPlaneHeightPx()), vPort->GetHeight()) - psy + 2);
 
     float cammx = fCamX * fZoom,
           cammy = fCamY * fZoom;
@@ -712,12 +712,12 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                 if (hPlaneData[pl]->bDrawBoundary && (plane->GetFlag(WWD::Flag_p_XWrapping)
                     ? x % plane->GetPlaneWidth() == plane->GetPlaneWidth() - 1
                     : x == plane->GetPlaneWidth() - 1)) {
-                    hge->Gfx_RenderLine(posX + tw, std::max(0.f, -cammy),
-                                        posX + tw, endplaney,
+                    hge->Gfx_RenderLine(floor(posX + tw), std::max(0.f, -cammy),
+                                        floor(posX + tw), endplaney,
                                         ARGB(GETA(col), 255, 0, 255));
                 } else if (hPlaneData[pl]->bDrawGrid) {
-                    hge->Gfx_RenderLine(posX + tw, std::max(0.f, -cammy),
-                                        posX + tw, endplaney,
+                    hge->Gfx_RenderLine(floor(posX + tw), std::max(0.f, -cammy),
+                                        floor(posX + tw), endplaney,
                                         ARGB(GETA(col), 255, 255, 255));
                 }
             }
@@ -730,11 +730,11 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
             if (hPlaneData[pl]->bDrawBoundary && (plane->GetFlag(WWD::Flag_p_YWrapping)
                 ? y % plane->GetPlaneHeight() == plane->GetPlaneHeight() - 1
                 : y == plane->GetPlaneHeight() - 1)) {
-                hge->Gfx_RenderLine(std::max(0.f, -cammx), ceil(posY + th), endplanex,
-                                    ceil(posY + th), ARGB(GETA(col), 255, 0, 255));
+                hge->Gfx_RenderLine(std::max(0.f, -cammx), floor(posY + th), endplanex,
+                                    floor(posY + th), ARGB(GETA(col), 255, 0, 255));
             } else if (hPlaneData[pl]->bDrawGrid)
-                hge->Gfx_RenderLine(std::max(0.f, -cammx), ceil(posY + th), endplanex,
-                                    ceil(posY + th), ARGB(GETA(col), 255, 255, 255));
+                hge->Gfx_RenderLine(std::max(0.f, -cammx), floor(posY + th), endplanex,
+                                    floor(posY + th), ARGB(GETA(col), 255, 255, 255));
 
             if (ghosting && plane->GetFlags() & WWD::Flag_p_YWrapping && y % plane->GetPlaneHeight() == plane->GetPlaneHeight() - 1) {
                 tgIterator = vTileGhosting.begin();
@@ -2457,12 +2457,12 @@ bool State::EditingWW::Render() {
 
         int x = hge->System_GetState(HGE_SCREENWIDTH) / 2, y = hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 18;
 
-        if (files.size()) {
+        if (!files.empty()) {
             y -= std::min(files.size(), 10u) * 9;
             GV->fntMyriad16->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_MapsToOpen), 0);
 
             int maxW = 0;
-            for (auto filepath : files) {
+            for (const auto& filepath : files) {
                 int w = GV->fntMyriad16->GetStringWidth(filepath.c_str(), false);
                 if (w > maxW) {
                     maxW = w;
@@ -2477,12 +2477,19 @@ bool State::EditingWW::Render() {
             y += 18 * 2;
 
             int i = 0;
-            for (auto filepath : files) {
+            for (const auto& filepath : files) {
                 byte icon = iDraggedFileIcon[i++];
-                if (icon < 50)
+                if (icon < 50) {
                     GV->sprGamesSmall[icon]->Render(x, y);
-                else
-                    GV->sprLevelsMicro16[icon - 51]->Render(x, y);
+                } else {
+                    int game = 0;
+                    icon -= 50;
+                    while (icon > 50) {
+                        ++game;
+                        icon -= 50;
+                    }
+                    GV->sprLevelsMicro16[game][icon - 1]->Render(x, y);
+                }
 
                 if (maxW == 500 && GV->fntMyriad16->GetStringWidth(filepath.c_str()) > 500) {
                     std::string temp(filepath);
@@ -3134,10 +3141,16 @@ void State::EditingWW::DrawCrashRetrieve() {
     int c = 0;
     for (int i = 0; i < 10; i++) {
         if (szCrashRetrieve[i] == NULL) break;
-        if (iCrashRetrieveIcon[i] < 50)
+        if (iCrashRetrieveIcon[i] < 50) {
             GV->sprGamesSmall[iCrashRetrieveIcon[i]]->Render(dx, dy + 30 + 25 * i);
-        else
-            GV->sprLevelsMicro16[iCrashRetrieveIcon[i] - 51]->Render(dx, dy + 30 + 25 * i);
+        } else {
+            int game = 0, ic = iCrashRetrieveIcon[i] - 50;
+            while (ic > 50) {
+                ++game;
+                ic -= 50;
+            }
+            GV->sprLevelsMicro16[game][ic - 1]->Render(dx, dy + 30 + 25 * i);
+        }
         GV->fntMyriad16->Render(dx + 22, dy + 30 + 25 * i, HGETEXT_LEFT, szCrashRetrieve[i], 0);
         c++;
     }

@@ -65,14 +65,9 @@ int cListModelDisplay::getNumberOfElements() {
 }
 
 
-winOptions::winOptions() {
-    myWin = new SHR::Win(&GV->gcnParts, GETL(Lang_Options));
-    myWin->setClose(true);
-    myWin->setVisible(false);
-    myWin->addActionListener(this);
-
+winOptions::winOptions() : cWindow(GETL(Lang_Options)) {
     vp = new WIDG::Viewport(this, 0);
-    myWin->add(vp, 0, 0);
+    myWin.add(vp, 0, 0);
 
     settingsCategoriesList = new SHR::IconListBox(this);
     settingsCategoriesList->adjustSize();
@@ -81,8 +76,8 @@ winOptions::winOptions() {
     scrollAreaCategories = new SHR::ScrollArea(settingsCategoriesList, SHR::ScrollArea::SHOW_NEVER, SHR::ScrollArea::SHOW_NEVER);
     scrollAreaCategories->setDimension(settingsCategoriesList->getDimension());
     scrollAreaCategories->setOpaque(false);
-    myWin->add(scrollAreaCategories, 0, 8);
-    myWin->setHeight(26 + settingsCategoriesList->getHeight());
+    myWin.add(scrollAreaCategories, 0, 8);
+    myWin.setHeight(26 + settingsCategoriesList->getHeight());
 
     auto* conWapMap = new SHR::Container();
     conWapMap->setOpaque(false);
@@ -142,7 +137,7 @@ winOptions::winOptions() {
         conWapMap->add(cboptAutoUpdate, xOffset, yOffset);
     }
     optionsForCategory.push_back(conWapMap);
-    myWin->add(conWapMap, scrollAreaCategories->getWidth(), 8);
+    myWin.add(conWapMap, scrollAreaCategories->getWidth(), 8);
 
     for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
         int xOffset = 8, yOffset = 10;
@@ -169,7 +164,7 @@ winOptions::winOptions() {
         widgetsToDelete.push_back(butPath[i - WWD::Games_First] = GV->editState->MakeButton(xOffset, yOffset - 6, Icon_Open, conGame, true, true, this));
 
         optionsForCategory.push_back(conGame);
-        myWin->add(conGame, scrollAreaCategories->getWidth(), 8);
+        myWin.add(conGame, scrollAreaCategories->getWidth(), 8);
     }
 
     {
@@ -224,7 +219,7 @@ winOptions::winOptions() {
     butSave = new SHR::But(GV->hGfxInterface, GETL(Lang_Save));
     butSave->setDimension(gcn::Rectangle(0, 0, 100, 33));
     butSave->addActionListener(this);
-    myWin->add(butSave, myWin->getWidth() - 90, myWin->getHeight() - 55);
+    myWin.add(butSave, myWin.getWidth() - 90, myWin.getHeight() - 55);
     butSave->setX(butSave->getX() - 10);
 }
 
@@ -254,7 +249,6 @@ winOptions::~winOptions() {
     }
 
     delete vp;
-    delete myWin;
 }
 
 void winOptions::Think() {
@@ -263,9 +257,9 @@ void winOptions::Think() {
 
 void winOptions::Draw(int piCode) {
     /*int dx, dy;
-    myWin->getAbsolutePosition(dx, dy);
+    myWin.getAbsolutePosition(dx, dy);
 
-    unsigned char alpha = myWin->getAlpha();
+    unsigned char alpha = myWin.getAlpha();
     DWORD col = SETA(0xFFFFFFFF, alpha),
             colt = SETA(0xFFFFFFFF, (unsigned char) (alpha * 0.5f));
 
@@ -276,12 +270,12 @@ void winOptions::Draw(int piCode) {
     GV->sprIcons[Icon_CrazyHook]->Render(dx + 300, dy + 90);
 
     //upper
-    hge->Gfx_RenderLine(dx, dy + 80, dx + myWin->getWidth(), dy + 80, GV->colLineDark);
-    hge->Gfx_RenderLine(dx, dy + 81, dx + myWin->getWidth(), dy + 81, GV->colLineBright);
+    hge->Gfx_RenderLine(dx, dy + 80, dx + myWin.getWidth(), dy + 80, GV->colLineDark);
+    hge->Gfx_RenderLine(dx, dy + 81, dx + myWin.getWidth(), dy + 81, GV->colLineBright);
 
     //bottom
-    hge->Gfx_RenderLine(dx, dy + 270, dx + myWin->getWidth(), dy + 270, GV->colLineDark);
-    hge->Gfx_RenderLine(dx, dy + 271, dx + myWin->getWidth(), dy + 271, GV->colLineBright);
+    hge->Gfx_RenderLine(dx, dy + 270, dx + myWin.getWidth(), dy + 270, GV->colLineDark);
+    hge->Gfx_RenderLine(dx, dy + 271, dx + myWin.getWidth(), dy + 271, GV->colLineBright);
 
     //middle
     hge->Gfx_RenderLine(dx + 296, dy + 81, dx + 296, dy + 270, GV->colLineDark);
@@ -289,10 +283,7 @@ void winOptions::Draw(int piCode) {
 }
 
 void winOptions::Open(WWD::GAME game) {
-    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
-                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
-    myWin->setVisible(true);
-    myWin->getParent()->moveToTop(myWin);
+    cWindow::Open();
 
     settingsCategoriesList->setSelected(game);
     optionsForCategory[0]->setVisible(game == WWD::Game_Unknown);
@@ -337,7 +328,7 @@ void winOptions::Open(WWD::GAME game) {
 }
 
 void winOptions::Close() {
-    myWin->setVisible(false);
+    cWindow::Close();
     GV->editState->hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
 }
 
@@ -384,7 +375,7 @@ void winOptions::PickAndSetGameLocation(WWD::GAME game) {
 }
 
 void winOptions::action(const ActionEvent &actionEvent) {
-    if (actionEvent.getSource() == myWin) {
+    if (actionEvent.getSource() == &myWin) {
         Close();
     } else if (actionEvent.getSource() == settingsCategoriesList) {
         for (int i = 0; i < optionsForCategory.size(); ++i) {

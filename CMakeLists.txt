@@ -247,8 +247,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/vPort.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/winDatabase.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/winFirstRun.cpp
-	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/winNewMap.cpp
-	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/winPlaneProperties.cpp
+        ${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/winPlaneProperties.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/dialog.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/imageDetails.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/imageImport.cpp
@@ -260,6 +259,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/vpFocusWidg.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/about.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/imgsetBrowser.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/newMap.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/options.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/tileBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/wViewport.cpp

@@ -95,7 +95,7 @@ void cBankTile::BatchProcessEnd(cDataController *hDC) {
 
     GV->Console->Printf("~g~Found %d tiles in %d tile sets.", toloadc, sets);
     int texidx = 0;
-    if (vTexes.empty()) {
+    if (vTexes.empty() && toloadc) {
         int txw, txh;
         cTilesetTexture::CalculateDimension(toloadc, m_vhSets[0]->tileWidth, m_vhSets[0]->tileHeight, txw, txh);
         auto ntex = new cTilesetTexture(txw / m_vhSets[0]->tileWidth, txh / m_vhSets[0]->tileHeight,

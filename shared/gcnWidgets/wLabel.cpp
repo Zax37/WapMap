@@ -1,8 +1,7 @@
 #include "wLabel.h"
 #include "guichan/exception.hpp"
-#include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
-#include <hgeFont.h>
+#include <hgefont.h>
 #include "guichan/hge/hgeimagefont.hpp"
 #include "../shared/commonFunc.h"
 

@@ -2,6 +2,7 @@
 #define H_C_FILESYSTEM
 
 #include "../shared/cREZ.h"
+#include <future>
 #include <windows.h>
 
 enum enFeedType {
@@ -33,7 +34,7 @@ public:
 
     virtual int GetFileSize(const char *path) { return 0; };
 
-    virtual void SetFileContent(const char *path, const std::string& strContent) {};
+    virtual void SetFileContent(const char *path, const std::string &strContent) {};
 
     virtual void ReadingStart() {};
 
@@ -78,8 +79,18 @@ public:
 class cDiscFeed : public cFileFeed {
 private:
     bool bIsHDD;
+    std::atomic_bool stop, retrying;
+    std::mutex cmutex;
+    std::condition_variable cv;
+    std::future<void> watchdog, retry;
+    HANDLE hDirToWatch;
+    std::vector<std::string> vNewFiles, vModFiles, vDelFiles;
 
-    void _CreateWatchdog();
+    bool _CreateWatchdog();
+
+    void _RetryCreateWatchdog();
+
+    void _WatchdogProc();
 
     void _DeleteWatchdog();
 
@@ -97,7 +108,7 @@ public:
     virtual unsigned char *GetFileContent(const char *path, unsigned int &oiDataLength, unsigned int iReadStart = 0,
                                           unsigned int iReadLen = 0);
 
-    virtual void SetFileContent(const char *path, const std::string& strContent);
+    virtual void SetFileContent(const char *path, const std::string &strContent);
 
     virtual bool DirectoryExists(const char *path);
 
@@ -123,12 +134,6 @@ public:
     virtual std::vector<std::string> GetDeletedFiles();
 
     virtual std::vector<std::string> GetNewFiles();
-
-    //threaded
-    HANDLE hDirToWatch;
-    HANDLE hWatchThread;
-    CRITICAL_SECTION myCS;
-    std::vector<std::string> vstrNewFiles, vstrModFiles, vstrDelFiles;
 };
 
 class cRezFeed : public cFileFeed {
@@ -137,7 +142,7 @@ private:
     time_t iModTime;
     bool iModificationFlag;
 public:
-    cRezFeed(const std::string& strPath);
+    cRezFeed(const std::string &strPath);
 
     ~cRezFeed();
 

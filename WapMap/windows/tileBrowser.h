@@ -34,19 +34,15 @@ private:
 public:
     winTileBrowser();
 
-    ~winTileBrowser();
+    void Draw(int piCode) override;
 
-    virtual void Draw(int piCode);
+    void Think() override;
 
-    virtual void Think();
+    void OnDocumentChange() override;
 
-    virtual void OnDocumentChange();
+    void Open() override;
 
-    virtual void Open();
-
-    virtual void Close();
-
-    virtual void action(const ActionEvent &actionEvent);
+    void action(const ActionEvent &actionEvent) override;
 
     void Synchronize();
 };

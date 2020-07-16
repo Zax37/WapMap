@@ -50,17 +50,17 @@ private:
 public:
     winOptions();
 
-    ~winOptions();
+    ~winOptions() override;
 
-    virtual void Draw(int piCode);
+    void Draw(int piCode) override;
 
-    virtual void Think();
+    void Think() override;
 
-    virtual void Open(WWD::GAME game = WWD::Game_Unknown);
+    void Open(WWD::GAME game = WWD::Game_Unknown);
 
-    virtual void Close();
+    void Close() override;
 
-    virtual void action(const ActionEvent &actionEvent);
+    void action(const ActionEvent &actionEvent) override;
 
     void SyncWithExe();
 

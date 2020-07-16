@@ -18,14 +18,15 @@ using namespace gcn;
 namespace SHR {
     class TreeFolder;
 
-    class TreeElement {
+    class TreeElement : public MouseListener {
     protected:
         hgeSprite *sprIcon;
         char *szName;
         int m_iW, m_iH;
         TreeFolder *m_hParent;
+        bool m_bFocused, m_bSelected;
     public:
-        TreeElement(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent);
+        TreeElement(const char *pszName, hgeSprite *psprIcon);
 
         const char *GetName() { return (const char *) szName; };
 
@@ -33,95 +34,118 @@ namespace SHR {
 
         virtual int Render(int x, int y);
 
-        virtual int GetWidth();
+        virtual int GetWidth() const;
 
-        virtual int GetHeight();
+        virtual int GetHeight() const;
 
         virtual void GainFocus();
 
         virtual void LoseFocus();
 
-        virtual bool IsDir() { return 0; };
+        void GainSelection() { m_bSelected = true; };
 
-        virtual void Logic();
+        void LoseSelection() { m_bSelected = false; };
+
+        virtual bool IsDir() { return false; };
+
+        class Tree* GetRoot();
+
+        void mousePressed(MouseEvent &mouseEvent) override;
+
+        void mouseMoved(MouseEvent &mouseEvent) override;
+
+        SHR::TreeFolder* GetParent();
     };
 
     class TreeFolder : public TreeElement {
     protected:
         int m_iFocus;
-        std::vector<TreeElement *> m_vElements;
+        std::vector<std::shared_ptr<TreeElement>> m_vElements;
         bool m_bOpened;
         int m_iWex, m_iHex;
-        float lmx, lmy;
     public:
-        virtual int Render(int x, int y);
+        int Render(int x, int y) override;
 
-        TreeFolder(const char *pszName, hgeSprite *psprIcon, TreeFolder *phParent);
+        TreeFolder(const char *pszName, hgeSprite *psprIcon);
 
-        void AddElement(TreeElement *phEl);
+        void AddElement(const std::shared_ptr<TreeElement>& phEl);
 
-        virtual int GetWidth();
+        std::shared_ptr<TreeElement> GetElement(int i);
 
-        virtual int GetHeight();
+        int GetElementsCount() { return m_vElements.size(); }
 
-        virtual void GainFocus();
+        int GetIndexOf(TreeElement* ptr) {
+            for (int i = 0; i < m_vElements.size(); ++i) {
+                if (&*m_vElements[i] == ptr) return i;
+            }
+            return -1;
+        }
 
-        virtual void LoseFocus();
+        int GetWidth() const override;
 
-        virtual bool IsDir() { return 1; };
+        int GetHeight() const override;
 
-        virtual void Logic();
+        void GainFocus() override;
+
+        void LoseFocus() override;
+
+        bool IsDir() override { return true; };
 
         void RecalculateSize();
 
         void SetOpened(bool bn);
 
         bool IsOpened() { return m_bOpened; };
+
+        void mousePressed(MouseEvent &mouseEvent) override;
+
+        void mouseMoved(MouseEvent &mouseEvent) override;
+
+        TreeElement* GetFocused();
     };
 
 
     class GCN_CORE_DECLSPEC Tree : public TreeFolder,
                                    public gcn::Widget,
-                                   public MouseListener,
                                    public KeyListener,
                                    public FocusListener {
     public:
-        Tree(guiParts *Parts, const char *pszName, hgeSprite *psprIcon);
+        Tree();
 
-        virtual void logic();
+        void draw(Graphics *graphics) override;
 
-        virtual void draw(Graphics *graphics);
+        void focusLost(const FocusEvent &event) override;
 
-        virtual void focusLost(const FocusEvent &event);
+        void mouseReleased(MouseEvent &mouseEvent) override;
 
-        virtual void mouseMoved(MouseEvent &mouseEvent);
+        void mouseEntered(MouseEvent &mouseEvent) override;
 
-        virtual void mousePressed(MouseEvent &mouseEvent);
+        void mouseExited(MouseEvent &mouseEvent) override;
 
-        virtual void mouseReleased(MouseEvent &mouseEvent);
+        void mouseDragged(DragEvent &mouseEvent) override;
 
-        virtual void mouseEntered(MouseEvent &mouseEvent);
+        void keyPressed(KeyEvent &keyEvent) override;
 
-        virtual void mouseExited(MouseEvent &mouseEvent);
+        void keyReleased(KeyEvent &keyEvent) override;
 
-        virtual void mouseDragged(DragEvent &mouseEvent);
+        int GetWidth() const override;
 
-        virtual void keyPressed(KeyEvent &keyEvent);
+        int GetHeight() const override;
 
-        virtual void keyReleased(KeyEvent &keyEvent);
-
-        virtual int GetWidth();
-
-        virtual int GetHeight();
+        int Render(int x, int y) override;
 
         void adjustSize();
 
-    protected:
-        guiParts *hGfx;
+        TreeElement* GetSelectedElement() { return m_hSelected; }
 
+        void SetSelectedElement(TreeElement* element);
+
+    protected:
         bool mHasMouse;
         bool mKeyPressed;
         bool mMousePressed;
+
+        TreeElement* m_hSelected;
     };
 }
 

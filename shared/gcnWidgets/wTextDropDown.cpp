@@ -5,14 +5,7 @@
 #include "wScrollArea.h"
 #include "../../WapMap/cInterfaceSheet.h"
 #include "../commonFunc.h"
-
-#ifdef WAP_MAP
 #include "../../WapMap/states/editing_ww.h"
-#endif
-
-
-extern HGE *hge;
-extern cInterfaceSheet *_ghGfxInterface;
 
 namespace SHR {
     TextDropDown::TextDropDown(std::string defText,

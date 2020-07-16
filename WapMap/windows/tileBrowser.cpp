@@ -10,25 +10,20 @@
 
 extern HGE *hge;
 
-winTileBrowser::winTileBrowser() {
+winTileBrowser::winTileBrowser() : cWindow(GETL2S("Win_TileBrowser", "WinCaption"), 800, 600) {
     iSelectedTileSet = iSelectedTile = 0;
     iHighlightedTS = iHighlightedT = -1;
-    myWin = new SHR::Win(&GV->gcnParts, GETL2S("Win_TileBrowser", "WinCaption"));
-    myWin->setDimension(gcn::Rectangle(0, 0, 800, 600));
-    myWin->setVisible(false);
-    myWin->setClose(true);
-    myWin->addActionListener(this);
 
     labTileSets = new SHR::Lab(GETL2S("Win_TileBrowser", "Tilesets"));
     labTileSets->adjustSize();
-    myWin->add(labTileSets, 8, 15);
+    myWin.add(labTileSets, 8, 15);
 
     conTileSets = new SHR::Container();
     conTileSets->setDimension(gcn::Rectangle(0, 0, 100, 100));
     conTileSets->setOpaque(false);
     saTileSets = new SHR::ScrollArea(conTileSets, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
     saTileSets->setDimension(gcn::Rectangle(0, 0, 215, 520));
-    myWin->add(saTileSets, 5, 35);
+    myWin.add(saTileSets, 5, 35);
     conTileSets->setWidth(saTileSets->getChildrenArea().width);
 
     conTiles = new SHR::Container();
@@ -37,7 +32,7 @@ winTileBrowser::winTileBrowser() {
     saTiles = new SHR::ScrollArea(conTiles, SHR::ScrollArea::SHOW_AUTO, SHR::ScrollArea::SHOW_ALWAYS);
     saTiles->setDimension(gcn::Rectangle(0, 0, 574, 600 - 211));
     saTiles->setOpaque(0);
-    myWin->add(saTiles, 220, 190);
+    myWin.add(saTiles, 220, 190);
     conTiles->setWidth(saTiles->getChildrenArea().width);
 
     butImportTileSet = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "ImportTileset"));
@@ -45,118 +40,114 @@ winTileBrowser::winTileBrowser() {
     butImportTileSet->addActionListener(this);
     butImportTileSet->setIcon(GV->sprIcons16[Icon16_Add]);
     butImportTileSet->setEnabled(false);
-    myWin->add(butImportTileSet, 3, 560);
+    myWin.add(butImportTileSet, 3, 560);
 
     int caplen = 0;
     labTileSetName = new SHR::Lab(GETL2S("Win_TileBrowser", "TilesetName"));
     labTileSetName->adjustSize();
-    myWin->add(labTileSetName, 230, 15);
+    myWin.add(labTileSetName, 230, 15);
     if (labTileSetName->getWidth() > caplen) caplen = labTileSetName->getWidth();
 
     labTileSetChecksum = new SHR::Lab(GETL2S("Win_TileBrowser", "TilesetChecksum"));
     labTileSetChecksum->adjustSize();
-    myWin->add(labTileSetChecksum, 230, 35);
+    myWin.add(labTileSetChecksum, 230, 35);
     if (labTileSetChecksum->getWidth() > caplen) caplen = labTileSetChecksum->getWidth();
 
     labTileCount = new SHR::Lab(GETL2S("Win_TileBrowser", "TileCount"));
     labTileCount->adjustSize();
-    myWin->add(labTileCount, 230, 55);
+    myWin.add(labTileCount, 230, 55);
     if (labTileCount->getWidth() > caplen) caplen = labTileCount->getWidth();
 
     labTileSetNameV = new SHR::Lab("");
     labTileSetNameV->setColor(0xFFFFFFFF);
-    myWin->add(labTileSetNameV, 240 + caplen, 15);
+    myWin.add(labTileSetNameV, 240 + caplen, 15);
     labTileSetChecksumV = new SHR::Lab("");
     labTileSetChecksumV->setColor(0xFFFFFFFF);
-    myWin->add(labTileSetChecksumV, 240 + caplen, 35);
+    myWin.add(labTileSetChecksumV, 240 + caplen, 35);
     labTileCountV = new SHR::Lab("");
     labTileCountV->setColor(0xFFFFFFFF);
-    myWin->add(labTileCountV, 240 + caplen, 55);
+    myWin.add(labTileCountV, 240 + caplen, 55);
 
     butAddTiles = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "AddTiles"));
     butAddTiles->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butAddTiles->setIcon(GV->sprIcons16[Icon16_Add]);
     butAddTiles->addActionListener(this);
     butAddTiles->setEnabled(false);
-    myWin->add(butAddTiles, 645, 15);
+    myWin.add(butAddTiles, 645, 15);
 
     butRenameTileSet = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "RenameTileset"));
     butRenameTileSet->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butRenameTileSet->setIcon(GV->sprIcons16[Icon16_Pencil]);
     butRenameTileSet->addActionListener(this);
-    myWin->add(butRenameTileSet, 645, 35);
+    myWin.add(butRenameTileSet, 645, 35);
 
     butDeleteTileSet = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "DeleteTileset"));
     butDeleteTileSet->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butDeleteTileSet->setIcon(GV->sprIcons16[Icon16_Trash]);
     butDeleteTileSet->addActionListener(this);
-    myWin->add(butDeleteTileSet, 645, 55);
+    myWin.add(butDeleteTileSet, 645, 55);
 
     caplen = 0;
     labTileID = new SHR::Lab(GETL2S("Win_TileBrowser", "TileID"));
     labTileID->adjustSize();
-    myWin->add(labTileID, 230 + 70, 90);
+    myWin.add(labTileID, 230 + 70, 90);
     if (labTileID->getWidth() > caplen) caplen = labTileID->getWidth();
 
     labTileChecksum = new SHR::Lab(GETL2S("Win_TileBrowser", "TileChecksum"));
     labTileChecksum->adjustSize();
-    myWin->add(labTileChecksum, 230 + 70, 110);
+    myWin.add(labTileChecksum, 230 + 70, 110);
     if (labTileChecksum->getWidth() > caplen) caplen = labTileChecksum->getWidth();
 
     labTileModDate = new SHR::Lab(GETL2S("Win_TileBrowser", "TileModDate"));
     labTileModDate->adjustSize();
-    myWin->add(labTileModDate, 230 + 70, 130);
+    myWin.add(labTileModDate, 230 + 70, 130);
     if (labTileModDate->getWidth() > caplen) caplen = labTileModDate->getWidth();
 
     labTileOrigin = new SHR::Lab(GETL2S("Win_TileBrowser", "TileOrigin"));
     labTileOrigin->adjustSize();
-    myWin->add(labTileOrigin, 230 + 70, 150);
+    myWin.add(labTileOrigin, 230 + 70, 150);
     if (labTileOrigin->getWidth() > caplen) caplen = labTileOrigin->getWidth();
 
     labTileIDV = new SHR::Lab("");
     labTileIDV->setColor(0xFFFFFFFF);
-    myWin->add(labTileIDV, 240 + 70 + caplen, 90);
+    myWin.add(labTileIDV, 240 + 70 + caplen, 90);
     labTileChecksumV = new SHR::Lab("");
     labTileChecksumV->setColor(0xFFFFFFFF);
-    myWin->add(labTileChecksumV, 240 + 70 + caplen, 110);
+    myWin.add(labTileChecksumV, 240 + 70 + caplen, 110);
     labTileModDateV = new SHR::Lab("");
     labTileModDateV->setColor(0xFFFFFFFF);
-    myWin->add(labTileModDateV, 240 + 70 + caplen, 130);
+    myWin.add(labTileModDateV, 240 + 70 + caplen, 130);
     labTileOriginV = new SHR::Lab("");
     labTileOriginV->setColor(0xFFFFFFFF);
-    myWin->add(labTileOriginV, 240 + 70 + caplen, 150);
+    myWin.add(labTileOriginV, 240 + 70 + caplen, 150);
 
     butChangeTileID = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "ChangeID"));
     butChangeTileID->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butChangeTileID->setIcon(GV->sprIcons16[Icon16_WriteID]);
     butChangeTileID->addActionListener(this);
-    myWin->add(butChangeTileID, 645, 90);
+    myWin.add(butChangeTileID, 645, 90);
 
     butBrowseFolder = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "BrowseDirectory"));
     butBrowseFolder->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butBrowseFolder->setIcon(GV->sprIcons16[Icon16_Open]);
     butBrowseFolder->addActionListener(this);
-    myWin->add(butBrowseFolder, 645, 110);
+    myWin.add(butBrowseFolder, 645, 110);
 
     butImageDetails = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "ImageDetails"));
     butImageDetails->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butImageDetails->setIcon(GV->sprIcons16[Icon16_Flip]);
     butImageDetails->addActionListener(this);
     butImageDetails->setEnabled(false);
-    myWin->add(butImageDetails, 645, 130);
+    myWin.add(butImageDetails, 645, 130);
 
     butDeleteTile = new SHR::But(GV->hGfxInterface, GETL2S("Win_TileBrowser", "DeleteTile"));
     butDeleteTile->setDimension(gcn::Rectangle(0, 0, 150, 20));
     butDeleteTile->setIcon(GV->sprIcons16[Icon16_Trash]);
     butDeleteTile->addActionListener(this);
-    myWin->add(butDeleteTile, 645, 150);
+    myWin.add(butDeleteTile, 645, 150);
 
     vpTileBrowser = new WIDG::Viewport(this, 0);
-    myWin->add(vpTileBrowser, 5, 5);
-}
-
-winTileBrowser::~winTileBrowser() {
-    delete myWin;
+    myWin.add(vpTileBrowser, 5, 5);
 }
 
 void winTileBrowser::Think() {
@@ -171,9 +162,9 @@ void winTileBrowser::Think() {
 
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
-    if (myWin->getParent()->getWidgetAt(mx, my) != myWin) return;
+    if (myWin.getParent()->getWidgetAt(mx, my) != &myWin) return;
     int dx, dy;
-    myWin->getAbsolutePosition(dx, dy);
+    myWin.getAbsolutePosition(dx, dy);
     mx -= dx;
     my -= dy;
 
@@ -192,8 +183,8 @@ void winTileBrowser::Think() {
 
     cTileImageSet *ts = hTileset->GetSet((iSelectedTileSet));
 
-    int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
-        tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
+    int tilePickX = dx + 230, tilePickW = myWin.getWidth() - 230 - 16,
+        tilePickY = dy + 205, tilePickH = myWin.getHeight() - 210;
     int tilesPerRow = (tilePickW / 60);
     int borderOffset = (tilePickW - (tilesPerRow * 60)) / 2;
     int scroll = saTiles->getVerticalScrollAmount();
@@ -238,19 +229,19 @@ void winTileBrowser::Draw(int piCode) {
     cBankTile *hTileset = GV->editState->hTileset;
     cDataController *hDataCtrl = GV->editState->hDataCtrl;
     int dx, dy;
-    myWin->getAbsolutePosition(dx, dy);
+    myWin.getAbsolutePosition(dx, dy);
 
     //tile sets list separator
-    hge->Gfx_RenderLine(dx + 227, dy + 25, dx + 227, dy + myWin->getHeight(), GV->colLineDark);
-    hge->Gfx_RenderLine(dx + 228, dy + 25, dx + 228, dy + myWin->getHeight(), GV->colLineBright);
+    hge->Gfx_RenderLine(dx + 227, dy + 25, dx + 227, dy + myWin.getHeight(), GV->colLineDark);
+    hge->Gfx_RenderLine(dx + 228, dy + 25, dx + 228, dy + myWin.getHeight(), GV->colLineBright);
 
     //tile set properties separator
-    hge->Gfx_RenderLine(dx + 226, dy + 100, dx + myWin->getWidth(), dy + 100, GV->colLineDark);
-    hge->Gfx_RenderLine(dx + 226, dy + 100, dx + myWin->getWidth(), dy + 101, GV->colLineBright);
+    hge->Gfx_RenderLine(dx + 226, dy + 100, dx + myWin.getWidth(), dy + 100, GV->colLineDark);
+    hge->Gfx_RenderLine(dx + 226, dy + 100, dx + myWin.getWidth(), dy + 101, GV->colLineBright);
 
     //tiles separator
-    hge->Gfx_RenderLine(dx + 226, dy + 200, dx + myWin->getWidth(), dy + 200, GV->colLineDark);
-    hge->Gfx_RenderLine(dx + 226, dy + 201, dx + myWin->getWidth(), dy + 201, GV->colLineBright);
+    hge->Gfx_RenderLine(dx + 226, dy + 200, dx + myWin.getWidth(), dy + 200, GV->colLineDark);
+    hge->Gfx_RenderLine(dx + 226, dy + 201, dx + myWin.getWidth(), dy + 201, GV->colLineBright);
 
     hge->Gfx_SetClipping(dx + 8, dy + 51, 204, 520);
     if (hTileset->GetSetsCount() > 0) {
@@ -286,8 +277,8 @@ void winTileBrowser::Draw(int piCode) {
                                     GETL2S("Win_TileBrowser", "tiles"));
         }
 
-        int tilePickX = dx + 230, tilePickW = myWin->getWidth() - 230 - 16,
-            tilePickY = dy + 205, tilePickH = myWin->getHeight() - 210;
+        int tilePickX = dx + 230, tilePickW = myWin.getWidth() - 230 - 16,
+            tilePickY = dy + 205, tilePickH = myWin.getHeight() - 210;
         cTileImageSet *tsPick = hTileset->GetSet(iSelectedTileSet);
 
         hge->Gfx_SetClipping(dx + 230, dy + 110, 64, 64);
@@ -441,7 +432,7 @@ void winTileBrowser::Synchronize() {
 
     conTileSets->setHeight((hTileset->GetSetsCount() * 68 + 10));
 
-    int tilePickW = myWin->getWidth() - 230 - 16;
+    int tilePickW = myWin.getWidth() - 230 - 16;
     int tilesPerRow = (tilePickW / 60);
     int borderOffset = (tilePickW - (tilesPerRow * 60)) / 2;
 
@@ -458,15 +449,8 @@ void winTileBrowser::Synchronize() {
 }
 
 void winTileBrowser::Open() {
-    myWin->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - myWin->getWidth()) / 2,
-                       (hge->System_GetState(HGE_SCREENHEIGHT) - myWin->getHeight()) / 2);
-    myWin->setVisible(true);
-    myWin->getParent()->moveToTop(myWin);
+    cWindow::Open();
     Synchronize();
-}
-
-void winTileBrowser::Close() {
-    myWin->setVisible(false);
 }
 
 void winTileBrowser::action(const ActionEvent &actionEvent) {

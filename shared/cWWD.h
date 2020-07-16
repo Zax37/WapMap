@@ -728,8 +728,6 @@ namespace WWD {
 
         void LoadFileHeader(std::istream *psSource);
 
-        void LoadFromStream(std::istream *psSource);
-
         void WriteFlag(int piFlag, std::ostream *psDestination);
 
         void WriteRect(Rect *phRect, std::ostream *psDestination);
@@ -753,9 +751,9 @@ namespace WWD {
         void Deflate(std::istream *psSource, std::ostream *psDest, int iLevel = 0);
         //void PerformStep();
     public:
-        Parser(const char *pszFilename, CustomMetaSerializer *hSerializer = 0);
+        Parser(CustomMetaSerializer *hSerializer = 0);
 
-        Parser(void *ptr, uint32_t iLen, CustomMetaSerializer *hSerializer = 0);
+        Parser(const char *pszFilename, CustomMetaSerializer *hSerializer = 0);
 
         //void Step(int piIterations = 1);
         ~Parser();
@@ -851,6 +849,8 @@ namespace WWD {
         CustomMetaSerializer *GetCustomMetaSerializer() { return hMetaSerializer; };
 
         friend void WMD::ExportTileProperties(WWD::Parser* hParser, std::ofstream& ofstream);
+
+        void LoadFromStream(std::istream *psSource);
     };
 
     GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL) throw(Exception);

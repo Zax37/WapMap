@@ -1,10 +1,8 @@
 #include "wCheckbox.h"
-
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"
-
-#include <hgeSprite.h>
+#include <hgesprite.h>
 #include "../../WapMap/cInterfaceSheet.h"
 
 extern HGE *hge;
@@ -40,10 +38,10 @@ namespace SHR {
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
         bool hl = (mx > x && mx < x + 16 && my > buttonY && my < buttonY + 16 && isVisible());
-        if (hl && fTimer < 0.1f) {
+        if ((mSelected || hl) && fTimer < 0.1f) {
             fTimer += hge->Timer_GetDelta();
             if (fTimer > 0.1f) fTimer = 0.1f;
-        } else if (!hl && fTimer > 0.0f) {
+        } else if (!(mSelected || hl) && fTimer > 0.0f) {
             fTimer -= hge->Timer_GetDelta();
             if (fTimer < 0.0f) fTimer = 0.0f;
         }

@@ -10,25 +10,47 @@
 #include "guichan.hpp"
 #include "../cDataController.h"
 #include "../cParallelLoop.h"
+#include "../cMDI.h"
+
+#include <future>
+
+struct membuf : std::streambuf
+{
+    membuf(char* begin, char* end)
+    {
+        this->setg(begin, begin, end);
+    }
+
+    pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in) override
+    {
+        if (dir == std::ios_base::cur)
+            gbump(off);
+        else if (dir == std::ios_base::end)
+            setg(eback(), egptr() + off, egptr());
+        else if (dir == std::ios_base::beg)
+            setg(eback(), eback() + off, egptr());
+        return gptr() - eback();
+    }
+
+    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override
+    {
+        return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+    }
+};
 
 namespace State {
-
     class LoadMap : public SHR::cState, public cParallelCallback {
     private:
-        void *alt_ptr;
+        char *alt_ptr;
         uint32_t alt_size;
         bool alt_planes;
         int alt_width, alt_height;
         char alt_name[64], alt_author[64];
 
-        void UpdateScene() {
-            Think();
-            _ForceRender();
-        };
     public:
         LoadMap(const char *pszFilename);
 
-        LoadMap(void *ptr, uint32_t size, bool addplanes, int mw, int mh, char name[64], char author[64]);
+        LoadMap(char *ptr, uint32_t size, bool addPlanes, int mw, int mh, const char* name, const char* author);
 
         ~LoadMap();
 
@@ -42,8 +64,6 @@ namespace State {
 
         virtual bool Render();
 
-        virtual void GainFocus(ReturnCode<void> code, bool bFlipped);
-
         gcn::Gui *gui;
         SHR::Win *winLoad;
         SHR::ProgressBar *barWhole, *barAction;
@@ -51,7 +71,8 @@ namespace State {
 
         char *szDir, *szFilename, *szFilepath;
 
-        virtual void ParallelTrigger();
+        std::future<DocumentData*> mapLoading;
+        DocumentData* MapLoadTask();
 
         //int iGlobalProgress, iDetailedProgress, iDetailed
 

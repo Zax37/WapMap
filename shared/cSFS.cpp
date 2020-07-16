@@ -583,7 +583,7 @@ bool cSFS_Repository::Exists(const char *pszFilename) {
     return 1;
 }
 
-void *cSFS_Repository::GetFileAsRawData(const char *pszFilename, int *oDataSize) {
+char *cSFS_Repository::GetFileAsRawData(const char *pszFilename, int *oDataSize) {
     if (!IsFile(pszFilename)) {
         if (oDataSize != NULL)
             *oDataSize = 0;
@@ -591,7 +591,7 @@ void *cSFS_Repository::GetFileAsRawData(const char *pszFilename, int *oDataSize)
     }
     cSFS_File *file = (cSFS_File *) GetMember(pszFilename);
     isSource->seekg(file->iOffset + 70);
-    void *data = new char[file->iSize];
+    char *data = new char[file->iSize];
     //printf("reading. seek'd to %d, reading %d bytes.\n", file->iOffset, file->iSize);
     isSource->read((char *) data, file->iSize);
     if (oDataSize != NULL)

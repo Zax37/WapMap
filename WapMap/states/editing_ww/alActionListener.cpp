@@ -198,7 +198,7 @@ namespace State {
         } else if (actionEvent.getSource() == m_hOwn->winObjectBrush) {
             m_hOwn->iActiveTool = EWW_TOOL_NONE;
         } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[NewDocument]) {
-            GV->editState->NewMap_Open();
+            GV->editState->hwinNewMap->Open();
         } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[OpenExisting]) {
             GV->editState->OpenDocuments();
         } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[WhatsNew]) {
@@ -208,25 +208,12 @@ namespace State {
             ShellExecute(hge->System_GetState(HGE_HWND), "open", tmp, NULL, NULL, SW_SHOWNORMAL);
         } else if (actionEvent.getSource() == m_hOwn->lbpmPlanes) {
             m_hOwn->SyncPlaneProperties();
-        } else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->win) {
-            m_hOwn->FirstRun_data->bKill = 1;
-        } else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->setClawDir) {
-            m_hOwn->FirstRun_Action(0);
-        } else if (m_hOwn->FirstRun_data != 0 && actionEvent.getSource() == m_hOwn->FirstRun_data->website) {
-            m_hOwn->FirstRun_Action(1);
-        } else if (m_hOwn->NewMap_data != 0 && actionEvent.getSource() == m_hOwn->NewMap_data->winNewMap) {
-            m_hOwn->NewMap_data->bKill = 1;
-        } else if (m_hOwn->NewMap_data != 0 && actionEvent.getSource() == m_hOwn->NewMap_data->butOK) {
-            m_hOwn->NewMap_OK();
-        } else if (m_hOwn->NewMap_data != 0 && actionEvent.getSource() == m_hOwn->NewMap_data->tfName) {
-            m_hOwn->NewMap_data->tfName->setMarkedInvalid(strlen(m_hOwn->NewMap_data->tfName->getText().c_str()) == 0 ||
-                                                          !m_hOwn->ValidateLevelName(
-                                                                  m_hOwn->NewMap_data->tfName->getText().c_str(), 1));
-            m_hOwn->NewMap_Validate();
-        } else if (m_hOwn->NewMap_data != 0 && actionEvent.getSource() == m_hOwn->NewMap_data->tfAuthor) {
-            m_hOwn->NewMap_data->tfAuthor->setMarkedInvalid(
-                    strlen(m_hOwn->NewMap_data->tfAuthor->getText().c_str()) == 0);
-            m_hOwn->NewMap_Validate();
+        } else if (m_hOwn->FirstRun_data && actionEvent.getSource() == m_hOwn->FirstRun_data->win) {
+            m_hOwn->FirstRun_data->bKill = true;
+        } else if (m_hOwn->FirstRun_data && actionEvent.getSource() == m_hOwn->FirstRun_data->setClawDir) {
+            m_hOwn->FirstRun_Action(false);
+        } else if (m_hOwn->FirstRun_data && actionEvent.getSource() == m_hOwn->FirstRun_data->website) {
+            m_hOwn->FirstRun_Action(true);
         } else if (actionEvent.getSource() == m_hOwn->butpmSave) {
             m_hOwn->SavePlaneProperties();
         } else if (actionEvent.getSource() == m_hOwn->butpmDelete) {
@@ -1237,9 +1224,6 @@ namespace State {
 
         switch (keyEvent.getKey().getValue()) {
             case Key::ESCAPE: {
-                if (m_hOwn->NewMap_data) {
-                    m_hOwn->NewMap_Close();
-                }
                 if (m_hOwn->winWorld->isVisible()) {
                     m_hOwn->winWorld->setVisible(false);
                 }
@@ -1341,7 +1325,7 @@ namespace State {
                             }
                             break;
                         case 'n':
-                            m_hOwn->NewMap_Open();
+                            m_hOwn->hwinNewMap->Open();
                             break;
                         case 'o':
                             m_hOwn->OpenDocuments();

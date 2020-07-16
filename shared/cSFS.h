@@ -147,7 +147,7 @@ public:
 
     bool Exists(const char *pszFilename);
 
-    void *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL); //header identical to one in Manager
+    char *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL); //header identical to one in Manager
     void Unpack(cSFS_Directory *dir = NULL);
 
     cSFS_Directory *GetDir(const char *szName);
@@ -171,7 +171,7 @@ public:
 
     void DetachRepository(cSFS_Repository *phRepo);
 
-    void *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL);
+    char *GetFileAsRawData(const char *pszFilename, int *oDataSize = NULL);
 
 #ifdef DEBUG
     void PrintStructure();

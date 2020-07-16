@@ -19,6 +19,7 @@
 #include "../../shared/gcnWidgets/wTabbedArea.h"
 #include "../../shared/gcnWidgets/wRadioBut.h"
 #include "../../shared/gcnWidgets/wContext.h"
+#include "../../shared/gcnWidgets/wTree.h"
 #include "../cMDI.h"
 #include "../cSoundPlayer.h"
 #include "../cColorPicker.h"
@@ -40,6 +41,7 @@
 #include "../LogicInfo.h"
 #include "../cRulers.h"
 #include "../cAppMenu.h"
+#include "../windows/newMap.h"
 
 #ifndef byte
 typedef unsigned char byte;
@@ -468,26 +470,6 @@ namespace State {
         friend class State::MapShot;
     };
 
-    struct win_NewMap {
-        SHR::Win *winNewMap;
-        SHR::Lab *labSelectBaseLevel;
-        WIDG::Viewport *vp;
-        SHR::Slider *sliBaseLvls;
-        SHR::CBox *cbAddBonusPlanes;
-        SHR::TextField *tfAuthor;
-        SHR::TextField *tfName;
-        SHR::TextField *tfPlaneWidth, *tfPlaneHeight;
-        SHR::Lab *labName, *labAuthor, *labPlaneSize, *labX;
-        int iSelectedBase;
-        SHR::But *butOK;
-#ifdef WM_EXT_TILESETS
-        float fBaseTimer[16];
-#else
-        float fBaseTimer[14];
-#endif
-        bool bKill;
-    };
-
     struct win_FirstRun {
         SHR::Win *win;
         WIDG::Viewport *vp;
@@ -678,6 +660,8 @@ namespace State {
         friend class EditingWWlModel;
 
         friend class Viewport;
+
+        friend class winNewMap;
 
     public:
 
@@ -919,18 +903,6 @@ namespace State {
 
         void DocumentSwitched();
 
-        //new map
-        win_NewMap *NewMap_data;
-
-        void NewMap_Open();
-
-        void NewMap_Close();
-
-        void NewMap_Think();
-
-        void NewMap_OK(); //called when OK button is pressed
-        void NewMap_Validate();
-
         //first run
         win_FirstRun *FirstRun_data;
 
@@ -1086,6 +1058,7 @@ namespace State {
         SHR::ComboBut *cbutActiveMode;
 
         std::vector<cWindow *> hWindows;
+        winNewMap* hwinNewMap;
         winTileBrowser *hwinTileBrowser;
         winImageSetBrowser *hwinImageSetBrowser;
         winOptions *hwinOptions;

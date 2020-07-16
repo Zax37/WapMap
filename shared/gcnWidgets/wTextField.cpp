@@ -1,22 +1,8 @@
-
 #include "hge.h"
 #include "wTextField.h"
-
-#ifdef WAP_MAP
-
 #include "../../WapMap/globals.h"
-
-#endif
-
-#ifdef WAP_GRAPHIC
-#include "../../WapGraphic/globals.h"
-#endif
-
 #include "../commonFunc.h"
 #include "../../WapMap/cInterfaceSheet.h"
-
-extern cInterfaceSheet *_ghGfxInterface;
-extern HGE *hge;
 
 namespace SHR {
     TextField::TextField() {

@@ -212,7 +212,7 @@ void SHR::cConsole::Help(int argc, char **argv) {
 }
 
 void SHR::cConsole::Print(const char *pszValue) {
-    EnterCriticalSection(&csLock);
+    while (!TryEnterCriticalSection(&csLock)) {}
     if (m_bFile) {
         if (strchr(pszValue, '~') == NULL) {
             *m_osFile << pszValue << std::endl;
@@ -253,8 +253,7 @@ void SHR::cConsole::Print(const char *pszValue) {
 #ifdef BUILD_DEBUG
     if (strchr(pszValue, '~') == NULL) {
         printf("%s\n", pszValue);
-    }
-    else {
+    } else {
         char * val = SHR::Replace(pszValue, "~y~", "");
         char * val2 = SHR::Replace(val, "~l~", "");
         delete[] val;
@@ -289,6 +288,7 @@ void SHR::cConsole::Print(const char *pszValue) {
         strcpy(tmp, pszValue);
         tmp[strlen(pszValue)] = '\0';
         m_vLines.push_back(tmp);
+        LeaveCriticalSection(&csLock);
         return;
     }
 
@@ -320,6 +320,7 @@ void SHR::cConsole::Print(const char *pszValue) {
         it++;
         pch = strchr(pch + 1, '\n');
     }
+
     char **argv = new char *[argc];
     for (int i = 0; i < argc; i++) {
         argv[i] = new char[lens[i]];
@@ -357,9 +358,9 @@ void SHR::cConsole::Print(const char *pszValue) {
 void SHR::cConsole::Printf(const char *pszFormat, ...) {
     char buffer[1024];
     va_list args;
-            va_start(args, pszFormat);
+    va_start(args, pszFormat);
     vsprintf(buffer, pszFormat, args);
-            va_end(args);
+    va_end(args);
     Print(buffer);
 }
 

@@ -5,7 +5,6 @@
 #include "guichan/mouseevent.hpp"
 #include "guichan/mouseinput.hpp"
 #include "../../WapMap/cInterfaceSheet.h"
-
 #include "../../WapMap/globals.h"
 
 extern HGE *hge;
