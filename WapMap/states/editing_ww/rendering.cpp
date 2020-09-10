@@ -2674,10 +2674,13 @@ int State::EditingWW::RenderObject(WWD::Object *hObj, int x, int y, DWORD col) {
     }
 
     if (!strcmp(hObj->GetLogic(), "PunkRat")) {
-        hgeSprite *cannonspr = SprBank->GetAssetByID("LEVEL_CANNON")->GetIMGByIterator(0)->GetSprite();
-        cannonspr->SetColor(col);
-        cannonspr->SetFlip(GetUserDataFromObj(hObj)->GetFlipX(), GetUserDataFromObj(hObj)->GetFlipY());
-        cannonspr->RenderEx(x + (5 * GetUserDataFromObj(hObj)->GetFlipX()) * fZoom, y + 15 * fZoom, 0, fZoom);
+        cSprBankAsset* cannon = SprBank->GetAssetByID("LEVEL_CANNON");
+        if (cannon) {
+            hgeSprite* cannonspr = cannon->GetIMGByIterator(0)->GetSprite();
+            cannonspr->SetColor(col);
+            cannonspr->SetFlip(GetUserDataFromObj(hObj)->GetFlipX(), GetUserDataFromObj(hObj)->GetFlipY());
+            cannonspr->RenderEx(x + (5 * GetUserDataFromObj(hObj)->GetFlipX()) * fZoom, y + 15 * fZoom, 0, fZoom);
+        }
     }
 
     spr->RenderEx(x, y, 0, fZoom);
