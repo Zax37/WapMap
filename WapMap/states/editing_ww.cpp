@@ -102,11 +102,8 @@ void State::EditingWW::FoldLogicBrowser() {
 }
 
 void State::EditingWW::Init() {
-    if (GV->bAutoUpdate) {
-        hAU = new cAutoUpdater();
-    }
-
-    bWindowFocused = 1;
+    hAU = GV->bAutoUpdate ? new cAutoUpdater() : nullptr;
+    bWindowFocused = true;
     iManipulatedGuide = -1;
     bShowGuideLines = true;
     bEditObjDelete = false;
@@ -118,18 +115,18 @@ void State::EditingWW::Init() {
 
     fCameraMoveTimer = 0;
     iTileSelectX1 = iTileSelectX2 = iTileSelectY1 = iTileSelectY2 = -1;
-    bDragSelection = 0;
+    bDragSelection = false;
     iDragSelectionOrigX = iDragSelectionOrigY = 0;
     szObjSearchBuffer = NULL;
-    btpDragDropMask = 0;
+    btpDragDropMask = false;
     hTempAttrib = nullptr;
     lastbrushx = lastbrushy = 0;
 
-    bForceObjectClipbPreview = bForceTileClipbPreview = 0;
+    bForceObjectClipbPreview = bForceTileClipbPreview = false;
 
-    bDrawTileProperties = 0;
-    bConstRedraw = 0;
-    bExit = 0;
+    bDrawTileProperties = false;
+    bConstRedraw = false;
+    bExit = false;
 
     iMode = EWW_MODE_TILE;
     iActiveTool = EWW_TOOL_NONE;
