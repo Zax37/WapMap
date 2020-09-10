@@ -166,37 +166,21 @@ char *SHR::ToUpper(const char *str) {
 }
 
 char *SHR::GetFileWithoutExt(const char *file) {
-    const char *pch;
-
-    pch = strchr(file, '.');
+    const char *pch = strrchr(file, '.');
     if (pch == NULL) {
         char *ret = new char[strlen(file) + 1];
         strcpy(ret, file);
         return ret;
     }
 
-    int last = 0;
-
-    while (pch != NULL) {
-        last = pch - file + 1;
-        pch = strchr(pch + 1, '.');
-    }
-
-    if (strlen(file) - last <= 0) {
-        char *ret = new char[strlen(file) + 1];
-        strcpy(ret, file);
-        return ret;
-    }
-    last;
-    char *ret = new char[last];
-    for (int i = 0; i < last; i++) {
+    int length = pch - file;
+    char *ret = new char[length + 1];
+    for (int i = 0; i < length; i++) {
         ret[i] = file[i];
-        if (ret[i] == '.')
-            ret[i] = '\0';
-
-        if (ret[i] == '\0')
-            return ret;
     }
+    ret[length] = 0;
+
+    return ret;
 }
 
 char *SHR::GetClipboard() {
