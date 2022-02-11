@@ -88,7 +88,12 @@ namespace ObjEdit {
         hge->Input_GetMousePos(&mx, &my);
 
         for (int i = 0; i < 6; i++) { //131
-            hgeSprite *spr = hState->SprBank->GetAssetByID(CURSES[i])->GetIMGByIterator((iFrame + i) % 4)->GetSprite();
+            auto asset = hState->SprBank->GetAssetByID(CURSES[i]);
+            hgeSprite* spr = GV->sprSmiley;
+            if (asset) {
+                auto img = asset->GetIMGByIterator((iFrame + i) % 4);
+                if (img) spr = img->GetSprite();
+            }
             spr->SetColor(0xFFFFFFFF);
             spr->Render(dx + i * 131 + 65, dy + 60);
             if (mx > dx + i * 131 + 65 - 30 && mx < dx + i * 131 + 65 + 30 && my > dy + 60 - 30 && my < dy + 60 + 30) {

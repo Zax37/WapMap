@@ -50,7 +50,11 @@ namespace SHR {
 
         if (hasCrab) {
             cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB");
-            hgeSprite *spr = asset->GetIMGByIterator(0)->GetSprite();
+            hgeSprite* spr = GV->sprSmiley;
+            if (asset) {
+                auto img = asset->GetIMGByIterator(0);
+                if (img) spr = img->GetSprite();
+            }
             if (isEnabled())
                 spr->SetColor(0xFFFFFFFF);
             else
@@ -64,8 +68,11 @@ namespace SHR {
 
         if (mItem.second != -1) {
             cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID(mItem.first.c_str());
-            int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-            hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            hgeSprite* spr = GV->sprSmiley;
+            if (asset) {
+                int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
+                spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            }
             if (isEnabled())
                 spr->SetColor(0xFFFFFFFF);
             else

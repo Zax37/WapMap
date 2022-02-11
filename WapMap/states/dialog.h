@@ -32,15 +32,7 @@
 
 namespace State {
     template <class RC>
-    const ReturnCode<RC>& ShowDialog(const char *pszTitle, const char *pszErrorString, int piIcon, int piButtons = ST_DIALOG_BUT_OK, const char* textFieldInitValue = 0) {
-        auto *dialog = new Dialog(pszTitle, pszErrorString, piIcon, piButtons, textFieldInitValue);
-        dialog->Init();
-        GV->StateMgr->Push(dialog);
-        do {
-            hge->System_DoManualMainLoop();
-        } while (GV->StateMgr->GetState() == dialog);
-        return GV->StateMgr->GetReturnCode<RC>();
-    }
+    const ReturnCode<RC>& ShowDialog(const char* pszTitle, const char* pszErrorString, int piIcon, int piButtons = ST_DIALOG_BUT_OK, const char* textFieldInitValue = 0);
 
     int MessageBox(const char *pszTitle, const char *pszErrorString, int piIcon, int piButtons = ST_DIALOG_BUT_OK);
 

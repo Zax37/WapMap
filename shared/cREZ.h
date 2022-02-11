@@ -2,10 +2,7 @@
 #define REZ_HEADER
 #define REZ_V 1
 
-#define REZ_EXCEPTION(mess, errorc) REZ::Exception(mess, \
-                                         errorc, \
-                                         __FILE__, \
-                                         __LINE__)
+#define REZ_EXCEPTION(mess, errorc) REZ::Exception(mess, errorc, __FILE__, __LINE__)
 #define LBYTE(b) read((char*)(&b), 1)
 #define LLEN(data, len) read((char*)(data), len)
 
@@ -45,7 +42,7 @@ namespace REZ {
 
         void Printf() { printf("REZ err #%d: %s on line %d in file %s.", ErrorCode, ErrorStr, Line, File); };
 
-        Exception(char *pszErrorStr, int errorc, char *pszFile, int piLine) {
+        Exception(const char *pszErrorStr, int errorc, const char *pszFile, int piLine) {
             strcpy(ErrorStr, pszErrorStr);
             Line = piLine;
             ErrorCode = errorc;

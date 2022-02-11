@@ -95,8 +95,11 @@ namespace ObjEdit {
                 if (id < InventoryItemsCount) {
                     cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID(
                             GV->editState->hInvCtrl->GetItemByIt(id).first.c_str());
-                    int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-                    hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
+                    hgeSprite* spr = GV->sprSmiley;
+                    if (asset) {
+                        int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
+                        spr = asset->GetIMGByIterator(iframe)->GetSprite();
+                    }
                     spr->SetColor(0xFFFFFFFF);
                     spr->SetFlip(0, 0, 1);
                     int grdim = spr->GetWidth();

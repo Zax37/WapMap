@@ -302,7 +302,7 @@ void cGlobals::Init() {
         DWORD size = 256;
         if (RegQueryValueEx(serialkey, "UID", 0, 0, (BYTE *) (&tmp), &size) != ERROR_SUCCESS) {
             Console->Printf("~r~Unable to obtain UID from registry (no value).");
-            szSerial = "";
+            szSerial = new char[0];
         } else {
             szSerial = new char[strlen(tmp) + 1];
             strcpy(szSerial, tmp);
@@ -311,7 +311,7 @@ void cGlobals::Init() {
         RegCloseKey(serialkey);
     } else {
         Console->Printf("~r~Unable to obtain UID from registry (no key).");
-        szSerial = "";
+        szSerial = new char[0];
     }
 
     DWORD dwMajorVersion, dwMinorVersion, dwBuild, dwVersion;

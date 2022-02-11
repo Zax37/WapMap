@@ -218,7 +218,7 @@ namespace WWD {
 #ifdef BUILD_DEBUG
         char * szFile;
         int iLine;
-        Exception(ERROR_CODE errorc, char * pszFile, int piLine){ iLine = piLine; iErrorCode = errorc; szFile = new char[strlen(pszFile)+1]; strcpy(szFile, pszFile); };
+        Exception(ERROR_CODE errorc, const char * pszFile, int piLine){ iLine = piLine; iErrorCode = errorc; szFile = new char[strlen(pszFile)+1]; strcpy(szFile, pszFile); };
         ~Exception(){ if( szFile != NULL ) delete [] szFile; }
 #else
 

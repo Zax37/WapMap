@@ -6,6 +6,8 @@
 #include <algorithm>
 #include "commonFunc.h"
 
+const char* emptyString = "";
+
 bool REZ::ElementComparison(REZ::Element *one, REZ::Element *two) {
     return SHR::CompareStrings(one->GetName(), two->GetName());
 }
@@ -40,7 +42,8 @@ REZ::File::~File() {
 REZ::Parser::Parser() {
     m_hRoot.m_uiOffset = 0;
     m_hRoot.m_uiLen = 0;
-    m_hRoot.m_szName = '\0';
+    m_hRoot.m_szName = new char[1];
+    m_hRoot.m_szName[0] = '\0';
     m_hRoot.m_hOwner = this;
     m_bInited = 0;
     m_bFromFile = 0;
@@ -51,7 +54,8 @@ REZ::Parser::Parser() {
 REZ::Parser::Parser(const char *pszFile) {
     m_hRoot.m_uiOffset = 0;
     m_hRoot.m_uiLen = 0;
-    m_hRoot.m_szName = '\0';
+    m_hRoot.m_szName = new char[1];
+    m_hRoot.m_szName[0] = '\0';
     m_hRoot.m_hOwner = this;
     m_bInited = 0;
     m_bFromFile = 1;

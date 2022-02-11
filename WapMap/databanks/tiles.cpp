@@ -475,7 +475,7 @@ cAsset *cBankTile::AllocateAssetForMountPoint(cDataController *hDC, cDC_MountEnt
     bool bfnd = false;
     for (auto & vFile : mountEntry.vFiles) {
         if (!hDC->IsLoadableImage(vFile, &imginf)) {
-            char *src;
+            const char *src;
             if (vFile.hFeed == hDC->GetFeed(DB_FEED_REZ))
                 src = "REZ";
             else if (vFile.hFeed == hDC->GetFeed(DB_FEED_DISC))

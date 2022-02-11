@@ -161,7 +161,12 @@ void cInventoryController::DrawDraggedObject() {
         SetClipboardEmpty();
         return;
     }
-    hgeSprite *spr = GV->editState->SprBank->GetAssetByID(hClipboard.first.c_str())->GetIMGByIterator(0)->GetSprite();
+    auto asset = GV->editState->SprBank->GetAssetByID(hClipboard.first.c_str());
+    hgeSprite* spr = GV->sprSmiley;
+    if (asset) {
+        auto img = asset->GetIMGByIterator(0);
+        if (img) spr = img->GetSprite();
+    }
     spr->SetColor(0xFFFFFFFF);
     spr->Render(mx - iDragOffX, my - iDragOffY);
 }

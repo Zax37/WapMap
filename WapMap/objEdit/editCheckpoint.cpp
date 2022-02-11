@@ -99,9 +99,21 @@ namespace ObjEdit {
                 iScpAnimFrame = 8;
         }
 
-        hState->SprBank->GetAssetByID("GAME_CHECKPOINTFLAG")->GetIMGByID(iCpAnimFrame)->GetSprite()->Render(dx + 124,
-                                                                                                            dy + 100);
-        hState->SprBank->GetAssetByID("GAME_SUPERCHECKPOINT")->GetIMGByID(iScpAnimFrame)->GetSprite()->Render(dx + 124,
-                                                                                                              dy + 270);
+        auto asset = hState->SprBank->GetAssetByID("GAME_CHECKPOINTFLAG");
+        if (asset) {
+            auto img = asset->GetIMGByID(iCpAnimFrame);
+            if (img) {
+                auto sprite = img->GetSprite();
+                if (sprite) sprite->Render(dx + 124, dy + 100);
+            }
+        }
+        asset = hState->SprBank->GetAssetByID("GAME_SUPERCHECKPOINT");
+        if (asset) {
+            auto img = asset->GetIMGByID(iScpAnimFrame);
+            if (img) {
+                auto sprite = img->GetSprite();
+                if (sprite) sprite->Render(dx + 124, dy + 270);
+            }
+        }
     }
 }

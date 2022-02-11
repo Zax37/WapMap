@@ -99,10 +99,13 @@ namespace ObjEdit {
 
         for (int i = 0; i < 11; i++) {
             int x = i % 4, y = i / 4;
-            cSprBankAsset *asset = hState->SprBank->GetAssetByID(
+            cSprBankAsset* asset = hState->SprBank->GetAssetByID(
                     hState->hInvCtrl->GetItemByID(iHealthID[i]).first.c_str());
-            int iframe = hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-            hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            hgeSprite *spr = GV->sprSmiley;
+            if (asset) {
+                int iframe = hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
+                spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            }
             spr->SetColor(0xFFFFFFFF);
             spr->SetFlip(0, 0);
             int grdim = spr->GetWidth();

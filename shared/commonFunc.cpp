@@ -93,7 +93,7 @@ char *SHR::GetFile(const char *filepath) {
 char *SHR::Replace(const char *replacein, const char *searchfor, const char *replacefor) {
     if (strlen(replacein) == 0 || strlen(searchfor) == 0) {
         char *ret = new char[1];
-        ret = '\0';
+        ret[0] = '\0';
         return ret;
     }
     std::string a = replacein, b = searchfor, c = replacefor;

@@ -128,8 +128,11 @@ namespace ObjEdit {
             }
             cSprBankAsset *asset = hState->SprBank->GetAssetByID(
                     hState->hInvCtrl->GetItemByID(iTreasuresID[i]).first.c_str());
-            int iframe = hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-            hgeSprite *spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            hgeSprite* spr = GV->sprSmiley;
+            if (asset) {
+                int iframe = hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
+                spr = asset->GetIMGByIterator(iframe)->GetSprite();
+            }
             spr->SetColor(0xFFFFFFFF);
             spr->SetFlip(0, 0, true);
             int grdim = spr->GetWidth();

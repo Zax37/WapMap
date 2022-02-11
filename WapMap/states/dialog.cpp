@@ -16,6 +16,17 @@ namespace State {
     const TextReturnCode& InputDialog(const char *pszTitle, const char *pszErrorString, int piButtons, const char* textFieldInitValue) {
         return ShowDialog<std::string>(pszTitle, pszErrorString, 0, piButtons | ST_DIALOG_TEXT_FIELD, textFieldInitValue);
     }
+
+    template <class RC>
+    const ReturnCode<RC>& ShowDialog(const char* pszTitle, const char* pszErrorString, int piIcon, int piButtons, const char* textFieldInitValue) {
+        auto dialog = new Dialog(pszTitle, pszErrorString, piIcon, piButtons, textFieldInitValue);
+        dialog->Init();
+        GV->StateMgr->Push(dialog);
+        do {
+            hge->System_DoManualMainLoop();
+        } while (GV->StateMgr->GetState() == dialog);
+        return GV->StateMgr->GetReturnCode<RC>();
+    }
 }
 
 State::Dialog::Dialog(const char *pszTitle, const char *pszErrorString, int piIcon, int piButtons, const char* textFieldInitValue) {

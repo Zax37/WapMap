@@ -361,11 +361,11 @@ namespace ObjEdit {
 		if (!count) {
 		    static const char* noImagesStr = GETL2S("EditObj_Candy", "NoImages");
             GV->fntMyriad16->SetColor(0xFFe1e1e1);
-            GV->fntMyriad16->Render(dx + CONTAINER_WIDTH / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_CENTER | HGETEXT_MIDDLE, noImagesStr);
+            GV->fntMyriad16->Render(dx + w / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_CENTER | HGETEXT_MIDDLE, noImagesStr);
 		}
 
 		hge->Gfx_SetClipping();
-		hge->Gfx_RenderLine(dx, dy + CONTAINER_HEIGHT, dx + CONTAINER_WIDTH - 4, dy + CONTAINER_HEIGHT, GV->colLineBright);
+		hge->Gfx_RenderLine(dx, dy + CONTAINER_HEIGHT, dx + w - 4, dy + CONTAINER_HEIGHT, GV->colLineBright);
 
 		if (!asImageSetHover) {
 			imgsCon->UpdateTooltip(false);

@@ -183,7 +183,14 @@ namespace ObjEdit {
                 GV->editState->hPlaneData[GV->editState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
                 hObjects.push_back(obj);
             }
-            offsetx += GV->editState->SprBank->GetAssetByID("GAME_FONT")->GetIMGByID(frame)->GetSprite()->GetWidth();
+            auto asset = GV->editState->SprBank->GetAssetByID("GAME_FONT");
+            if (asset) {
+                auto img = asset->GetIMGByID(frame);
+                if (img) {
+                    auto sprite = img->GetSprite();
+                    offsetx += sprite->GetWidth();
+                }
+            }
             if (offsetx > areaW)
                 areaW = offsetx;
         }
@@ -201,6 +208,7 @@ namespace ObjEdit {
             return;
         }
 
+        auto asset = GV->editState->SprBank->GetAssetByID("GAME_FONT");
         int linew = 0;
         int chridx = 0;
         int objit = 0;
@@ -225,8 +233,13 @@ namespace ObjEdit {
                             else if (iAlign == 2)
                                 hObjects[objit]->SetParam(WWD::Param_LocationX,
                                                           areaX + areaW - linew + offset - 10 + frmod);
-                            offset += GV->editState->SprBank->GetAssetByID("GAME_FONT")->GetIMGByID(
-                                    fr)->GetSprite()->GetWidth();
+                            if (asset) {
+                                auto img = asset->GetIMGByID(fr);
+                                if (img) {
+                                    auto sprite = img->GetSprite();
+                                    if (sprite) offset += sprite->GetWidth();
+                                }
+                            }
                             GetUserDataFromObj(hObjects[objit])->SyncToObj();
                             objit++;
                         }
@@ -241,7 +254,13 @@ namespace ObjEdit {
             } else {
                 int frame = GetCharFrame(text[i]);
                 if (frame == -1) continue;
-                linew += GV->editState->SprBank->GetAssetByID("GAME_FONT")->GetIMGByID(frame)->GetSprite()->GetWidth();
+                if (asset) {
+                    auto img = asset->GetIMGByID(frame);
+                    if (img) {
+                        auto sprite = img->GetSprite();
+                        if (sprite) linew += sprite->GetWidth();
+                    }
+                }
             }
         }
 

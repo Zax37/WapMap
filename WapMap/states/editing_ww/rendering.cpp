@@ -1687,7 +1687,9 @@ void State::EditingWW::DrawViewport() {
                         outX = Wrd2ScrX(GetActivePlane(), obj->GetParam(WWD::Param_SpeedX));
                         outY = Wrd2ScrY(GetActivePlane(), obj->GetParam(WWD::Param_SpeedY));
                     }
-                    hgeSprite *spr2 = SprBank->GetAssetByID("CLAW")->GetIMGByID(401)->GetSprite();
+                    auto clawBank = SprBank->GetAssetByID("CLAW");
+                    auto clawImage = clawBank ? clawBank->GetIMGByID(401) : nullptr;
+                    hgeSprite *spr2 = clawImage ? clawImage->GetSprite() : GV->sprSmiley;
                     spr2->SetColor(0xBBFFFFFF);
                     spr2->RenderEx(outX, outY, 0, fZoom);
                     if (iActiveTool != EWW_TOOL_EDITOBJ || bdr) {
@@ -1905,7 +1907,14 @@ void State::EditingWW::DrawViewport() {
                             for (int x = 0; x < 3; x++) {
                                 int i = y * 3 + x;
                                 if (i < crabsNum) {
-                                    hgeSprite *crabSpr = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB")->GetIMGByIterator(0)->GetSprite();
+                                    auto asset = GV->editState->SprBank->GetAssetByID("LEVEL_HERMITCRAB");
+                                    hgeSprite* crabSpr = GV->sprSmiley;
+                                    if (asset) {
+                                        auto img = asset->GetIMGByIterator(0);
+                                        if (img) {
+                                            crabSpr = img->GetSprite();
+                                        }
+                                    }
                                     crabSpr->SetColor(0xBBFFFFFF);
                                     crabSpr->SetFlip(0, 0, true);
                                     int grdim = crabSpr->GetWidth();
@@ -1924,8 +1933,11 @@ void State::EditingWW::DrawViewport() {
                                 }
                                 cSprBankAsset *asset = GV->editState->SprBank->GetAssetByID(
                                         GetInventoryItemImageSet(items[i]));
-                                int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-                                hgeSprite *treasureSpr = asset->GetIMGByIterator(iframe)->GetSprite();
+                                hgeSprite* treasureSpr = GV->sprSmiley;
+                                if (asset) {
+                                    int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
+                                    asset->GetIMGByIterator(iframe)->GetSprite();
+                                }
                                 treasureSpr->SetColor(0xBBFFFFFF);
                                 treasureSpr->SetFlip(0, 0, true);
                                 int grdim = treasureSpr->GetWidth();
@@ -1945,7 +1957,9 @@ void State::EditingWW::DrawViewport() {
                                 if (outX && outY) {
                                     int wOutX = Wrd2ScrX(GetActivePlane(), outX),
                                         wOutY = Wrd2ScrY(GetActivePlane(), outY);
-                                    hgeSprite *spr2 = GV->editState->SprBank->GetAssetByID("CLAW")->GetIMGByID(401)->GetSprite();
+                                    auto clawBank = SprBank->GetAssetByID("CLAW");
+                                    auto clawImage = clawBank ? clawBank->GetIMGByID(401) : nullptr;
+                                    hgeSprite* spr2 = clawImage ? clawImage->GetSprite() : GV->sprSmiley;
                                     spr2->SetColor(0xBBFFFFFF);
                                     spr2->RenderEx(wOutX, wOutY, 0, fZoom);
 

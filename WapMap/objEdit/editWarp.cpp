@@ -171,12 +171,30 @@ namespace ObjEdit {
                 iScpAnimFrame = 0;
         }
 
-        hState->SprBank->GetAssetByID("GAME_WARP")->GetIMGByIterator(iCpAnimFrame)->GetSprite()->Render(dx + 100,
-                                                                                                        dy + 70);
-        hState->SprBank->GetAssetByID("GAME_VERTWARP")->GetIMGByIterator(iScpAnimFrame)->GetSprite()->Render(dx + 100,
-                                                                                                             dy + 155);
-        hState->SprBank->GetAssetByID("GAME_BOSSWARP")->GetIMGByIterator(iScpAnimFrame)->GetSprite()->Render(dx + 100,
-                                                                                                             dy + 240);
+        auto asset = hState->SprBank->GetAssetByID("GAME_WARP");
+        if (asset) {
+            auto img = asset->GetIMGByIterator(iCpAnimFrame);
+            if (img) {
+                auto sprite = img->GetSprite();
+                if (sprite) sprite->Render(dx + 100, dy + 70);
+            }
+        }
+        asset = hState->SprBank->GetAssetByID("GAME_VERTWARP");
+        if (asset) {
+            auto img = asset->GetIMGByIterator(iScpAnimFrame);
+            if (img) {
+                auto sprite = img->GetSprite();
+                if (sprite) sprite->Render(dx + 100, dy + 155);
+            }
+        }
+        asset = hState->SprBank->GetAssetByID("GAME_BOSSWARP");
+        if (asset) {
+            auto img = asset->GetIMGByIterator(iScpAnimFrame);
+            if (img) {
+                auto sprite = img->GetSprite();
+                if (sprite) sprite->Render(dx + 100, dy + 240);
+            }
+        }
         GV->fntMyriad16->SetColor(0xFFe1e1e1);
         GV->fntMyriad16->Render(dx + 5, dy + 295 - 25, HGETEXT_LEFT, GETL2S("EditObj_Warp", "TeleportDestination"), 0);
         GV->fntMyriad16->Render(dx + 5, dy + 318 - 25, HGETEXT_LEFT, "X:", 0);

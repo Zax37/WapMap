@@ -205,8 +205,12 @@ namespace ObjEdit {
 
         for (int i = 0; i < 3; i++) {
             if (rbType[i] != 0) {
-                hgeSprite *spr = hState->SprBank->GetAssetByID(vszDefaultImgsets[i].c_str())->GetIMGByIterator(
-                        isSaw ? 9 : 5)->GetSprite();
+                auto asset = hState->SprBank->GetAssetByID(vszDefaultImgsets[i].c_str());
+                hgeSprite* spr = GV->sprSmiley;
+                if (asset) {
+                    auto img = asset->GetIMGByIterator(isSaw ? 9 : 5);
+                    if (img) spr = img->GetSprite();
+                }
                 int grdim = spr->GetWidth();
                 if (spr->GetHeight() > grdim) grdim = spr->GetHeight();
                 float fscale = (isSaw ? 64.0f : 28.0f) / float(grdim);
