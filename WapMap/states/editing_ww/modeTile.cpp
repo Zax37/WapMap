@@ -127,6 +127,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         iPipetteTileHL = EWW_TILE_ERASE;
                     } else {
                         cTileImageSet* set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
+                        if (!set) return false;
                         for (int z = 0; z < set->GetTilesCount(); z++) {
                             if (set->GetTileByIterator(z)->GetID() == tile->GetID()) {
                                 iPipetteTileHL = z;
@@ -498,6 +499,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         iTilePicked = EWW_TILE_ERASE;
                     else {
                         cTileImageSet *set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
+                        if (!set) return false;
                         for (int z = 0; z < set->GetTilesCount(); z++)
                             if (set->GetTileByIterator(z)->GetID() == GetActivePlane()->GetTile(hx, hy)->GetID()) {
                                 iTilePicked = z;
@@ -713,10 +715,10 @@ void State::EditingWW::RefreshTilePickerSlider(bool forceSliderRefresh) {
     slitpiPicker->setEnabled(scale > 0);
     if (scale > 0)
         slitpiPicker->setScaleEnd(scale);
-    else slitpiPicker->setValue(slitpiPicker->getScaleEnd());
+    else slitpiPicker->setValue(0);
 
     if (!winTilePicker->isVisible() || forceSliderRefresh) {
-        slitpiPicker->setValue(slitpiPicker->getScaleEnd());
+        slitpiPicker->setValue(0);
     }
 }
 

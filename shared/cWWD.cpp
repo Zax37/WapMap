@@ -22,6 +22,20 @@ namespace WWD {
     }
 }
 
+WWD::Parser::Parser(GAME game, int baseLevel, int width, int height) {
+    hMetaSerializer = nullptr;
+    m_szFile[0] = '\0';
+    m_iGame = game;
+    m_iBaseLevel = baseLevel;
+    SecureZeroMemory(&m_Header.size, sizeof(WWDHeader));
+    m_Header.size = sizeof(WWDHeader);
+    m_Header.m_iFlags = Flag_w_UseZCoords | Flag_w_Compress;
+    mainPlane = new Plane(width, height);
+    m_Header.m_iStartX = mainPlane->GetPlaneWidthPx() / 2;
+    m_Header.m_iStartY = mainPlane->GetPlaneHeightPx() / 2;
+    m_hPlanes.push_back(mainPlane);
+}
+
 WWD::Parser::Parser(CustomMetaSerializer *hSerializer) {
     hMetaSerializer = hSerializer;
     m_szFile[0] = '\0';

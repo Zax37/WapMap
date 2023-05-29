@@ -60,11 +60,6 @@ winNewMap::winNewMap()
 
     y += 30;
 
-    cbAddBonusPlanes.adjustSize();
-    myWin.add(&cbAddBonusPlanes, x, y);
-
-    y += 30;
-
     for (WWD::GAME game = WWD::GAME::Games_First; game <= WWD::GAME::Games_Last; ++game) {
         auto folder = std::make_shared<SHR::TreeFolder>(WWD::GAME_NAMES[game], GV->sprGamesSmall[game]);
 
@@ -104,6 +99,9 @@ winNewMap::winNewMap()
         }
 
         targetGameTree.AddElement(folder);
+        if (!GV->gamePaths[game].empty()) {
+            folder->SetOpened(true);
+        }
     }
 
     targetGameTree.addActionListener(this);
@@ -117,6 +115,12 @@ winNewMap::winNewMap()
 
     myWin.add(&labTarget, x, y);
     myWin.add(&labTargetValue, x + labTarget.getWidth() + 5, y);
+
+    y += 30;
+
+    cbAddBonusPlanes.adjustSize();
+    cbAddBonusPlanes.setVisible(false);
+    myWin.add(&cbAddBonusPlanes, x, y);
     
     butOK.setDimension(gcn::Rectangle(0, 0, 100, 33));
     butOK.addActionListener(this);
@@ -145,6 +149,8 @@ void winNewMap::action(const ActionEvent &actionEvent) {
         }
         labTargetValue.setCaption(newCaption);
         labTargetValue.adjustSize();
+
+        cbAddBonusPlanes.setVisible(element && element->GetRoot()->GetIndexOf(element->GetParent()) == WWD::Game_Claw - WWD::Games_First);
     } else if (actionEvent.getSource() == &butOK) {
         int plw = atoi(tfPlaneWidth.getText().c_str()), plh = atoi(tfPlaneHeight.getText().c_str());
         if (plw < 50 || plh < 50) {
@@ -153,21 +159,28 @@ void winNewMap::action(const ActionEvent &actionEvent) {
             return;
         }
 
-        int game = element->GetRoot()->GetIndexOf(element->GetParent());
+        int game = element->GetRoot()->GetIndexOf(element->GetParent()) + WWD::Games_First;
         int baseLevel = element->GetParent()->GetIndexOf(element) + 1;
-        if (game == WWD::Game_Claw - WWD::Games_First) {
+        char name[64], author[64];
+        char *fixname = GV->editState->FixLevelName(baseLevel, tfName.getText().c_str());
+        strncpy(name, fixname, 64);
+        delete[] fixname;
+        strncpy(author, tfAuthor.getText().c_str(), 64);
+
+        if (game == WWD::Game_Claw) {
             int size;
             char tmp[10];
             sprintf(tmp, "lvl%d.wms", baseLevel);
             cSFS_Repository repo("data.sfs");
             char *ptr = repo.GetFileAsRawData(tmp, &size);
-            char name[64], author[64];
-            char *fixname = GV->editState->FixLevelName(baseLevel, tfName.getText().c_str());
-            strncpy(name, fixname, 64);
-            delete[] fixname;
-            strncpy(author, tfAuthor.getText().c_str(), 64);
             GV->StateMgr->Push(
-                    new State::LoadMap(ptr, size, cbAddBonusPlanes.isSelected(), plw, plh, name, author));
+                    new State::LoadMap(ptr, size, cbAddBonusPlanes.isSelected(), plw, plh, name, author)
+            );
+        } else {
+            auto* parser = new WWD::Parser((WWD::GAME)game, baseLevel, plw, plh);
+            parser->SetName(name);
+            parser->SetAuthor(author);
+            GV->StateMgr->Push(new State::LoadMap(parser));
         }
         Close();
         return;

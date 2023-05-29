@@ -72,7 +72,7 @@ public:
 
     hgeSprite* getIcon(int i) override;
 
-    int getNumberOfElements() override { return WWD::Games_Count + 1; }
+    int getNumberOfElements() override { return WWD::Games_Count; } // TODO: revert to + 1
 };
 
 #endif // H_WIN_TILEBROWSER

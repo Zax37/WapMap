@@ -637,6 +637,7 @@ namespace State {
         WIDG::Viewport *vpMain, *vpWorld, *vpDB, *vpTileProp;
         char cScrollOrientation;
         bool bDragDropScroll;
+        bool bDragDropScrollWithMiddle;
         int dragDropX, dragDropY;
 
         int iMode;

@@ -3212,10 +3212,10 @@ void State::EditingWW::DrawTilePicker() {
         hge->Gfx_SetClipping(itpx, itpy, 230, slitpiPicker->getHeight());
 
         if (mx > itpx && mx < itpx + 230 && my > itpy && my < itpy + slitpiPicker->getHeight() && slitpiPicker->isEnabled()) {
-            slitpiPicker->setValue(slitpiPicker->getValue() + 100 * hge->Input_GetMouseWheel());
+            slitpiPicker->setValue(slitpiPicker->getValue() - 100 * hge->Input_GetMouseWheel());
         }
 
-        int scroll = slitpiPicker->getScaleEnd() - slitpiPicker->getValue();
+        int scroll = slitpiPicker->getValue();
         if (iActiveTool == EWW_TOOL_BRUSH) {
             int ioldsel = iTilePicked;
             int loopst = scroll / 57, loopen = slitpiPicker->getHeight() / 57 + 2;

@@ -979,6 +979,7 @@ namespace State {
                 m_hOwn->SyncAttribMenuWithTile();
             } else if (actionEvent.getSource() == m_hOwn->buttpNext) {
                 cTileImageSet *is = m_hOwn->hTileset->GetSet("ACTION");
+                if (!is) return;
                 int actualiterator = 0;
                 for (int i = 0; i < is->GetTilesCount(); i++) {
                     if (is->GetTileByIterator(i)->GetID() == m_hOwn->itpSelectedTile) {
@@ -989,6 +990,7 @@ namespace State {
                     }
                 }
                 cTile *tile = is->GetTileByIterator(actualiterator);
+                if (!tile) return;
                 m_hOwn->itpSelectedTile = tile->GetID();
                 char tmp[24];
                 sprintf(tmp, "%d", tile->GetID());
@@ -996,6 +998,7 @@ namespace State {
                 m_hOwn->SyncAttribMenuWithTile();
             } else if (actionEvent.getSource() == m_hOwn->buttpPrev) {
                 cTileImageSet *is = m_hOwn->hTileset->GetSet("ACTION");
+                if (!is) return;
                 int actualiterator = 0;
                 for (int i = 0; i < is->GetTilesCount(); i++) {
                     if (is->GetTileByIterator(i)->GetID() == m_hOwn->itpSelectedTile) {
@@ -1006,6 +1009,7 @@ namespace State {
                     }
                 }
                 cTile *tile = is->GetTileByIterator(actualiterator);
+                if (!tile) return;
                 m_hOwn->itpSelectedTile = tile->GetID();
                 char tmp[24];
                 sprintf(tmp, "%d", tile->GetID());
@@ -1065,6 +1069,7 @@ namespace State {
                     hRadBut->setVisible(0);
                 m_hOwn->winTileProp->setHeight(260);
             } else if (actionEvent.getSource() == m_hOwn->buttpApply) {
+                if (m_hOwn->itpSelectedTile == -1) return;
                 m_hOwn->hParser->SetTileAttribs(m_hOwn->itpSelectedTile, m_hOwn->hTempAttrib);
                 if (m_hOwn->bDrawTileProperties) {
                     m_hOwn->vPort->MarkToRedraw();
@@ -1499,10 +1504,16 @@ namespace State {
 
     void State::EditingWW::mouseMoved(MouseEvent &mouseEvent) {
         mainListener->stopAltMenu();
-        if (hParser == NULL || bDragDropScroll || objContext->isVisible()) return;
+        if (hParser == NULL || objContext->isVisible()) return;
 
-        if (hge->Input_GetKeyState(HGEK_SPACE)) {
-            if (!bDragDropScroll && !tilContext->isVisible() && !objContext->isVisible()) {
+        if (bDragDropScroll) {
+            GV->SetCursor(GRAB);
+            fCamX -= ((mouseEvent.getX() - dragDropX) / fZoom);
+            fCamY -= ((mouseEvent.getY() - dragDropY) / fZoom);
+            dragDropX = mouseEvent.getX();
+            dragDropY = mouseEvent.getY();
+        } else if (hge->Input_GetKeyState(HGEK_SPACE)) {
+            if (!tilContext->isVisible()) {
                 GV->SetCursor(HAND);
             }
         } else if (iActiveTool == EWW_TOOL_ZOOM) {
@@ -1683,15 +1694,18 @@ namespace State {
     void State::EditingWW::mousePressed(MouseEvent &mouseEvent) {
         if (hParser == NULL) return;
 
-        if (hge->Input_GetKeyState(HGEK_SPACE)) {
-            if (mouseEvent.getButton() == MouseEvent::LEFT) {
-                bDragDropScroll = true;
-                dragDropX = mouseEvent.getX();
-                dragDropY = mouseEvent.getY();
-                GV->SetCursor(GRAB);
-            }
-        } else if (bDragDropScroll || bDragSelection) {
+        bool shouldStartDrag =
+                (hge->Input_GetKeyState(HGEK_SPACE) && mouseEvent.getButton() == MouseEvent::LEFT)
+                || mouseEvent.getButton() == MouseEvent::MIDDLE;
+
+        if (bDragDropScroll || bDragSelection) {
             return;
+        } else if (shouldStartDrag) {
+            bDragDropScroll = true;
+            bDragDropScrollWithMiddle = mouseEvent.getButton() == MouseEvent::MIDDLE;
+            dragDropX = mouseEvent.getX();
+            dragDropY = mouseEvent.getY();
+            GV->SetCursor(GRAB);
         } else if (iActiveTool == EWW_TOOL_ZOOM) {
             fStartZoom = fZoom;
             dragDropX = mouseEvent.getX();
@@ -1901,7 +1915,7 @@ namespace State {
         if (hParser == NULL) return;
 
         if (bDragDropScroll) {
-            if (mouseEvent.getButton() == MouseEvent::LEFT) {
+            if (mouseEvent.getButton() == (bDragDropScrollWithMiddle ? MouseEvent::MIDDLE : MouseEvent::LEFT)) {
                 bDragDropScroll = false;
             }
         } else if (iActiveTool == EWW_TOOL_ZOOM) {

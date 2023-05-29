@@ -46,8 +46,11 @@ namespace State {
         bool alt_planes;
         int alt_width, alt_height;
         char alt_name[64], alt_author[64];
+        bool wasRendered = false;
 
     public:
+        LoadMap(WWD::Parser* parser);
+
         LoadMap(const char *pszFilename);
 
         LoadMap(char *ptr, uint32_t size, bool addPlanes, int mw, int mh, const char* name, const char* author);
