@@ -18,7 +18,7 @@ BEGIN
             VALUE "FileDescription", "WapMap Editor"
 			VALUE "ProductName", PRODUCT_NAME
             VALUE "InternalName", INTERNAL_NAME
-            VALUE "LegalCopyright", "Copyright 2010-2020 kijanek6 & Zax37"
+            VALUE "LegalCopyright", "Copyright 2010-2023 kijanek6 & Zax37"
             VALUE "OriginalFilename", INTERNAL_NAME
         END
     END

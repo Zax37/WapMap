@@ -188,8 +188,8 @@ namespace WWD {
         Game_Claw2 = 4,
 
         Games_First = Game_Claw,
-        Games_Last = Game_Claw2,
-        Games_Count = Games_Last,
+        Games_Last = Game_Gruntz,
+        Games_Count = Game_Claw2, // TODO: revert to Games_Last
     };
 
     void operator++ (GAME& game);
@@ -583,6 +583,25 @@ namespace WWD {
             }
         };
 
+        Plane(int width, int height): Plane(true) {
+            m_Header.m_iW = width;
+            m_Header.m_iH = height;
+            SetTileWidth(32);
+            SetTileHeight(32);
+            m_hTiles = new Tile[width * height];
+            rowOffsets = new unsigned[height];
+            for (int i = 0; i < height; ++i) {
+                rowOffsets[i] = width * i;
+            }
+            strcpy(m_Header.m_szName, "Action");
+            m_Header.m_iFlags = Flag_p_MainPlane;
+            m_Header.m_iMoveX = 100;
+            m_Header.m_iMoveY = 100;
+            m_vImageSets.clear();
+            m_vImageSets.push_back("ACTION");
+            m_vObjects.clear();
+        }
+
         PLANE_FLAGS GetFlags() { return (PLANE_FLAGS)m_Header.m_iFlags; };
 
         void SetFlag(PLANE_FLAGS piFlag, bool pbValue);
@@ -751,6 +770,8 @@ namespace WWD {
         void Deflate(std::istream *psSource, std::ostream *psDest, int iLevel = 0);
         //void PerformStep();
     public:
+        Parser(GAME game, int baseLevel, int width, int height);
+
         Parser(CustomMetaSerializer *hSerializer = 0);
 
         Parser(const char *pszFilename, CustomMetaSerializer *hSerializer = 0);
@@ -847,6 +868,8 @@ namespace WWD {
         GAME GetGame() { return m_iGame; };
 
         CustomMetaSerializer *GetCustomMetaSerializer() { return hMetaSerializer; };
+
+        void SetCustomMetaSerializer(CustomMetaSerializer* metaSerializer) { hMetaSerializer = metaSerializer; };
 
         friend void WMD::ExportTileProperties(WWD::Parser* hParser, std::ofstream& ofstream);
 

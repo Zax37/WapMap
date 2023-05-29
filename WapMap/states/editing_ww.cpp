@@ -2140,12 +2140,6 @@ bool State::EditingWW::Think() {
     hRulers->Think();
     MDI->Think(conMain->getWidgetAt(mx, my) != NULL);
 
-    if (hge->Input_KeyDown(HGEK_MBUTTON)) {
-        cScrollOrientation++;
-        if (cScrollOrientation > 2)
-            cScrollOrientation = 0;
-    }
-
     /*if( iMode != EWW_MODE_SIMULATION && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_I) )
 	 hAppMenu->SetFolded(!hAppMenu->IsFolded());*/
 

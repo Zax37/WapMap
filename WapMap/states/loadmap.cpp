@@ -38,6 +38,30 @@ State::LoadMap::LoadMap(const char *pszFilename) {
     GV->editState->hMruList->PushNewFile(pszFilename, true);
 }
 
+State::LoadMap::LoadMap(WWD::Parser* parser) {
+    alt_ptr = nullptr;
+    szDir = szFilepath = NULL;
+    szFilename = new char[2];
+    szFilename[0] = '-';
+    szFilename[1] = '\0';
+
+    mapLoading = std::async(std::launch::async, [parser, this]() {
+        auto* dd = new DocumentData;
+        dd->iWapMapBuild = -1;
+        dd->iMapBuild = 1;
+        dd->strMapVersion = "1.0";
+        auto* metaHandler = new cIO_WWDx(dd);
+        dd->hParser = parser;
+        parser->SetCustomMetaSerializer(metaHandler);
+        parser->SetFilePath("");
+        parser->UpdateDate();
+
+        while (!wasRendered);
+
+        return dd;
+    });
+}
+
 State::LoadMap::~LoadMap() {
 }
 
@@ -93,6 +117,8 @@ DocumentData* State::LoadMap::MapLoadTask() {
     dd->hParser = hParser;
     barWhole->setProgress(100);
 
+    while (!wasRendered);
+
     return dd;
 }
 
@@ -140,7 +166,9 @@ void State::LoadMap::Init() {
     labDesc->setCaption(tmpDesc);
     labDesc->adjustSize();
 
-    mapLoading = std::async(std::launch::async, &LoadMap::MapLoadTask, this);
+    if (!mapLoading.valid()) {
+        mapLoading = std::async(std::launch::async, &LoadMap::MapLoadTask, this);
+    }
 }
 
 void State::LoadMap::Destroy() {
@@ -231,13 +259,16 @@ bool State::LoadMap::Think() {
             dd->hDataCtrl->RegisterAssetBank(dd->hSndBank);
             dd->hDataCtrl->RegisterAssetBank(dd->hCustomLogicBank);
 
-            char palettePath[256];
-            sprintf(palettePath, "LEVEL%d/PALETTES/MAIN.PAL", dd->hParser->GetBaseLevel());
-            if (!dd->hDataCtrl->SetPalette(palettePath)) {
-                GV->Console->Printf("~r~Error loading palette: '~y~%s~r~'!", palettePath);
-            }
-            else {
-                GV->Console->Printf("~g~Palette loaded: '~y~%s~g~'.", palettePath);
+            auto game = dd->hParser->GetGame();
+            if (game != WWD::Game_Gruntz) {
+                char palettePath[256];
+                const char* dataSourceName = game == WWD::Game_GetMedieval ? "DUNGEON" : "LEVEL";
+                sprintf(palettePath, "%s%d/PALETTES/MAIN.PAL", dataSourceName, dd->hParser->GetBaseLevel());
+                if (!dd->hDataCtrl->SetPalette(palettePath)) {
+                    GV->Console->Printf("~r~Error loading palette: '~y~%s~r~'!", palettePath);
+                } else {
+                    GV->Console->Printf("~g~Palette loaded: '~y~%s~g~'.", palettePath);
+                }
             }
 
             GV->Console->Printf("Creating packages...");
@@ -297,6 +328,7 @@ bool State::LoadMap::Think() {
 bool State::LoadMap::Render() {
     try {
         gui->draw();
+        wasRendered = true;
     } catch (gcn::Exception &exc) {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
