@@ -3668,5 +3668,8 @@ void State::EditingWW::TextEditMoveToNextTile(bool saving) {
         tfWriteID->setText(std::to_string(tile->GetID()));
     }
 
+    tfWriteID->setSelectionPosition(0);
+    tfWriteID->setCaretPosition(tfWriteID->getText().length());
+    tfWriteID->requestFocus();
     vPort->MarkToRedraw();
 }

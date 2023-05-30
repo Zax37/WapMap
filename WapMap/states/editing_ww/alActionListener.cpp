@@ -1214,7 +1214,7 @@ namespace State {
     void EditingWWMainListener::focusLost(const FocusEvent& event) {
         if (hge->Input_GetKeyState(HGEK_TAB)) {
             m_hOwn->TextEditMoveToNextTile();
-            m_hOwn->tfWriteID->requestFocus();
+            event.stopEvent();
         } else {
             m_hOwn->conWriteID->setShow(false);
             m_hOwn->iTileWriteIDx = m_hOwn->iTileWriteIDy = -1;
