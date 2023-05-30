@@ -274,6 +274,11 @@ namespace SHR {
     }
 
     void Context::focusLost(const FocusEvent &event) {
+        if (iSelected != -1 && event.getOtherSource() == vElements[iSelected]->GetCascade()) {
+            event.stopEvent();
+            return;
+        }
+
         mMousePressed = false;
         mKeyPressed = false;
         setVisible(false);

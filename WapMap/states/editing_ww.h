@@ -490,6 +490,8 @@ namespace State {
 
         void mouseExited(MouseEvent& mouseEvent) override;
 
+        void showObjectModeContextMenu(MouseEvent& mouseEvent);
+
         int contextX, contextY;
 
         SHR::Context *objContext, *tilContext, *objZCoordContext, *objmAlignContext, *objmFlipContext, *objmSpaceContext; //basic contexts

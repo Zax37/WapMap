@@ -14,13 +14,9 @@
 #include "guichan/widget.hpp"
 #include "guichan/selectionlistener.hpp"
 
-#define CON_MOUSEOVER(me) ( me.getX() > x && me.getX() < x+w && me.getY() > y && me.getY() < y+h )
-
 using namespace gcn;
 
 namespace SHR {
-    class gcn::SelectionListener;
-
     class Context;
 
     class ContextEl {
@@ -190,6 +186,7 @@ namespace SHR {
         std::vector<int> vSeparators;
         hgeFont *hFont;
         int topLineXOffset;
+        FocusHandler mFocusHandler;
 
         typedef std::list<SelectionListener *> SelectionListenerList;
         SelectionListenerList mSelectionListeners;
