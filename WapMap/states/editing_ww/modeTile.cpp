@@ -487,6 +487,7 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     conWriteID->setVisible(false);
                     conWriteID->setShow(true);
                     tfWriteID->requestFocus();
+                    tfWriteID->setSelectionPosition(0);
                     tfWriteID->setCaretPosition(tfWriteID->getText().length());
                     conWriteID->setPosition(posX + tileW, posY + tileH / 2 - 10);
                 }

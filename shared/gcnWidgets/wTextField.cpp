@@ -318,6 +318,10 @@ namespace SHR {
         }
     }
 
+    void TextField::setSelectionPosition(int position) {
+        mSelectionPosition = position;
+    }
+
     void TextField::setCaretPosition(unsigned int position) {
         if (position > mText.size()) {
             mCaretPosition = mText.size();

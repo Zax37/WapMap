@@ -33,6 +33,8 @@ namespace SHR {
 
         void setCaretPosition(unsigned int position);
 
+        void setSelectionPosition(int position);
+
         unsigned int getCaretPosition() const;
 
         void fontChanged() override;
