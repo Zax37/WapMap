@@ -2572,25 +2572,29 @@ void State::EditingWW::DrawObjSearch() {
         }
         return;
     }
-    int fx, fy;
+    int fx, fy, fw, fh;
     winSearchObj->getAbsolutePosition(fx, fy);
-    hge->Gfx_SetClipping(fx + 8, fy + 122, 424, 386);
     fx += 8;
-    fy += 122;
-    float fSliVal = sliSearchObj->getScaleEnd() - sliSearchObj->getValue();
+    fy += 123;
+    fw = winSearchObj->getWidth() - 26;
+    fh = sliSearchObj->getHeight() - 3;
+    hge->Gfx_SetClipping(fx, fy, fw, fh);
+    double fSliVal = sliSearchObj->getValue();
     int startindex = (sliSearchObj->isVisible() ? fSliVal : 0) / 140;
 
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     bool bHasMouse = conMain->getWidgetAt(mx, my) == winSearchObj;
 
-    if (bHasMouse && sliSearchObj->isVisible() && mx > fx && my > fy && mx < fx + 416 && my < fy + 386 - 122) {
-        sliSearchObj->setValue(sliSearchObj->getValue() + hge->Input_GetMouseWheel() * 140);
+    if (bHasMouse && sliSearchObj->isVisible() && mx > fx && my > fy && mx < fx + fw && my < fy + fh) {
+        sliSearchObj->setValue(sliSearchObj->getValue() - hge->Input_GetMouseWheel() * 140);
     }
 
-    for (int i = startindex; i < startindex + 387 / 140 + 2; i++) {
+    fy += 5;
+
+    for (int i = startindex; i < startindex + 4; i++) {
         if (i < 0) continue;
-        else if (i >= vObjSearchResults.size()) break;
+        if (i >= vObjSearchResults.size()) break;
 
         WWD::Object *obj = GetActivePlane()->GetObjectByIterator(vObjSearchResults[i].first);
         hgeSprite *spr = SprBank->GetObjectSprite(obj);
@@ -2630,7 +2634,7 @@ void State::EditingWW::DrawObjSearch() {
         yoffset += 20;
 
         int butx = fx + 135, buty = fy + i * 140 - fSliVal + 97, butw = butObjSearchSelect->getWidth(), buth = 33;
-        if (bHasMouse && mx > butx && mx < butx + butw && my > buty && my < buty + 33 && my > fy && my < fy + 386) {
+        if (bHasMouse && mx > butx && mx < butx + butw && my > buty && my < buty + 33 && my < fy + fh - 4) {
             if (hge->Input_GetKeyState(HGEK_LBUTTON)) {
                 butObjSearchSelect->drawButton(GV->hGfxInterface, 3, butx, buty, butw, buth, 0xFFFFFFFF);
             } else {
@@ -2649,16 +2653,19 @@ void State::EditingWW::DrawObjSearch() {
         }
         GV->fntMyriad16->Render(butx + butw / 2, buty + 8, HGETEXT_CENTER, GETL2S("ObjectSearch", "GoToObject"), 0);
 
-        hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 135, fx + 424, fy + i * 140 - fSliVal + 135, GV->colLineDark);
-        hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 136, fx + 424, fy + i * 140 - fSliVal + 136,
+        hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 135, fx + fw, fy + i * 140 - fSliVal + 135, GV->colLineDark);
+        hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 136, fx + fw, fy + i * 140 - fSliVal + 136,
                             GV->colLineBright);
 
     }
+
+    fy -= 5;
+
     hge->Gfx_SetClipping();
     if (sliSearchObj->isVisible()) {
-        hge->Gfx_RenderLine(fx, fy, fx + 424, fy, 0xFF000000);
-        hge->Gfx_RenderLine(fx, fy + 386, fx + 424, fy + 386, 0xFF000000);
-        hge->Gfx_RenderLine(fx, fy, fx, fy + 386, 0xFF000000);
+        hge->Gfx_RenderLine(fx, fy, fx + fw, fy, 0xFF000000);
+        hge->Gfx_RenderLine(fx, fy + fh, fx + fw, fy + fh, 0xFF000000);
+        hge->Gfx_RenderLine(fx, fy, fx, fy + fh, 0xFF000000);
     }
 }
 
@@ -3285,8 +3292,8 @@ void State::EditingWW::DrawTilePicker() {
                     hge->Gfx_RenderQuad(&q);
                 } else {
                     cTile *tile = set->GetTileByIterator(i);
-                    tile->GetImage()->SetHotSpot(0, 0);
                     tile->GetImage()->SetFlip(0, 0);
+                    tile->GetImage()->SetHotSpot(0, 0);
                     tile->GetImage()->SetColor(0xFFFFFFFF);
                     float scaleX = 48.f / GV->editState->GetActivePlane()->GetTileWidth(),
                           scaleY = 48.f / GV->editState->GetActivePlane()->GetTileHeight();

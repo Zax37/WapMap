@@ -18,7 +18,6 @@ namespace ObjEdit {
         sli = new SHR::Slider(631);
         sli->setOrientation(SHR::Slider::VERTICAL);
         sli->setDimension(gcn::Rectangle(0, 0, 11, 271));
-        sli->setValue(631);
         win->add(sli, 240, 10);
 
         vp = new WIDG::Viewport(this, 0);
@@ -43,7 +42,7 @@ namespace ObjEdit {
         int pickedid = -1;
         if (GV->editState->conMain->getWidgetAt(mx, my) == win && mx > dx + 4 && my > dy + 28 && mx < dx + 4 + 252 &&
             my < dy + 28 + 267) {
-            sli->setValue(sli->getValue() + hge->Input_GetMouseWheel() * 30);
+            sli->setValue(sli->getValue() - hge->Input_GetMouseWheel() * 30);
             mx -= dx + 4;
             my -= dy + 28;
             my += 631 - sli->getValue();
@@ -74,7 +73,7 @@ namespace ObjEdit {
 
         hge->Gfx_SetClipping(dx + 4, dy + 28, 252, 267);
 
-        int off = 631 - sli->getValue();
+        int off = sli->getValue();
         int lineoff = off % 60;
         for (int i = 1; i < 4; i++)
             hge->Gfx_RenderLine(dx + 5 + i * 60 - 1, dy + 28, dx + 5 + i * 60 - 1, dy + 29 + 267, GV->colLineBright);

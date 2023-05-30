@@ -532,7 +532,7 @@ namespace State {
         cNativeController *hNativeController;
 
         SHR::DropDown *ddmsPlane;
-        SHR::Slider *slimsScale, *sliTilePicker, *slimsCompression;
+        SHR::Slider *slimsScale, *slimsCompression;
         SHR::Lab *labmsSaveAs, *labmsScale, *labmsPlane, *labmsDimensions;
         SHR::TextField *tfmsSaveAs, *winobjseaName;
         SHR::But *butmsSaveAs, *butmsSave;
@@ -584,7 +584,6 @@ namespace State {
                 *labdbisFileID, *labdbisFileIndex, *labdbisFrameID;
         SHR::CBox *cbdbisFlipX, *cbdbisFlipY, *cbdbisOffsetBorder, *cbdbisBorder;
         int idbisMoveX, idbisMoveY;
-        float fdbisZoom;
 
         SHR::But *butObjSearchSelect, *butObjSearchSelectAll;
         SHR::DropDown *ddObjSearchTerm;

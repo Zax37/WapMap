@@ -702,11 +702,11 @@ void State::EditingWW::UpdateSearchResults() {
         }
     }
     if (!cbObjSearchCaseSensitive->isSelected()) delete[] comp2;
-    int normalHeight = int(135 + vObjSearchResults.size() * 140);
-    sliSearchObj->setVisible(normalHeight > 515);
-    sliSearchObj->setScaleEnd(vObjSearchResults.size() * 140 - 387);
-    sliSearchObj->setValue(vObjSearchResults.size() * 140 - 387);
-    int winHeight = std::min(normalHeight, 515);
+    int normalHeight = int(130 + vObjSearchResults.size() * 140);
+    sliSearchObj->setVisible(normalHeight > 550);
+    sliSearchObj->setScaleEnd(vObjSearchResults.size() * 140 - sliSearchObj->getHeight() + 3);
+    sliSearchObj->setValue(0);
+    int winHeight = std::min(normalHeight, 550);
     winSearchObj->setHeight(winHeight);
     if (vObjSearchResults.empty()) {
         labObjSearchResults->setCaption(GETL2S("ObjectSearch", "NoResults"));

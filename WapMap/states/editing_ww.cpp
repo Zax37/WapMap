@@ -321,12 +321,6 @@ void State::EditingWW::Init() {
         }
     }
 
-    sliTilePicker = new SHR::Slider(SHR::Slider::HORIZONTAL);
-    sliTilePicker->setScale(0.0f, 10.0f);
-    sliTilePicker->setDimension(gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH) - 91, 11));
-    sliTilePicker->setVisible(0);
-    conMain->add(sliTilePicker, 40, hge->System_GetState(HGE_SCREENHEIGHT) - 144);
-
     winTilePicker = new SHR::Win(&GV->gcnParts, GETL2S("TilePicker", "WinCaption"));
     winTilePicker->setDimension(gcn::Rectangle(0, 0, 250, vPort->GetHeight()));
     winTilePicker->setClose(1);
@@ -470,7 +464,7 @@ void State::EditingWW::Init() {
     butObjSearchSelectAll->setHeight(33);
     butObjSearchSelectAll->addActionListener(mainListener);
     butObjSearchSelectAll->setVisible(0);
-    winSearchObj->add(butObjSearchSelectAll, 445 - butObjSearchSelectAll->getWidth(), 65);
+    winSearchObj->add(butObjSearchSelectAll, winSearchObj->getWidth() - butObjSearchSelectAll->getWidth() - 10, 65);
 
     cbObjSearchCaseSensitive = new SHR::CBox(GV->hGfxInterface, GETL2S("ObjectSearch", "CaseSensitive"));
     cbObjSearchCaseSensitive->adjustSize();
@@ -488,7 +482,7 @@ void State::EditingWW::Init() {
 
     ddObjSearchTerm = new SHR::DropDown();
     ddObjSearchTerm->setListModel(new EditingWWlModel(this, LMODEL_SEARCHTERM));
-    ddObjSearchTerm->setDimension(gcn::Rectangle(0, 0, 330 - (labobjseaInfo->getWidth() + 10), 20));
+    ddObjSearchTerm->setDimension(gcn::Rectangle(0, 0, winSearchObj->getWidth() - labobjseaInfo->getWidth() - 20, 20));
     ddObjSearchTerm->addActionListener(mainListener);
     ddObjSearchTerm->SetGfx(&GV->gcnParts);
     ddObjSearchTerm->adjustHeight();
@@ -501,13 +495,13 @@ void State::EditingWW::Init() {
     winSearchObj->add(vpobjseaRender, 0, 0);
 
     winobjseaName = new SHR::TextField("");
-    winobjseaName->setDimension(gcn::Rectangle(0, 0, 325, 20));
+    winobjseaName->setDimension(gcn::Rectangle(0, 0, winSearchObj->getWidth() - 15, 20));
     winobjseaName->addActionListener(mainListener);
     winSearchObj->add(winobjseaName, 5, 40);
 
     sliSearchObj = new SHR::Slider(10);
     sliSearchObj->setOrientation(SHR::Slider::VERTICAL);
-    sliSearchObj->setDimension(gcn::Rectangle(0, 0, 11, 387));
+    sliSearchObj->setDimension(gcn::Rectangle(0, 0, 11, 423));
     sliSearchObj->setVisible(0);
     sliSearchObj->setMarkerLength(20);
     winSearchObj->add(sliSearchObj, 430, 105);
@@ -2712,7 +2706,7 @@ bool State::EditingWW::OpenDocuments() {
                 vstrMapsToLoad.push_back(dir + filename);
             }
         }
-        
+
         return true;
     }
     return false;
@@ -3286,6 +3280,8 @@ void State::EditingWW::DocumentSwitched() {
         //SwitchActiveModeMenuBar(cbutActiveMode->getSelectedEntryID() ? (cModeMenuBar*)hmbObject : (cModeMenuBar*)hmbTile);
     }
     FixInterfacePositions();
+
+    slitpiPicker->setValue(0);
 }
 
 void State::EditingWW::SetZoom(float fZ) {

@@ -29,6 +29,5 @@ void State::EditingWW::SyncDB_ImageSets() {
 
         idbisMoveX = 0;
         idbisMoveY = 0;
-        fdbisZoom = 1;
     }
 }
