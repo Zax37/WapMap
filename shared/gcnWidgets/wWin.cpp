@@ -245,8 +245,20 @@ namespace SHR {
         }
 
         if (isMovable() && mMoved) {
-            setPosition(mouseEvent.getX() - mDragOffsetX + getX(),
-                        mouseEvent.getY() - mDragOffsetY + getY());
+            int parentX;
+            int parentY;
+
+            getParent()->getAbsolutePosition(parentX, parentY);
+
+            int newX = mouseEvent.getX() - mDragOffsetX + getX();
+            int newY = mouseEvent.getY() - mDragOffsetY + getY();
+
+            if (parentX + newX < 0) newX = -parentX;
+            if (parentY + newY < 0) newY = -parentY;
+            if (parentX + newX + mDimension.width > GV->iScreenW) newX = GV->iScreenW - parentX - mDimension.width;
+            if (parentY + newY + mDimension.height > GV->iScreenH) newY = GV->iScreenH - parentY - mDimension.height;
+
+            setPosition(newX, newY);
         }
 
         mouseEvent.consume();
