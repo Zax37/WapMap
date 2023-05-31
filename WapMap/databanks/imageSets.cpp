@@ -305,9 +305,9 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
             for (int z = 0; z < obj->GetParam(WWD::Param_Width) - 1; z++)
                 ret.x2 += 64;
         } else if (!strcmp(obj->GetLogic(), "PunkRat")) {
-            ret.x1 -= 29;
-            ret.x2 += 44;
-            ret.y2 += 46;
+            ret.x1 -= 34;
+            ret.x2 += 49;
+            ret.y2 += 46 - (obj->GetFlipY() * 2 * hsy);
         }
     }
 

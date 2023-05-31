@@ -1936,7 +1936,7 @@ void State::EditingWW::DrawViewport() {
                                 hgeSprite* treasureSpr = GV->sprSmiley;
                                 if (asset) {
                                     int iframe = GV->editState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount();
-                                    asset->GetIMGByIterator(iframe)->GetSprite();
+                                    treasureSpr = asset->GetIMGByIterator(iframe)->GetSprite();
                                 }
                                 treasureSpr->SetColor(0xBBFFFFFF);
                                 treasureSpr->SetFlip(0, 0, true);
@@ -2672,26 +2672,23 @@ void State::EditingWW::DrawObjSearch() {
 int State::EditingWW::RenderObject(WWD::Object *hObj, int x, int y, DWORD col) {
     hgeSprite *spr = SprBank->GetObjectSprite(hObj);
     spr->SetColor(col);
+    spr->SetFlip(hObj->GetFlipX(), hObj->GetFlipY(), true);
 
-    if (strcmp(hObj->GetLogic(), "FrontStackedCrates") && strcmp(hObj->GetLogic(), "BackStackedCrates")) {
-        spr->SetFlip(hObj->GetFlipX(), hObj->GetFlipY(), true);
-
-        float hx, hy;
-        spr->GetHotSpot(&hx, &hy);
-        if (hObj->GetFlipX()) {
-            hx -= spr->GetWidth() / 2;
-            hx *= fZoom * 2;
-            x += hx;
-        } else {
-            hx = 0;
-        }
-        if (hObj->GetFlipY()) {
-            hy -= spr->GetHeight() / 2;
-            hy *= fZoom * 2;
-            y += hy;
-        } else {
-            hy = 0;
-        }
+    float hx, hy;
+    spr->GetHotSpot(&hx, &hy);
+    if (hObj->GetFlipX()) {
+        hx -= spr->GetWidth() / 2;
+        hx *= fZoom * 2;
+        x += hx;
+    } else {
+        hx = 0;
+    }
+    if (hObj->GetFlipY()) {
+        hy -= spr->GetHeight() / 2;
+        hy *= fZoom * 2;
+        y += hy;
+    } else {
+        hy = 0;
     }
 
     if (!strcmp(hObj->GetLogic(), "PunkRat")) {
@@ -2699,12 +2696,15 @@ int State::EditingWW::RenderObject(WWD::Object *hObj, int x, int y, DWORD col) {
         if (cannon) {
             hgeSprite* cannonspr = cannon->GetIMGByIterator(0)->GetSprite();
             cannonspr->SetColor(col);
-            cannonspr->SetFlip(GetUserDataFromObj(hObj)->GetFlipX(), GetUserDataFromObj(hObj)->GetFlipY());
-            cannonspr->RenderEx(x + (5 * GetUserDataFromObj(hObj)->GetFlipX()) * fZoom, y + 15 * fZoom, 0, fZoom);
+            cannonspr->SetFlip(GetUserDataFromObj(hObj)->GetFlipX(), false);
+            cannonspr->RenderEx(x + (5 * GetUserDataFromObj(hObj)->GetFlipX() - 3) * fZoom, y - hy + 15 * fZoom, 0, fZoom);
         }
+        spr->RenderEx(x - GetUserDataFromObj(hObj)->GetFlipX() * hx * 12, y, 0, fZoom);
+    }
+    else {
+        spr->RenderEx(x, y, 0, fZoom);
     }
 
-    spr->RenderEx(x, y, 0, fZoom);
     if (!strcmp(hObj->GetLogic(), "BreakPlank")) {
         float fmod = 0;
         for (int z = 0; z < hObj->GetParam(WWD::Param_Width) - 1; z++) {
