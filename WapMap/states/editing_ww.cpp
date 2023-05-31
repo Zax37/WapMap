@@ -643,7 +643,7 @@ void State::EditingWW::Init() {
     winMeasureOpt->setVisible(0);
     winMeasureOpt->addActionListener(mainListener);
     winMeasureOpt->setClose(1);
-    conMain->add(winMeasureOpt, vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 100);
+    conMain->add(winMeasureOpt, 0, 0);
 
     cbmeasAbsoluteDistance = new SHR::CBox(GV->hGfxInterface, GETL(Lang_ShowAbsoluteDistance));
     cbmeasAbsoluteDistance->adjustSize();
@@ -2499,6 +2499,10 @@ void State::EditingWW::OpenTool(int iNewTool) {
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
     } else if (iNewTool == EWW_TOOL_MEASURE) {
         winMeasureOpt->setVisible(true);
+        winMeasureOpt->setPosition(
+            vPort->GetX() + vPort->GetWidth() - winMeasureOpt->getWidth() - 10,
+            vPort->GetY() + vPort->GetHeight() - winMeasureOpt->getHeight() - 10
+        );
     } else if (iNewTool == EWW_TOOL_OBJSELAREA) {
         bDragSelection = false;
         wintoolSelArea->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
