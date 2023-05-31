@@ -57,7 +57,7 @@ class cAutoUpdater {
     friend class cAUVP;
 
 public:
-    float fDelay = 0;
+    double dDelay = 0;
     int iState, iThreadsRunning;
     std::string response;
     bool bKill = false;

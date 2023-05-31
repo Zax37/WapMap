@@ -132,8 +132,8 @@ cAutoUpdater::cAutoUpdater() {
 }
 
 bool cAutoUpdater::Think() {
-    if (fDelay > 0) {
-        fDelay -= hge->Timer_GetDelta();
+    if (dDelay > 0) {
+        dDelay -= hge->Timer_GetDelta();
         return false;
     }
 
@@ -149,13 +149,13 @@ bool cAutoUpdater::Think() {
             curl_multi_timeout(curl_handle_multi, &tm);
 
             if (tm > 0) {
-                fDelay = tm / 1000.0;
+                dDelay = tm * 0.00000001;
                 return false;
             }
 
-            fDelay = 0;
+            dDelay = 0;
             if (++dontTakeTooLong > 3) {
-                fDelay = 0.001;
+                dDelay = 0.001;
                 return false;
             }
         }
