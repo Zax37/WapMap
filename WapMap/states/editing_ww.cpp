@@ -2498,14 +2498,11 @@ void State::EditingWW::OpenTool(int iNewTool) {
         winObjectBrush->setVisible(true);
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
     } else if (iNewTool == EWW_TOOL_MEASURE) {
+        PutToBottomRight(winMeasureOpt);
         winMeasureOpt->setVisible(true);
-        winMeasureOpt->setPosition(
-            vPort->GetX() + vPort->GetWidth() - winMeasureOpt->getWidth() - 10,
-            vPort->GetY() + vPort->GetHeight() - winMeasureOpt->getHeight() - 10
-        );
     } else if (iNewTool == EWW_TOOL_OBJSELAREA) {
         bDragSelection = false;
-        wintoolSelArea->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - 125);
+        PutToBottomRight(wintoolSelArea);
         wintoolSelArea->setShow(true);
         wintoolSelArea->unDrag();
         char label[200];
@@ -3808,4 +3805,19 @@ void State::EditingWW::showObjectModeContextMenu(MouseEvent& mouseEvent) {
         objContext->setY(contextY - objContext->getHeight());
     objContext->setVisible(true);
     objContext->requestFocus();
+}
+
+void State::EditingWW::UpdateSelectAreaWindowButtons(SHR::But *source) {
+    buttoolSelAreaAll->setEnabled(source != buttoolSelAreaAll);
+    buttoolSelAreaPickMinX->setEnabled(source != buttoolSelAreaPickMinX);
+    buttoolSelAreaPickMinY->setEnabled(source != buttoolSelAreaPickMinY);
+    buttoolSelAreaPickMaxX->setEnabled(source != buttoolSelAreaPickMaxX);
+    buttoolSelAreaPickMaxY->setEnabled(source != buttoolSelAreaPickMaxY);
+}
+
+void State::EditingWW::PutToBottomRight(SHR::Win *window) {
+    window->setPosition(
+        vPort->GetX() + vPort->GetWidth() - window->getWidth() - 10,
+        vPort->GetY() + vPort->GetHeight() - window->getHeight() - 10
+    );
 }

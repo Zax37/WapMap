@@ -1157,7 +1157,9 @@ void State::EditingWW::DrawViewport() {
                                        maxX && minX != maxX ? Wrd2ScrX(hParser->GetMainPlane(), maxX) : 0,
                                        maxY && minY != maxY ? Wrd2ScrY(hParser->GetMainPlane(), maxY) : 0);
 
-                        RenderAreaRect(rect, bFill);
+                        if (iActiveTool != EWW_TOOL_OBJSELAREA) {
+                            RenderAreaRect(rect, bFill);
+                        }
 
                         if (iSpringboardValue != 0) {
                             RenderArrow(posX - cammx, Wrd2ScrY(GetActivePlane(), SprBank->GetObjectRenderRect(obj).y1), posX - cammx, rect.y1, true);

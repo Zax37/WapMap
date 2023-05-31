@@ -1076,6 +1076,8 @@ namespace State {
 
 		void FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically);
 		void MirrorObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically);
+		void UpdateSelectAreaWindowButtons(SHR::But* source = NULL);
+		void PutToBottomRight(SHR::Win* window);
     };
 };
 

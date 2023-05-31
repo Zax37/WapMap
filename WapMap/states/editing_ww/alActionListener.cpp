@@ -1167,14 +1167,19 @@ namespace State {
                 }
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaAll) {
                 m_hOwn->toolsaAction = TOOL_OBJSA_PICKALL;
+                m_hOwn->UpdateSelectAreaWindowButtons(m_hOwn->buttoolSelAreaAll);
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinX) {
                 m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINX;
+                m_hOwn->UpdateSelectAreaWindowButtons(m_hOwn->buttoolSelAreaPickMinX);
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMinY) {
                 m_hOwn->toolsaAction = TOOL_OBJSA_PICKMINY;
+                m_hOwn->UpdateSelectAreaWindowButtons(m_hOwn->buttoolSelAreaPickMinY);
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxX) {
                 m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXX;
+                m_hOwn->UpdateSelectAreaWindowButtons(m_hOwn->buttoolSelAreaPickMaxX);
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaPickMaxY) {
                 m_hOwn->toolsaAction = TOOL_OBJSA_PICKMAXY;
+                m_hOwn->UpdateSelectAreaWindowButtons(m_hOwn->buttoolSelAreaPickMaxY);
             } else if (actionEvent.getSource() == m_hOwn->buttoolSelAreaOK) {
                 int *ret = new int[4];
                 ret[0] = m_hOwn->toolsaMinX;
@@ -1264,6 +1269,17 @@ namespace State {
                         m_hOwn->vPort->MarkToRedraw();
                         m_hOwn->bEditObjDelete = false;
                         m_hOwn->vObjectsHL.clear();
+                        break;
+                    case EWW_TOOL_OBJSELAREA:
+                        if (m_hOwn->toolsaAction != TOOL_OBJSA_NONE) {
+                            if (m_hOwn->toolsaAction == TOOL_OBJSA_PICKALL) {
+                                m_hOwn->bDragSelection = false;
+                            }
+                            m_hOwn->toolsaAction = TOOL_OBJSA_NONE;
+                            m_hOwn->UpdateSelectAreaWindowButtons();
+                        } else {
+                            m_hOwn->SetTool(EWW_TOOL_NONE);
+                        }
                         break;
                 }
 
@@ -1794,12 +1810,11 @@ namespace State {
                     fZoom = fDestZoom;
                 }
             }
-        } else if (iMode == EWW_MODE_OBJECT) {
+        } else if (iMode == EWW_MODE_OBJECT && iActiveTool != EWW_TOOL_OBJSELAREA) {
             if (mouseEvent.getButton() == MouseEvent::LEFT) {
                 if (bDragDropScroll) {
                     bDragDropScroll = false;
                 }
-
 
                 if (bDragSelection) {
                     bDragSelection = false;

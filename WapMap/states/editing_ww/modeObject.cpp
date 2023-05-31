@@ -65,12 +65,9 @@ void State::EditingWW::ObjectOverlay() {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     if (iMode == EWW_MODE_OBJECT && iActiveTool == EWW_TOOL_OBJSELAREA &&
-        (toolsaMinX != 0 || toolsaMinY != 0 || toolsaMaxX != 0 || toolsaMaxY != 0 || (toolsaAction != TOOL_OBJSA_NONE && toolsaAction != TOOL_OBJSA_PICKALL))) {
+        (toolsaMinX != 0 || toolsaMinY != 0 || toolsaMaxX != 0 || toolsaMaxY != 0 || toolsaAction != TOOL_OBJSA_NONE)) {
         int x1 = toolsaMinX, x2 = toolsaMaxX == 0 ? GetActivePlane()->GetPlaneWidthPx() : toolsaMaxX,
             y1 = toolsaMinY, y2 = toolsaMaxY == 0 ? GetActivePlane()->GetPlaneHeightPx() : toolsaMaxY;
-
-        if (x1 > x2) std::swap(x1, x2);
-        if (y1 > y2) std::swap(y1, y2);
 
         x1 = Wrd2ScrX(GetActivePlane(), x1);
         y1 = Wrd2ScrY(GetActivePlane(), y1);
@@ -78,18 +75,21 @@ void State::EditingWW::ObjectOverlay() {
         y2 = Wrd2ScrY(GetActivePlane(), y2);
 
         if (vPort->GetWidget()->isMouseOver()) {
-            if (toolsaAction == TOOL_OBJSA_PICKMINX && mx < x1)
+            if (toolsaAction == TOOL_OBJSA_PICKMINX)
                 x1 = mx;
-            else if (toolsaAction == TOOL_OBJSA_PICKMINY && my < y1)
+            else if (toolsaAction == TOOL_OBJSA_PICKMINY)
                 y1 = my;
-            else if (toolsaAction == TOOL_OBJSA_PICKMAXX && mx > x2)
+            else if (toolsaAction == TOOL_OBJSA_PICKMAXX)
                 x2 = mx;
-            else if (toolsaAction == TOOL_OBJSA_PICKMAXY && my > y2)
+            else if (toolsaAction == TOOL_OBJSA_PICKMAXY)
                 y2 = my;
         }
 
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+
         vPort->ClipScreen();
-        RenderAreaRect(WWD::Rect(x1, y1, x2, y2));
+        RenderAreaRect(WWD::Rect(x1, y1, x2, y2), true);
     }
     if (bDragSelection && hParser != NULL && iMode == EWW_MODE_OBJECT) {
         int x1 = Wrd2ScrX(GetActivePlane(), iDragSelectionOrigX), x2 = mx,
@@ -100,7 +100,7 @@ void State::EditingWW::ObjectOverlay() {
 
         if (x2 - x1 > 2 || y2 - y1 > 2) {
             vPort->ClipScreen();
-            RenderAreaRect(WWD::Rect(x1, y1, x2, y2));
+            RenderAreaRect(WWD::Rect(x1, y1, x2, y2), iActiveTool == EWW_TOOL_OBJSELAREA);
 
             if (iActiveTool == EWW_TOOL_OBJSELAREA) {
                 int wmX = Scr2WrdX(GetActivePlane(), mx),
@@ -256,54 +256,51 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                 labtoolSelAreaValues->setCaption(label);
                 labtoolSelAreaValues->adjustSize();
                 toolsaAction = TOOL_OBJSA_NONE;
+                buttoolSelAreaAll->setEnabled(true);
             }
         } else if (toolsaAction == TOOL_OBJSA_PICKMINX) {
             if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON)) {
-                int coord = Scr2WrdX(GetActivePlane(), mx);
-                if (toolsaMaxX == 0 || toolsaMaxX != 0 && coord < toolsaMaxX)
-                    toolsaMinX = coord;
+                toolsaMinX = Scr2WrdX(GetActivePlane(), mx);
                 char label[200];
                 sprintf(label, "~w~X1: ~y~%d~w~ Y1: ~y~%d~w~ X2: ~y~%d~w~ Y2: ~y~%d~l~",
                         toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
                 labtoolSelAreaValues->setCaption(label);
                 labtoolSelAreaValues->adjustSize();
                 toolsaAction = TOOL_OBJSA_NONE;
+                buttoolSelAreaPickMinX->setEnabled(true);
             }
         } else if (toolsaAction == TOOL_OBJSA_PICKMINY) {
             if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON)) {
-                int coord = Scr2WrdY(GetActivePlane(), my);
-                if (toolsaMaxY == 0 || toolsaMaxY != 0 && coord < toolsaMaxY)
-                    toolsaMinY = coord;
+                toolsaMinY = Scr2WrdY(GetActivePlane(), my);
                 char label[200];
                 sprintf(label, "~w~X1: ~y~%d~w~ Y1: ~y~%d~w~ X2: ~y~%d~w~ Y2: ~y~%d~l~",
                         toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
                 labtoolSelAreaValues->setCaption(label);
                 labtoolSelAreaValues->adjustSize();
                 toolsaAction = TOOL_OBJSA_NONE;
+                buttoolSelAreaPickMinY->setEnabled(true);
             }
         } else if (toolsaAction == TOOL_OBJSA_PICKMAXX) {
             if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON)) {
-                int coord = Scr2WrdX(GetActivePlane(), mx);
-                if (toolsaMinX == 0 || toolsaMinX != 0 && coord > toolsaMinX)
-                    toolsaMaxX = coord;
+                toolsaMaxX = Scr2WrdX(GetActivePlane(), mx);
                 char label[200];
                 sprintf(label, "~w~X1: ~y~%d~w~ Y1: ~y~%d~w~ X2: ~y~%d~w~ Y2: ~y~%d~l~",
                         toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
                 labtoolSelAreaValues->setCaption(label);
                 labtoolSelAreaValues->adjustSize();
                 toolsaAction = TOOL_OBJSA_NONE;
+                buttoolSelAreaPickMaxX->setEnabled(true);
             }
         } else if (toolsaAction == TOOL_OBJSA_PICKMAXY) {
             if (vPort->GetWidget()->isMouseOver() && !pbConsumed && hge->Input_KeyDown(HGEK_LBUTTON)) {
-                int coord = Scr2WrdY(GetActivePlane(), my);
-                if (toolsaMinY == 0 || toolsaMinY != 0 && coord > toolsaMinY)
-                    toolsaMaxY = coord;
+                toolsaMaxY = Scr2WrdY(GetActivePlane(), my);
                 char label[200];
                 sprintf(label, "~w~X1: ~y~%d~w~ Y1: ~y~%d~w~ X2: ~y~%d~w~ Y2: ~y~%d~l~",
                         toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
                 labtoolSelAreaValues->setCaption(label);
                 labtoolSelAreaValues->adjustSize();
                 toolsaAction = TOOL_OBJSA_NONE;
+                buttoolSelAreaPickMaxY->setEnabled(true);
             }
         }
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
