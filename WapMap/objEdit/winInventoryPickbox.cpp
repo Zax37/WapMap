@@ -45,7 +45,7 @@ namespace ObjEdit {
             sli->setValue(sli->getValue() - hge->Input_GetMouseWheel() * 30);
             mx -= dx + 4;
             my -= dy + 28;
-            my += 631 - sli->getValue();
+            my += sli->getValue();
             int restx = int(mx) % 60, resty = int(my) % 60;
             if (restx > 5 && restx < 53 && resty > 5 && resty < 53) {
                 pickedid = int(my / 60) * 4 + int(mx / 60);

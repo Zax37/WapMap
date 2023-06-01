@@ -135,6 +135,12 @@ winOptions::winOptions() : cWindow(GETL(Lang_Options)) {
         cboptAutoUpdate = new SHR::CBox(GV->hGfxInterface, GETL(Lang_AutoUpdate));
         cboptAutoUpdate->adjustSize();
         conWapMap->add(cboptAutoUpdate, xOffset, yOffset);
+
+        yOffset += 25;
+
+        cboptStartMaximized = new SHR::CBox(GV->hGfxInterface, GETL(Lang_StartMaximized));
+        cboptStartMaximized->adjustSize();
+        conWapMap->add(cboptStartMaximized, xOffset, yOffset);
     }
     optionsForCategory.push_back(conWapMap);
     myWin.add(conWapMap, scrollAreaCategories->getWidth(), 8);
@@ -239,6 +245,7 @@ winOptions::~winOptions() {
     delete cboptCrazyHookDebugInfo;
     delete cboptAutoUpdate;
     delete cboptSmoothZooming;
+    delete cboptStartMaximized;
 
     for (auto widget : widgetsToDelete) {
         delete widget;
@@ -302,6 +309,7 @@ void winOptions::Open(WWD::GAME game) {
     cbOptionsAlfaHigherPlanes->setSelected(GV->bAlphaHigherPlanes);
     cboptSmoothZooming->setSelected(GV->bSmoothZoom);
     cboptAutoUpdate->setSelected(GV->bAutoUpdate);
+    cboptStartMaximized->setSelected(GV->bStartMaximized);
 
     for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
         pathTextFields[i - WWD::Games_First]->setText(GV->gamePaths[i]);
@@ -407,6 +415,10 @@ void winOptions::action(const ActionEvent &actionEvent) {
         if (GV->bSmoothZoom != cboptSmoothZooming->isSelected())
             GV->editState->fZoom = GV->editState->fDestZoom;
         GV->bSmoothZoom = cboptSmoothZooming->isSelected();
+
+        sprintf(tmp, "%d", cboptStartMaximized->isSelected());
+        GV->ini->SetValue("WapMap", "StartMaximized", tmp);
+        GV->bStartMaximized = cboptStartMaximized->isSelected();
 
         int w, h;
         if (ddoptGameRes->getSelected() == 0) {

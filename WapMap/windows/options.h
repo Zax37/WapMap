@@ -42,7 +42,7 @@ private:
     SHR::But *butPath[WWD::Games_Count], *butSave;
     SHR::DropDown *ddoptLang, *ddoptGameRes;
     SHR::CBox *cbOptionsAlfaHigherPlanes, *cboptCrazyHookGodMode, *cboptCrazyHookArmor, *cboptCrazyHookDebugInfo,
-            *cboptAutoUpdate, *cboptSmoothZooming;
+            *cboptAutoUpdate, *cboptSmoothZooming, *cboptStartMaximized;
     WIDG::Viewport *vp;
     cDynamicListModel *lmLang;
     SHR::ScrollArea *scrollAreaCategories;

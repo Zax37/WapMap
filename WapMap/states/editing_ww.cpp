@@ -107,7 +107,7 @@ void State::EditingWW::Init() {
     iManipulatedGuide = -1;
     bShowGuideLines = true;
     bEditObjDelete = false;
-    bMaximized = false;
+    bMaximized = GV->bStartMaximized;
     bDragWindow = false;
 
     for (auto& timer : fAppBarTimers)

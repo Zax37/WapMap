@@ -212,6 +212,7 @@ cGlobals::cGlobals() {
             ini->SetValue("WapMap", "FirstRun", "0");
             ini->SetValue("WapMap", "DisplayWidth", std::to_string(iScreenW).c_str());
             ini->SetValue("WapMap", "DisplayHeight", std::to_string(iScreenH).c_str());
+            ini->SetValue("WapMap", "StartMaximized", "1");
             ini->SaveFile("settings.cfg");
         }
     }
@@ -773,7 +774,8 @@ void cGlobals::Init() {
     bRealSim = atoi(ini->GetValue("WapMap", "RealSim", "0"));
 
     bAutoUpdate = atoi(ini->GetValue("WapMap", "AutoUpdate", "1"));
-    bAlphaHigherPlanes = atoi(ini->GetValue("WapMap", "AlphaOverlapping ", "0"));
+    bAlphaHigherPlanes = atoi(ini->GetValue("WapMap", "AlphaOverlapping", "0"));
+    bStartMaximized = atoi(ini->GetValue("WapMap", "StartMaximized", "1"));
 
     bool enableConsole = atoi(ini->GetValue("WapMap", "Console", "0"));
     Console->Enable(enableConsole);

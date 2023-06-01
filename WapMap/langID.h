@@ -293,7 +293,8 @@ enum LangID {
     Lang_FilesDragged_MapsToOpen,
     Lang_FilesDragged_AndMore,
     Lang_Retry,
-    Lang_Skip
+    Lang_Skip,
+    Lang_StartMaximized
 };
 
 enum LangTooltipID {

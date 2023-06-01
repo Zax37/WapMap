@@ -376,7 +376,7 @@ public:
 
     bool bFirstRun;
 
-    bool bAutoUpdate, bAlphaHigherPlanes, bSmoothZoom;
+    bool bAutoUpdate, bAlphaHigherPlanes, bSmoothZoom, bStartMaximized;
 
     jmp_buf jmp_env;
     int jmp_val;
