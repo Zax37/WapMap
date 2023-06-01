@@ -476,6 +476,7 @@ namespace State {
         SHR::But *setClawDir;
         SHR::But *website;
         bool bKill;
+        bool updatedPosition = false;
     };
 
 	class EditingWW : public SHR::cState, gcn::MouseListener {

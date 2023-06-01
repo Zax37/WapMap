@@ -1,11 +1,12 @@
 #include "../editing_ww.h"
-#include "../../globals.h"
 #include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../windows/options.h"
 
 extern HGE *hge;
+
+#define HEIGHT int height = GV->fntMyriad16->GetStringBlockHeight(370, GETL2S("FirstRun", "Text")) + 100;
 
 void State::EditingWW::FirstRun_Open() {
     if (FirstRun_data != 0) {
@@ -14,12 +15,11 @@ void State::EditingWW::FirstRun_Open() {
     }
     FirstRun_data = new win_FirstRun;
     FirstRun_data->win = new SHR::Win(&GV->gcnParts, GETL2S("FirstRun", "Caption"));
-    int height = GV->fntMyriad16->GetStringBlockHeight(370, GETL2S("FirstRun", "Text")) + 100;
+    HEIGHT
     FirstRun_data->win->setDimension(gcn::Rectangle(0, 0, 400, height + 60));
     FirstRun_data->win->setClose(1);
     FirstRun_data->win->addActionListener(mainListener);
-    conMain->add(FirstRun_data->win, hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200,
-                 hge->System_GetState(HGE_SCREENHEIGHT) / 2 - (height + 100) / 2);
+    conMain->add(FirstRun_data->win, - 200, -height);
 
     FirstRun_data->setClawDir = new SHR::But(GV->hGfxInterface, GETL2S("FirstRun", "SetClawDir"));
     FirstRun_data->setClawDir->setDimension(gcn::Rectangle(0, 0, 200, 33));
@@ -53,6 +53,13 @@ void State::EditingWW::FirstRun_Think() {
     FirstRun_data->win->getAbsolutePosition(wx, wy);
     GV->fntMyriad16->SetColor(0xFF000000);
     GV->fntMyriad16->printfb(wx + 15, wy + 35, 370, 500, HGETEXT_LEFT | HGETEXT_TOP, 0, GETL2S("FirstRun", "Text"));
+
+    if(!FirstRun_data->updatedPosition) {
+        HEIGHT
+        FirstRun_data->win->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - 200,
+                     hge->System_GetState(HGE_SCREENHEIGHT) / 2 - (height + 100) / 2);
+        FirstRun_data->updatedPosition = true;
+    }
 }
 
 void State::EditingWW::FirstRun_Action(bool but) {
