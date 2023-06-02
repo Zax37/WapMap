@@ -229,7 +229,7 @@ namespace ObjEdit {
                                 hObjects[objit]->SetParam(WWD::Param_LocationX, areaX + offset + frmod);
                             else if (iAlign == 1)
                                 hObjects[objit]->SetParam(WWD::Param_LocationX,
-                                                          areaX + (areaW / 2) - (linew / 2) + offset - 10 + frmod);
+                                                          areaX + (areaW - linew) / 2 + offset - 5 + frmod);
                             else if (iAlign == 2)
                                 hObjects[objit]->SetParam(WWD::Param_LocationX,
                                                           areaX + areaW - linew + offset - 10 + frmod);

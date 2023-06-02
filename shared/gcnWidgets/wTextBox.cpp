@@ -155,6 +155,7 @@ namespace SHR {
             mTextRows[mCaretRow].resize(mCaretColumn);
             ++mCaretRow;
             mCaretColumn = 0;
+            distributeActionEvent();
         } else if (key.getValue() == Key::BACKSPACE
                    && mCaretColumn != 0
                    && mEditable) {
