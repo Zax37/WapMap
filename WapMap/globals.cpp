@@ -158,8 +158,8 @@ cGlobals::cGlobals() {
 
     {
         std::vector<SHR::DisplayMode> disp = SHR::GetDisplayModes();
-        int w = std::stoi(ini->GetValue("WapMap", "DisplayWidth", STR(DEF_SCREEN_WIDTH))),
-            h = std::stoi(ini->GetValue("WapMap", "DisplayHeight", STR(DEF_SCREEN_HEIGHT)));
+        int w = atoi(ini->GetValue("WapMap", "DisplayWidth", STR(DEF_SCREEN_WIDTH))),
+            h = atoi(ini->GetValue("WapMap", "DisplayHeight", STR(DEF_SCREEN_HEIGHT)));
 
         int horizontal, vertical;
         GetDesktopResolution(horizontal, vertical);

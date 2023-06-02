@@ -102,12 +102,12 @@ void cProcPickXYLockable::action(const gcn::ActionEvent &actionEvent) {
             mActionEventId = "CHANGE_Y";
             distributeActionEvent();
         } else if (sourceX) {
-            valX = std::stoi(tfX->getText());
+            valX = atoi(tfX->getText().c_str());
             mActionEventId = "CHANGE_X";
             distributeActionEvent();
             allowLocking(strY[0] != '0');
         } else {
-            valY = std::stoi(tfY->getText());
+            valY = atoi(tfY->getText().c_str());
             mActionEventId = "CHANGE_Y";
             distributeActionEvent();
             allowLocking(strX[0] != '0');

@@ -215,10 +215,7 @@ namespace ObjEdit {
 			}
 		} else if (actionEvent.getSource() == zCoord) {
 			const std::string& str = zCoord->getText();
-			int z = 0;
-			if (!str.empty()) {
-				z = std::stoi(str);
-			}
+			int z = atoi(str.c_str());
 			GetUserDataFromObj(hTempObj)->SetZ(z);
 			hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationZ, z);
 			UpdateLogic();
@@ -233,12 +230,7 @@ namespace ObjEdit {
 				z = 5100;
 				break;
 			case 2:
-				const std::string& str = zCoord->getText();
-				if (str.empty()) {
-					z = 0;
-				} else {
-					z = std::stoi(str);
-				}
+				z = atoi(zCoord->getText().c_str());
 				break;
 			}
 			GetUserDataFromObj(hTempObj)->SetZ(z);
