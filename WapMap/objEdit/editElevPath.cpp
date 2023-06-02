@@ -419,6 +419,11 @@ namespace ObjEdit {
         if ((endX != initX || endY != initY) &&
             State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgDifferentEnd"),
                               ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
+
+        int tmp = atoi(tfSpeed->getText().c_str());
+        if (tmp <= 0)
+            tmp = 125;
+        hTempObj->SetParam(WWD::Param_Speed, tmp);
     }
 
     void cEditObjElevPath::Action(const gcn::ActionEvent &actionEvent) {
