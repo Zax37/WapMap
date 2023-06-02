@@ -76,7 +76,7 @@ namespace gcn {
         return mButton;
     }
 
-    int MouseInput::getTimeStamp() const {
+    unsigned int MouseInput::getTimeStamp() const {
         return mTimeStamp;
     }
 

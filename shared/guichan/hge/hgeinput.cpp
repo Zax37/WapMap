@@ -118,7 +118,7 @@ namespace gcn {
         rightBtn = hge->Input_GetKeyState(HGEK_RBUTTON);
         centerBtn = hge->Input_GetKeyState(HGEK_MBUTTON);
 
-        int time = hge->Timer_GetDeltaRealtime();
+        unsigned int time = hge->Timer_GetDeltaRealtime();
 
         // Check mouse movement
         if (mMouseX != curMouseX

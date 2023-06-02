@@ -1485,7 +1485,7 @@ namespace State {
             int rx = mouseEvent.getX() - (hge->System_GetState(HGE_SCREENWIDTH) - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - m_hOwn->bMaximized * 2);
             if (rx < 0) {
                 if (mouseEvent.getX() > LAY_APPMENU_X + m_hOwn->hAppMenu->getWidth()) {
-                    if (mouseEvent.getClickCount() == 2) {
+                    if (mouseEvent.getClickCount() >= 2) {
                         m_hOwn->ToggleFullscreen();
                     } else {
                         m_hOwn->bDragWindow = true;
@@ -1741,7 +1741,8 @@ namespace State {
                          iDragSelectionOrigX = Scr2WrdX(GetActivePlane(), mouseEvent.getX() + vPort->GetX());
                          iDragSelectionOrigY = Scr2WrdY(GetActivePlane(), mouseEvent.getY() + vPort->GetY());
                      } else {
-                         if (!CURRENT_SELECTION_IS_HOVERED) {
+                         sameObjectClicked = CURRENT_SELECTION_IS_HOVERED;
+                         if (!sameObjectClicked) {
                              if (mouseEvent.isShiftPressed()) {
                                  vObjectsPicked.push_back(vObjectsHL[0]);
                              } else {
@@ -1845,7 +1846,7 @@ namespace State {
                         vPort->MarkToRedraw();
                         bEditObjDelete = false;
                     } else if (iActiveTool == EWW_TOOL_NONE) {
-                        if (vObjectsPicked.size() == 1 && mouseEvent.getClickCount() == 2) {
+                        if (vObjectsPicked.size() == 1 && sameObjectClicked && mouseEvent.getClickCount() >= 2) {
                             int mwx = Scr2WrdX(GetActivePlane(), mouseEvent.getX()),
                                     mwy = Scr2WrdY(GetActivePlane(), mouseEvent.getY());
                             std::vector<WWD::Object *> mouseObj = hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree

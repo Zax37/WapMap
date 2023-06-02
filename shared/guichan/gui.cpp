@@ -72,7 +72,7 @@ namespace gcn {
               mLastMousePressTimeStamp(0),
               mLastMouseX(0),
               mLastMouseY(0),
-              mClickCount(1),
+              mClickCount(0),
               mLastMouseDragButton(0) {
         mFocusHandler = new FocusHandler();
     }
@@ -458,7 +458,7 @@ namespace gcn {
             focusNone();
         }
 
-        if (mouseInput.getTimeStamp() - mLastMousePressTimeStamp < 250
+        if (mouseInput.getTimeStamp() - mLastMousePressTimeStamp < 300
             && mLastMousePressButton == mouseInput.getButton()) {
             mClickCount++;
         } else {

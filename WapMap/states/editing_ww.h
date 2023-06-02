@@ -932,6 +932,7 @@ namespace State {
         bool IsEditableObject(WWD::Object *obj, ObjEdit::cObjEdit **hEdit = 0); //whether 'easy edit' is available
         void OpenObjectEdit(WWD::Object *obj);
 
+        bool sameObjectClicked;
         std::vector<WWD::Object *> vObjectsPicked, vObjectsHL, vObjectClipboard, vObjectsBrushCB;
 		WWD::Object *selectionKeyObject;
 

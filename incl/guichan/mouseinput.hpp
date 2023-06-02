@@ -141,7 +141,7 @@ namespace gcn
          * @see setTimeStamp
          * @since 0.1.0
          */
-        int getTimeStamp() const;
+        unsigned int getTimeStamp() const;
 
         /**
          * Sets the x coordinate of the mouse input.
@@ -218,7 +218,7 @@ namespace gcn
          * Holds the timestamp of the mouse input. Used to 
          * check for double clicks.
          */
-        int mTimeStamp;
+        unsigned int mTimeStamp;
 
         /** 
          * Holds the x coordinate of the mouse input.
