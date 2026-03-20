@@ -47,45 +47,11 @@ int LocationsList::addLocation(std::string& name, int x, int y) {
     return LocName_Success;
 }
 
-bool LocationsList::addLocationLinkedToObject(WWD::Object *object, const char* objType) {
+bool LocationsList::addLocationLinkedToObject(WWD::Object *object) {
     if (!v || !object)
         return 0;
+
     stLocation loc;
-    std::string name = object->GetName();
-    int index = v->size() + 1;
-
-    if (name.empty()) {
-        object->SetName((name + objType + " #" + std::to_string(index)).c_str());
-    }
-    else while (1) {
-        int lastH = name.find_last_of('#');
-        std::string szIndex = " #" + std::to_string(index);
-
-        if (lastH == std::string::npos)
-            name += szIndex;
-        else if (name[lastH + 1] < '0' || name[lastH + 1] > '9' || name.back() < '0' || name.back() > '9')
-            name += szIndex;
-
-        bool isDuplicate = 0;
-        for (int i = 0; i < v->size(); ++i) {
-            if (name == getElementAt(i)) {
-                isDuplicate = 1;
-                break;
-            }
-        }
-
-        if (!isDuplicate) {
-            object->SetName(name.c_str());
-            break;
-        }
-        else {
-            lastH = name.find_last_of('#');
-            index++;
-            name.resize(lastH + 1);
-            name += std::to_string(index);
-        }
-    }
-
     loc.X = object->GetX();
     loc.Y = object->GetY();
     loc.Object = object;
@@ -107,96 +73,49 @@ int LocationsList::renameLocation(int index, std::string& newName) {
     if (!v)
         return LocName_ErrorGeneric;
     auto* location = getLocation(index);
-    bool hasLinkedObject = location->Object && validateObjectPtr(location->Object);
+
+    if (location->Object) {
+        if (!validateObjectPtr(location->Object))
+            return LocName_ErrorGeneric;
+        location->Object->SetName(newName.c_str());
+        return LocName_Success;
+    }
 
     if (newName.empty())
-        if (hasLinkedObject){
-            location->Object->SetName((newName + "#" + std::to_string(index + 1)).c_str());
-            return LocName_Success;
-        } else
-            return LocName_ErrorEmpty;
-
-    if (hasLinkedObject) {
-        int indexPos = newName.find_last_of('#');
-        if (indexPos == std::string::npos) {
-            newName += " #" + std::to_string(index + 1);
-        } else {
-            newName.resize(indexPos + 1);
-            newName += std::to_string(index + 1);
-        }
-    }
+        return LocName_ErrorEmpty;
 
     for (int i = 0; i < v->size(); ++i) {
         if (getElementAt(i) == newName)
             return LocName_ErrorDuplicate;
     }
 
-    if (hasLinkedObject)
-        location->Object->SetName(newName.c_str());
-    else {
-        if (newName.length() > 63)
-            return LocName_ErrorTooLong;
-        sprintf(location->Name, "%s", newName.c_str());
-    }
-    
+    if (newName.length() > 63)
+        return LocName_ErrorTooLong;
+
+    sprintf(location->Name, "%s", newName.c_str());
     return LocName_Success;
 }
 
 void LocationsList::sort() {
     if (!isObjectList)
         return;
+
     std::sort(v->begin(), v->end(), [](stLocation& a, stLocation& b) {
-        std::string str;
-
-        str = a.Object->GetName();
-        int index = str.find_last_of("#");
-        if (index == std::string::npos)
+        auto *meta = a.Object->GetMeta();
+        if (!meta)
             return (bool)0;
-        str = str.substr(index + 1);
-        if (str[0] < '0' || str[0] > '9')
-            return (bool)0;
-        int numA = std::stoi(str);
+        int first = meta->locationListIndex;
 
-        str = b.Object->GetName();
-        index = str.find_last_of("#");
-        if (index == std::string::npos)
+        meta = b.Object->GetMeta();
+        if (!meta)
             return (bool)1;
-        str = str.substr(index + 1);
-        if (str[0] < '0' || str[0] > '9')
-            return (bool)1;
-        int numB = std::stoi(str);
+        int second = meta->locationListIndex;
 
-        return numA < numB;
+        return first < second;
     });
 
-    std::string name, indexStr;
-    int indexPos;
-    for (int i = 0; i < v->size(); i++) {
-        auto *obj = v->at(i).Object;
-        name = obj->GetName();
-        indexPos = name.find_last_of("#");
-        if (indexPos == std::string::npos) {
-            name += " #" + std::to_string(i + 1);
-            obj->SetName(name.c_str());
-            continue;
-        }
-        indexStr = name.substr(indexPos + 1);
-        if (indexStr.empty()) {
-            name = "#" + std::to_string(i + 1);
-            obj->SetName(name.c_str());
-            continue;
-        }
-        if (indexStr[0] < '0' || indexStr[0] > '9') {
-            name += " #" + std::to_string(i + 1);
-            obj->SetName(name.c_str());
-            continue;
-        }
-        if (std::stoi(indexStr.c_str()) != i + 1) {
-            name.resize(indexPos + 1);
-            name += std::to_string(i + 1);
-            obj->SetName(name.c_str());
-        }
-    }
+    for (int i = 0; i < v->size(); i++)
+        v->at(i).Object->SetMeta(i + 1);
 }
 
 bool LocationsList::moveElement(int index, int move) {
@@ -209,24 +128,8 @@ bool LocationsList::moveElement(int index, int move) {
         return 0;
 
     if (this->isObjectList) {
-        auto *loc = getLocation(index);
-        if (validateObjectPtr(loc->Object)) {
-            std::string name = loc->Object->GetName();
-            int indexPos = name.find_last_of("#") + 1;
-            name.resize(indexPos);
-            name += std::to_string(dest + 1);
-            loc->Object->SetName(name.c_str());
-        }
-            
-
-        loc = getLocation(dest);
-        if (validateObjectPtr(loc->Object)) {
-            std::string name = loc->Object->GetName();
-            int indexPos = name.find_last_of("#") + 1;
-            name.resize(indexPos);
-            name += std::to_string(index + 1);
-            loc->Object->SetName(name.c_str());
-        }
+        getLocation(index)->Object->SetMeta(dest + 1);
+        getLocation(dest)->Object->SetMeta(index + 1);
     }
 
     auto copy = v->at(dest);
@@ -237,16 +140,24 @@ bool LocationsList::moveElement(int index, int move) {
 }
 
 std::string LocationsList::getElementAt(int i) {
-    if (!v || i >= (int)(v->size())) return "";
-    if (isObjectList) {
-        auto *object = v->at(i).Object;
-        if (!validateObjectPtr(object)) {
-            deleteLocation(i);
-            return "";
-        }
-        return v->at(i).Object->GetName();
+    if (!v || i >= (int)(v->size()))
+        return "";
+    if (!isObjectList)
+        return v->at(i).Name;
+
+    auto *object = v->at(i).Object;
+    if (!validateObjectPtr(object)) {
+        deleteLocation(i);
+        return "";
     }
-    return v->at(i).Name;
+    std::string name = object->GetName();
+    if (name.empty()) {
+        name.reserve(64);
+        name += object->GetLogic();
+        name += " #";
+        name += std::to_string(object->GetParam(WWD::Param_ID));
+    }
+    return name;
 }
 
 inline const char* getStr(const wchar_t* wstr) {
@@ -254,7 +165,7 @@ inline const char* getStr(const wchar_t* wstr) {
 }
 
 winLocationsBrowser::winLocationsBrowser() : cWindow(getStr(L"WinCaption"), LOCATIONS_WIN_WIDTH, LOCATIONS_WIN_HEIGHT) {
-    int y = 8;
+    int x = 8, y = 8;
 
     tabarLocs = new SHR::TabbedArea();
     tabarLocs->addActionListener(this);
@@ -286,8 +197,6 @@ winLocationsBrowser::winLocationsBrowser() : cWindow(getStr(L"WinCaption"), LOCA
     myWin.add(saLocs, 1, y);
 
     y += 316;
-
-    int x = 8;
 
     butAddFav = new SHR::But(GV->hGfxInterface, GV->sprIcons16[Icon16_Add]);
     butAddFav->setDimension(gcn::Rectangle(0, 0, 32, 30));
@@ -351,12 +260,6 @@ void winLocationsBrowser::AddFavLocation(int x, int y) {
 }
 
 void winLocationsBrowser::RefreshLists() {
-    const char* strSCp1     = getStr(L"SuperCheckpoint1");
-    const char* strSCp2     = getStr(L"SuperCheckpoint2");
-    const char* strCp       = getStr(L"Checkpoint");
-    const char* strWarp     = getStr(L"Warp");
-    const char* strBossWarp = getStr(L"BossWarp");
-
     auto* mainPlane = GV->editState->hParser->GetMainPlane();
 
     lmLocs[Locs::Favourites]->v = &(GV->editState->MDI->GetActiveDoc()->vFavLocations);
@@ -368,21 +271,16 @@ void winLocationsBrowser::RefreshLists() {
         const char* logic = obj->GetLogic();
 
         if (strstr(logic, "Checkpoint")) {
-            lmLocs[Locs::Checkpoints]->addLocationLinkedToObject(obj,
-                    (logic[0] == 'F' ? strSCp1 : logic[0] == 'S' ? strSCp2 : strCp)); // check the first character only (FirstSuperCheckpoint, SecondSuperCheckpoint or Checkpoint):
+            lmLocs[Locs::Checkpoints]->addLocationLinkedToObject(obj);
             continue;
         }
         // mapping warps
         if (obj->GetParam(WWD::Param_SpeedX) <= 0 && obj->GetParam(WWD::Param_SpeedY) <= 0)
             continue;
 
-        if (!strcmp(logic, "SpecialPowerup") &&
-                (!strcmp(obj->GetImageSet(), "GAME_WARP") || !strcmp(obj->GetImageSet(), "GAME_VERTWARP"))) {
-            lmLocs[Locs::Warps]->addLocationLinkedToObject(obj, strWarp);
-            continue;
-        }
-        if (!strcmp(logic, "BossWarp")) {
-            lmLocs[Locs::Warps]->addLocationLinkedToObject(obj, strBossWarp);
+        if (!strcmp(logic, "BossWarp") || (!strcmp(logic, "SpecialPowerup") &&
+                (!strcmp(obj->GetImageSet(), "GAME_WARP") || !strcmp(obj->GetImageSet(), "GAME_VERTWARP")))) {
+            lmLocs[Locs::Warps]->addLocationLinkedToObject(obj);
         }
     }
     lmLocs[Locs::Checkpoints]->sort();
@@ -412,10 +310,13 @@ void winLocationsBrowser::action(const ActionEvent &actionEvent) {
     auto* location = lmLocs[m_selectedTab]->getLocation(i);
 
     if (actionEvent.getSource() == butAddFav) {
-        std::string name = location->Object->GetName();
-        if (name.length() > 63)
-            name.resize(63);
-        lmLocs[Locs::Favourites]->addLocation(name, location->X, location->Y);
+        std::string init = lmLocs[m_selectedTab]->getElementAt(i);
+        int ret = State::InputDialog(GETL(Lang_WM), getStr(L"DialogInputName"), ST_DIALOG_BUT_OKCANCEL, init.c_str());
+        if (ret == RETURN_OK && init != GV->szLastInputDialogText) {
+            GV->szLastInputDialogText.resize(63);
+            lmLocs[Locs::Favourites]->addLocation(GV->szLastInputDialogText, location->X, location->Y);
+            GV->editState->MarkUnsaved();
+        }
         return;
     }
 
@@ -433,9 +334,12 @@ void winLocationsBrowser::action(const ActionEvent &actionEvent) {
         GV->editState->MarkUnsaved();
     }
     else if (actionEvent.getSource() == butEdit) {
-        std::string initStr = lmLocs[m_selectedTab]->getElementAt(i);
+        std::string initStr;
         if (lmLocs[m_selectedTab]->isObjectList)
-            initStr = initStr.substr(0, initStr.find_last_of("#") - 1);
+            initStr = lmLocs[m_selectedTab]->getLocation(i)->Object->GetName();
+        else
+            initStr = lmLocs[m_selectedTab]->getLocation(i)->Name;
+         
         int ret = State::InputDialog(GETL(Lang_WM), getStr(L"DialogInputName"), ST_DIALOG_BUT_OKCANCEL, initStr.c_str());
         if (ret == RETURN_OK && initStr != GV->szLastInputDialogText) {
             int rr = lmLocs[m_selectedTab]->renameLocation(i, GV->szLastInputDialogText);
@@ -451,13 +355,17 @@ void winLocationsBrowser::action(const ActionEvent &actionEvent) {
     }
     else if (actionEvent.getSource() == butMoveDown) {
         int selected = lbLocs->getSelected();
-        if (lmLocs[m_selectedTab]->moveElement(selected, 1))
+        if (lmLocs[m_selectedTab]->moveElement(selected, 1)) {
             lbLocs->setSelected(selected + 1);
+            GV->editState->MarkUnsaved();
+        }
     }
     else if (actionEvent.getSource() == butMoveUp) {
         int selected = lbLocs->getSelected();
-        if (lmLocs[m_selectedTab]->moveElement(selected, -1))
+        if (lmLocs[m_selectedTab]->moveElement(selected, -1)) {
             lbLocs->setSelected(selected - 1);
+            GV->editState->MarkUnsaved();
+        }
     }
     else if (actionEvent.getSource() == butFollowWarp) {
         GV->editState->NavigateToWarpDestination(location->Object);

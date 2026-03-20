@@ -18,7 +18,7 @@ class LocationsList : public gcn::ListModel {
 
         int addLocation(std::string& name, int x, int y);
 
-        bool addLocationLinkedToObject(WWD::Object *object, const char* objType);
+        bool addLocationLinkedToObject(WWD::Object *object);
 
         void deleteLocation(int i);
 

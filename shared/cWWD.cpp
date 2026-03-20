@@ -329,7 +329,8 @@ void WWD::Parser::CompileToStream(std::iostream *psDestination) {
         for (int y = 0; y < m_hPlane->GetObjectsCount(); y++) {
             Object *obj = m_hPlane->GetObjectByIterator(y);
             m_Header.m_hTileAttributesStart += 284 + strlen(obj->m_szName) + strlen(obj->m_szLogic)
-                                                   + strlen(obj->m_szImageSet) + strlen(obj->m_szAnim);
+                                                + strlen(obj->m_szImageSet) + strlen(obj->m_szAnim)
+                                                + (obj->m_stMeta ? sizeof(ObjectMeta) + 4 + 1 : 0);
         }
     }
 
@@ -461,15 +462,11 @@ unsigned int WWD::Parser::CalculateChecksum(std::istream *psStream, int piOffset
     return newCheckSum;
 }
 
-void WWD::Parser::MoveBytes(std::ostream *psStream, int c) {
-    byte b = 0;
-    for (int i = 0; i < c; i++)
-        psStream->WBYTE(b);
-}
-
 void WWD::Parser::WriteObject(Object *hObj, std::ostream *psDestination) {
     psDestination->WLEN(&hObj->m_iParams[Param_ID], 4);
     int i = strlen(hObj->m_szName);
+    if (hObj->m_stMeta)
+        i += sizeof(ObjectMeta) + 4 + 1;
     psDestination->WLEN(&i, 4);
     i = strlen(hObj->m_szLogic);
     psDestination->WLEN(&i, 4);
@@ -478,17 +475,10 @@ void WWD::Parser::WriteObject(Object *hObj, std::ostream *psDestination) {
     i = strlen(hObj->m_szAnim);
     psDestination->WLEN(&i, 4);
     psDestination->WLEN(&hObj->m_iParams[Param_LocationX], 16);
-    byte b = hObj->m_iFlagsAdd;
-    psDestination->WBYTE(b);
-    MoveBytes(psDestination, 3);
-    b = hObj->m_iFlagsDynamic;
-    psDestination->WBYTE(b);
-    MoveBytes(psDestination, 3);
 
-    b = hObj->m_iFlagsDraw;
-    psDestination->WBYTE(b);
-    MoveBytes(psDestination, 3);
-
+    WriteFlag(hObj->m_iFlagsAdd, psDestination);
+    WriteFlag(hObj->m_iFlagsDynamic, psDestination);
+    WriteFlag(hObj->m_iFlagsDraw, psDestination);
     WriteFlag(hObj->m_iFlagsUser, psDestination);
 
     psDestination->WLEN(&hObj->m_iParams[Param_Score], 24);
@@ -507,49 +497,26 @@ void WWD::Parser::WriteObject(Object *hObj, std::ostream *psDestination) {
     psDestination->WLEN(&hObj->m_iParams[Param_MoveResX], 8);
 
     psDestination->WLEN(hObj->m_szName, strlen(hObj->m_szName));
+    if (hObj->m_stMeta) {
+        byte null = 0;
+        psDestination->WBYTE(null);
+        int metaSize = sizeof(ObjectMeta);
+        psDestination->WLEN(&metaSize, 4);
+        psDestination->WLEN(hObj->m_stMeta, metaSize);
+    }
     psDestination->WLEN(hObj->m_szLogic, strlen(hObj->m_szLogic));
     psDestination->WLEN(hObj->m_szImageSet, strlen(hObj->m_szImageSet));
     psDestination->WLEN(hObj->m_szAnim, strlen(hObj->m_szAnim));
-    //psDestination->
 }
 
 void WWD::Parser::WriteFlag(int piFlag, std::ostream *psDestination) {
-    if (piFlag < 256) {
-        byte b = piFlag;
-        psDestination->WBYTE(b);
-        b = 0;
-        psDestination->WBYTE(b);
-        psDestination->WBYTE(b);
-        psDestination->WBYTE(b);
-    } else {
-        byte second = 0;
-        if (piFlag & 256) {
-            second += 1;
-            piFlag -= 256;
-        }
-        if (piFlag & 512) {
-            second += 2;
-            piFlag -= 512;
-        }
-        if (piFlag & 1024) {
-            second += 4;
-            piFlag -= 1024;
-        }
-        if (piFlag & 2048) {
-            second += 8;
-            piFlag -= 2048;
-        }
-        if (piFlag & 4096) {
-            second += 16;
-            piFlag -= 4096;
-        }
-        byte first = piFlag;
-        psDestination->WBYTE(first);
-        psDestination->WBYTE(second);
-        first = 0;
-        psDestination->WBYTE(first);
-        psDestination->WBYTE(first);
-    }
+    byte b = piFlag;
+    psDestination->WBYTE(b);
+    b = piFlag >> 8;
+    psDestination->WBYTE(b);
+    b = 0;
+    psDestination->WBYTE(b);
+    psDestination->WBYTE(b);
 }
 
 void WWD::Parser::WriteRect(Rect *phRect, std::ostream *psDestination) {
@@ -700,26 +667,10 @@ size_t WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
     psSource->RINT(iImageSetLen);
     psSource->RINT(iAnimLen);
     psSource->RLEN(&hObj->m_iParams[Param_LocationX], 16);
-    byte b;
-    psSource->RBYTE(b);
-    psSource->seekg(3, std::ios_base::cur);
-    hObj->m_iFlagsAdd = (WWD::OBJ_ADD_FLAGS) b;
-
-    psSource->RBYTE(b);
-    psSource->seekg(3, std::ios_base::cur);
-    hObj->m_iFlagsDynamic = (WWD::OBJ_DYNAMIC_FLAGS) b;
-
-    psSource->RBYTE(b);
-    psSource->seekg(3, std::ios_base::cur);
-    hObj->m_iFlagsDraw = (WWD::OBJ_DRAW_FLAGS) b;
-
-    psSource->RBYTE(b);
-    byte b2;
-    psSource->RBYTE(b2);
-
-    hObj->m_iFlagsUser = (WWD::OBJ_USER_FLAGS) FormFlag(b, b2);
-
-    psSource->seekg(2, std::ios_base::cur);
+    hObj->m_iFlagsAdd = (WWD::OBJ_ADD_FLAGS)(ReadFlag(psSource) & 0xFF);
+    hObj->m_iFlagsDynamic = (WWD::OBJ_DYNAMIC_FLAGS)(ReadFlag(psSource) & 0xFF);
+    hObj->m_iFlagsDraw = (WWD::OBJ_DRAW_FLAGS)(ReadFlag(psSource) & 0xFF);
+    hObj->m_iFlagsUser = (WWD::OBJ_USER_FLAGS) ReadFlag(psSource);
 
     psSource->RLEN(&hObj->m_iParams[Param_Score], 24);
 
@@ -733,22 +684,13 @@ size_t WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
 
     psSource->RLEN(&hObj->m_iParams[Param_MinX], 64);
 
-    psSource->RBYTE(b);
-    psSource->RBYTE(b2);
-    hObj->m_iFlagsType = (WWD::OBJ_TYPE_FLAGS) FormFlag(b, b2);
-    psSource->seekg(2, std::ios_base::cur);
-
-    psSource->RBYTE(b);
-    psSource->RBYTE(b2);
-    hObj->m_iFlagsHitType = (WWD::OBJ_TYPE_FLAGS) FormFlag(b, b2);
-    psSource->seekg(2, std::ios_base::cur);
+    hObj->m_iFlagsType = (WWD::OBJ_TYPE_FLAGS) ReadFlag(psSource);
+    hObj->m_iFlagsHitType = (WWD::OBJ_TYPE_FLAGS) ReadFlag(psSource);
 
     psSource->RLEN(&hObj->m_iParams[Param_MoveResX], 8);
 
     delete[] hObj->m_szName;
-    hObj->m_szName = new char[iNameLen + 1];
-    psSource->RLEN(hObj->m_szName, iNameLen);
-    hObj->m_szName[iNameLen] = '\0';
+    ReadObjectName(hObj, psSource, iNameLen);
 
     delete[] hObj->m_szLogic;
     hObj->m_szLogic = new char[iLogicLen + 1];
@@ -768,19 +710,43 @@ size_t WWD::Parser::ReadObject(Object *hObj, std::istream *psSource) {
     return 284 + iNameLen + iLogicLen + iImageSetLen + iAnimLen;
 }
 
-int WWD::Parser::FormFlag(byte b1, byte b2) {
-    int ret = b1;
-    if (b2 & 1)
-        ret += 256;
-    if (b2 & 2)
-        ret += 512;
-    if (b2 & 4)
-        ret += 1024;
-    if (b2 & 8)
-        ret += 2048;
-    if (b2 & 16)
-        ret += 4096;
+int WWD::Parser::ReadFlag(std::istream *psSource) {
+    byte b1, b2;
+    psSource->RBYTE(b1);
+    psSource->RBYTE(b2);
+    int ret = b1, add = b2;
+    ret += add << 8;
+    psSource->seekg(2, std::ios_base::cur);
     return ret;
+}
+
+void WWD::Parser::ReadObjectName(Object *hObj, std::istream *psSource, int iNameLen) {
+    char *data = new char[iNameLen + 1];
+    psSource->RLEN(data, iNameLen);
+    data[iNameLen] = '\0';
+
+    int nullPos = strlen(data);
+
+    if (nullPos < iNameLen) { // null terminator in the middle
+        hObj->m_szName = new char[nullPos + 1];
+        strncpy(hObj->m_szName, data, nullPos + 1);
+
+        if (iNameLen - nullPos > 4) {
+            char *metaPtr = data + nullPos + 1;
+            int binMetaSize = *((int*)metaPtr);
+            if (binMetaSize >= 4) {
+                if (binMetaSize > sizeof(ObjectMeta))
+                    binMetaSize = sizeof(ObjectMeta);
+                hObj->m_stMeta = new ObjectMeta;
+                memcpy(hObj->m_stMeta, metaPtr + 4, binMetaSize);
+            }
+        }
+
+        delete[] data;
+        return;
+    }
+    
+    hObj->m_szName = data;
 }
 
 void WWD::Parser::ReadRect(Rect *phRect, std::istream *psSource) {
@@ -795,6 +761,7 @@ WWD::Object::~Object() {
     delete[] m_szLogic;
     delete[] m_szImageSet;
     delete[] m_szAnim;
+    delete m_stMeta;
 }
 
 WWD::Plane::~Plane() {
@@ -924,14 +891,10 @@ void WWD::Plane::DeleteObjectByID(int piID) {
 }
 
 WWD::Object::Object() {
-    m_szName = new char[1];
-    m_szName[0] = '\0';
-    m_szAnim = new char[1];
-    m_szAnim[0] = '\0';
-    m_szImageSet = new char[1];
-    m_szImageSet[0] = '\0';
-    m_szLogic = new char[1];
-    m_szLogic[0] = '\0';
+    m_szName = new char[1]();
+    m_szAnim = new char[1]();
+    m_szImageSet = new char[1]();
+    m_szLogic = new char[1]();
     for (int i = 0; i < 8; i++)
         m_iUserValues[i] = 0;
     m_iFlagsAdd = Flag_a_Nothing;
@@ -943,6 +906,7 @@ WWD::Object::Object() {
     for (int i = 0; i < OBJ_PARAMS_CNT; i++)
         m_iParams[i] = 0;
     m_hUserData = NULL;
+    m_stMeta = NULL;
 }
 
 WWD::Object::Object(Object *src) {
@@ -974,6 +938,7 @@ WWD::Object::Object(Object *src) {
     m_rUser[1].Set(src->m_rUser[1]);
 
     m_hUserData = NULL;
+    m_stMeta = NULL;
 }
 
 void WWD::Plane::AddObjectAndCalcID(Object *n) {
@@ -1048,29 +1013,31 @@ void WWD::operator++(WWD::GAME& game) {
 }
 
 void WWD::Object::SetName(const char *nname) {
-    if (m_szName != NULL)
-        delete[] m_szName;
+    delete[] m_szName;
     m_szName = new char[strlen(nname) + 1];
     strcpy(m_szName, nname);
 }
 
+void WWD::Object::SetMeta(int locationListIndex) {
+    if (m_stMeta == NULL)
+        m_stMeta = new ObjectMeta;
+    m_stMeta->locationListIndex = locationListIndex;
+}
+
 void WWD::Object::SetLogic(const char *nlogic) {
-    if (m_szLogic != NULL)
-        delete[] m_szLogic;
+    delete[] m_szLogic;
     m_szLogic = new char[strlen(nlogic) + 1];
     strcpy(m_szLogic, nlogic);
 }
 
 void WWD::Object::SetImageSet(const char *niset) {
-    if (m_szImageSet != NULL)
-        delete[] m_szImageSet;
+    delete[] m_szImageSet;
     m_szImageSet = new char[strlen(niset) + 1];
     strcpy(m_szImageSet, niset);
 }
 
 void WWD::Object::SetAnim(const char *nanim) {
-    if (m_szAnim != NULL)
-        delete[] m_szAnim;
+    delete[] m_szAnim;
     m_szAnim = new char[strlen(nanim) + 1];
     strcpy(m_szAnim, nanim);
 }

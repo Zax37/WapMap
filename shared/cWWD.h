@@ -432,6 +432,11 @@ namespace WWD {
         std::vector<TILE_ATTRIB> getAttribSummary() override;
     };
 
+    struct ObjectMeta {
+        int locationListIndex;
+    };
+    /* Object's metadata reside in the WWD past the null terminator in the object's name.*/
+
     class Object {
     private:
         OBJ_ADD_FLAGS m_iFlagsAdd;
@@ -444,6 +449,7 @@ namespace WWD {
         Rect m_rMove, m_rHit, m_rAttack, m_rClip, m_rUser[2];
         char *m_szName, *m_szLogic, *m_szImageSet, *m_szAnim;
         void *m_hUserData;
+        ObjectMeta *m_stMeta;
 
         friend class Parser;
 
@@ -543,6 +549,10 @@ namespace WWD {
         bool GetFlipY();
 
         void SetFlip(bool x, bool y);
+
+        void SetMeta(int locationListIndex); // temporary solution, can be changed later if we add more extra data
+
+        ObjectMeta *GetMeta() { return m_stMeta; };
     };
 
     struct PlaneHeader {
@@ -749,13 +759,13 @@ namespace WWD {
 
         void WriteObject(Object *hObj, std::ostream *psDestination);
 
-        void MoveBytes(std::ostream *psStream, int c);
-
         size_t ReadObject(Object *hObj, std::istream *psSource);
 
         void ReadRect(Rect *phRect, std::istream *psSource);
 
-        int FormFlag(byte b1, byte b2);
+        void ReadObjectName(Object *hObj, std::istream *psSource, int iNameLen);
+
+        int ReadFlag(std::istream *psSource);
 
         void CleanStr(char *pszStr, int piSize);
 

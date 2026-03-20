@@ -2703,9 +2703,10 @@ void State::EditingWW::DrawObjSearch() {
 
 int State::EditingWW::RenderObject(WWD::Object *hObj, int x, int y, DWORD col) {
     bool isFlippedX = hObj->GetFlipX();
+    bool isInvisibleInGame = hObj->GetDrawFlags() & WWD::OBJ_DRAW_FLAGS::Flag_dr_NoDraw;
     hgeSprite *spr = SprBank->GetObjectSprite(hObj);
     if (!spr) spr = GV->sprSmiley;
-    spr->SetColor(col);
+    spr->SetColor(isInvisibleInGame? col & 0xA0FFFFFF : col);
     spr->SetFlip(isFlippedX, hObj->GetFlipY(), true);
 
     float hx, hy;
