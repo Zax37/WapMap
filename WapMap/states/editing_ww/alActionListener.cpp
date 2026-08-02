@@ -1447,6 +1447,8 @@ namespace State {
                         m_hOwn->MarkUnsaved();
                     }
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -1482,6 +1484,8 @@ namespace State {
                         if (m_hOwn->PromptExit()) {
                             m_hOwn->bExit = true;
                         }
+                        break;
+                    default:
                         break;
                 }
             }

@@ -316,6 +316,7 @@ void State::EditingWW::Init() {
 
     hwinNewMap = new winNewMap();
     hwinOptions = new winOptions();
+    hwinHotkeys = new winHotkeys();
     hwinTileBrowser = new winTileBrowser();
     hwinImageSetBrowser = new winImageSetBrowser();
     hwinAbout = new winAbout();
@@ -324,6 +325,7 @@ void State::EditingWW::Init() {
     hwinLocationsBrowser = new winLocationsBrowser();
     hWindows.push_back(hwinNewMap);
     hWindows.push_back(hwinOptions);
+    hWindows.push_back(hwinHotkeys);
     hWindows.push_back(hwinTileBrowser);
     hWindows.push_back(hwinImageSetBrowser);
     hWindows.push_back(hwinAbout);

@@ -264,6 +264,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/windows/imgsetBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/goToCoords.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/goToLocation.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/hotkeys.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/newMap.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/options.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/tileBrowser.cpp
