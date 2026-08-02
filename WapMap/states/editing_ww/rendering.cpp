@@ -2858,6 +2858,7 @@ void State::EditingWW::DrawSelectFillColor() {
         if (hge->Input_KeyDown(HGEK_LBUTTON) && sely * 16 + selx != GetActivePlane()->GetFillColor()) {
             GetActivePlane()->SetFillColor(sely * 16 + selx);
             vPort->MarkToRedraw();
+            MarkUnsaved();
         }
     }
     for (int y = 0; y < 16; y++)
