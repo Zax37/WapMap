@@ -65,7 +65,7 @@ namespace ObjEdit {
             if (actionEvent.getSource() == rbType[i]) {
                 if (i < 4) hTempObj->SetLogic("HealthPowerup");
                 else if (i < 7) hTempObj->SetLogic("AmmoPowerup");
-                else if (i == 8) hTempObj->SetLogic("SpecialPowerup");
+                else if (i == 7) hTempObj->SetLogic("SpecialPowerup");
                 else hTempObj->SetLogic("MagicPowerup");
                 hTempObj->SetImageSet(hState->hInvCtrl->GetItemByID(iHealthID[i]).first.c_str());
                 hState->vPort->MarkToRedraw();
