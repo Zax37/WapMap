@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
 
 #ifdef WAP_MAP
 #include "cProgressInfo.h"
@@ -296,7 +297,16 @@ void WWD::Parser::CleanStr(char *pszStr, int piSize) {
 }
 
 void WWD::Parser::CompileToFile(const char *pszFilename, bool pbWithActualDate) {
-    std::fstream file(pszFilename,
+    std::filesystem::path targetPath(pszFilename);
+    std::filesystem::path backupPath = targetPath.parent_path() / ("~" + targetPath.filename().string());
+
+    std::ifstream existingFile(targetPath.c_str(), std::ios_base::binary | std::ios_base::in);
+    if (existingFile.good()) {
+        existingFile.close();
+        std::filesystem::rename(targetPath, backupPath);
+    }
+
+    std::fstream file(targetPath.c_str(),
                       std::ios_base::binary | std::ios_base::out | std::ios_base::trunc | std::ios_base::in);
     if (file.fail())
         throw WWD_EXCEPTION(Error_SaveAccess);

@@ -96,24 +96,44 @@ DocumentData* State::LoadMap::MapLoadTask() {
             hParser->LoadFromStream(&is);
         }
     } catch (WWD::Exception &exc) {
-#ifdef BUILD_DEBUG
-        GV->Console->Printf("~r~WWD exception: (~y~%s~r~:~y~%d~r~) [~y~%d~r~]", exc.szFile, exc.iLine, exc.iErrorCode);
-#else
-        GV->Console->Printf("~r~WWD exception [~y~%d~r~]", exc.iErrorCode);
-#endif
-        char tmp[256];
-        sprintf(tmp,
-                "%s. \n%s:\n%s: %d",
-                GETL(Lang_ErrorOpeningFile),
-                GETL(Lang_ErrorInfo),
-                GETL(Lang_Number),
-                exc.iErrorCode);
-        GV->StateMgr->Push(new State::Dialog(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR));
+        if (!alt_ptr && szFilepath != nullptr) {
+            std::string backupPath("~");
+            backupPath += szFilepath;
+            std::ifstream backupStream(backupPath.c_str(), std::ios_base::binary | std::ios_base::in);
+            if (backupStream.good()) {
+                delete hParser;
+                hParser = new WWD::Parser(backupPath.c_str(), metaHandler);
+                try {
+                    hParser->LoadFromStream(&backupStream);
+                    GV->Console->Printf("~y~Loaded backup map file: ~w~%s", backupPath.c_str());
+                } catch (WWD::Exception &backupExc) {
+                    delete hParser;
+                    hParser = nullptr;
+                    GV->Console->Printf("~r~Backup load failed [~y~%d~r~]", backupExc.iErrorCode);
+                }
+            }
+        }
 
-        delete hParser;
-        delete metaHandler;
-        delete dd;
-        return nullptr;
+        if (hParser == nullptr) {
+#ifdef BUILD_DEBUG
+            GV->Console->Printf("~r~WWD exception: (~y~%s~r~:~y~%d~r~) [~y~%d~r~]", exc.szFile, exc.iLine, exc.iErrorCode);
+#else
+            GV->Console->Printf("~r~WWD exception [~y~%d~r~]", exc.iErrorCode);
+#endif
+            char tmp[256];
+            sprintf(tmp,
+                    "%s. \n%s:\n%s: %d",
+                    GETL(Lang_ErrorOpeningFile),
+                    GETL(Lang_ErrorInfo),
+                    GETL(Lang_Number),
+                    exc.iErrorCode);
+            GV->StateMgr->Push(new State::Dialog(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR));
+
+            delete hParser;
+            delete metaHandler;
+            delete dd;
+            return nullptr;
+        }
     }
 
     dd->hParser = hParser;
