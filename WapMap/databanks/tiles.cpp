@@ -97,12 +97,17 @@ void cBankTile::BatchProcessEnd() {
     }
 
     GV->Console->Printf("~g~Found %d tiles in %d tile sets.", toloadc, sets);
+    m_iMaxTileWidth = m_vAssets[0]->tileWidth;
+    m_iMaxTileHeight = m_vAssets[0]->tileHeight;
+    for (auto & m_vhSet : m_vAssets) {
+        m_iMaxTileWidth = std::max(m_vhSet->tileWidth, m_iMaxTileWidth);
+        m_iMaxTileHeight = std::max(m_vhSet->tileHeight, m_iMaxTileHeight);
+    }
     int texidx = 0;
     if (vTexes.empty() && toloadc) {
         int txw, txh;
-        cTilesetTexture::CalculateDimension(toloadc, m_vAssets[0]->tileWidth, m_vAssets[0]->tileHeight, txw, txh);
-        auto ntex = new cTilesetTexture(txw / m_vAssets[0]->tileWidth, txh / m_vAssets[0]->tileHeight,
-                m_vAssets[0]->tileWidth, m_vAssets[0]->tileHeight);
+        cTilesetTexture::CalculateDimension(toloadc, m_iMaxTileWidth, m_iMaxTileHeight, txw, txh);
+        auto ntex = new cTilesetTexture(txw / m_iMaxTileWidth, txh / m_iMaxTileHeight, m_iMaxTileWidth, m_iMaxTileHeight);
         vTexes.push_back(ntex);
         GV->Console->Printf("~w~Registered %dx%d tile texture to store %d tiles.", txw, txh, toloadc);
     }

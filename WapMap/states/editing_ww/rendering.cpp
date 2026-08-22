@@ -3353,10 +3353,14 @@ void State::EditingWW::DrawTilePicker() {
                     tile->GetImage()->SetFlip(0, 0);
                     tile->GetImage()->SetHotSpot(0, 0);
                     tile->GetImage()->SetColor(0xFFFFFFFF);
-                    float scaleX = 48.f / GV->editState->GetActivePlane()->GetTileWidth(),
-                          scaleY = 48.f / GV->editState->GetActivePlane()->GetTileHeight();
-                    tile->GetImage()->RenderEx(drx, dry, 0, scaleX, scaleY);
+                    int tileW = GV->editState->GetActivePlane()->GetTileWidth(),
+                        tileH = GV->editState->GetActivePlane()->GetTileHeight();
+                    int maxTileW =  GV->editState->hTileset->GetMaxTileWidth(),
+                        maxTileH = GV->editState->hTileset->GetMaxTileHeight();
+                    tile->GetImage()->RenderStretch(drx, dry, drx + (48*maxTileW/tileW), dry + (48*maxTileH/tileH));
                     if (cbtpiShowProperties->isSelected()) {
+                        float scaleX = 48.f / tileW,
+                            scaleY = 48.f / tileH;
                         DrawTileAttributes(tile->GetID(), drx, dry, scaleX, scaleY);
                     }
                     if (cbtpiShowTileID->isSelected()) {

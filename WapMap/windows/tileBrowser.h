@@ -12,8 +12,8 @@ class cTile;
 
 class winTileBrowser : public cWindow {
 private:
-    SHR::Lab *labTileSets, *labTileSetName, *labTileSetChecksum, *labTileCount,
-            *labTileSetNameV, *labTileSetChecksumV, *labTileCountV;
+    SHR::Lab *labTileSets, *labTileSetName, *labTileSetChecksum, *labTileCount, *labTileSize,
+            *labTileSetNameV, *labTileSetChecksumV, *labTileCountV, *labTileSizeV;
     SHR::ScrollArea *saTiles, *saTileSets;
     SHR::Container *conTiles, *conTileSets;
     WIDG::Viewport *vpTileBrowser;
@@ -26,6 +26,7 @@ private:
     bool bSingleGroup;
     std::vector<cTile *> *hSingleGroup;
     std::vector<cTile *> vtGroups[3];
+    int m_iGroupTilesW, m_iGroupTilesH;
 
     int MouseHandleGroup(std::vector<cTile *> tiles, int x, int y, int tilesPerRow);
 
