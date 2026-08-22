@@ -1447,6 +1447,25 @@ namespace State {
                         m_hOwn->MarkUnsaved();
                     }
                     break;
+                case 'd':
+                    if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        bool bOneNoDraw = 0;
+                        for (auto object : m_hOwn->vObjectsPicked) {
+                            int flags = object->GetDrawFlags();
+                            if (flags & WWD::Flag_dr_NoDraw != 0) {
+                                bOneNoDraw = 1;
+                                break;
+                            }
+                        }
+                        for (auto object : m_hOwn->vObjectsPicked) {
+                            int flags = object->GetDrawFlags();
+                            flags = bOneNoDraw ? flags & !(WWD::Flag_dr_NoDraw) : flags | WWD::Flag_dr_NoDraw;
+                            object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
+                        }
+                        m_hOwn->vPort->MarkToRedraw();
+                        m_hOwn->MarkUnsaved();
+                    }
+                    break;
                 default:
                     break;
             }
