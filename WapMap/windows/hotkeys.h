@@ -1,22 +1,27 @@
 #ifndef H_WIN_HOTKEYS
 #define H_WIN_HOTKEYS
 
+#include "../../shared/gcnWidgets/wSlider.h"
+#include "../../shared/gcnWidgets/wScrollArea.h"
+
 #include "window.h"
 
 class winHotkeys : public cWindow {
 private:
     WIDG::Viewport *vp;
-    int m_width = 520;
-    int m_height = 40;
-    const int m_separatorX = 168;
-    const int m_descrWidth = m_width - 2*12 - m_separatorX;
-    const int m_descrSpacing = 8;
+    int m_width, m_height;
+    int m_hotkeysPerFrame, m_separatorX, m_descrWidth, m_descrSpacing;
+    SHR::ScrollArea *saHotkeys;
+    SHR::Container *conHotkeys;
+    std::vector<std::pair<const char*, const char*>> m_vHotkeysList;
+
 public:
     winHotkeys();
 
-    virtual void Think();
+    virtual void Think() override;
+    virtual void Draw(int piCode) override;
 
-    virtual void Draw(int piCode);
+    void createHotkeysList();
 };
 
 #endif // H_WIN_HOTKEYS
