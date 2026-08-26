@@ -1137,6 +1137,18 @@ namespace State {
         void CopyObjects();
         void CutObjects();
         void PasteObjects();
+
+        // --- Undo/Redo helpers ---
+        void UndoBegin(const char* desc = "Edit");
+        void UndoSnapshotTiles(WWD::Plane* pl, int x1, int y1, int x2, int y2);
+        void UndoSnapshotObjects(WWD::Plane* pl, const std::vector<WWD::Object*>& objs, cUndoManager::SnapshotKind kind);
+        void UndoSnapshotObject(WWD::Plane* pl, WWD::Object* obj, cUndoManager::SnapshotKind kind);
+        void UndoEnd();
+        void UndoCancel();
+        bool UndoIsInAction();
+        void PerformUndo();
+        void PerformRedo();
+        bool bUndoStrokeActive = false;
     };
 };
 

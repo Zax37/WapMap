@@ -192,6 +192,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/cRulers.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cSoundPlayer.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cTextureAtlas.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/cUndoManager.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/anims.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/imageSets.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/logics.cpp

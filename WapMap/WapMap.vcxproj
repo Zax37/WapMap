@@ -306,6 +306,7 @@
     <ClCompile Include="cRulers.cpp" />
     <ClCompile Include="cSoundPlayer.cpp" />
     <ClCompile Include="cTextureAtlas.cpp" />
+    <ClCompile Include="cUndoManager.cpp" />
     <ClCompile Include="databanks\anims.cpp" />
     <ClCompile Include="databanks\imageSets.cpp" />
     <ClCompile Include="databanks\logics.cpp" />
@@ -469,6 +470,7 @@
     <ClInclude Include="cSoundPlayer.h" />
     <ClInclude Include="cTextureAtlas.h" />
     <ClInclude Include="cTileGhost.h" />
+    <ClInclude Include="cUndoManager.h" />
     <ClInclude Include="databanks\anims.h" />
     <ClInclude Include="databanks\imageSets.h" />
     <ClInclude Include="databanks\logics.h" />

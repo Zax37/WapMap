@@ -11,7 +11,14 @@ void State::EditingWW::HandleHotkeys() {
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     bool bFocus = vPort->GetWidget()->isFocused();
-    if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_A)) {
+    if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_Z)) {
+        if (hge->Input_GetKeyState(HGEK_SHIFT))
+            PerformRedo();
+        else
+            PerformUndo();
+    } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_Y)) {
+        PerformRedo();
+    } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_A)) {
         if (iMode == EWW_MODE_TILE) {
             iTileSelectX1 = iTileSelectY1 = 0;
             iTileSelectX2 = GetActivePlane()->GetPlaneWidth() - 1;
@@ -109,6 +116,9 @@ void State::EditingWW::HandleHotkeys() {
         else if (hge->Input_KeyDown(HGEK_UP)) moveResY = -moveRes;
         else if (hge->Input_KeyDown(HGEK_DOWN)) moveResY = moveRes;
 
+        UndoBegin("Move Objects");
+        UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsModified);
+
         for (auto & object : vObjectsPicked) {
             int posX = object->GetParam(WWD::Param_LocationX),
                 posY = object->GetParam(WWD::Param_LocationY);
@@ -122,6 +132,7 @@ void State::EditingWW::HandleHotkeys() {
             GetUserDataFromObj(object)->SyncToObj();
         }
         vPort->MarkToRedraw();
+        UndoEnd();
         MarkUnsaved();
     } else if (bFocus && hge->Input_KeyDown(HGEK_HOME)) {
         NavigateToStartLocation();
