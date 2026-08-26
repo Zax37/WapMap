@@ -323,6 +323,10 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             if (bObjBrushDrawing) {
                 if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
                     bObjBrushDrawing = false;
+                    if (bUndoStrokeActive) {
+                        UndoEnd();
+                        bUndoStrokeActive = false;
+                    }
                 } else {
                     float distance = DISTANCE(iobjbrLastDrawnX,
                                               iobjbrLastDrawnY,
@@ -828,6 +832,10 @@ bool State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& ve
 }
 
 void State::EditingWW::ObjectBrush(int x, int y) {
+    if (!bUndoStrokeActive) {
+        bUndoStrokeActive = true;
+        UndoBegin("Object Brush");
+    }
     std::vector<WWD::Object*> createdObjects;
     int scatterX = atoi(tfobrDispX->getText().c_str()),
         scatterY = atoi(tfobrDispY->getText().c_str());
@@ -859,6 +867,10 @@ void State::EditingWW::ObjectBrush(int x, int y) {
         }
     }
 
+    if (!createdObjects.empty()) {
+        UndoSnapshotObjects(GetActivePlane(), createdObjects, cUndoManager::Snap_ObjectsAdded);
+    }
+
     MarkUnsaved();
     vPort->MarkToRedraw();
 }
@@ -873,6 +885,8 @@ void State::EditingWW::OnResize() {
 
 void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically) {
     if (objects.size() < 2 || (!horizontally && !vertically)) return;
+    UndoBegin("Flip Objects");
+    UndoSnapshotObjects(GetActivePlane(), objects, cUndoManager::Snap_ObjectsModified);
     int minX = objects[0]->GetX(), minY = objects[0]->GetY(), maxX = minX, maxY = minY;
 
     for (int i = 1; i < objects.size(); ++i) {
@@ -894,11 +908,14 @@ void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool hor
         MarkUnsaved();
         vPort->MarkToRedraw();
     }
+    UndoEnd();
 }
 
 void State::EditingWW::MirrorObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically)
 {
     if (!horizontally && !vertically) return;
+    UndoBegin("Mirror Objects");
+    UndoSnapshotObjects(GetActivePlane(), objects, cUndoManager::Snap_ObjectsModified);
 
     for (auto & object : vObjectsPicked) {
         bool flipX = horizontally == !(object->GetFlipX()),
@@ -907,4 +924,5 @@ void State::EditingWW::MirrorObjects(std::vector<WWD::Object *>& objects, bool h
     }
 
     vPort->MarkToRedraw();
+    UndoEnd();
 }

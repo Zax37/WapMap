@@ -561,6 +561,9 @@ namespace State {
                 }
                 if (count != 0) {
                     if (m_hOwn->UpdateMovedObjectWithRects(duplicates)) {
+                        m_hOwn->UndoBegin("Duplicate Objects");
+                        m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), duplicates, cUndoManager::Snap_ObjectsAdded);
+                        m_hOwn->UndoEnd();
                         m_hOwn->vPort->MarkToRedraw();
                         m_hOwn->MarkUnsaved();
                     } else {
@@ -584,6 +587,10 @@ namespace State {
                     m_hOwn->PasteTiles();
                 } else if (m_hOwn->tilContext->GetSelectedID() == TILMENU_DELETE) {
                     bool bChanges = false;
+                    m_hOwn->UndoBegin("Delete Tiles");
+                    m_hOwn->UndoSnapshotTiles(m_hOwn->GetActivePlane(),
+                        m_hOwn->iTileSelectX1, m_hOwn->iTileSelectY1,
+                        m_hOwn->iTileSelectX2, m_hOwn->iTileSelectY2);
                     for (int x = m_hOwn->iTileSelectX1; x <= m_hOwn->iTileSelectX2; x++)
                         for (int y = m_hOwn->iTileSelectY1; y <= m_hOwn->iTileSelectY2; y++) {
                             WWD::Tile *tile = m_hOwn->GetActivePlane()->GetTile(x, y);
@@ -596,6 +603,7 @@ namespace State {
                         m_hOwn->vPort->MarkToRedraw();
                         m_hOwn->MarkUnsaved();
                     }
+                    m_hOwn->UndoEnd();
                 }
                 m_hOwn->tilContext->setVisible(false);
             } else if (actionEvent.getSource() == m_hOwn->objContext) {
@@ -660,12 +668,15 @@ namespace State {
                     for (int i = 0; i < m_hOwn->vObjectsPicked.size(); i++)
                         if (m_hOwn->vObjectsPicked[i] == m_hOwn->hStartingPosObj)
                             m_hOwn->vObjectsPicked.erase(m_hOwn->vObjectsPicked.begin() + i);
+                    m_hOwn->UndoBegin("Delete Objects");
+                    m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), m_hOwn->vObjectsPicked, cUndoManager::Snap_ObjectsDeleted);
                     std::vector<WWD::Object *> tmp = m_hOwn->vObjectsPicked;
                     for (auto &i : tmp) {
                         m_hOwn->GetActivePlane()->DeleteObject(i);
                     }
                     m_hOwn->vPort->MarkToRedraw();
                     m_hOwn->MarkUnsaved();
+                    m_hOwn->UndoEnd();
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_COPY) {
                     m_hOwn->CopyObjects();
                 } else if (m_hOwn->objContext->GetSelectedID() == OBJMENU_CUT) {
@@ -709,6 +720,16 @@ namespace State {
 				}*/
                 int flagbinaryval = pow(2, flagpos);
 
+                // Snapshot objects before flag change
+                std::vector<WWD::Object*> flagObjs;
+                for (auto &obj : m_hOwn->vObjectsPicked) {
+                    if (obj != m_hOwn->hStartingPosObj) flagObjs.push_back(obj);
+                }
+                if (!flagObjs.empty()) {
+                    m_hOwn->UndoBegin("Change Flags");
+                    m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), flagObjs, cUndoManager::Snap_ObjectsModified);
+                }
+
                 for (auto & obj : m_hOwn->vObjectsPicked) {
                     if (obj == m_hOwn->hStartingPosObj)
                         continue;
@@ -739,6 +760,7 @@ namespace State {
 
                 hCallingContext->GetElementByID(menupos)->SetIcon(valuetoset ? GV->sprIcons16[Icon16_Applied] : 0);
                 m_hOwn->MarkUnsaved();
+                if (!flagObjs.empty()) m_hOwn->UndoEnd();
                 if (hCallingContext == m_hOwn->objFlagDrawContext) {
                     m_hOwn->vPort->MarkToRedraw();
                 }
@@ -799,6 +821,16 @@ namespace State {
             } else if (actionEvent.getSource() == m_hOwn->objZCoordContext) {
                 bool change = false, close = false;
                 int selectedId = m_hOwn->objZCoordContext->GetSelectedID();
+                // Snapshot objects before z-coord change
+                std::vector<WWD::Object*> zChangeObjs;
+                for (auto &pickedObject : m_hOwn->vObjectsPicked) {
+                    if (pickedObject != m_hOwn->hStartingPosObj)
+                        zChangeObjs.push_back(pickedObject);
+                }
+                if (!zChangeObjs.empty()) {
+                    m_hOwn->UndoBegin("Change Z-Coord");
+                    m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), zChangeObjs, cUndoManager::Snap_ObjectsModified);
+                }
                 for (auto &pickedObject : m_hOwn->vObjectsPicked) {
                     if (pickedObject == m_hOwn->hStartingPosObj)
                         continue;
@@ -827,6 +859,7 @@ namespace State {
                     m_hOwn->vPort->MarkToRedraw();
                     m_hOwn->MarkUnsaved();
                 }
+                if (!zChangeObjs.empty()) m_hOwn->UndoEnd();
                 if (close)
                     m_hOwn->objContext->setVisible(false);
             } else if (actionEvent.getSource() == m_hOwn->butspacingOK) {
@@ -836,6 +869,8 @@ namespace State {
                     sort(objs.begin(), objs.end(), State::ObjSortCoordY);
                 else
                     sort(objs.begin(), objs.end(), State::ObjSortCoordX);
+                m_hOwn->UndoBegin("Space Objects");
+                m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), objs, cUndoManager::Snap_ObjectsModified);
                 bool bchange = 0;
                 for (int i = 1; i < objs.size(); i++) {
                     if (objs[i - 1]->GetParam(WWD::Param_LocationX) + diff != objs[i]->GetParam(WWD::Param_LocationX) ||
@@ -851,6 +886,7 @@ namespace State {
                     m_hOwn->vPort->MarkToRedraw();
                     m_hOwn->MarkUnsaved();
                 }
+                m_hOwn->UndoEnd();
                 m_hOwn->SetTool(EWW_TOOL_NONE);
             } else if (actionEvent.getSource() == m_hOwn->winSpacing) {
                 m_hOwn->SetTool(EWW_TOOL_NONE);
@@ -1672,6 +1708,11 @@ namespace State {
                     SetTool(EWW_TOOL_MOVEOBJECT);
                     iMoveRelX = vObjectsHL[0]->GetX();
                     iMoveRelY = vObjectsHL[0]->GetY();
+                    // Snapshot objects before move for undo
+                    if (!vObjectsPicked.empty()) {
+                        UndoBegin("Move Objects");
+                        UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsModified);
+                    }
                 }
             } else if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
                 mouseMoved(dragEvent);
@@ -1815,6 +1856,7 @@ namespace State {
                             && UpdateMovedObjectWithRects(vObjectsPicked))) {
                             MarkUnsaved();
                         }
+                        if (UndoIsInAction()) UndoEnd();
                         vPort->MarkToRedraw();
                         bEditObjDelete = false;
                         GV->tempObjBeingCreated = 0;

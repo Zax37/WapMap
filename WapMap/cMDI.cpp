@@ -132,6 +132,8 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
 
     dd->iTileSelectX1 = dd->iTileSelectY1 = dd->iTileSelectX2 = dd->iTileSelectY2 = -1;
 
+    dd->hUndoMgr = new cUndoManager();
+
     GV->editState->hPlaneData.clear();
     for (int i = 0; i < dd->hParser->GetPlanesCount(); i++) {
         dd->hPlaneData.push_back(new State::PlaneData());
@@ -302,6 +304,7 @@ void cMDI::DeleteDocByIt(int i) {
     delete dd->hAniBank;
     delete dd->hCustomLogicBank;
     delete dd->hDataCtrl;
+    delete dd->hUndoMgr;
 
     for (int pl = 0; pl < dd->hParser->GetPlanesCount(); pl++) {
         if (!dd->hPlaneData[pl]->ObjectData.bEmpty) {

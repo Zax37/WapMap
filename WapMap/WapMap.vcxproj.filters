@@ -72,6 +72,9 @@
     <ClCompile Include="cTextureAtlas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cUndoManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="funcConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -666,6 +669,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cTileGhost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cUndoManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="funcConsole.h">

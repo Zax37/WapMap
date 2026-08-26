@@ -80,6 +80,11 @@ cAppMenu::cAppMenu() {
     SyncDocumentClosed();
 
     workcon = hEntries[AppMenu_Edit]->GetContext();
+    workcon->AddElement(APPMEN_EDIT_UNDO, "Undo\tCtrl+Z");
+    workcon->AddElement(APPMEN_EDIT_REDO, "Redo\tCtrl+Y");
+    workcon->GetElementByID(APPMEN_EDIT_UNDO)->SetEnabled(false);
+    workcon->GetElementByID(APPMEN_EDIT_REDO)->SetEnabled(false);
+    workcon->AddSeparator();
     workcon->AddElement(APPMEN_EDIT_WORLD, GETL2S("AppMenu", "Edit_World"), GV->sprIcons16[Icon16_World]);
     workcon->AddElement(APPMEN_EDIT_PLANES, GETL2S("AppMenu", "Edit_Planes"), GV->sprIcons16[Icon16_Planes]);
     workcon->AddElement(APPMEN_EDIT_TILEPROP, GETL2S("AppMenu", "Edit_TileProp"), GV->sprIcons16[Icon16_Properties]);
@@ -181,9 +186,18 @@ void cAppMenu::SyncDocumentSwitched() {
         GV->editState->winWorld->setVisible(false);
     } else {
         SyncPlanes();
+        SyncUndoState();
         hEntries[AppMenu_Tools]->GetContext()->GetElementByID(APPMEN_TOOLS_PLAY)->SetEnabled(
                 strlen(GV->editState->hParser->GetFilePath()) > 0);
     }
+}
+
+void cAppMenu::SyncUndoState() {
+    auto* doc = GV->editState->MDI ? GV->editState->MDI->GetActiveDoc() : nullptr;
+    bool canUndo = doc && doc->hUndoMgr && doc->hUndoMgr->CanUndo();
+    bool canRedo = doc && doc->hUndoMgr && doc->hUndoMgr->CanRedo();
+    hEntries[AppMenu_Edit]->GetContext()->GetElementByID(APPMEN_EDIT_UNDO)->SetEnabled(canUndo);
+    hEntries[AppMenu_Edit]->GetContext()->GetElementByID(APPMEN_EDIT_REDO)->SetEnabled(canRedo);
 }
 
 void cAppMenu::SyncDocumentClosed() {
@@ -546,7 +560,11 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         hEntries[AppMenu_File]->GetContext()->setVisible(false);
     } else if (actionEvent.getSource() == hEntries[AppMenu_Edit]->GetContext()) {
         int id = hEntries[AppMenu_Edit]->GetContext()->GetSelectedID();
-        if (id == APPMEN_EDIT_WORLD) {
+        if (id == APPMEN_EDIT_UNDO) {
+            GV->editState->PerformUndo();
+        } else if (id == APPMEN_EDIT_REDO) {
+            GV->editState->PerformRedo();
+        } else if (id == APPMEN_EDIT_WORLD) {
             if (GV->editState->winWorld->isVisible()) GV->editState->SyncWorldOptionsWithParser();
             GV->editState->winWorld->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winWorld->getWidth() / 2,
                                                     hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winWorld->getHeight() / 2);

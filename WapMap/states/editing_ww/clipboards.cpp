@@ -45,6 +45,8 @@ void State::EditingWW::CopyTiles() {
 void State::EditingWW::CutTiles() {
     CopyTiles();
     auto* plane = GetActivePlane();
+    UndoBegin("Cut Tiles");
+    UndoSnapshotTiles(plane, iTileSelectX1, iTileSelectY1, iTileSelectX2, iTileSelectY2);
     bool bChanges = false;
     for (int x = iTileSelectX1; x <= iTileSelectX2; x++)
         for (int y = iTileSelectY1; y <= iTileSelectY2; y++) {
@@ -58,6 +60,7 @@ void State::EditingWW::CutTiles() {
         vPort->MarkToRedraw();
         MarkUnsaved();
     }
+    UndoEnd();
 }
 
 void State::EditingWW::PasteTiles() {
@@ -78,6 +81,9 @@ void State::EditingWW::PasteTiles() {
         return;
     }
 
+    UndoBegin("Paste Tiles");
+    UndoSnapshotTiles(plane, tx, ty, tx + cbEntry->width - 1, ty + cbEntry->height - 1);
+
     for (int i = 0, y = ty; y < ty + cbEntry->height; ++y) {
         for (int x = tx; x < tx + cbEntry->width; ++x, ++i) {
             WWD::Tile *tile = plane->GetTile(x, y);
@@ -91,6 +97,7 @@ void State::EditingWW::PasteTiles() {
         vPort->MarkToRedraw();
         MarkUnsaved();
     }
+    UndoEnd();
 }
 
 int State::EditingWW::GetObjClipboardSize() {
@@ -132,14 +139,21 @@ void State::EditingWW::CopyObjects() {
 void State::EditingWW::CutObjects() {
     CopyObjects();
     auto plane = GetActivePlane();
-    std::vector<WWD::Object*> temp = vObjectsPicked;
-    for (auto &obj : temp) {
+    UndoBegin("Cut Objects");
+    // Filter out starting position object
+    std::vector<WWD::Object*> toDelete;
+    for (auto &obj : vObjectsPicked) {
         if (obj != hStartingPosObj)
-            plane->DeleteObject(obj);
+            toDelete.push_back(obj);
+    }
+    UndoSnapshotObjects(plane, toDelete, cUndoManager::Snap_ObjectsDeleted);
+    for (auto &obj : toDelete) {
+        plane->DeleteObject(obj);
     }
     vObjectsPicked.clear();
     vPort->MarkToRedraw();
     MarkUnsaved();
+    UndoEnd();
 }
 
 void State::EditingWW::PasteObjects() {
@@ -170,6 +184,9 @@ void State::EditingWW::PasteObjects() {
 
     vPort->MarkToRedraw();
     if (UpdateMovedObjectWithRects(vObjectsPicked)) {
+        UndoBegin("Paste Objects");
+        UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsAdded);
+        UndoEnd();
         MarkUnsaved();
         vPort->MarkToRedraw();
     } else {
