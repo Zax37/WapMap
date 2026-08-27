@@ -2,7 +2,7 @@
 #define H_C_MDI
 
 #include "../shared/cWWD.h"
-#include "../shared/gcnWidgets/wContext.h"
+#include "../shared/gcnwidgets/wContext.h"
 #include "cUndoManager.h"
 #include <set>
 
