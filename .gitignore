@@ -2,5 +2,6 @@
 .vs
 bin
 build
+build-mingw/CMakeFiles
 cmake-build-debug
 obj

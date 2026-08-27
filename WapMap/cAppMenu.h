@@ -2,7 +2,7 @@
 #define H_C_APPMENU
 
 #include "globals.h"
-#include "../shared/gcnWidgets/wContext.h"
+#include "../shared/gcnwidgets/wContext.h"
 #include "cRulers.h"
 
 #define APPMEN_FILE_NEW         1

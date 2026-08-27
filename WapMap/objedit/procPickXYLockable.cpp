@@ -1,3 +1,4 @@
+#include <cmath>
 #include "procPickXYLockable.h"
 #include "../globals.h"
 #include <algorithm>

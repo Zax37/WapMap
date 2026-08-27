@@ -1,10 +1,10 @@
 #ifndef WAPMAP_PROCPICKXYLOCKABLE_H
 #define WAPMAP_PROCPICKXYLOCKABLE_H
 
-#include "../../shared/gcnWidgets/wContainer.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wContainer.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wTextField.h"
 #include <guichan/actionlistener.hpp>
 
 class cProcPickXYLockable : public gcn::ActionListener, public SHR::Container {

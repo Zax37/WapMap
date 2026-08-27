@@ -1,6 +1,6 @@
 #include "dialog.h"
 #include "../globals.h"
-#include "../../shared/gcnWidgets/wContainer.h"
+#include "../../shared/gcnwidgets/wContainer.h"
 #include "../../shared/commonFunc.h"
 #include "../returncodes.h"
 #include "../langID.h"

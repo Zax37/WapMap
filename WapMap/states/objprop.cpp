@@ -4,7 +4,7 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../cObjectUserData.h"
-#include "../../shared/gcnWidgets/wTab.h"
+#include "../../shared/gcnwidgets/wTab.h"
 #include "../databanks/logics.h"
 #include <math.h>
 

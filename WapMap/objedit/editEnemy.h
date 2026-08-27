@@ -2,7 +2,7 @@
 #define H_C_OE_ENEMY
 
 #include "../states/objedit.h"
-#include "../../shared/gcnWidgets/wInventory.h"
+#include "../../shared/gcnwidgets/wInventory.h"
 #include "winInventoryPickbox.h"
 #include "procPickRect.h"
 

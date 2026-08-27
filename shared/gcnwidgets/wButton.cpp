@@ -1,4 +1,5 @@
 #include "wButton.h"
+#include <cmath>
 #include "guichan/exception.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"

@@ -96,7 +96,7 @@ namespace ObjEdit {
         }
 
         cbOneWay->setSelected(rArea.x1 == rArea.x2 && rArea.y1 == rArea.y2 && rArea.x1 != 0 && rArea.y2 != 0 ||
-                              std::string(hTempObj->GetLogic()).starts_with("OneWay"));
+                              std::string(hTempObj->GetLogic()).rfind("OneWay", 0) == 0);
 
 #define AREA_SECTION_Y 52
 

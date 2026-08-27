@@ -882,7 +882,7 @@ namespace WWD {
         void LoadFromStream(std::istream *psSource);
     };
 
-    GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL) throw(Exception);
+    GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL);
 }
 
 #endif

@@ -51,7 +51,7 @@
 #include "guichan/rectangle.hpp"
 
 #ifdef WAP_TOOLS
- #include "../shared/gcnWidgets/cTooltip.h"
+ #include "../shared/gcnwidgets/cTooltip.h"
 #endif
 
 namespace gcn

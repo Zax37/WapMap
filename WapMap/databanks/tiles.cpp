@@ -1,12 +1,12 @@
 #include "tiles.h"
 #include <algorithm>
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include "../globals.h"
 #include "../langID.h"
 #include "../../shared/commonFunc.h"
 #include "../cParallelLoop.h"
 #include "../../shared/cProgressInfo.h"
-#include "../../shared/HashLib/hashlibpp.h"
+#include "../../shared/hashlib/hashlibpp.h"
 #include "../cBrush.h"
 #include "../states/editing_ww.h"
 #include "../states/dialog.h"

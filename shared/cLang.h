@@ -2,6 +2,7 @@
 #define H_SHARED_LANGUAGE
 
 #include <unordered_map>
+#include <cstdint>
 #include "SimpleIni.h"
 
 namespace SHR {
@@ -15,7 +16,7 @@ namespace SHR {
 
         const wchar_t *Transform(const wchar_t *str);
     public:
-        cLanguage(const char *pszName, int piVer) throw(int);
+        cLanguage(const char *pszName, int piVer);
 
         ~cLanguage();
 

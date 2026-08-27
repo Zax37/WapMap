@@ -3,7 +3,7 @@
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
 #include "../states/editing_ww.h"
-#include "../../shared/HashLib/hashlibpp.h"
+#include "../../shared/hashlib/hashlibpp.h"
 #include "../cParallelLoop.h"
 #include "../windows/imgsetBrowser.h"
 
@@ -292,7 +292,7 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
 }
 
 void cBankImageSet::SortAssets() {
-    std::ranges::sort(m_vAssets, cSprBank_SortAssets);
+    std::sort(m_vAssets.begin(), m_vAssets.end(), cSprBank_SortAssets);
 }
 
 void cBankImageSet::BatchProcessStart() {
@@ -350,7 +350,7 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
     const char* fileDot = strrchr(strFile.c_str(), '.');
     if (!fileDot || !canReadExtension(fileDot + 1))
         return "";
-    std::ranges::transform(strSet, strSet.begin(), ::toupper);
+    std::transform(strSet.begin(), strSet.end(), strSet.begin(), ::toupper);
     do {
         const size_t slash = strSet.find('/');
         if (slash == std::string::npos) break;

@@ -1,10 +1,10 @@
 #ifndef H_C_PROC_PICKRECT
 #define H_C_PROC_PICKRECT
 
-#include "../../shared/gcnWidgets/wContainer.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wContainer.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wTextField.h"
 #include <guichan/actionlistener.hpp>
 #include "../../shared/cWWD.h"
 

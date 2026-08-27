@@ -2,7 +2,7 @@
 #define H_C_OE_DIALOG
 
 #include "../states/objedit.h"
-#include "../../shared/gcnWidgets/wTextDropDown.h"
+#include "../../shared/gcnwidgets/wTextDropDown.h"
 
 namespace ObjEdit {
     class lmEditObjDialogSizes : public gcn::ListModel {

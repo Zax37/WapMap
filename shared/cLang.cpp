@@ -1,6 +1,8 @@
 #include "cLang.h"
 #include <locale>
 #include <codecvt>
+#include <string_view>
+#include <cstdint>
 
 #pragma execution_character_set("utf-8")
 
@@ -65,7 +67,7 @@ const wchar_t * SHR::cLanguage::Transform(const wchar_t *str) {
     return str;
 }
 
-SHR::cLanguage::cLanguage(const char *pszName, int piLang) throw(int) {
+SHR::cLanguage::cLanguage(const char *pszName, int piLang) {
     szName = new char(strlen(pszName) + 1);
     strcpy(szName, pszName);
     char *path = new char[strlen(pszName) + 10];

@@ -963,7 +963,7 @@ void WWD::Plane::AddObjectAndCalcID(Object *n) {
     m_vObjects.push_back(n);
 }
 
-WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) throw(Exception) {
+WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) {
     const char* dot = strrchr(pszFilepath, '.');
     if (!dot || (dot[1] != 'W' && dot[1] != 'w')) {
         throw WWD_EXCEPTION(Error_UnknownMapExtension);

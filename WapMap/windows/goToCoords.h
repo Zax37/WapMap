@@ -1,10 +1,10 @@
 #ifndef H_WIN_GO_TO_COORDS
 #define H_WIN_GO_TO_COORDS
 
-#include "../../shared/gcnWidgets/wRadioBut.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wTextField.h"
-#include "../../shared/gcnWidgets/wButton.h"
+#include "../../shared/gcnwidgets/wRadioBut.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wButton.h"
 #include "window.h"
 
 class winGoToCoords : public cWindow {

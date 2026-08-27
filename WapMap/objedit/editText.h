@@ -2,7 +2,7 @@
 #define H_C_OE_TEXT
 
 #include "../states/objedit.h"
-#include "../../shared/gcnWidgets/wTextBox.h"
+#include "../../shared/gcnwidgets/wTextBox.h"
 
 namespace ObjEdit {
     class cEditObjText : public cObjEdit {
