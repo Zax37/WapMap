@@ -48,12 +48,12 @@ namespace ObjEdit {
 		for (size_t i = 0; i < GV->editState->SprBank->getNumberOfElements(); i++) {
 			cSprBankAsset* imgSet = GV->editState->SprBank->GetAssetByIterator(i);
 			std::string name(imgSet->GetID());
-			if (name.starts_with("LEVEL_") && GV->vstrStandardImagesets.contains(name)) {
+			if (name.rfind("LEVEL_", 0) == 0 && GV->vstrStandardImagesets.count(name)) {
 				standardImgs.push_back(imgSet);
                 currentBank = &standardImgs;
                 j = TAB_STANDARD;
 			}
-			else if (name.starts_with("CUSTOM_")) {
+			else if (name.rfind("CUSTOM_", 0) == 0) {
 				customImgs.push_back(imgSet);
                 currentBank = &customImgs;
                 j = TAB_CUSTOM;
@@ -82,7 +82,7 @@ namespace ObjEdit {
                     continue;
                 }
 
-                tabItemsCount[j] += GV->vstrNANIImagesets.contains(name) ? imgSet->GetSpritesCount() : 1;
+                tabItemsCount[j] += GV->vstrNANIImagesets.count(name) ? imgSet->GetSpritesCount() : 1;
             }
 		}
 		int height = ceil(standardImgs.size() / (float)IMAGE_TILES_PER_ROW) * IMAGE_TILE_HEIGHT;
@@ -298,7 +298,7 @@ namespace ObjEdit {
 			cSprBankAsset* imgSet = assets[i];
 			bool nani = false;
 			int add = 0;
-			if (GV->vstrNANIImagesets.contains(imgSet->GetID())) {
+			if (GV->vstrNANIImagesets.count(imgSet->GetID())) {
 				nani = true;
 				add = imgSet->GetSpritesCount() - 1;
 				i_off_sub = i_off;
@@ -425,7 +425,7 @@ namespace ObjEdit {
 	{
 		int count = 0;
 		for (auto const& asset : assets) {
-			if (GV->vstrNANIImagesets.contains(asset->GetID())) {
+			if (GV->vstrNANIImagesets.count(asset->GetID())) {
 				count += asset->GetSpritesCount();
 			} else {
 				++count;

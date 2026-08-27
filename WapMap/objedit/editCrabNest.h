@@ -4,7 +4,7 @@
 #include "../states/objedit.h"
 #include "procPickRect.h"
 #include "winInventoryPickbox.h"
-#include "../../shared/gcnWidgets/wInventory.h"
+#include "../../shared/gcnwidgets/wInventory.h"
 
 namespace ObjEdit {
     class cEditObjCrabNest : public cObjEdit {

@@ -4,6 +4,7 @@
 #include "../cGUIparts.h"
 
 #include <string>
+#include <memory>
 
 #include "guichan/focuslistener.hpp"
 #include "guichan/graphics.hpp"

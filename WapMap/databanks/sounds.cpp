@@ -78,7 +78,7 @@ cSndBankAsset * cBankSound::AllocateAssetForMountPoint(cDC_MountEntry mountEntry
     std::string soundMountPoint(mountEntry.strMountPoint.c_str() + 8);
     soundMountPoint.resize(soundMountPoint.length() - 4);
 
-    std::ranges::transform(soundMountPoint, soundMountPoint.begin(), ::toupper);
+    std::transform(soundMountPoint.begin(), soundMountPoint.end(), soundMountPoint.begin(), ::toupper);
     do {
         const size_t slash = soundMountPoint.find('/');
         if (slash == std::string::npos) break;

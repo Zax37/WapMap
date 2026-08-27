@@ -4,7 +4,8 @@
 
 void cBankPalettes::BatchProcessEnd() {
     for (int i = m_vAssets.size() - 1; i >= 0; i--) {
-        if (m_vAssets[i]->_strName.ends_with("MAIN.PAL")) {
+        const std::string& n = m_vAssets[i]->_strName;
+        if (n.size() >= 8 && n.compare(n.size() - 8, 8, "MAIN.PAL") == 0) {
             hDC->SetPalette(m_vAssets[i]->GetPalette());
             return;
         }

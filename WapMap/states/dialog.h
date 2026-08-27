@@ -2,9 +2,9 @@
 #define H_STATE_ERROR
 
 #include "../../shared/cStateMgr.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wTextField.h"
 #include "../../shared/cWWD.h"
 #include "guichan.hpp"
 

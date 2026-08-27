@@ -2,8 +2,8 @@
 #define H_C_OE_ELEVPATH
 
 #include "../states/objedit.h"
-#include "../../shared/gcnWidgets/wListbox.h"
-#include "../../shared/gcnWidgets/wTextDropDown.h"
+#include "../../shared/gcnwidgets/wListbox.h"
+#include "../../shared/gcnwidgets/wTextDropDown.h"
 
 namespace ObjEdit {
     class cEditObjElevPath;

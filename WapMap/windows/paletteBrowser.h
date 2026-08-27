@@ -2,7 +2,7 @@
 #define PALETTEBROWSER_H
 
 #include "window.h"
-#include "../../shared/gcnWidgets/wListbox.h"
+#include "../../shared/gcnwidgets/wListbox.h"
 
 class winPaletteBrowser : public cWindow {
     SHR::ListBox *lbPalettes;

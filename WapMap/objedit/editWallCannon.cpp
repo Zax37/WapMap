@@ -4,7 +4,7 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include <cmath>
-#include <hgeVector.h>
+#include <hgevector.h>
 
 extern HGE *hge;
 

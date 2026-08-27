@@ -1,8 +1,8 @@
 #ifndef H_WIN_OPTIONS
 #define H_WIN_OPTIONS
 
-#include "../../shared/gcnWidgets/wIconListbox.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wIconListbox.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
 #include "../shared/cWWD.h"
 #include "window.h"
 

@@ -3,13 +3,13 @@
 
 #include <windows.h>
 #include <process.h>
-#include "../shared/gcnWidgets/wContainer.h"
-#include "../shared/gcnWidgets/wWin.h"
-#include "../shared/gcnWidgets/wButton.h"
-#include "../shared/gcnWidgets/wLink.h"
-#include "../shared/gcnWidgets/wLabel.h"
-#include "../shared/gcnWidgets/wContext.h"
-#include "../shared/gcnWidgets/wProgressBar.h"
+#include "../shared/gcnwidgets/wContainer.h"
+#include "../shared/gcnwidgets/wWin.h"
+#include "../shared/gcnwidgets/wButton.h"
+#include "../shared/gcnwidgets/wLink.h"
+#include "../shared/gcnwidgets/wLabel.h"
+#include "../shared/gcnwidgets/wContext.h"
+#include "../shared/gcnwidgets/wProgressBar.h"
 #include "wViewport.h"
 #include <curl/curl.h>
 #include <curl/easy.h>

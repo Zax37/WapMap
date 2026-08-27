@@ -2,7 +2,7 @@
 #define H_C_SPRBANK
 
 #include <vector>
-#include "hgeSprite.h"
+#include "hgesprite.h"
 #include "../shared/cWWD.h"
 
 #include "../cDataController.h"

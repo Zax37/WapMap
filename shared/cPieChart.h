@@ -2,7 +2,7 @@
 #define H_C_PIECHART
 
 #include "hge.h"
-#include "hgeSprite.h"
+#include "hgesprite.h"
 #include <vector>
 
 namespace SHR {

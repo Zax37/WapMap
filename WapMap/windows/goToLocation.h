@@ -2,11 +2,11 @@
 #define H_WIN_GO_TO_LOCATION
 
 #include "../cMDI.h"
-#include "../../shared/gcnWidgets/wListBox.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wTabbedArea.h"
-#include "../../shared/gcnWidgets/wTab.h"
+#include "../../shared/gcnwidgets/wListbox.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wTabbedArea.h"
+#include "../../shared/gcnwidgets/wTab.h"
 
 #include "window.h"
 

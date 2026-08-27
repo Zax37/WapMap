@@ -2,7 +2,7 @@
 #define H_C_OE_AMBIENT
 
 #include "../states/objedit.h"
-#include "../../shared/gcnWidgets/wTextDropDown.h"
+#include "../../shared/gcnwidgets/wTextDropDown.h"
 #include "procPickRect.h"
 
 namespace ObjEdit {

@@ -54,7 +54,7 @@
 #include "guichan/graphics.hpp"
 #include "guichan/mouseinput.hpp"
 
-#include "../gcnWidgets/cTooltip.h"
+#include "../gcnwidgets/cTooltip.h"
 
 namespace gcn {
     BasicContainer::~BasicContainer() {

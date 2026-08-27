@@ -6,7 +6,7 @@
 
 #include "hgesprite.h"
 #include "hgefont.h"
-#include "Windows.h"
+#include "windows.h"
 
 namespace SHR {
     class cConsole;

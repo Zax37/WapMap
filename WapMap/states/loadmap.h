@@ -2,9 +2,9 @@
 #define H_STATE_LOADMAP
 
 #include "../../shared/cStateMgr.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wProgressBar.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wProgressBar.h"
 #include "../../shared/cWWD.h"
 #include "../../shared/cProgressInfo.h"
 #include "guichan.hpp"

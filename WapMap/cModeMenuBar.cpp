@@ -3,7 +3,7 @@
 #include "states/editing_ww.h"
 #include "langID.h"
 #include "cAppMenu.h"
-#include "../shared/gcnWidgets/wComboButton.h"
+#include "../shared/gcnwidgets/wComboButton.h"
 
 cModeMenuBar::cModeMenuBar(int startX) {
     bEnabled = 1;

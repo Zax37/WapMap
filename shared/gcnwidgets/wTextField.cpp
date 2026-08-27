@@ -1,3 +1,4 @@
+#include <cmath>
 #include "hge.h"
 #include "wTextField.h"
 #include "../../WapMap/globals.h"

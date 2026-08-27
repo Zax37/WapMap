@@ -1,7 +1,7 @@
 #include "../editing_ww.h"
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
-#include "../../../shared/gcnWidgets/wComboButton.h"
+#include "../../../shared/gcnwidgets/wComboButton.h"
 #include "../../databanks/tiles.h"
 
 extern HGE *hge;
@@ -94,7 +94,7 @@ void State::EditingWW::HandleHotkeys() {
         if (iOldP != iTilePicked && iActiveTool == EWW_TOOL_BRUSH) {
         }
     } else if (iMode == EWW_MODE_OBJECT && !vObjectsPicked.empty() &&
-               vPort->GetWidget()->isFocused() && iActiveTool == EWW_TOOL_NONE
+               vPort->GetWidget()->isFocused() && iActiveTool == EWW_TOOL_NONE &&
                (hge->Input_GetKeyState(HGEK_CTRL) || hge->Input_GetKeyState(HGEK_SHIFT) ||
                 hge->Input_GetKeyState(HGEK_ALT)) &&
                (hge->Input_KeyDown(HGEK_LEFT) || hge->Input_KeyDown(HGEK_RIGHT) || hge->Input_KeyDown(HGEK_UP) ||

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <ctime>
 
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 # define _utils_stream_localtime(dt, ts)  do { localtime_s((ts), (dt)); } while (0)
 #elif defined(__GNUC__) || defined(__GNUG__)
 # define _utils_stream_localtime(dt, ts)  do { localtime_r((dt), (ts)); } while (0)

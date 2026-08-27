@@ -7,7 +7,7 @@
 #include "../../cObjectUserData.h"
 #include "../../returncodes.h"
 #include "../../cAppMenu.h"
-#include "../../../shared/gcnWidgets/wComboButton.h"
+#include "../../../shared/gcnwidgets/wComboButton.h"
 #include "../../cNativeController.h"
 #include <cmath>
 #include <filesystem>

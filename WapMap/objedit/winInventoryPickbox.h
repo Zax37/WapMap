@@ -3,8 +3,8 @@
 
 #include <guichan/actionlistener.hpp>
 #include "../wViewport.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wSlider.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wSlider.h"
 
 namespace ObjEdit {
     class cInvPickbox : public WIDG::VpCallback, public gcn::ActionListener {

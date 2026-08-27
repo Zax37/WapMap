@@ -2,7 +2,7 @@
 #include "cDataController.h"
 #include "../shared/cPID.h"
 #include "globals.h"
-#include "../shared/HashLib/hashlibpp.h"
+#include "../shared/hashlib/hashlibpp.h"
 #include "cParallelLoop.h"
 #include "databanks/imageSets.h"
 #include "databanks/logics.h"
@@ -520,7 +520,7 @@ cAssetPackage *cDataController::GetAssetPackageByFile(const cFile& hFile) {
     }
 
     std::string fdir = hFile.strPath.substr(0, hFile.strPath.find('/'));
-    std::ranges::transform(fdir, fdir.begin(), ::toupper);
+    std::transform(fdir.begin(), fdir.end(), fdir.begin(), ::toupper);
     for (auto & package : vhPackages) {
         if (fdir == package->GetPath())
             return package;
@@ -591,7 +591,7 @@ void cDataController::UnmountFile(std::string strMountPoint, cFile hFile) {
 }
 
 bool cDataController::MountFile(std::string strMountPoint, cFile f) {
-    std::ranges::transform(strMountPoint, strMountPoint.begin(), ::toupper);
+    std::transform(strMountPoint.begin(), strMountPoint.end(), strMountPoint.begin(), ::toupper);
     for (size_t i = 0; i < vMountEntries.size(); i++)
         if (vMountEntries[i].strMountPoint == strMountPoint) {
             for (auto & vFile : vMountEntries[i].vFiles)
@@ -617,12 +617,12 @@ bool cDataController::MountFile(std::string strMountPoint, cFile f) {
 }
 
 void cDataController::_SortMountEntries() {
-    std::ranges::sort(vMountEntries, _cDC_SortMountEntries);
+    std::sort(vMountEntries.begin(), vMountEntries.end(), _cDC_SortMountEntries);
 }
 
 void cDataController::_SortMountEntry(size_t id) {
     _ghDataController = this;
-    std::ranges::sort(vMountEntries[id].vFiles, _cDC_SortMountEntry);
+    std::sort(vMountEntries[id].vFiles.begin(), vMountEntries[id].vFiles.end(), _cDC_SortMountEntry);
     _ghDataController = 0;
 }
 
@@ -659,7 +659,7 @@ cDC_MountEntry* cDataController::GetMountEntry(const std::string& strMountPoint)
 }
 
 int cDataController::GetMountPointID(std::string strMountPoint) {
-    std::ranges::transform(strMountPoint, strMountPoint.begin(), ::toupper);
+    std::transform(strMountPoint.begin(), strMountPoint.end(), strMountPoint.begin(), ::toupper);
     for (size_t i = 0; i < vMountEntries.size(); i++)
         if (strMountPoint == vMountEntries[i].strMountPoint)
             return i;
@@ -731,7 +731,7 @@ void cDataController::Think() {
                     continue;
                 std::string bankidstr = strnfp.substr(0, slashpos);
                 strnfp = strnfp.substr(slashpos + 1);
-                std::ranges::transform(bankidstr, bankidstr.begin(), ::toupper);
+                std::transform(bankidstr.begin(), bankidstr.end(), bankidstr.begin(), ::toupper);
                 cAssetBank<cAsset> *bank = 0;
                 size_t bankid = 0;
                 for (size_t b = 0; b < vhBanks.size(); b++)

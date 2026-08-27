@@ -14,7 +14,7 @@
 
 #include "cTooltip.h"
 
-#include <hgeSprite.h>
+#include <hgesprite.h>
 
 #define GCNBUTBLINKDELAY 0.5f
 

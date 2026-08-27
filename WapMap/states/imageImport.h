@@ -2,12 +2,12 @@
 #define H_STATE_IMGIMPORT
 
 #include "../../shared/cStateMgr.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
-#include "../../shared/gcnWidgets/wTextField.h"
-#include "../../shared/gcnWidgets/wDropDown.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wDropDown.h"
 #include "../../shared/cWWD.h"
 #include "guichan.hpp"
 #include "../wViewport.h"

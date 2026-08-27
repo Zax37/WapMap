@@ -2,8 +2,8 @@
 #define H_C_SFS
 
 #include <vector>
-#include <sys\types.h>
-#include <sys\stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <istream>
 
 #define SFS_BUILD 2

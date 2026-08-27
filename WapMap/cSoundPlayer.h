@@ -1,9 +1,9 @@
 #ifndef H_C_SOUNDPLAYER
 #define H_C_SOUNDPLAYER
 
-#include "../shared/gcnWidgets/wWin.h"
-#include "../shared/gcnWidgets/wButton.h"
-#include "../shared/gcnWidgets/wSlider.h"
+#include "../shared/gcnwidgets/wWin.h"
+#include "../shared/gcnwidgets/wButton.h"
+#include "../shared/gcnwidgets/wSlider.h"
 #include "wViewport.h"
 
 class cSndBankAsset;

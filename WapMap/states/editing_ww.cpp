@@ -9,8 +9,8 @@
 #include "dialog.h"
 #include <cmath>
 #include "../cAppMenu.h"
-#include "../../shared/gcnWidgets/wComboButton.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wComboButton.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
 #include "../cNativeController.h"
 #include "../windows/tileBrowser.h"
 #include "../windows/imgsetBrowser.h"
