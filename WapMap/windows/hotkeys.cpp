@@ -14,24 +14,23 @@ inline const char* getStr(const wchar_t* str) {
 
 void winHotkeys::createHotkeysList() {
     int hotkeysCount[] = WIN_HOTKEYS_COUNT;
+
     m_vHotkeysList.reserve(100);
     for (int i = 0; i < WIN_HOTKEYS_CATEGORIES; i++) {
-        wchar_t buf[64];
+        wchar_t buf[64], buf2[64];
         wsprintfW(buf, L"Category_%d", i);
         std::pair<const char*, const char*> category = {"", getStr(buf)};
         m_vHotkeysList.push_back(category);
         for (int k = 0; k < hotkeysCount[i]; k++) {
-            wchar_t buf2[64];
-            wsprintfW(buf2, L"Key_%d_%d", i, k);
-            wchar_t buf3[128];
-            wsprintfW(buf3, L"Key_Descr_%d_%d", i, k);
-            std::pair<const char*, const char*> hotkeyEntry = {getStr(buf2), getStr(buf3)};
-            m_vHotkeysList.push_back(hotkeyEntry);
+            wsprintfW(buf, L"Key_%d_%d", i, k);
+            wsprintfW(buf2, L"Key_Descr_%d_%d", i, k);
+            std::pair<const char*, const char*> hotkey = {getStr(buf), getStr(buf2)};
+            m_vHotkeysList.push_back(hotkey);
         }
     }
 }
 
-winHotkeys::winHotkeys() : cWindow("Hotkeys") {
+winHotkeys::winHotkeys() : cWindow(getStr(L"WinCaption")) {
     m_hotkeysPerFrame = 15;
     m_descrSpacing = 23;
 
