@@ -228,6 +228,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         if (!vObjToPick.empty())
             vObjectsPicked = vObjToPick;
         if (bAddNext) {
+            UndoBegin("Add Next");
             auto *newObj = new WWD::Object(vObjectsPicked[0]);
             GV->tempObjBeingCreated = newObj;
             newObj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
@@ -243,11 +244,16 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             hEditObj->ApplyDataFromPrevObject(specialPtr);
             bEditObjDelete = true;
             hEditObj->SetWindowPosition(winX, winY);
+            UndoSnapshotObject(GetActivePlane(), newObj, cUndoManager::Snap_ObjectsAdded);
+            UndoEnd();
         } else if (bEditObjDelete) {
             std::vector<WWD::Object*> tmp = vObjectsPicked;
+            UndoBegin("Delete Object");
+            UndoSnapshotObjects(GetActivePlane(), tmp, cUndoManager::Snap_ObjectsDeleted);
             for (auto& object : tmp) {
                 GetActivePlane()->DeleteObject(object);
             }
+            UndoEnd();
             bEditObjDelete = false;
             GV->tempObjBeingCreated = 0;
         }
@@ -276,6 +282,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                         break;
                     }
                 if (alignToObj != 0) {
+                    UndoBegin("Align Objects");
+                    UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsModified);
                     for (auto & object : vObjectsPicked) {
                         if (bObjectAlignAxis)
                             object->SetParam(WWD::Param_LocationY,
@@ -285,6 +293,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                                              alignToObj->GetParam(WWD::Param_LocationX));
                         GetUserDataFromObj(object)->SyncToObj();
                     }
+                    UndoEnd();
+                    MarkUnsaved();
                     SetTool(EWW_TOOL_NONE);
                     vPort->MarkToRedraw();
                 }
@@ -656,11 +666,14 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         LogicInfo::GetEnemyLogicPairs(vstrpTypes, hParser->GetBaseLevel());
         ObjEdit::cEditObjEnemy::UpdateEnemyObject(obj, vstrpTypes[0]);
     }
+    UndoBegin("Create Object");
     GetActivePlane()->AddObjectAndCalcID(obj);
     obj->SetUserData(new cObjUserData(obj));
     hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
     vObjectsPicked.clear();
     vObjectsPicked.push_back(obj);
+    UndoSnapshotObject(GetActivePlane(), obj, cUndoManager::Snap_ObjectsAdded);
+    UndoEnd();
     if (bDoContext) {
         objContext->EmulateClickID(OBJMENU_EDIT);
     } else {
@@ -917,12 +930,17 @@ void State::EditingWW::MirrorObjects(std::vector<WWD::Object *>& objects, bool h
     UndoBegin("Mirror Objects");
     UndoSnapshotObjects(GetActivePlane(), objects, cUndoManager::Snap_ObjectsModified);
 
-    for (auto & object : vObjectsPicked) {
+    for (auto & object : objects) {
         bool flipX = horizontally == !(object->GetFlipX()),
              flipY = vertically == !(object->GetFlipY());
         object->SetFlip(flipX, flipY);
+        int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
+        if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
+        if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
+        object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
     }
 
     vPort->MarkToRedraw();
+    MarkUnsaved();
     UndoEnd();
 }

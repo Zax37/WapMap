@@ -1063,6 +1063,7 @@ namespace State {
                                                                          m_hOwn->vPort->GetY() +
                                                                          m_hOwn->vPort->GetHeight() / 2));
                 }
+                m_hOwn->UndoBegin("Create Object");
                 m_hOwn->GetActivePlane()->AddObjectAndCalcID(obj);
                 obj->SetUserData(new cObjUserData(obj));
                 m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
@@ -1070,6 +1071,8 @@ namespace State {
                 m_hOwn->vObjectsPicked.clear();
                 m_hOwn->vObjectsPicked.push_back(obj);
                 m_hOwn->bEditObjDelete = 1;
+                m_hOwn->UndoSnapshotObject(m_hOwn->GetActivePlane(), obj, cUndoManager::Snap_ObjectsAdded);
+                m_hOwn->UndoEnd();
             } else if (std::find(m_hOwn->hmbObject->vButtons.begin(), m_hOwn->hmbObject->vButtons.end(),
                                  actionEvent.getSource()) != m_hOwn->hmbObject->vButtons.end()) {
                 m_hOwn->CreateObjectWithEasyEdit(actionEvent.getSource());
@@ -1258,9 +1261,12 @@ namespace State {
                 case EWW_TOOL_MOVEOBJECT:
                     if (m_hOwn->bEditObjDelete) {
                         std::vector<WWD::Object *> tmp = m_hOwn->vObjectsPicked;
+                        m_hOwn->UndoBegin("Delete Object");
+                        m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), tmp, cUndoManager::Snap_ObjectsDeleted);
                         for (auto &object : tmp) {
                             m_hOwn->GetActivePlane()->DeleteObject(object);
                         }
+                        m_hOwn->UndoEnd();
                     } else {
                         for (auto &object : m_hOwn->vObjectsPicked) {
                             GetUserDataFromObj(object)->SyncToObj();
@@ -1313,6 +1319,7 @@ namespace State {
                 switch (keyEvent.getKey().getValue()) {
                 case 'd':
                     if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty() && m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        std::vector<WWD::Object*> duplicates;
                         for (auto it = m_hOwn->vObjectsPicked.begin(); it != m_hOwn->vObjectsPicked.end(); ++it) {
                             if (*it == m_hOwn->hStartingPosObj) {
                                 it = m_hOwn->vObjectsPicked.erase(it);
@@ -1325,11 +1332,18 @@ namespace State {
                             GetUserDataFromObj(object)->SyncToObj();
                             m_hOwn->hPlaneData[m_hOwn->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(
                                     object);
+                            duplicates.push_back(object);
                         }
 
                         if (m_hOwn->vObjectsPicked.empty()) {
                             m_hOwn->vObjectsPicked.emplace_back(m_hOwn->hStartingPosObj);
                             return;
+                        }
+
+                        if (!duplicates.empty()) {
+                            m_hOwn->UndoBegin("Duplicate Objects");
+                            m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), duplicates, cUndoManager::Snap_ObjectsAdded);
+                            m_hOwn->UndoEnd();
                         }
 
                         m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
@@ -1341,6 +1355,9 @@ namespace State {
                         hge->Input_GetMousePos(&mx, &my);
                         int wmx = m_hOwn->Scr2WrdX(m_hOwn->GetActivePlane(), mx),
                             wmy = m_hOwn->Scr2WrdY(m_hOwn->GetActivePlane(), my);
+
+                        m_hOwn->UndoBegin("Move Objects");
+                        m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), m_hOwn->vObjectsPicked, cUndoManager::Snap_ObjectsModified);
 
                         for (auto &object : m_hOwn->vObjectsPicked) {
                             GetUserDataFromObj(object)->SetPos(object->GetX() + wmx - m_hOwn->iMoveRelX,
@@ -1443,6 +1460,8 @@ namespace State {
             switch (keyEvent.getKey().getValue()) {
                 case 'g':
                     if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
+                        m_hOwn->UndoBegin("Move Objects");
+                        m_hOwn->UndoSnapshotObjects(m_hOwn->GetActivePlane(), m_hOwn->vObjectsPicked, cUndoManager::Snap_ObjectsModified);
                         m_hOwn->SetTool(EWW_TOOL_MOVEOBJECT);
                         m_hOwn->iMoveRelX = m_hOwn->vObjectsPicked[0]->GetX();
                         m_hOwn->iMoveRelY = m_hOwn->vObjectsPicked[0]->GetY();
@@ -1462,25 +1481,11 @@ namespace State {
                 case 'm':
                     if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
                         m_hOwn->MirrorObjects(m_hOwn->vObjectsPicked, true, false);
-                        for (auto object : m_hOwn->vObjectsPicked) {
-                            int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
-                            if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
-                            if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
-                            object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
-                        }
-                        m_hOwn->MarkUnsaved();
                     }
                     break;
                 case 'i':
                     if (m_hOwn->iActiveTool == EWW_TOOL_NONE) {
                         m_hOwn->MirrorObjects(m_hOwn->vObjectsPicked, false, true);
-                        for (auto object : m_hOwn->vObjectsPicked) {
-                            int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
-                            if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
-                            if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
-                            object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
-                        }
-                        m_hOwn->MarkUnsaved();
                     }
                     break;
             }

@@ -480,6 +480,7 @@ namespace ObjEdit {
             int iPosX = hTempObj->GetParam(WWD::Param_LocationX), iPosY = hTempObj->GetParam(WWD::Param_LocationY);
             int iModX = iPosX, iModY = iPosY;
             bool bNewObjCreated = 0;
+            std::vector<WWD::Object*> newObjects;
             for (int i = 0; i < vSteps.size() - 1; i++) {
                 if (vSteps[0].first == 5) {
                     std::pair<int, int> tmppair = vSteps[0];
@@ -500,6 +501,7 @@ namespace ObjEdit {
                 nobj->SetUserData(new cObjUserData(nobj));
                 hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(nobj);
                 hState->vObjectsPicked.push_back(nobj);
+                newObjects.push_back(nobj);
                 bNewObjCreated = 1;
             }
             vSteps.push_back(vSteps[0]);
@@ -508,8 +510,12 @@ namespace ObjEdit {
             hTempObj->SetParam(WWD::Param_LocationY, iPosY);
             SynchronizeObj();
             _butSave->simulatePress();
-            if (bNewObjCreated)
+            if (bNewObjCreated) {
+                hState->UndoBegin("Generate Chain");
+                hState->UndoSnapshotObjects(hState->GetActivePlane(), newObjects, cUndoManager::Snap_ObjectsAdded);
+                hState->UndoEnd();
                 hState->MarkUnsaved();
+            }
             return;
         } else if (actionEvent.getSource() == butCloseChain) {
             CloseChain();
