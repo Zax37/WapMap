@@ -379,6 +379,7 @@
     <ClCompile Include="windows\about.cpp" />
     <ClCompile Include="windows\goToCoords.cpp" />
     <ClCompile Include="windows\goToLocation.cpp" />
+    <ClCompile Include="windows\hotkeys.cpp" />
     <ClCompile Include="windows\imgsetBrowser.cpp" />
     <ClCompile Include="windows\newMap.cpp" />
     <ClCompile Include="windows\options.cpp" />
@@ -531,6 +532,7 @@
     <ClInclude Include="windows\about.h" />
     <ClInclude Include="windows\goToCoords.h" />
     <ClInclude Include="windows\goToLocation.h" />
+    <ClCompile Include="windows\hotkeys.h" />
     <ClInclude Include="windows\imgsetBrowser.h" />
     <ClInclude Include="windows\options.h" />
     <ClInclude Include="windows\paletteBrowser.h" />
