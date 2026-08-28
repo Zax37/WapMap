@@ -200,11 +200,26 @@ void cUndoManager::RebuildQuadtreeForPlane(State::EditingWW* editor, int planeIn
     if (!editor || planeIndex < 0 || planeIndex >= (int)editor->hPlaneData.size()) return;
     auto* pd = editor->hPlaneData[planeIndex];
     if (!pd) return;
+
+    // Clear cell references for all objects before rebuilding the quadtree.
+    // When the old quadtree is deleted, its cells become invalid. We must clear
+    // the old references before building the new quadtree, otherwise objects
+    // will have both invalid (old) and valid (new) cell references.
+    WWD::Plane* plane = editor->hParser->GetPlane(planeIndex);
+    if (plane) {
+        for (int i = 0; i < plane->GetObjectsCount(); i++) {
+            WWD::Object* obj = plane->GetObjectByIterator(i);
+            if (obj && obj->GetUserData()) {
+                cObjUserData* ud = (cObjUserData*)obj->GetUserData();
+                ud->ClearCellReferences();
+            }
+        }
+    }
+
     if (pd->ObjectData.hQuadTree) {
         delete pd->ObjectData.hQuadTree;
     }
-    pd->ObjectData.hQuadTree = new cObjectQuadTree(
-        editor->hParser->GetPlane(planeIndex), editor->SprBank);
+    pd->ObjectData.hQuadTree = new cObjectQuadTree(plane, editor->SprBank);
 }
 
 void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, Action& redoAction) {
@@ -246,7 +261,7 @@ void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, A
     case Snap_ObjectsAdded: {
         // Undo an add = delete the objects. Snapshot current state for redo.
         Snapshot redoSnap;
-        redoSnap.kind = Snap_ObjectsAdded;
+        redoSnap.kind = Snap_ObjectsDeleted;  // Redo will re-add these objects
         redoSnap.planeIndex = snap.planeIndex;
 
         for (WWD::Object* savedObj : snap.objects) {
@@ -265,7 +280,7 @@ void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, A
     case Snap_ObjectsDeleted: {
         // Undo a delete = re-add the objects. Snapshot for redo.
         Snapshot redoSnap;
-        redoSnap.kind = Snap_ObjectsDeleted;
+        redoSnap.kind = Snap_ObjectsAdded;  // Redo will delete these objects
         redoSnap.planeIndex = snap.planeIndex;
 
         for (WWD::Object* savedObj : snap.objects) {
