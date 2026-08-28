@@ -299,24 +299,24 @@ void winTileBrowser::Draw(int piCode) {
         m_iGroupTilesW = tsPick->GetTilesWidth();
         m_iGroupTilesH = tsPick->GetTilesHeight();
 
-        hge->Gfx_SetClipping(dx + 230, dy + 120, 64, 64);
+        int drx = dx + 233,
+            dry = dy + 123;
+        hge->Gfx_SetClipping(drx, dry, 64, 64);
         GV->sprCheckboard->SetColor(col);
-        GV->sprCheckboard->Render(dx + 230, dy + 120);
-        hge->Gfx_RenderLine(dx + 230 - 2, dy + 120 - 1, dx + 230 + 64, dy + 120 - 1, colDark);
-        hge->Gfx_RenderLine(dx + 230 - 1, dy + 120 + 65, dx + 230 + 65, dy + 120 + 65, colDark);
-        hge->Gfx_RenderLine(dx + 230 - 1, dy + 120 - 1, dx + 230 - 1, dy + 120 + 64, colDark);
-        hge->Gfx_RenderLine(dx + 230 + 65, dy + 120 - 1, dx + 230 + 65, dy + 120 + 65, colDark);
+        GV->sprCheckboard->Render(drx, dry);
+        hge->Gfx_RenderLine(drx - 2, dry - 1, drx + 64, dry - 1, colDark);
+        hge->Gfx_RenderLine(drx - 1, dry + 65, drx + 65, dry + 65, colDark);
+        hge->Gfx_RenderLine(drx - 1, dry - 1, drx - 1, dry + 64, colDark);
+        hge->Gfx_RenderLine(drx + 65, dry - 1, drx + 65, dry + 65, colDark);
 
-        hge->Gfx_RenderLine(dx + 230 - 1, dy + 120, dx + 230 + 63, dy + 120, colBright);
-        hge->Gfx_RenderLine(dx + 230, dy + 120 + 64, dx + 230 + 64, dy + 120 + 64, colBright);
-        hge->Gfx_RenderLine(dx + 230, dy + 120, dx + 230, dy + 120 + 63, colBright);
-        hge->Gfx_RenderLine(dx + 230 + 64, dy + 120, dx + 230 + 64, dy + 120 + 64, colBright);
+        hge->Gfx_RenderLine(drx - 1, dry, drx + 63, dry, colBright);
+        hge->Gfx_RenderLine(drx, dry + 64, drx + 64, dry + 64, colBright);
+        hge->Gfx_RenderLine(drx, dry, drx, dry + 63, colBright);
+        hge->Gfx_RenderLine(drx + 64, dry, drx + 64, dry + 64, colBright);
         hge->Gfx_SetClipping();
         cTile *seltile = tsPick->GetTileByIterator(iSelectedTile);
         if (seltile) {
             seltile->GetImage()->SetColor(col);
-            int drx = dx + 230,
-                dry = dy + 120;
             seltile->GetImage()->RenderStretch(drx, dry, drx + 64*maxTileW/m_iGroupTilesW, dry + 64*maxTileH/m_iGroupTilesH);
         }
 
