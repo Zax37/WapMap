@@ -16,10 +16,11 @@ namespace ObjEdit {
         SHR::But *butApply;
         SHR::But *butAlign[3];
         int iAlign;
+        bool m_bUndoActive;
 
-        void GenerateText();
+        void GenerateText(bool bWithUndo = true);
 
-        void ApplyAlign();
+        void ApplyAlign(bool bWithUndo = true);
 
         int GetCharFrame(char c);
 

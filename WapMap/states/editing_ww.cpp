@@ -2481,7 +2481,10 @@ void State::EditingWW::GainFocus(const ReturnCode& code, bool bFlipped) {
             } else if (code.value == 1) {
                 objContext->EmulateClickID(OBJMENU_MOVE);
             } else if (code.value == 2 && !vObjectsPicked.empty()) {
+                UndoBegin("Delete Object");
+                UndoSnapshotObject(GetActivePlane(), vObjectsPicked[0], cUndoManager::Snap_ObjectsDeleted);
                 GetActivePlane()->DeleteObject(vObjectsPicked[0]);
+                UndoEnd();
             }
         break;
     }
