@@ -97,11 +97,16 @@ void cBankTile::BatchProcessEnd() {
     }
 
     GV->Console->Printf("~g~Found %d tiles in %d tile sets.", toloadc, sets);
-    m_iMaxTileWidth = m_vAssets[0]->tileWidth;
-    m_iMaxTileHeight = m_vAssets[0]->tileHeight;
-    for (auto & m_vhSet : m_vAssets) {
-        m_iMaxTileWidth = std::max(m_vhSet->tileWidth, m_iMaxTileWidth);
-        m_iMaxTileHeight = std::max(m_vhSet->tileHeight, m_iMaxTileHeight);
+    if (!m_vAssets.empty()) {
+        m_iMaxTileWidth = m_vAssets[0]->tileWidth;
+        m_iMaxTileHeight = m_vAssets[0]->tileHeight;
+        for (auto & m_vhSet : m_vAssets) {
+            m_iMaxTileWidth = std::max(m_vhSet->tileWidth, m_iMaxTileWidth);
+            m_iMaxTileHeight = std::max(m_vhSet->tileHeight, m_iMaxTileHeight);
+        }
+    } else {
+        m_iMaxTileWidth = 64;
+        m_iMaxTileHeight = 64;
     }
     int texidx = 0;
     if (vTexes.empty() && toloadc) {
