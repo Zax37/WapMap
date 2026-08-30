@@ -90,6 +90,10 @@ public:
     void Load() override {}
 
     void Unload() override {}
+
+    int GetTilesWidth() { return tileWidth; }
+
+    int GetTilesHeight() {return tileHeight; }
 };
 
 class cTilesetTexture {
@@ -132,6 +136,9 @@ private:
     std::vector<cTilesetTexture *> vTexes;
     bool bReloadBrushes = false;
 
+    int m_iMaxTileWidth;
+    int m_iMaxTileHeight;
+
     void SortTilesets();
 
 public:
@@ -168,6 +175,10 @@ public:
     void RedrawAssets();
 
     cTileImageSet *AllocateAssetForMountPoint(cDC_MountEntry mountEntry) override;
+
+    int GetMaxTileWidth() { return m_iMaxTileWidth; };
+
+    int GetMaxTileHeight() { return m_iMaxTileHeight; };
 };
 
 #endif

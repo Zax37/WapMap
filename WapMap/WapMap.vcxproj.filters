@@ -261,6 +261,9 @@
     <ClCompile Include="windows\about.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+      <ClCompile Include="windows\hotkeys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="windows\imgsetBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1053,6 +1056,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objEdit\editLavaHand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+      <ClInclude Include="windows\hotkeys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

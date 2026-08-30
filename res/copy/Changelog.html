@@ -11,24 +11,36 @@
 <h2>v0.5.1 (b40)</h2>
 
 <ol>
-    <li>Added LavaHand easy editor. (thanks TSXD)</li>
-    <li>Added a Navigation menu allowing to jump to spawn location, checkpoints, and other locations. (thanks TSXD)</li>
+    <li>Added LavaHand easy editor.</li>
+    <li>Added a Navigation menu allowing to jump to spawn location, checkpoints, and other locations.</li>
     <li>Added spanish translation provided by danielcshn. (¡Muchas gracias!)</li>
+    <li>Added a Hotkeys help dialog.</li>
+    <li>Added searching for objects by their ID number.</li>
+    <li>Extended tiles and objects clipboards capacities.</li>
+    <li>Added hotkey to toggle No Draw flag in selected objects.</li>
     <li>Changed lang files encoding to utf8 and added conversion rules to support displaying a wider range of characters.</li>
     <li>Improved detection of OS and recently used documents (supported on Windows Vista or newer).</li>
-    <li>Autofix mechanism for missing tile properties. Opening broken custom levels will immediately apply the fix and mark as unsaved. (thanks TSXD)</li>
-    <li>Aligned mapping of lua logics in subfolders to the new format implemented in CH 1.4.5.x. (thanks TSXD)</li>
+    <li>Restored copying of tiles between open documents.</li>
+    <li>Autofix mechanism for missing tile properties. Opening broken custom levels will immediately apply the fix and mark as unsaved.</li>
+    <li>Aligned mapping of lua logics in subfolders to the new format implemented in CH 1.4.5.x.</li>
     <li>Fixed ammunition powerups not behaving correctly due to incorrectly assigned logic. (thanks Boris)</li>
     <li>Fixed cannon easy editor not working as expected. Added support for shift dragging to align.</li>
     <li>Fixed enemy easy editor gem/warp destination picker not working as expected.</li>
-    <li>Fixed powerup easy editor not allowing to edit the duration for powerups other than catnip, and a crash on non-standard powerups. (thanks TSXD)</li>
+    <li>Fixed powerup easy editor not allowing to edit the duration for powerups other than catnip, and a crash on non-standard powerups.</li>
     <li>Fixed incorrect objects being displayed / crash after deleting an object currently displayed within the search results.</li>
     <li>Fixed file not being marked as modified after creation of some objects (PowderKeg, EndOfLevelPowerup) without moving them from the screen center.</li>
+    <li>Fixed file not being marked as modified after changing plane's fill color. (thanks Yuko)</li>
     <li>Fixed scrolling on text fields with longer text and some of the keyboard interactions. Other minor UX improvements.</li>
     <li>Fixed auto updater not copying downloaded brushes & language files. (thanks Azzar)</li>
     <li>Fixed auto updater popup displaying together with the first run popup. Allowed moving of the auto updater popup window.</li>
     <li>Rewritten the last step of auto update to only replace files that actually changed and leave anything else intact.</li>
+    <li>Fixed custom-sized tiles not rendering correctly when scaling against original tilesets. (thanks Yuko)</li>
+    <li>Fixed rendering of planes with X/Y wrappings and non-standard move speeds.</li>
     <li>Reduced intro animation duration and disabled it completely when opening WWD with WapMap. Other minor visual alignments.</li>
+    <li>Changed rendering of objects with No Draw flag.</li>
+    <li>Tweaked positions of inventory pickboxes.</li>
+    <li>Changed the size of map properties window.</li>
+
 </ol>
 
 <h2>v0.5.0 (b39)</h2>

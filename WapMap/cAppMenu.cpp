@@ -144,6 +144,7 @@ cAppMenu::cAppMenu() {
 
     workcon = hEntries[AppMenu_WapMap]->GetContext();
     workcon->AddElement(APPMEN_WM_SETTINGS, GETL2S("AppMenu", "About_Settings"), GV->sprIcons16[Icon16_Settings]);
+    workcon->AddElement(APPMEN_WM_HOTKEYS, GETL2S("AppMenu", "About_Hotkeys"), GV->sprIcons16[Icon16_Text]);
     workcon->AddElement(APPMEN_WM_ABOUT, GETL2S("AppMenu", "About_About"), GV->sprIcons16[Icon16_InfoCloud]);
     /*workcon->AddElement(APPMEN_WM_UPDATE, GETL2S("AppMenu", "About_Update"), GV->sprIcons16[Icon16_AutoUpdate]);
     workcon->GetElementByID(APPMEN_WM_UPDATE)->SetEnabled(0);
@@ -590,6 +591,8 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
             GV->editState->hwinOptions->Open();
         } else if (id == APPMEN_WM_README) {
 
+        } else if (id == APPMEN_WM_HOTKEYS) {
+            GV->editState->hwinHotkeys->Open();
         } else if (id == APPMEN_WM_ABOUT) {
             GV->editState->hwinAbout->Open();
         } else if (id == APPMEN_WM_UPDATE) {

@@ -52,9 +52,10 @@
 
 #define APPMEN_WM_SETTINGS 1
 #define APPMEN_WM_ABOUT    2
-#define APPMEN_WM_UPDATE   3
-#define APPMEN_WM_README   4
-#define APPMEN_WM_SITE     5
+#define APPMEN_WM_HOTKEYS  3
+#define APPMEN_WM_UPDATE   4
+#define APPMEN_WM_README   5
+#define APPMEN_WM_SITE     6
 
 #define LAY_APPMENU_X  36
 #define LAY_APPMENU_Y  1

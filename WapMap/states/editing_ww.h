@@ -45,6 +45,7 @@
 #include "../windows/paletteBrowser.h"
 #include "../windows/goToCoords.h"
 #include "../windows/goToLocation.h"
+#include "../windows/hotkeys.h"
 
 #ifndef byte
 typedef unsigned char byte;
@@ -1091,6 +1092,7 @@ namespace State {
         winTileBrowser *hwinTileBrowser;
         winImageSetBrowser *hwinImageSetBrowser;
         winOptions *hwinOptions;
+        winHotkeys *hwinHotkeys;
         winAbout *hwinAbout;
         winPaletteBrowser *hwinPaletteBrowser;
         winGoToCoords *hwinGoToCoords;
