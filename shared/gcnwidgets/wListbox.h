@@ -13,8 +13,6 @@
 using namespace gcn;
 
 namespace SHR {
-    class gcn::SelectionListener;
-
     class GCN_CORE_DECLSPEC ListBox :
             public gcn::Widget,
             public MouseListener,
