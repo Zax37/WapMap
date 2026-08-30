@@ -2,7 +2,6 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
-#include "../cObjectUserData.h"
 #include "../databanks/sounds.h"
 
 #define ADDSTANDSOUND(x) vsStandardSounds.push_back(std::pair<std::string,std::string>(x, GETL2S("Dialog_Translations", x)))

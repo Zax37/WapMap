@@ -1,9 +1,6 @@
 #include "cWWDx.h"
 #include "../cMDI.h"
 
-#include <fstream>
-#include <sstream>
-
 enum WWDx_BlockType {
     BlockType_MetaInfo = 0,
     BlockType_MetaEndInfo,

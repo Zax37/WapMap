@@ -7,7 +7,6 @@
 #include "../shared/cGUIparts.h"
 #include "../shared/cInterface.h"
 #include "../shared/cWWD.h"
-#include "../shared/cPID.h"
 #include "../shared/SimpleIni.h"
 
 #include "hge.h"
@@ -15,9 +14,6 @@
 #include "hgefont.h"
 
 #include <csetjmp>
-
-#include "guichan.hpp"
-#include "guichan/hge.hpp"
 
 extern "C" {
 #include <lua.h>

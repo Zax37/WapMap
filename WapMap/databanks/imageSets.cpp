@@ -1,9 +1,7 @@
 #include "imageSets.h"
+#include "hashlib/hl_md5wrapper.h"
 #include "tiles.h"
-#include "../../shared/commonFunc.h"
-#include "../cObjectUserData.h"
 #include "../states/editing_ww.h"
-#include "../../shared/hashlib/hashlibpp.h"
 #include "../cParallelLoop.h"
 #include "../windows/imgsetBrowser.h"
 

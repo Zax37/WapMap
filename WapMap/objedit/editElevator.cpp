@@ -2,9 +2,7 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
-#include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
-#include <cmath>
 
 extern HGE *hge;
 

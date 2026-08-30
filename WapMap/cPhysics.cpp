@@ -1,8 +1,7 @@
 #include "cPhysics.h"
-#include "globals.h"
-#include "states/editing_ww.h"
 #include "bodyQuadTree.h"
 #include "cObjectUserData.h"
+#include "hge.h"
 
 extern HGE *hge;
 

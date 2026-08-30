@@ -5,7 +5,6 @@
 #include "../../shared/gcnwidgets/wListbox.h"
 #include "../../shared/gcnwidgets/wTab.h"
 #include "../../shared/gcnwidgets/wTextDropDown.h"
-#include "../databanks/anims.h"
 #include "../states/editing_ww.h"
 
 class cBankImageSet;

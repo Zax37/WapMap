@@ -1,12 +1,9 @@
 #ifndef SHR_CONT_H
 #define SHR_CONT_H
 
-#include <list>
-
 #include "guichan/basiccontainer.hpp"
 #include "guichan/graphics.hpp"
 #include "guichan/platform.hpp"
-#include "guichan/mouselistener.hpp"
 #include "guichan/widgetlistener.hpp"
 
 using namespace gcn;

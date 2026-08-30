@@ -1,5 +1,4 @@
 #include "anims.h"
-#include "../shared/commonFunc.h"
 #include "../globals.h"
 #include "../../shared/cProgressInfo.h"
 #include "../cParallelLoop.h"

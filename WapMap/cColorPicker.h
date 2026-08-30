@@ -2,7 +2,6 @@
 #define H_C_COLORPICKER
 
 #include "../shared/gcnwidgets/wWin.h"
-#include "../shared/gcnwidgets/wButton.h"
 #include "../shared/gcnwidgets/wSlider.h"
 #include "../shared/gcnwidgets/wTextField.h"
 #include "../shared/gcnwidgets/wLabel.h"

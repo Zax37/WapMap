@@ -5,7 +5,6 @@
 #include "cField.h"
 #include "guichan/actionlistener.hpp"
 #include "guichan/basiccontainer.hpp"
-#include "guichan/deathlistener.hpp"
 #include "guichan/focushandler.hpp"
 #include "guichan/focuslistener.hpp"
 #include "guichan/keylistener.hpp"

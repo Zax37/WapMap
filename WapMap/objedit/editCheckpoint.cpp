@@ -2,7 +2,6 @@
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
-#include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
 
 extern HGE *hge;

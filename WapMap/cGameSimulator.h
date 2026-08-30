@@ -3,11 +3,10 @@
 
 #include "../shared/cWWD.h"
 #include "../shared/cANI.h"
-#include "cAnimBank.h"
 #include "cPhysics.h"
-#include <map>
+#include "databanks/anims.h"
+#include "hge.h"
 
-#include "version.h"
 //#include "states/editing_ww.h"
 
 #define SIM_ROPE_DEFAULT_SPEED 3.000f //in seconds

@@ -5,7 +5,6 @@
 #include "wScrollArea.h"
 #include "../../WapMap/cInterfaceSheet.h"
 #include "../commonFunc.h"
-#include "../../WapMap/states/editing_ww.h"
 
 namespace SHR {
     TextDropDown::TextDropDown(std::string defText,

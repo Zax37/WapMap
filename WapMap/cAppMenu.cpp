@@ -5,7 +5,6 @@
 #include "states/dialog.h"
 #include "cNativeController.h"
 #include "states/stats.h"
-#include "states/loadmap.h"
 #include "windows/tileBrowser.h"
 #include "windows/imgsetBrowser.h"
 #include "windows/options.h"

@@ -2,8 +2,6 @@
 #define H_C_OE_ELEVATOR
 
 #include "../states/objedit.h"
-#include "../../shared/gcnwidgets/wListbox.h"
-#include "../../shared/gcnwidgets/wTextDropDown.h"
 #include "../../shared/gcnwidgets/wComboButton.h"
 #include "procPickRect.h"
 #include "procPickXYLockable.h"

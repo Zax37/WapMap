@@ -3,7 +3,6 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../../shared/commonFunc.h"
-#include "../cInterfaceSheet.h"
 #include "../../shared/gcnwidgets/wIconListbox.h"
 #include "../cNativeController.h"
 

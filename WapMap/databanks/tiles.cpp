@@ -6,12 +6,12 @@
 #include "../../shared/commonFunc.h"
 #include "../cParallelLoop.h"
 #include "../../shared/cProgressInfo.h"
-#include "../../shared/hashlib/hashlibpp.h"
 #include "../cBrush.h"
 #include "../states/editing_ww.h"
 #include "../states/dialog.h"
 #include "../version.h"
 #include "../windows/tileBrowser.h"
+#include "hashlib/hl_md5wrapper.h"
 
 extern structProgressInfo _ghProgressInfo;
 extern HGE *hge;

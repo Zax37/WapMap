@@ -6,7 +6,6 @@
 #include "globals.h"
 #include "states/editing_ww.h"
 #include <shlobj.h>
-#include "cAppMenu.h"
 
 inline LPITEMIDLIST PIDLGetNextItem(LPITEMIDLIST pidl) {
     return pidl ? reinterpret_cast<LPITEMIDLIST>(reinterpret_cast<BYTE *>(pidl) + pidl->mkid.cb) : NULL;

@@ -1,5 +1,9 @@
 #include "cMDI.h"
 #include "../shared/commonFunc.h"
+#include "databanks/anims.h"      // IWYU pragma: keep (delete requires complete type)
+#include "databanks/imageSets.h"  // IWYU pragma: keep
+#include "databanks/logics.h"     // IWYU pragma: keep
+#include "databanks/sounds.h"     // IWYU pragma: keep
 #include "globals.h"
 #include "states/editing_ww.h"
 #include "cObjectUserData.h"
@@ -9,6 +13,8 @@
 #include "version.h"
 #include "states/loadmap.h"
 #include "states/dialog.h"
+#include "cUndoManager.h"
+#include "databanks/tiles.h"
 
 extern HGE *hge;
 

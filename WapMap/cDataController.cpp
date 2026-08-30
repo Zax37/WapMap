@@ -2,12 +2,13 @@
 #include "cDataController.h"
 #include "../shared/cPID.h"
 #include "globals.h"
-#include "../shared/hashlib/hashlibpp.h"
 #include "cParallelLoop.h"
 #include "databanks/imageSets.h"
 #include "databanks/logics.h"
 #include <direct.h>
 #include <filesystem>
+#include "hashlib/hl_hashwrapper.h"
+#include "hashlib/hl_md5wrapper.h"
 #include "states/editing_ww.h"
 
 extern HGE *hge;

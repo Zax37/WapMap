@@ -1,5 +1,4 @@
 #include "wListbox.h"
-#include "guichan/basiccontainer.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 #include "guichan/key.hpp"

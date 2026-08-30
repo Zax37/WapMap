@@ -4,9 +4,8 @@
 #include "../shared/cWWD.h"
 #include "cTileGhost.h"
 
+#include "../shared/gcnwidgets/wContainer.h"
 #include "../shared/gcnwidgets/wLabel.h"
-#include "../shared/gcnwidgets/wWin.h"
-#include "../shared/gcnwidgets/wScrollArea.h"
 
 extern "C" {
 #include <lua.h>

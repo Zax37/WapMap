@@ -5,7 +5,6 @@
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
-#include "../cInterfaceSheet.h"
 
 #include <SFML/Graphics.hpp>
 #include <set>

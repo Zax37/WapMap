@@ -1,7 +1,5 @@
 #include "bodyQuadTree.h"
 
-#include "globals.h"
-
 cBodyQuadTree::cBodyQuadTree(WWD::Plane *owner) {
     iTypicalCellW = owner->GetPlaneWidthPx();
     iTypicalCellH = owner->GetPlaneHeightPx();

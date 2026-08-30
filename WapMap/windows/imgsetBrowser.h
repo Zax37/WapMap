@@ -3,7 +3,6 @@
 
 #include "../../shared/gcnwidgets/wLabel.h"
 #include "../../shared/gcnwidgets/wButton.h"
-#include "../../shared/gcnwidgets/wSlider.h"
 #include "../../shared/gcnwidgets/wScrollArea.h"
 
 #include "window.h"
