@@ -41,11 +41,11 @@ void cSprBankAssetIMG::Load() {
     imgSprite->SetHotSpot(-imgInfo.iOffsetX + imgInfo.iWidth / 2.0, -imgInfo.iOffsetY + imgInfo.iHeight / 2.0);
 
     if (imgInfo.iWidth > hIS->m_iMaxWidth) {
-	hIS->m_iMaxWidth = imgInfo.iWidth;
+        hIS->m_iMaxWidth = imgInfo.iWidth;
     }
 
     if (imgInfo.iHeight > hIS->m_iMaxHeight) {
-	hIS->m_iMaxHeight = imgInfo.iHeight;
+        hIS->m_iMaxHeight = imgInfo.iHeight;
     }
 
     ((cBankImageSet *) _hBank)->atlaser.AddSprite(imgSprite);
@@ -119,33 +119,33 @@ void cSprBankAsset::DeleteIMG(cSprBankAssetIMG *img) {
     bool checkMaxSize = false;
     auto spr = img->GetSprite();
     if (spr && (spr->GetWidth() == m_iMaxWidth || spr->GetHeight() == m_iMaxHeight)) {
-    m_iMaxWidth = 0;
-    m_iMaxHeight = 0;
-    checkMaxSize = true;
+        m_iMaxWidth = 0;
+        m_iMaxHeight = 0;
+        checkMaxSize = true;
     }
 
     size_t it = -1;
     for (size_t i = 0; i < m_vSprites.size(); i++) {
         if (m_vSprites[i] == img) {
-        it = i;
-        if (!checkMaxSize) break;
-    }
+            it = i;
+            if (!checkMaxSize) break;
+        }
         else if (checkMaxSize) {
-        if (spr->GetWidth() > m_iMaxWidth) {
-	m_iMaxWidth = spr->GetWidth();
-        }
+            if (spr->GetWidth() > m_iMaxWidth) {
+                m_iMaxWidth = spr->GetWidth();
+            }
 
-        if (spr->GetHeight() > m_iMaxHeight) {
-	m_iMaxHeight = spr->GetHeight();
+            if (spr->GetHeight() > m_iMaxHeight) {
+                m_iMaxHeight = spr->GetHeight();
+            }
         }
-    }
     }
 
     if (it != -1) {
-    delete m_vSprites[it];
-    m_vSprites.erase(m_vSprites.begin() + it);
-    SortAndFixIterators();
-    UpdateHash();
+        delete m_vSprites[it];
+        m_vSprites.erase(m_vSprites.begin() + it);
+        SortAndFixIterators();
+        UpdateHash();
     }
 }
 
