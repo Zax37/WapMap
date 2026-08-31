@@ -4,8 +4,6 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 
-#define SIM_ROPE_DEFAULT_SPEED 3.0f
-
 extern HGE *hge;
 
 namespace ObjEdit {

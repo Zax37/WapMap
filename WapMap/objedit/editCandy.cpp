@@ -183,7 +183,7 @@ namespace ObjEdit {
 
 		const char* anim = obj->GetAnim();
 		if (!anim || !*anim) anim = "GAME_CYCLE100";
-		animation = new SHR::TextDropDown(anim, hState->hAniBank);
+		animation = new SHR::TextDropDown(anim);
 		animation->flipDirection();
 		animation->setWidth(CONTAINER_WIDTH - animated->getWidth() - 28);
 		animation->setEnabled(animated->isSelected());

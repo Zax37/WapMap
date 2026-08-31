@@ -149,7 +149,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
                             delete hIPC;
                         }
 
-                        _sleep(2000);
+                        Sleep(2000);
                     }
 
                     MessageBox(NULL, "WapMap is already running.", PRODUCT_NAME, MB_OK | MB_ICONERROR);
