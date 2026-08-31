@@ -96,7 +96,7 @@ int wmAddSetting(lua_State *L) {
         if (argc == 4)
             if (lua_tonumber(L, 4) == 1)
                 tf->SetNumerical(1);
-    } else if (iType = BrushSetDropdown) {
+    } else if (iType == BrushSetDropdown) {
         SHR::DropDown *dd = new SHR::DropDown();
         dd->SetGfx(&GV->gcnParts);
         dd->adjustHeight();

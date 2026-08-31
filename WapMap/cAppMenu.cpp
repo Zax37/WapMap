@@ -389,7 +389,7 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
     }
     GV->sprIcons16[GetIcon()]->SetColor(0xFFFFFFFF);*/
     GV->fntMyriad16->SetColor(SETA(0xe1e1e1, IsEnabled() ? 0xFF : 0x77));
-    GV->fntMyriad16->Render(x + w / 2, y + h / 2 - 1, HGETEXT_CENTER | HGETEXT_MIDDLE, GetLabel().c_str(), 0);
+    GV->fntMyriad16->Render(x + w / 2.0, y + h / 2.0 - 1, HGETEXT_CENTER | HGETEXT_MIDDLE, GetLabel().c_str(), 0);
 
     //hge->Gfx_RenderLine(x + w - 1, y, x + w - 1, y + LAY_APPMENU_H, 0xFF111111);
     return w;

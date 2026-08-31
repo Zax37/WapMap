@@ -76,8 +76,8 @@ void winGoToCoords::action(const ActionEvent &actionEvent) {
 
 void winGoToCoords::setCurCamPos() {
     auto *editState = GV->editState;
-    int currentX = editState->vPort->GetWidth() / 2 / editState->fZoom + editState->fCamX;
-    int currentY = editState->vPort->GetHeight() / 2 / editState->fZoom + editState->fCamY;
+    int currentX = editState->vPort->GetWidth() / 2.0 / editState->fZoom + editState->fCamX;
+    int currentY = editState->vPort->GetHeight() / 2.0 / editState->fZoom + editState->fCamY;
 
     char temp[32];
 

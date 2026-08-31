@@ -379,7 +379,7 @@ namespace ObjEdit {
 		if (!count) {
 		    static const char* noImagesStr = GETL2S("EditObj_Candy", "NoImages");
             GV->fntMyriad16->SetColor(0xFFe1e1e1);
-            GV->fntMyriad16->Render(dx + w / 2, dy + CONTAINER_HEIGHT / 2, HGETEXT_CENTER | HGETEXT_MIDDLE, noImagesStr);
+            GV->fntMyriad16->Render(dx + w / 2.0, dy + CONTAINER_HEIGHT / 2.0, HGETEXT_CENTER | HGETEXT_MIDDLE, noImagesStr);
 		}
 
 		hge->Gfx_SetClipping();

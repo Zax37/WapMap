@@ -149,7 +149,7 @@ std::string cBankLogic::GetMountPointForFile(std::string strFilePath, std::strin
 
 cCustomLogic *cBankLogic::AllocateAssetForMountPoint(cDC_MountEntry mountEntry) {
     const char* start = mountEntry.strMountPoint.c_str();
-    const char* end = strchr(start + 8, '//') + 1;
+    const char* end = strchr(start + 8, '/' + '/') + 1;
     size_t length = mountEntry.strMountPoint.size() - (end - start);
     std::string logicName(mountEntry.vFiles[0].strPath.c_str() + mountEntry.vFiles[0].strPath.size() - length);
     logicName.resize(logicName.size() - 4);

@@ -690,8 +690,8 @@ namespace ObjEdit {
             if (vSteps[i].first == 5) continue;
             modx += GetMoveX(i);
             mody += GetMoveY(i);
-            if (mx > origx + modx - imgw / 2 && mx < origx + modx + imgw / 2 &&
-                my > origy + mody - imgh / 2 && my < origy + mody + imgh / 2 &&
+            if (mx > origx + modx - imgw / 2.0 && mx < origx + modx + imgw / 2.0 &&
+                my > origy + mody - imgh / 2.0 && my < origy + mody + imgh / 2.0 &&
                 hge->Input_KeyDown(HGEK_LBUTTON)) {
                 bAllowDragging = 0;
                 if (lbSteps->getSelected() == i) {

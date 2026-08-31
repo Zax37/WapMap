@@ -138,9 +138,9 @@ void cColorPicker::SetColor(DWORD n) {
 
     if (!bUseAlpha) {
         n = SETA(n, 0);
-        sprintf(tmp, "%06X", n);
+        sprintf(tmp, "%06lX", n);
     } else
-        sprintf(tmp, "%08X", n);
+        sprintf(tmp, "%08lX", n);
 
     tfHex->setText(tmp);
 }
@@ -177,7 +177,7 @@ void cColorPicker::action(const gcn::ActionEvent &actionEvent) {
         int len = strlen(tfHex->getText().c_str());
         if (bUseAlpha && len != 8 || !bUseAlpha && len != 6) return;
         DWORD n = 0;
-        sscanf(tfHex->getText().c_str(), "%X", &n);
+        sscanf(tfHex->getText().c_str(), "%lX", &n);
         if (!bUseAlpha)
             n = SETA(n, 255);
         SetColor(n);
