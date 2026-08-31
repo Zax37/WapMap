@@ -267,9 +267,9 @@ public:
 
     void AlterScore(int mod) { iScore += mod; };
 
-    int GetTileColX(WWD::TileAtrib *atr, bool bRight);
+    int GetTileColX(WWD::TileAttrib *atr, bool bRight);
 
-    int GetTileColY(WWD::TileAtrib *atr);
+    int GetTileColY(WWD::TileAttrib *atr);
 
     cPhysicBody *bodyClaw;
     std::vector<GameSim::cSoundTrigger> vSndTrig;
