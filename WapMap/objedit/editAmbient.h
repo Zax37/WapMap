@@ -21,18 +21,18 @@ namespace ObjEdit {
         friend class cObjPropVP;
 
     protected:
-        virtual void _Think(bool bMouseConsumed);
+        virtual void _Think(bool bMouseConsumed) override;
 
     public:
         cEditObjAmbient(WWD::Object *obj, State::EditingWW *st);
 
         ~cEditObjAmbient();
 
-        virtual void Save();
+        virtual void Save() override;
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        virtual void Action(const gcn::ActionEvent &actionEvent) override;
 
-        virtual void Draw();
+        virtual void Draw() override;
 
         void HandleEscape() override {
             for (int i = 0; i < 2; i++) if (hPickArea[i]->IsPicking()) {

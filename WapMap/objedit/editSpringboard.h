@@ -13,14 +13,14 @@ namespace ObjEdit {
         friend class cObjPropVP;
 
     protected:
-        virtual void _Think(bool bMouseConsumed);
+        virtual void _Think(bool bMouseConsumed) override;
 
     public:
         cEditObjSpringboard(WWD::Object *obj, State::EditingWW *st);
 
         ~cEditObjSpringboard();
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        virtual void Action(const gcn::ActionEvent &actionEvent) override;
 
         bool bPicking;
         int iPickY;

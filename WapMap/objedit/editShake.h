@@ -13,16 +13,16 @@ namespace ObjEdit {
         friend class cObjPropVP;
 
     protected:
-        virtual void _Think(bool bMouseConsumed);
+        virtual void _Think(bool bMouseConsumed) override;
 
     public:
         cEditObjShake(WWD::Object *obj, State::EditingWW *st);
 
         ~cEditObjShake();
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        virtual void Action(const gcn::ActionEvent &actionEvent) override;
 
-        virtual void RenderObjectOverlay();
+        virtual void RenderObjectOverlay() override;
 
         void HandleEscape() override {
             if (hRectPick->IsPicking()) {

@@ -47,12 +47,12 @@ namespace ObjEdit {
 
 		//inherited
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        virtual void Action(const gcn::ActionEvent &actionEvent) override;
 
         //virtual void Think(bool bMouseConsumed) override;
 		virtual void Draw() override;
 
-		virtual void mouseClicked(MouseEvent& mouseEvent);
+		virtual void mouseClicked(MouseEvent& mouseEvent) override;
 
 		friend class cEditCandyVP;
 		friend class cObjPropVP;

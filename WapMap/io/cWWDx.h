@@ -27,9 +27,9 @@ public:
 
     ~cIO_WWDx() {};
 
-    virtual void SerializeTo(std::iostream *hStream);
+    virtual void SerializeTo(std::iostream *hStream) override;
 
-    virtual void DeserializeFrom(std::istream *hStream);
+    virtual void DeserializeFrom(std::istream *hStream) override;
 
     unsigned int getSize() override { return m_metaSize; }
 };

@@ -38,7 +38,7 @@ namespace ObjEdit {
         friend class cObjPropVP;
 
     protected:
-        virtual void _Think(bool bMouseConsumed);
+        virtual void _Think(bool bMouseConsumed) override;
 
     public:
         cEditObjElevator(WWD::Object *obj, State::EditingWW *st);

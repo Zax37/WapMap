@@ -694,35 +694,35 @@ namespace State {
 
         EditingWW(WWD::Parser *phParser);
 
-        virtual bool Opaque();
+        virtual bool Opaque() override;
 
-        virtual void Init();
+        virtual void Init() override;
 
-        virtual void Destroy();
+        virtual void Destroy() override;
 
-        virtual bool Think();
+        virtual bool Think() override;
 
-        virtual void PreRender();
+        virtual void PreRender() override;
 
-        virtual bool Render();
+        virtual bool Render() override;
 
-        virtual void GainFocus(const ReturnCode& code, bool bFlipped);
+        virtual void GainFocus(const ReturnCode& code, bool bFlipped) override;
 
         void ToggleFullscreen();
 
 		void FixInterfacePositions();
 
-        virtual bool PromptExit();
+        virtual bool PromptExit() override;
 
-        virtual void GfxRestore();
+        virtual void GfxRestore() override;
 
-        virtual void FileDraggedIn();
+        virtual void FileDraggedIn() override;
 
-        virtual void FileDraggedOut();
+        virtual void FileDraggedOut() override;
 
-        virtual void FileDropped();
+        virtual void FileDropped() override;
 
-        virtual void AppFocus(bool bGain);
+        virtual void AppFocus(bool bGain) override;
 
         bool bWindowFocused;
 

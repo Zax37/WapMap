@@ -32,20 +32,20 @@ namespace ObjEdit {
         friend class cObjPropVP;
 
     protected:
-        virtual void _Think(bool bMouseConsumed);
+        virtual void _Think(bool bMouseConsumed) override;
 
     public:
         cEditObjEnemy(WWD::Object *obj, State::EditingWW *st);
 
         ~cEditObjEnemy();
 
-        virtual void Save();
+        virtual void Save() override;
 
-        virtual void Action(const gcn::ActionEvent &actionEvent);
+        virtual void Action(const gcn::ActionEvent &actionEvent) override;
 
-        virtual void Draw();
+        virtual void Draw() override;
 
-        virtual void RenderObjectOverlay();
+        virtual void RenderObjectOverlay() override;
 
         static void UpdateEnemyObject(WWD::Object *obj, const std::pair<std::string, std::string>& dataPair);
 
