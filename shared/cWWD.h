@@ -1,5 +1,6 @@
 #ifndef WWD_HEADER
 #define WWD_HEADER
+#pragma GCC system_header
 #define WWD_V 6
 
 #ifdef BUILD_DEBUG
