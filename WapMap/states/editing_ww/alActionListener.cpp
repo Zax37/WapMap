@@ -1454,7 +1454,12 @@ namespace State {
                     m_hOwn->hAppMenu->keyPressed(keyEvent);
                 }
             }
-        } else if (keyEvent.getKey() == 'z' && m_hOwn->iActiveTool < EWW_TOOL_ZOOM) {
+        } else if (keyEvent.getKey() == 'z'
+                && !keyEvent.isControlPressed()
+                && !keyEvent.isAltPressed()
+                && !keyEvent.isShiftPressed()
+                && !keyEvent.isMetaPressed()
+                && m_hOwn->iActiveTool < EWW_TOOL_ZOOM) {
             m_hOwn->SetTool(EWW_TOOL_ZOOM);
         } else if (m_hOwn->iMode == EWW_MODE_OBJECT && !m_hOwn->vObjectsPicked.empty()) {
             switch (keyEvent.getKey().getValue()) {
