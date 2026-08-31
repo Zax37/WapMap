@@ -79,8 +79,8 @@ cAppMenu::cAppMenu() {
     SyncDocumentClosed();
 
     workcon = hEntries[AppMenu_Edit]->GetContext();
-    workcon->AddElement(APPMEN_EDIT_UNDO, "Undo\tCtrl+Z");
-    workcon->AddElement(APPMEN_EDIT_REDO, "Redo\tCtrl+Y");
+    workcon->AddElement(APPMEN_EDIT_UNDO, "Undo");
+    workcon->AddElement(APPMEN_EDIT_REDO, "Redo");
     workcon->GetElementByID(APPMEN_EDIT_UNDO)->SetEnabled(false);
     workcon->GetElementByID(APPMEN_EDIT_REDO)->SetEnabled(false);
     workcon->AddSeparator();
