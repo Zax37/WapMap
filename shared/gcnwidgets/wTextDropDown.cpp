@@ -5,6 +5,7 @@
 #include "wScrollArea.h"
 #include "../../WapMap/cInterfaceSheet.h"
 #include "../commonFunc.h"
+#include <cmath>
 
 namespace SHR {
     TextDropDown::TextDropDown(std::string defText,
@@ -139,7 +140,7 @@ namespace SHR {
 
         hgeFont *fnt = ((HGEImageFont *) getFont())->getHandleHGE();
         fnt->SetColor(SETA(0xe1e1e1, (isEnabled() ? 0xFF : 0x77) * getAlpha() / 255.f));
-        fnt->Render(x + 5 - mXScroll, ceil(y + h / 2) - 1, HGETEXT_LEFT | HGETEXT_MIDDLE, mText.c_str(), true);
+        fnt->Render(x + 5 - mXScroll, ceil(y + h / 2.0) - 1, HGETEXT_LEFT | HGETEXT_MIDDLE, mText.c_str(), true);
 
         if (bTextFocused && mSelectionPosition != -1 && mSelectionPosition != mCaretPosition) {
             int starti, endi;
@@ -518,7 +519,7 @@ namespace SHR {
         int i = mListBox->findIndexOf(mText);
         if (i != -1) {
             mListBox->setSelected(i);
-            mScrollArea->setVerticalScrollAmount((i + 0.5f) * mListBox->getRowHeight() - mScrollArea->getHeight() / 2);
+            mScrollArea->setVerticalScrollAmount((i + 0.5f) * mListBox->getRowHeight() - mScrollArea->getHeight() / 2.0);
         }
     }
 
