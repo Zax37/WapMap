@@ -1,6 +1,5 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../../shared/commonFunc.h"
 #include <cmath>
 #include "../../databanks/tiles.h"
 #include "../../cBrush.h"
@@ -296,14 +295,14 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                     }
                                 } else if (abs(y2 - y1) / abs(x2 - x1) < 1) {
                                     double wy = thickness * sqrt(pow((x2 - x1), 2)
-                                              + pow((y2 - y1), 2)) / (2 * fabs(x2 - x1));
+                                              + pow((y2 - y1), 2)) / (2 * abs(x2 - x1));
                                     for (int i = 0; i < wy; i++) {
                                         bline(x1, y1 - i, x2, y2 - i);
                                         bline(x1, y1 + i, x2, y2 + i);
                                     }
                                 } else {
                                     double wx = thickness * sqrt(pow((x2 - x1), 2)
-                                              + pow((y2 - y1), 2)) / (2 * fabs(y2 - y1));
+                                              + pow((y2 - y1), 2)) / (2 * abs(y2 - y1));
                                     for (int i = 0; i < wx; i++) {
                                         bline(x1 - i, y1, x2 - i, y2);
                                         bline(x1 + i, y1, x2 + i, y2);

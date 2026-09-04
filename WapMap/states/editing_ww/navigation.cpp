@@ -2,8 +2,8 @@
 
 void State::EditingWW::NavigateToStartLocation()
 {
-    fCamX = hParser->GetStartX() - (vPort->GetWidth() / 2 / fZoom);
-    fCamY = hParser->GetStartY() - (vPort->GetHeight() / 2 / fZoom);
+    fCamX = hParser->GetStartX() - (vPort->GetWidth() / 2.0 / fZoom);
+    fCamY = hParser->GetStartY() - (vPort->GetHeight() / 2.0 / fZoom);
 }
 
 void State::EditingWW::NavigateToEndLocation()
@@ -15,8 +15,8 @@ void State::EditingWW::NavigateToEndLocation()
             || (!strcmp(object->GetLogic(), "SpecialPowerup")
                 && (!strcmp(object->GetImageSet(), "GAME_MAPPIECE")
                     || !strcmp(object->GetImageSet(), "LEVEL_GEM")))) {
-            fCamX = object->GetX() - (vPort->GetWidth() / 2 / fZoom);
-            fCamY = object->GetY() - (vPort->GetHeight() / 2 / fZoom);
+            fCamX = object->GetX() - (vPort->GetWidth() / 2.0 / fZoom);
+            fCamY = object->GetY() - (vPort->GetHeight() / 2.0 / fZoom);
 
             return;
         }
@@ -30,8 +30,8 @@ void State::EditingWW::NavigateToPoint(int x, int y)
         x = mainPlane->GetPlaneWidthPx();
     if (y > mainPlane->GetPlaneHeightPx())
         y = mainPlane->GetPlaneHeightPx();
-    fCamX = x - (vPort->GetWidth() / 2 / fZoom);
-    fCamY = y - (vPort->GetHeight() / 2 / fZoom);
+    fCamX = x - (vPort->GetWidth() / 2.0 / fZoom);
+    fCamY = y - (vPort->GetHeight() / 2.0 / fZoom);
 }
 
 void State::EditingWW::NavigateToWarpDestination(WWD::Object *warp)

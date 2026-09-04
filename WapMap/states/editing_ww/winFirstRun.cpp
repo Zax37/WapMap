@@ -1,6 +1,4 @@
 #include "../editing_ww.h"
-#include "../dialog.h"
-#include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../windows/options.h"
 
@@ -9,7 +7,7 @@ extern cAutoUpdater *_AU_GLOBAL_PTR;
 
 #define HEIGHT int height = GV->fntMyriad16->GetStringBlockHeight(370, GETL2S("FirstRun", "Text")) + 100;
 
-constexpr bool hasUpdateReady() {
+bool hasUpdateReady() {
     return GV->bAutoUpdate && _AU_GLOBAL_PTR && _AU_GLOBAL_PTR->releaseAsset.size;
 }
 

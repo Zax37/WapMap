@@ -1,10 +1,5 @@
 #include "vpFocusWidg.h"
 
-#include "guichan/exception.hpp"
-#include "guichan/font.hpp"
-#include "guichan/graphics.hpp"
-#include "guichan/mouseinput.hpp"
-
 #include "hge.h"
 
 using namespace gcn;

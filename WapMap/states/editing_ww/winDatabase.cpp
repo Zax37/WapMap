@@ -1,9 +1,7 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../dialog.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
-#include "../../cInterfaceSheet.h"
 #include "../../databanks/imageSets.h"
 
 extern HGE *hge;

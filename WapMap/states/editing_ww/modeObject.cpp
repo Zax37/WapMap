@@ -3,8 +3,6 @@
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../objprop.h"
-#include <cmath>
-#include "../../cNativeController.h"
 #include "../../objedit/editCurse.h"
 #include "../../objedit/editElevPath.h"
 #include "../../objedit/editCheckpoint.h"
@@ -33,7 +31,6 @@
 #include "../../objedit/editText.h"
 #include "../../objedit/editFloorSpike.h"
 #include "../../objedit/editLavaHand.h"
-#include "../../databanks/logics.h"
 #include "../dialog.h"
 #include "../../version.h"
 

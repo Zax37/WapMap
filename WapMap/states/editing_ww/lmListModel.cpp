@@ -1,6 +1,5 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../databanks/imageSets.h"
 #include "../../databanks/anims.h"
@@ -117,6 +116,7 @@ namespace State {
             sprintf(ret, "%d%%", (i + 1) * 25);
             return ret;
         }
+        return "";
     }
 
     int EditingWWlModel::getNumberOfElements() {
@@ -177,6 +177,8 @@ namespace State {
                 return m_hOwn->hSndBank->getNumberOfElements();
         else if (m_iType == LMODEL_ANIMSPEED)
             return 8;
-    }
 
+        // m_iType == LMODEL_LANGUAGES
+        return 0;
+    }
 }

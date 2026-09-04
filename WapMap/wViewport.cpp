@@ -1,6 +1,5 @@
 #include "wViewport.h"
 
-#include "guichan/exception.hpp"
 #include "guichan/font.hpp"
 #include "guichan/graphics.hpp"
 #include "hge.h"

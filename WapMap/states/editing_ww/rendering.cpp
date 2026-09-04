@@ -1,16 +1,12 @@
 #include "../editing_ww.h"
-#include "../loadmap.h"
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
-#include "../dialog.h"
 #include <cmath>
 #include <hgevector.h>
-#include "../../objedit/editEnemy.h"
 #include "../../objedit/editElevPath.h"
 #include "../../objedit/editWarp.h"
 #include "../../objedit/editCrate.h"
-#include "../../objedit/editStatue.h"
 #include "../../objedit/editSpringboard.h"
 #include "../../rendering/cRenderableItem.h"
 #include "../../databanks/imageSets.h"
@@ -697,7 +693,7 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
                         char tmp[32];
                         sprintf(tmp, "ID#%d", plane->GetTile(x, y)->GetID());
                         GV->fntMyriad16->SetColor(0x99FFFFFF);
-                        GV->fntMyriad16->Render(posX + plane->GetTileWidth() / 2 * fZoom,
+                        GV->fntMyriad16->Render(posX + plane->GetTileWidth() / 2.0 * fZoom,
                                                 posY + plane->GetTileHeight() * 0.75 * fZoom - 10,
                                                 HGETEXT_CENTER,
                                                 tmp, 0);
@@ -1289,11 +1285,11 @@ void State::EditingWW::DrawViewport() {
                             GV->sprArrowVerticalM->SetColor(0xFFFFFFFF);
                             GV->sprArrowVerticalU->SetColor(0xFFFFFFFF);
                             GV->fntMyriad16->SetColor(0xFF000000);
-                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 + 1 - 10,
+                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2.0, origy + lasty + stepyvec / 2.0 + 1 - 10,
                                                     HGETEXT_CENTER, "%s: %d, %d", 0, GETL2S("ObjProp", "Movement"),
                                                     dist[s] * modx, dist[s] * mody);
                             GV->fntMyriad16->SetColor(0xFFFFFFFF);
-                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2, origy + lasty + stepyvec / 2 - 10,
+                            GV->fntMyriad16->printf(origx + lastx + stepxvec / 2.0, origy + lasty + stepyvec / 2.0 - 10,
                                                     HGETEXT_CENTER, "%s: ~y~%d~w~, ~y~%d", 0,
                                                     GETL2S("ObjProp", "Movement"), dist[s] * modx, dist[s] * mody);
                         }
@@ -2090,10 +2086,10 @@ void State::EditingWW::DrawViewport() {
                 m_vMeasurePoints[i - 1].second < m_vMeasurePoints[i].second ||
                 m_vMeasurePoints[i].first < m_vMeasurePoints[i - 1].first &&
                 m_vMeasurePoints[i].second < m_vMeasurePoints[i - 1].second)
-                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
+                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2.0, y1 + (y2 - y1) / 2.0 - 20, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
                                         len);
             else
-                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0, len);
+                GV->fntMyriad16->printf(x1 + (x2 - x1) / 2.0, y1 + (y2 - y1) / 2.0, HGETEXT_LEFT, "~y~%.0f~w~px", 0, len);
         }
 
         if (iActiveTool == EWW_TOOL_MEASURE && m_vMeasurePoints.size() != 0 &&
@@ -2140,10 +2136,10 @@ void State::EditingWW::DrawViewport() {
                                m_vMeasurePoints[m_vMeasurePoints.size() - 1].second, Scr2WrdX(GetActivePlane(), scrx),
                                Scr2WrdY(GetActivePlane(), scry));
             if (x1 < scrx && y1 < scry || scrx < x1 && scry < y1)
-                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2 - 20, HGETEXT_LEFT, "~y~%.0f~w~px",
+                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2.0, y1 + (scry - y1) / 2.0 - 20, HGETEXT_LEFT, "~y~%.0f~w~px",
                                         0, len);
             else
-                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2, y1 + (scry - y1) / 2, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
+                GV->fntMyriad16->printf(x1 + (scrx - x1) / 2.0, y1 + (scry - y1) / 2.0, HGETEXT_LEFT, "~y~%.0f~w~px", 0,
                                         len);
         }
 
@@ -2273,12 +2269,12 @@ void State::EditingWW::RenderArrow(int x, int y, int x2, int y2, bool finished, 
     float rot = atan2f(vec.x, vec.y);
     if ((twoSided && len < 80.0f * fZoom) || len < 40.0f * fZoom) {
         if (twoSided) {
-            GV->sprArrowVerticalD->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
-            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
+            GV->sprArrowVerticalD->RenderEx(x + (x2 - x) / 2.0, y + (y2 - y) / 2.0, rot * -1 - M_PI, fZoom);
+            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2.0, y + (y2 - y) / 2.0, rot * -1 - M_PI, fZoom);
         } else {
             if (x2 > x) x -= 20 * fZoom; else x += 20 * fZoom;
             if (y2 > y) y -= 20 * fZoom; else y += 20 * fZoom;
-            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2, y + (y2 - y) / 2, rot * -1 - M_PI, fZoom);
+            GV->sprArrowVerticalU->RenderEx(x + (x2 - x) / 2.0, y + (y2 - y) / 2.0, rot * -1 - M_PI, fZoom);
         }
         return;
     }
@@ -2545,7 +2541,7 @@ bool State::EditingWW::Render() {
                 y += 18;
 
                 if (i == 10) {
-                    GV->fntMyriad16->printf(x + maxW / 2, y, HGETEXT_CENTER,
+                    GV->fntMyriad16->printf(x + maxW / 2.0, y, HGETEXT_CENTER,
                                             GETL(Lang_FilesDragged_AndMore), 0, files.size() - i);
                     break;
                 }
@@ -2683,7 +2679,7 @@ void State::EditingWW::DrawObjSearch() {
         } else {
             butObjSearchSelect->drawButton(GV->hGfxInterface, 2, butx, buty, butw, buth, 0xFFFFFFFF);
         }
-        GV->fntMyriad16->Render(butx + butw / 2, buty + 8, HGETEXT_CENTER, GETL2S("ObjectSearch", "GoToObject"), 0);
+        GV->fntMyriad16->Render(butx + butw / 2.0, buty + 8, HGETEXT_CENTER, GETL2S("ObjectSearch", "GoToObject"), 0);
 
         hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 135, fx + fw, fy + i * 140 - fSliVal + 135, GV->colLineDark);
         hge->Gfx_RenderLine(fx, fy + i * 140 - fSliVal + 136, fx + fw, fy + i * 140 - fSliVal + 136,
@@ -3285,7 +3281,7 @@ void State::EditingWW::DrawTilePicker() {
             int loopst = scroll / 57, loopen = slitpiPicker->getHeight() / 57 + 2;
             if (set->GetBrushesCount() == 0) {
                 GV->fntMyriad16->SetColor(0xFFe1e1e1);
-                GV->fntMyriad16->printf(itpx + 115, itpy + slitpiPicker->getHeight() / 2, HGETEXT_CENTER,
+                GV->fntMyriad16->printf(itpx + 115, itpy + slitpiPicker->getHeight() / 2.0, HGETEXT_CENTER,
                                         GETL(Lang_NoBrushes), 0);
             }
             for (int i = 0; i < set->GetBrushesCount() && i < (loopst + loopen); i++) {
@@ -3370,10 +3366,11 @@ void State::EditingWW::DrawTilePicker() {
                 hge->Gfx_RenderLine(drx - 1, dry - 1, drx - 1, dry + 50, GV->colLineDark);
                 hge->Gfx_RenderLine(drx + 50, dry - 1, drx + 50, dry + 50, GV->colLineDark);
                 DWORD colBorder = GV->colLineBright;
-                if (iTilePicked == EWW_TILE_PIPETTE && iPipetteTileHL != EWW_TILE_NONE)
+                if (iTilePicked == EWW_TILE_PIPETTE && iPipetteTileHL != EWW_TILE_NONE) {
                     if (iPipetteTileHL == EWW_TILE_ERASE && i == -2) colBorder = TILE_HIGHLIGHT_COLOR;
                     else if (iPipetteTileHL == EWW_TILE_FILL && i == -1) colBorder = TILE_HIGHLIGHT_COLOR;
                     else if (iPipetteTileHL == i) colBorder = TILE_HIGHLIGHT_COLOR;
+                }
                 if (mx > drx && my > dry && mx < drx + 48 && my < dry + 48 && hasMouse && my > itpy &&
                     my < itpy + slitpiPicker->getHeight()) {
                     colBorder = TILE_HIGHLIGHT_COLOR;

@@ -1,5 +1,4 @@
 #include "../editing_ww.h"
-#include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../../../shared/gcnwidgets/wComboButton.h"
 #include "../../databanks/tiles.h"

@@ -1,7 +1,6 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
 #include "../../../shared/commonFunc.h"
-#include "../loadmap.h"
 #include "../../langID.h"
 #include "../dialog.h"
 #include "../../cObjectUserData.h"
@@ -202,9 +201,8 @@ namespace State {
         } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[OpenExisting]) {
             GV->editState->OpenDocuments();
         } else if (actionEvent.getSource() == m_hOwn->welcomeScreenOptions[WhatsNew]) {
-            char tmp[256];
-            sprintf(tmp, "Changelog.html", GV->Lang->GetCode());
-            printf(tmp);
+            char tmp[] = "Changelog.html";
+            printf("%s", tmp);
             ShellExecute(hge->System_GetState(HGE_HWND), "open", tmp, NULL, NULL, SW_SHOWNORMAL);
         } else if (actionEvent.getSource() == m_hOwn->lbpmPlanes) {
             m_hOwn->SyncPlaneProperties();
@@ -1168,6 +1166,8 @@ namespace State {
                                 break;
                             case WWD::AttribType_Double:
                                 ((WWD::DoubleTileAttrib *) m_hOwn->hTempAttrib)->setInsideAttrib((WWD::TILE_ATTRIB) i);
+                                break;
+                            default:
                                 break;
                         }
                     } else {
