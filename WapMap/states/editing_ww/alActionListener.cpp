@@ -1720,6 +1720,14 @@ namespace State {
                     iMoveRelY = vObjectsHL[0]->GetY();
                     // Snapshot objects before move for undo
                     if (!vObjectsPicked.empty()) {
+                        printf("[MOVE] Starting move: %zu objects picked\n", vObjectsPicked.size());
+                        for (size_t i = 0; i < vObjectsPicked.size(); i++) {
+                            WWD::Object* obj = vObjectsPicked[i];
+                            printf("[MOVE] Object %zu: ID=%d, pos=(%d, %d), userData=(%d, %d)\n",
+                                   i, obj->GetParam(WWD::Param_ID),
+                                   obj->GetParam(WWD::Param_LocationX), obj->GetParam(WWD::Param_LocationY),
+                                   GetUserDataFromObj(obj)->GetX(), GetUserDataFromObj(obj)->GetY());
+                        }
                         UndoBegin("Move Objects");
                         UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsModified);
                     }
@@ -1857,6 +1865,7 @@ namespace State {
                     vObjectsHL.clear();
                 } else {
                     if (iActiveTool == EWW_TOOL_MOVEOBJECT) {
+                        printf("[MOVE] Mouse released, finalizing move\n");
                         SetTool(EWW_TOOL_NONE);
                         if (vObjectsPicked[0] == GV->tempObjBeingCreated ||
                             ((GetUserDataFromObj(vObjectsPicked[0])->GetX() -
@@ -1865,6 +1874,14 @@ namespace State {
                                vObjectsPicked[0]->GetParam(WWD::Param_LocationY))
                             && UpdateMovedObjectWithRects(vObjectsPicked))) {
                             MarkUnsaved();
+                        }
+                        // Log final state after move
+                        for (size_t i = 0; i < vObjectsPicked.size(); i++) {
+                            WWD::Object* obj = vObjectsPicked[i];
+                            printf("[MOVE] Final state object %zu: ID=%d, pos=(%d, %d), userData=(%d, %d)\n",
+                                   i, obj->GetParam(WWD::Param_ID),
+                                   obj->GetParam(WWD::Param_LocationX), obj->GetParam(WWD::Param_LocationY),
+                                   GetUserDataFromObj(obj)->GetX(), GetUserDataFromObj(obj)->GetY());
                         }
                         if (UndoIsInAction()) UndoEnd();
                         vPort->MarkToRedraw();
