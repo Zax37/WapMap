@@ -197,9 +197,18 @@ void cUndoManager::RestoreObjectState(WWD::Object* dst, WWD::Object* src) {
 }
 
 void cUndoManager::RebuildQuadtreeForPlane(State::EditingWW* editor, int planeIndex) {
-    if (!editor || planeIndex < 0 || planeIndex >= (int)editor->hPlaneData.size()) return;
+    if (!editor || planeIndex < 0 || planeIndex >= (int)editor->hPlaneData.size()) {
+        printf("[UNDO] RebuildQuadtreeForPlane: invalid params - editor=%p, planeIndex=%d, hPlaneData.size()=%zu\n",
+               (void*)editor, planeIndex, editor ? editor->hPlaneData.size() : 0);
+        return;
+    }
     auto* pd = editor->hPlaneData[planeIndex];
-    if (!pd) return;
+    if (!pd) {
+        printf("[UNDO] RebuildQuadtreeForPlane: hPlaneData[%d] is NULL\n", planeIndex);
+        return;
+    }
+
+    printf("[UNDO] RebuildQuadtreeForPlane: planeIndex=%d\n", planeIndex);
 
     // Clear cell references for all objects before rebuilding the quadtree.
     // When the old quadtree is deleted, its cells become invalid. We must clear
@@ -207,6 +216,9 @@ void cUndoManager::RebuildQuadtreeForPlane(State::EditingWW* editor, int planeIn
     // will have both invalid (old) and valid (new) cell references.
     WWD::Plane* plane = editor->hParser->GetPlane(planeIndex);
     if (plane) {
+        int objCount = plane->GetObjectsCount();
+        printf("[UNDO] RebuildQuadtreeForPlane: plane has %d objects\n", objCount);
+
         for (int i = 0; i < plane->GetObjectsCount(); i++) {
             WWD::Object* obj = plane->GetObjectByIterator(i);
             if (obj && obj->GetUserData()) {
@@ -214,12 +226,17 @@ void cUndoManager::RebuildQuadtreeForPlane(State::EditingWW* editor, int planeIn
                 ud->ClearCellReferences();
             }
         }
+    } else {
+        printf("[UNDO] RebuildQuadtreeForPlane: plane is NULL\n");
     }
 
     if (pd->ObjectData.hQuadTree) {
+        printf("[UNDO] RebuildQuadtreeForPlane: deleting old quadtree\n");
         delete pd->ObjectData.hQuadTree;
     }
+    printf("[UNDO] RebuildQuadtreeForPlane: creating new quadtree\n");
     pd->ObjectData.hQuadTree = new cObjectQuadTree(plane, editor->SprBank);
+    printf("[UNDO] RebuildQuadtreeForPlane: quadtree created successfully\n");
 }
 
 void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, Action& redoAction) {
@@ -300,18 +317,40 @@ void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, A
         redoSnap.kind = Snap_ObjectsModified;
         redoSnap.planeIndex = snap.planeIndex;
 
+        printf("[UNDO] Snap_ObjectsModified: planeIndex=%d, objectCount=%zu\n", snap.planeIndex, snap.objects.size());
+
         for (size_t i = 0; i < snap.objects.size(); i++) {
             WWD::Object* savedObj = snap.objects[i];
             int objID = snap.objectIDs[i];
+            int savedX = savedObj->GetParam(WWD::Param_LocationX);
+            int savedY = savedObj->GetParam(WWD::Param_LocationY);
+
+            printf("[UNDO] Processing object %zu/%zu: objID=%d, savedPos=(%d, %d)\n", i+1, snap.objects.size(), objID, savedX, savedY);
+
             WWD::Object* live = plane->GetObjectByObjectID(objID);
             if (live) {
+                int liveX = live->GetParam(WWD::Param_LocationX);
+                int liveY = live->GetParam(WWD::Param_LocationY);
+                printf("[UNDO] Found live object: currentPos=(%d, %d)\n", liveX, liveY);
+
                 redoSnap.objects.push_back(new WWD::Object(live));
                 redoSnap.objectIDs.push_back(objID);
 
                 RestoreObjectState(live, savedObj);
 
+                int restoredX = live->GetParam(WWD::Param_LocationX);
+                int restoredY = live->GetParam(WWD::Param_LocationY);
+                printf("[UNDO] After RestoreObjectState: restoredPos=(%d, %d)\n", restoredX, restoredY);
+
                 cObjUserData* ud = (cObjUserData*)live->GetUserData();
-                if (ud) ud->SyncToObj();
+                if (ud) {
+                    ud->SyncToObj();
+                    printf("[UNDO] After SyncToObj: userDataPos=(%d, %d)\n", ud->GetX(), ud->GetY());
+                } else {
+                    printf("[UNDO] WARNING: live object has no user data!\n");
+                }
+            } else {
+                printf("[UNDO] ERROR: Could not find live object with ID %d!\n", objID);
             }
         }
 
@@ -324,10 +363,14 @@ void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, A
 void cUndoManager::Undo(State::EditingWW* editor) {
     if (m_undoStack.empty() || !editor || !editor->hParser) return;
 
+    printf("[UNDO] Undo called. Stack size: %zu\n", m_undoStack.size());
+
     if (m_inAction) CancelAction();
 
     Action action = std::move(m_undoStack.back());
     m_undoStack.pop_back();
+
+    printf("[UNDO] Processing action: %s with %zu snapshots\n", action.description.c_str(), action.snapshots.size());
 
     Action redoAction;
     redoAction.description = action.description;
@@ -346,8 +389,24 @@ void cUndoManager::Undo(State::EditingWW* editor) {
             affectedPlanes.insert(snap.planeIndex);
         }
     }
+    printf("[UNDO] Affected planes for quadtree rebuild: %zu\n", affectedPlanes.size());
     for (int pi : affectedPlanes) {
         RebuildQuadtreeForPlane(editor, pi);
+    }
+
+    // Log final state
+    for (int pi : affectedPlanes) {
+        if (pi >= 0 && pi < (int)editor->hPlaneData.size() && editor->hPlaneData[pi]) {
+            WWD::Plane* plane = editor->hParser->GetPlane(pi);
+            if (plane) {
+                printf("[UNDO] Final state for plane %d: %d objects in plane\n", pi, plane->GetObjectsCount());
+                if (editor->hPlaneData[pi]->ObjectData.hQuadTree) {
+                    printf("[UNDO] Quadtree exists for plane %d\n", pi);
+                } else {
+                    printf("[UNDO] ERROR: Quadtree is NULL for plane %d\n", pi);
+                }
+            }
+        }
     }
 
     editor->vPort->MarkToRedraw();
