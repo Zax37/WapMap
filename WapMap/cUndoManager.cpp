@@ -250,6 +250,14 @@ void cUndoManager::RebuildQuadtreeForPlane(State::EditingWW* editor, int planeIn
     printf("[UNDO] RebuildQuadtreeForPlane: creating new quadtree\n");
     pd->ObjectData.hQuadTree = new cObjectQuadTree(plane, editor->SprBank);
     printf("[UNDO] RebuildQuadtreeForPlane: quadtree created successfully\n");
+
+    // Add starting position object to quadtree if it exists and belongs to this plane
+    if (editor->hStartingPosObj && editor->hStartingPosObj->GetUserData()) {
+        printf("[UNDO] RebuildQuadtreeForPlane: adding starting position object to quadtree\n");
+        cObjUserData* ud = (cObjUserData*)editor->hStartingPosObj->GetUserData();
+        ud->ClearCellReferences();
+        pd->ObjectData.hQuadTree->UpdateObject(editor->hStartingPosObj);
+    }
 }
 
 void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, Action& redoAction) {
