@@ -110,7 +110,12 @@ void cUndoManager::SnapshotObjects(WWD::Plane* plane,
     snap.kind = kind;
     snap.planeIndex = planeIndex;
     for (auto* obj : objs) {
-        snap.objects.push_back(new WWD::Object(obj));
+        WWD::Object* snapshotObj = new WWD::Object(obj);
+        printf("[UNDO] Snapshot created for object ID=%d, captured pos=(%d, %d)\n",
+               obj->GetParam(WWD::Param_ID),
+               snapshotObj->GetParam(WWD::Param_LocationX),
+               snapshotObj->GetParam(WWD::Param_LocationY));
+        snap.objects.push_back(snapshotObj);
         snap.objectIDs.push_back(obj->GetParam(WWD::Param_ID));
     }
 
@@ -174,8 +179,16 @@ const char* cUndoManager::GetRedoDescription() const {
 }
 
 void cUndoManager::RestoreObjectState(WWD::Object* dst, WWD::Object* src) {
+    printf("[UNDO] RestoreObjectState: src pos=(%d, %d), dst pos before=(%d, %d)\n",
+           src->GetParam(WWD::Param_LocationX), src->GetParam(WWD::Param_LocationY),
+           dst->GetParam(WWD::Param_LocationX), dst->GetParam(WWD::Param_LocationY));
+
     for (int i = 0; i < OBJ_PARAMS_CNT; i++)
         dst->SetParam((WWD::OBJ_PARAMS)i, src->GetParam((WWD::OBJ_PARAMS)i));
+
+    printf("[UNDO] RestoreObjectState: dst pos after=(%d, %d)\n",
+           dst->GetParam(WWD::Param_LocationX), dst->GetParam(WWD::Param_LocationY));
+
     for (int i = 0; i < 8; i++)
         dst->SetUserValue(i, src->GetUserValue(i));
     dst->SetName(src->GetName());
@@ -325,17 +338,35 @@ void cUndoManager::ApplyUndoSnapshot(Snapshot& snap, State::EditingWW* editor, A
             int savedX = savedObj->GetParam(WWD::Param_LocationX);
             int savedY = savedObj->GetParam(WWD::Param_LocationY);
 
-            printf("[UNDO] Processing object %zu/%zu: objID=%d, savedPos=(%d, %d)\n", i+1, snap.objects.size(), objID, savedX, savedY);
+            printf("[UNDO] Snapshot object %zu: ptr=%p, ID=%d, pos=(%d, %d)\n", i, (void*)savedObj, objID, savedX, savedY);
 
-            WWD::Object* live = plane->GetObjectByObjectID(objID);
+            // Check if this is the starting position object (stored separately)
+            WWD::Object* live = nullptr;
+            if (editor->hStartingPosObj && editor->hStartingPosObj->GetParam(WWD::Param_ID) == objID) {
+                live = editor->hStartingPosObj;
+                printf("[UNDO] Found starting position object: ptr=%p\n", (void*)live);
+            } else {
+                live = plane->GetObjectByObjectID(objID);
+            }
+
+            printf("[UNDO] After finding live, savedObj pos: (%d, %d)\n",
+                   savedObj->GetParam(WWD::Param_LocationX), savedObj->GetParam(WWD::Param_LocationY));
+
             if (live) {
                 int liveX = live->GetParam(WWD::Param_LocationX);
                 int liveY = live->GetParam(WWD::Param_LocationY);
-                printf("[UNDO] Found live object: currentPos=(%d, %d)\n", liveX, liveY);
+                printf("[UNDO] Found live object: ptr=%p, currentPos=(%d, %d)\n", (void*)live, liveX, liveY);
 
+                printf("[UNDO] Before creating redo snapshot, savedObj pos: (%d, %d)\n",
+                       savedObj->GetParam(WWD::Param_LocationX), savedObj->GetParam(WWD::Param_LocationY));
                 redoSnap.objects.push_back(new WWD::Object(live));
                 redoSnap.objectIDs.push_back(objID);
+                printf("[UNDO] After creating redo snapshot, savedObj pos: (%d, %d)\n",
+                       savedObj->GetParam(WWD::Param_LocationX), savedObj->GetParam(WWD::Param_LocationY));
 
+                printf("[UNDO] About to call RestoreObjectState(live=%p, savedObj=%p)\n", (void*)live, (void*)savedObj);
+                printf("[UNDO] savedObj pos before restore: (%d, %d)\n",
+                       savedObj->GetParam(WWD::Param_LocationX), savedObj->GetParam(WWD::Param_LocationY));
                 RestoreObjectState(live, savedObj);
 
                 int restoredX = live->GetParam(WWD::Param_LocationX);
