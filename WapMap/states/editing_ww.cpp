@@ -9,8 +9,8 @@
 #include "dialog.h"
 #include <cmath>
 #include "../cAppMenu.h"
-#include "../../shared/gcnWidgets/wComboButton.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wComboButton.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
 #include "../cNativeController.h"
 #include "../windows/tileBrowser.h"
 #include "../windows/imgsetBrowser.h"
@@ -2481,7 +2481,10 @@ void State::EditingWW::GainFocus(const ReturnCode& code, bool bFlipped) {
             } else if (code.value == 1) {
                 objContext->EmulateClickID(OBJMENU_MOVE);
             } else if (code.value == 2 && !vObjectsPicked.empty()) {
+                UndoBegin("Delete Object");
+                UndoSnapshotObject(GetActivePlane(), vObjectsPicked[0], cUndoManager::Snap_ObjectsDeleted);
                 GetActivePlane()->DeleteObject(vObjectsPicked[0]);
+                UndoEnd();
             }
         break;
     }
@@ -3860,4 +3863,63 @@ void State::EditingWW::PutToBottomRight(SHR::Win *window) {
         vPort->GetX() + vPort->GetWidth() - window->getWidth() - 10,
         vPort->GetY() + vPort->GetHeight() - window->getHeight() - 10
     );
+}
+
+// --- Undo/Redo helpers ---
+
+void State::EditingWW::UndoBegin(const char* desc) {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) doc->hUndoMgr->BeginAction(desc);
+}
+
+void State::EditingWW::UndoSnapshotTiles(WWD::Plane* pl, int x1, int y1, int x2, int y2) {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) doc->hUndoMgr->SnapshotTiles(pl, x1, y1, x2, y2);
+}
+
+void State::EditingWW::UndoSnapshotObjects(WWD::Plane* pl, const std::vector<WWD::Object*>& objs, cUndoManager::SnapshotKind kind) {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) doc->hUndoMgr->SnapshotObjects(pl, objs, kind);
+}
+
+void State::EditingWW::UndoSnapshotObject(WWD::Plane* pl, WWD::Object* obj, cUndoManager::SnapshotKind kind) {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) doc->hUndoMgr->SnapshotObject(pl, obj, kind);
+}
+
+void State::EditingWW::UndoEnd() {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) {
+        doc->hUndoMgr->EndAction();
+        if (hAppMenu) hAppMenu->SyncUndoState();
+    }
+}
+
+void State::EditingWW::UndoCancel() {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) doc->hUndoMgr->CancelAction();
+}
+
+bool State::EditingWW::UndoIsInAction() {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr) return doc->hUndoMgr->IsInAction();
+    return false;
+}
+
+void State::EditingWW::PerformUndo() {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr && doc->hUndoMgr->CanUndo()) {
+        doc->hUndoMgr->Undo(this);
+        MarkUnsaved();
+        if (hAppMenu) hAppMenu->SyncUndoState();
+    }
+}
+
+void State::EditingWW::PerformRedo() {
+    auto* doc = MDI ? MDI->GetActiveDoc() : nullptr;
+    if (doc && doc->hUndoMgr && doc->hUndoMgr->CanRedo()) {
+        doc->hUndoMgr->Redo(this);
+        MarkUnsaved();
+        if (hAppMenu) hAppMenu->SyncUndoState();
+    }
 }

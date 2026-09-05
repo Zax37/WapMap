@@ -3,37 +3,34 @@
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../objprop.h"
-#include <cmath>
-#include "../../cNativeController.h"
-#include "../../objEdit/editCurse.h"
-#include "../../objEdit/editElevPath.h"
-#include "../../objEdit/editCheckpoint.h"
-#include "../../objEdit/editWarp.h"
-#include "../../objEdit/editWallCannon.h"
-#include "../../objEdit/editCrumblingPeg.h"
-#include "../../objEdit/editStatue.h"
-#include "../../objEdit/editBreakPlank.h"
-#include "../../objEdit/editCrate.h"
-#include "../../objEdit/editTreasure.h"
-#include "../../objEdit/editRope.h"
-#include "../../objEdit/editHealth.h"
-#include "../../objEdit/editSpecialPowerup.h"
-#include "../../objEdit/editTogglePeg.h"
-#include "../../objEdit/editCandy.h"
-#include "../../objEdit/editSpringboard.h"
-#include "../../objEdit/editSoundTrigger.h"
-#include "../../objEdit/editProjectile.h"
-#include "../../objEdit/editElevator.h"
-#include "../../objEdit/editCrabNest.h"
-#include "../../objEdit/editShake.h"
-#include "../../objEdit/editLaser.h"
-#include "../../objEdit/editStalactite.h"
-#include "../../objEdit/editAmbient.h"
-#include "../../objEdit/editEnemy.h"
-#include "../../objEdit/editText.h"
-#include "../../objEdit/editFloorSpike.h"
-#include "../../objEdit/editLavaHand.h"
-#include "../../databanks/logics.h"
+#include "../../objedit/editCurse.h"
+#include "../../objedit/editElevPath.h"
+#include "../../objedit/editCheckpoint.h"
+#include "../../objedit/editWarp.h"
+#include "../../objedit/editWallCannon.h"
+#include "../../objedit/editCrumblingPeg.h"
+#include "../../objedit/editStatue.h"
+#include "../../objedit/editBreakPlank.h"
+#include "../../objedit/editCrate.h"
+#include "../../objedit/editTreasure.h"
+#include "../../objedit/editRope.h"
+#include "../../objedit/editHealth.h"
+#include "../../objedit/editSpecialPowerup.h"
+#include "../../objedit/editTogglePeg.h"
+#include "../../objedit/editCandy.h"
+#include "../../objedit/editSpringboard.h"
+#include "../../objedit/editSoundTrigger.h"
+#include "../../objedit/editProjectile.h"
+#include "../../objedit/editElevator.h"
+#include "../../objedit/editCrabNest.h"
+#include "../../objedit/editShake.h"
+#include "../../objedit/editLaser.h"
+#include "../../objedit/editStalactite.h"
+#include "../../objedit/editAmbient.h"
+#include "../../objedit/editEnemy.h"
+#include "../../objedit/editText.h"
+#include "../../objedit/editFloorSpike.h"
+#include "../../objedit/editLavaHand.h"
 #include "../dialog.h"
 #include "../../version.h"
 
@@ -228,6 +225,7 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
         if (!vObjToPick.empty())
             vObjectsPicked = vObjToPick;
         if (bAddNext) {
+            UndoBegin("Add Next");
             auto *newObj = new WWD::Object(vObjectsPicked[0]);
             GV->tempObjBeingCreated = newObj;
             newObj->SetParam(WWD::Param_LocationX, Scr2WrdX(GetActivePlane(), vPort->GetX() + vPort->GetWidth() / 2));
@@ -243,11 +241,16 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             hEditObj->ApplyDataFromPrevObject(specialPtr);
             bEditObjDelete = true;
             hEditObj->SetWindowPosition(winX, winY);
+            UndoSnapshotObject(GetActivePlane(), newObj, cUndoManager::Snap_ObjectsAdded);
+            UndoEnd();
         } else if (bEditObjDelete) {
             std::vector<WWD::Object*> tmp = vObjectsPicked;
+            UndoBegin("Delete Object");
+            UndoSnapshotObjects(GetActivePlane(), tmp, cUndoManager::Snap_ObjectsDeleted);
             for (auto& object : tmp) {
                 GetActivePlane()->DeleteObject(object);
             }
+            UndoEnd();
             bEditObjDelete = false;
             GV->tempObjBeingCreated = 0;
         }
@@ -276,6 +279,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                         break;
                     }
                 if (alignToObj != 0) {
+                    UndoBegin("Align Objects");
+                    UndoSnapshotObjects(GetActivePlane(), vObjectsPicked, cUndoManager::Snap_ObjectsModified);
                     for (auto & object : vObjectsPicked) {
                         if (bObjectAlignAxis)
                             object->SetParam(WWD::Param_LocationY,
@@ -285,6 +290,8 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
                                              alignToObj->GetParam(WWD::Param_LocationX));
                         GetUserDataFromObj(object)->SyncToObj();
                     }
+                    UndoEnd();
+                    MarkUnsaved();
                     SetTool(EWW_TOOL_NONE);
                     vPort->MarkToRedraw();
                 }
@@ -323,6 +330,10 @@ bool State::EditingWW::ObjectThink(bool pbConsumed) {
             if (bObjBrushDrawing) {
                 if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
                     bObjBrushDrawing = false;
+                    if (bUndoStrokeActive) {
+                        UndoEnd();
+                        bUndoStrokeActive = false;
+                    }
                 } else {
                     float distance = DISTANCE(iobjbrLastDrawnX,
                                               iobjbrLastDrawnY,
@@ -652,11 +663,14 @@ void State::EditingWW::CreateObjectWithEasyEdit(gcn::Widget *widg) {
         LogicInfo::GetEnemyLogicPairs(vstrpTypes, hParser->GetBaseLevel());
         ObjEdit::cEditObjEnemy::UpdateEnemyObject(obj, vstrpTypes[0]);
     }
+    UndoBegin("Create Object");
     GetActivePlane()->AddObjectAndCalcID(obj);
     obj->SetUserData(new cObjUserData(obj));
     hPlaneData[GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
     vObjectsPicked.clear();
     vObjectsPicked.push_back(obj);
+    UndoSnapshotObject(GetActivePlane(), obj, cUndoManager::Snap_ObjectsAdded);
+    UndoEnd();
     if (bDoContext) {
         objContext->EmulateClickID(OBJMENU_EDIT);
     } else {
@@ -828,6 +842,10 @@ bool State::EditingWW::UpdateMovedObjectWithRects(std::vector<WWD::Object *>& ve
 }
 
 void State::EditingWW::ObjectBrush(int x, int y) {
+    if (!bUndoStrokeActive) {
+        bUndoStrokeActive = true;
+        UndoBegin("Object Brush");
+    }
     std::vector<WWD::Object*> createdObjects;
     int scatterX = atoi(tfobrDispX->getText().c_str()),
         scatterY = atoi(tfobrDispY->getText().c_str());
@@ -859,6 +877,10 @@ void State::EditingWW::ObjectBrush(int x, int y) {
         }
     }
 
+    if (!createdObjects.empty()) {
+        UndoSnapshotObjects(GetActivePlane(), createdObjects, cUndoManager::Snap_ObjectsAdded);
+    }
+
     MarkUnsaved();
     vPort->MarkToRedraw();
 }
@@ -873,6 +895,8 @@ void State::EditingWW::OnResize() {
 
 void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically) {
     if (objects.size() < 2 || (!horizontally && !vertically)) return;
+    UndoBegin("Flip Objects");
+    UndoSnapshotObjects(GetActivePlane(), objects, cUndoManager::Snap_ObjectsModified);
     int minX = objects[0]->GetX(), minY = objects[0]->GetY(), maxX = minX, maxY = minY;
 
     for (int i = 1; i < objects.size(); ++i) {
@@ -894,17 +918,26 @@ void State::EditingWW::FlipObjects(std::vector<WWD::Object *>& objects, bool hor
         MarkUnsaved();
         vPort->MarkToRedraw();
     }
+    UndoEnd();
 }
 
 void State::EditingWW::MirrorObjects(std::vector<WWD::Object *>& objects, bool horizontally, bool vertically)
 {
     if (!horizontally && !vertically) return;
+    UndoBegin("Mirror Objects");
+    UndoSnapshotObjects(GetActivePlane(), objects, cUndoManager::Snap_ObjectsModified);
 
-    for (auto & object : vObjectsPicked) {
+    for (auto & object : objects) {
         bool flipX = horizontally == !(object->GetFlipX()),
              flipY = vertically == !(object->GetFlipY());
         object->SetFlip(flipX, flipY);
+        int flags = object->GetDrawFlags() & (WWD::Flag_dr_NoDraw | WWD::Flag_dr_Flash);
+        if (object->GetFlipX()) flags |= WWD::Flag_dr_Mirror;
+        if (object->GetFlipY()) flags |= WWD::Flag_dr_Invert;
+        object->SetDrawFlags((WWD::OBJ_DRAW_FLAGS)flags);
     }
 
     vPort->MarkToRedraw();
+    MarkUnsaved();
+    UndoEnd();
 }

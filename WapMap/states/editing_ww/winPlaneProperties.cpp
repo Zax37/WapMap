@@ -1,7 +1,6 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
 #include "../dialog.h"
-#include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../cObjectUserData.h"
 #include "../../databanks/tiles.h"

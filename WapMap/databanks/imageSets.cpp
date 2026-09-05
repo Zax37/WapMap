@@ -1,9 +1,7 @@
 #include "imageSets.h"
+#include "hashlib/hl_md5wrapper.h"
 #include "tiles.h"
-#include "../../shared/commonFunc.h"
-#include "../cObjectUserData.h"
 #include "../states/editing_ww.h"
-#include "../../shared/HashLib/hashlibpp.h"
 #include "../cParallelLoop.h"
 #include "../windows/imgsetBrowser.h"
 
@@ -40,15 +38,15 @@ void cSprBankAssetIMG::Load() {
     if (!hParent || !hParent->GetParent()->IsLoadableImage(GetFile(), &imgInfo, cImageInfo::Full))
         return;
     imgSprite = new hgeSprite(0, 0, 0, imgInfo.iWidth, imgInfo.iHeight);
-    imgSprite->SetHotSpot(-imgInfo.iOffsetX + imgInfo.iWidth / 2, -imgInfo.iOffsetY + imgInfo.iHeight / 2);
+    imgSprite->SetHotSpot(-imgInfo.iOffsetX + imgInfo.iWidth / 2.0, -imgInfo.iOffsetY + imgInfo.iHeight / 2.0);
 
-	if (imgInfo.iWidth > hIS->m_iMaxWidth) {
-		hIS->m_iMaxWidth = imgInfo.iWidth;
-	}
+    if (imgInfo.iWidth > hIS->m_iMaxWidth) {
+        hIS->m_iMaxWidth = imgInfo.iWidth;
+    }
 
-	if (imgInfo.iHeight > hIS->m_iMaxHeight) {
-		hIS->m_iMaxHeight = imgInfo.iHeight;
-	}
+    if (imgInfo.iHeight > hIS->m_iMaxHeight) {
+        hIS->m_iMaxHeight = imgInfo.iHeight;
+    }
 
     ((cBankImageSet *) _hBank)->atlaser.AddSprite(imgSprite);
     ((cBankImageSet *) _hBank)->atlaser.Pack();
@@ -118,37 +116,37 @@ void cSprBankAsset::AddIMG(cSprBankAssetIMG *img) {
 }
 
 void cSprBankAsset::DeleteIMG(cSprBankAssetIMG *img) {
-	bool checkMaxSize = false;
+    bool checkMaxSize = false;
     auto spr = img->GetSprite();
-	if (spr && (spr->GetWidth() == m_iMaxWidth || spr->GetHeight() == m_iMaxHeight)) {
-		m_iMaxWidth = 0;
-		m_iMaxHeight = 0;
-		checkMaxSize = true;
-	}
-
-	size_t it = -1;
-    for (size_t i = 0; i < m_vSprites.size(); i++) {
-        if (m_vSprites[i] == img) {
-			it = i;
-			if (!checkMaxSize) break;
-		}
-		else if (checkMaxSize) {
-			if (spr->GetWidth() > m_iMaxWidth) {
-				m_iMaxWidth = spr->GetWidth();
-			}
-
-			if (spr->GetHeight() > m_iMaxHeight) {
-				m_iMaxHeight = spr->GetHeight();
-			}
-		}
+    if (spr && (spr->GetWidth() == m_iMaxWidth || spr->GetHeight() == m_iMaxHeight)) {
+        m_iMaxWidth = 0;
+        m_iMaxHeight = 0;
+        checkMaxSize = true;
     }
 
-	if (it != -1) {
-		delete m_vSprites[it];
-		m_vSprites.erase(m_vSprites.begin() + it);
-		SortAndFixIterators();
-		UpdateHash();
-	}
+    size_t it = -1;
+    for (size_t i = 0; i < m_vSprites.size(); i++) {
+        if (m_vSprites[i] == img) {
+            it = i;
+            if (!checkMaxSize) break;
+        }
+        else if (checkMaxSize) {
+            if (spr->GetWidth() > m_iMaxWidth) {
+                m_iMaxWidth = spr->GetWidth();
+            }
+
+            if (spr->GetHeight() > m_iMaxHeight) {
+                m_iMaxHeight = spr->GetHeight();
+            }
+        }
+    }
+
+    if (it != -1) {
+        delete m_vSprites[it];
+        m_vSprites.erase(m_vSprites.begin() + it);
+        SortAndFixIterators();
+        UpdateHash();
+    }
 }
 
 void cSprBankAsset::SortAndFixIterators() {
@@ -249,7 +247,7 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
     spr->GetHotSpot(&hsx, &hsy);
     ret.x2 = spr->GetWidth();
     ret.y2 = spr->GetHeight();
-    float sprw = ret.x2 / 2, sprh = ret.y2 / 2;
+    float sprw = ret.x2 / 2.0, sprh = ret.y2 / 2.0;
     hsx -= sprw;
     hsy -= sprh;
     ret.x1 = (obj->GetX() - sprw - hsx);
@@ -292,7 +290,7 @@ WWD::Rect cBankImageSet::GetObjectRenderRect(WWD::Object *obj) {
 }
 
 void cBankImageSet::SortAssets() {
-    std::ranges::sort(m_vAssets, cSprBank_SortAssets);
+    std::sort(m_vAssets.begin(), m_vAssets.end(), cSprBank_SortAssets);
 }
 
 void cBankImageSet::BatchProcessStart() {
@@ -350,7 +348,7 @@ std::string cBankImageSet::GetMountPointForFile(std::string strFilePath, std::st
     const char* fileDot = strrchr(strFile.c_str(), '.');
     if (!fileDot || !canReadExtension(fileDot + 1))
         return "";
-    std::ranges::transform(strSet, strSet.begin(), ::toupper);
+    std::transform(strSet.begin(), strSet.end(), strSet.begin(), ::toupper);
     do {
         const size_t slash = strSet.find('/');
         if (slash == std::string::npos) break;

@@ -1,7 +1,7 @@
 #ifndef H_C_TILES
 #define H_C_TILES
 
-#include "hgeSprite.h"
+#include "hgesprite.h"
 #include "../cDataController.h"
 
 namespace WWD {

@@ -337,7 +337,7 @@ void winImageSetBrowser::Draw(int piCode) {
             ofy -= ico->GetHeight() / 2;
             ofx *= fScale;
             ofy *= fScale;
-            ico->RenderEx(drawX + 10 + iPreviewDim / 2 + ofx, drawY + 10 + iPreviewDim / 2 + ofy, 0, fScale, fScale);
+            ico->RenderEx(drawX + 10 + iPreviewDim / 2.0 + ofx, drawY + 10 + iPreviewDim / 2.0 + ofy, 0, fScale, fScale);
 
             int strw = CONST_IMGSETBROWSER_ISLISTW - (20 + iPreviewDim) - 20;
             std::string str = ts->GetID();
@@ -360,7 +360,7 @@ void winImageSetBrowser::Draw(int piCode) {
             tilePickY = dy + 285, tilePickH = myWin.getHeight() - 290;
 
         int tilesPerRow = (tilePickW / CONST_IMGSETBROWSER_FRAMEICOSIZE);
-        int borderOffset = (tilePickW - (tilesPerRow * CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2;
+        int borderOffset = (tilePickW - (tilesPerRow * CONST_IMGSETBROWSER_FRAMEICOSIZE)) / 2.0;
         int scroll = saFrames->getVerticalScrollAmount();
         if (scroll < 0) scroll = 0;
 
@@ -669,14 +669,14 @@ void winImageSetBrowser::RenderFrameGroup(std::vector<cSprBankAssetIMG *> tiles,
 
         float ofx, ofy;
         spr->GetHotSpot(&ofx, &ofy);
-        ofx -= spr->GetWidth() / 2;
-        ofy -= spr->GetHeight() / 2;
+        ofx -= spr->GetWidth() / 2.0;
+        ofy -= spr->GetHeight() / 2.0;
         ofx *= fScale;
         ofy *= fScale;
-        spr->RenderEx(drawX + 5 + iPreviewDim / 2 + ofx, drawY + 5 + iPreviewDim / 2 + ofy, 0, fScale, fScale);
+        spr->RenderEx(drawX + 5 + iPreviewDim / 2.0 + ofx, drawY + 5 + iPreviewDim / 2.0 + ofy, 0, fScale, fScale);
 
         GV->fntMyriad16->SetColor(SETA(colBorder != colBright ? 0xFFFFFFFF : 0xFFe1e1e1, alpha));
-        GV->fntMyriad16->printf(drawX + iPreviewDim / 2 + 5, drawY + 10 + iPreviewDim, HGETEXT_CENTER, "%d", 0,
+        GV->fntMyriad16->printf(drawX + iPreviewDim / 2.0 + 5, drawY + 10 + iPreviewDim, HGETEXT_CENTER, "%d", 0,
                                 tile->GetID());
     }
 }

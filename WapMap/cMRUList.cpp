@@ -5,8 +5,7 @@
 
 #include "globals.h"
 #include "states/editing_ww.h"
-#include <Shlobj.h>
-#include "cAppMenu.h"
+#include <shlobj.h>
 
 inline LPITEMIDLIST PIDLGetNextItem(LPITEMIDLIST pidl) {
     return pidl ? reinterpret_cast<LPITEMIDLIST>(reinterpret_cast<BYTE *>(pidl) + pidl->mkid.cb) : NULL;
@@ -73,6 +72,7 @@ std::string ws2s(const std::wstring& wstr)
 struct entry {
     std::string path;
     std::filesystem::file_time_type time;
+    entry(std::string p, std::filesystem::file_time_type t) : path(std::move(p)), time(t) {}
 };
 
 void cMruList::Reload() {

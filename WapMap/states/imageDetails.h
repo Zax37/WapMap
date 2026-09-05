@@ -2,11 +2,11 @@
 #define H_STATE_IMGDETAILS
 
 #include "../../shared/cStateMgr.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
-#include "../../shared/gcnWidgets/wSlider.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wSlider.h"
 #include "guichan.hpp"
 #include "../wViewport.h"
 

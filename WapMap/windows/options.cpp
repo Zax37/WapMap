@@ -3,8 +3,7 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../../shared/commonFunc.h"
-#include "../cInterfaceSheet.h"
-#include "../../shared/gcnWidgets/wIconListbox.h"
+#include "../../shared/gcnwidgets/wIconListbox.h"
 #include "../cNativeController.h"
 
 extern HGE *hge;

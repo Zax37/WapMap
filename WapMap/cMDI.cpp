@@ -1,5 +1,9 @@
 #include "cMDI.h"
 #include "../shared/commonFunc.h"
+#include "databanks/anims.h"      // IWYU pragma: keep (delete requires complete type)
+#include "databanks/imageSets.h"  // IWYU pragma: keep
+#include "databanks/logics.h"     // IWYU pragma: keep
+#include "databanks/sounds.h"     // IWYU pragma: keep
 #include "globals.h"
 #include "states/editing_ww.h"
 #include "cObjectUserData.h"
@@ -9,6 +13,8 @@
 #include "version.h"
 #include "states/loadmap.h"
 #include "states/dialog.h"
+#include "cUndoManager.h"
+#include "databanks/tiles.h"
 
 extern HGE *hge;
 
@@ -114,7 +120,7 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
         strrchr(dd->szFileName, '.')[0] = 0;
     }
 
-    auto it = std::ranges::find(m_vhAutoFixedMaps, dd->hParser);
+    auto it = std::find(m_vhAutoFixedMaps.begin(), m_vhAutoFixedMaps.end(), dd->hParser);
     if (it != m_vhAutoFixedMaps.end()) {
         m_vhAutoFixedMaps.erase(it);
         dd->bSaved = false;
@@ -131,6 +137,8 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
     dd->hTab->fTimer = 0;
 
     dd->iTileSelectX1 = dd->iTileSelectY1 = dd->iTileSelectX2 = dd->iTileSelectY2 = -1;
+
+    dd->hUndoMgr = new cUndoManager();
 
     GV->editState->hPlaneData.clear();
     for (int i = 0; i < dd->hParser->GetPlanesCount(); i++) {
@@ -302,6 +310,7 @@ void cMDI::DeleteDocByIt(int i) {
     delete dd->hAniBank;
     delete dd->hCustomLogicBank;
     delete dd->hDataCtrl;
+    delete dd->hUndoMgr;
 
     for (int pl = 0; pl < dd->hParser->GetPlanesCount(); pl++) {
         if (!dd->hPlaneData[pl]->ObjectData.bEmpty) {

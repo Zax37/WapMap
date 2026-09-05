@@ -1,5 +1,6 @@
 #ifndef WWD_HEADER
 #define WWD_HEADER
+#pragma GCC system_header
 #define WWD_V 6
 
 #ifdef BUILD_DEBUG
@@ -882,7 +883,7 @@ namespace WWD {
         void LoadFromStream(std::istream *psSource);
     };
 
-    GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL) throw(Exception);
+    GAME GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel = NULL);
 }
 
 #endif

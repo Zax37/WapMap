@@ -1,9 +1,9 @@
 #ifndef H_C_MODEMENUBAR
 #define H_C_MODEMENUBAR
 
-#include "../shared/gcnWidgets/wButton.h"
-#include "../shared/gcnWidgets/wContext.h"
-#include "../shared/gcnWidgets/wDropDown.h"
+#include "../shared/gcnwidgets/wButton.h"
+#include "../shared/gcnwidgets/wContext.h"
+#include "../shared/gcnwidgets/wDropDown.h"
 
 #define NOBJCON_PREV        0
 #define NOBJCON_NEXT        1

@@ -5,7 +5,9 @@ cmake_minimum_required(VERSION 3.10)
 ## Edit this to match your configuration
 ##----------------------------------------
 
-SET( DIRECTX_SDK_DIR "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)" )
+if( NOT MINGW )
+    SET( DIRECTX_SDK_DIR "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)" )
+endif()
 
 ##----------------------------------------
 ## End of manual configuration section
@@ -23,7 +25,7 @@ ADD_CUSTOM_TARGET(release
   COMMENT "Switch CMAKE_BUILD_TYPE to Release"
   )
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
@@ -35,22 +37,35 @@ SET(LUA_DIR "${PROJECT_SOURCE_DIR}/../lua")
 SET(SFML_DIR "${PROJECT_SOURCE_DIR}/../SFML-2.5.1-2017")
 SET(CURL_DIR "${PROJECT_SOURCE_DIR}/../curl")
 SET(ZLIB_DIR "${HGE_DIR}/src/zlib-1.2.5")
+SET(FREETYPE_DIR "${PROJECT_SOURCE_DIR}/../freetype-2.13.2/install")
 
-SET(D3DX9_LIBS d3d9.lib
-	optimized d3dx9.lib debug d3dx9d.lib
-	)
-SET(HGE_LIBS hge-static.lib hgehelpers.lib)
-SET(LUA_LIB lua.lib)
-SET(SFML_LIBS
-	optimized sfml-graphics-s.lib debug sfml-graphics-s-d.lib
-	optimized sfml-window-s.lib sfml-window-s-d.lib
-	optimized sfml-system-s.lib sfml-system-s-d.lib
-	)
-SET(CURL_LIB optimized libcurl_imp.lib debug libcurl-d_imp.lib)
-SET(ZLIB_LIB optimized zlib.lib debug zlibd.lib)
-SET(OTHER_LIBS Version.lib Winmm.lib opengl32.lib freetype.lib)
+if( MINGW )
+    # Cross-compiled with MinGW-w64 — libraries are in build-mingw subdirs
+    SET(D3DX9_LIBS d3d9 d3dx9)
+    SET(HGE_LIBS hge-static hgehelpers)
+    SET(LUA_LIB lua)
+    SET(SFML_LIBS sfml-graphics-s sfml-window-s sfml-system-s sfml-main)
+    SET(CURL_LIB curl)
+    SET(ZLIB_LIB zlib)
+    SET(FREETYPE_LIB freetype)
+    SET(OTHER_LIBS version winmm iphlpapi opengl32 ws2_32 crypt32 bcrypt gdi32 imm32)
+else()
+    SET(D3DX9_LIBS d3d9.lib
+        optimized d3dx9.lib debug d3dx9d.lib
+        )
+    SET(HGE_LIBS hge-static.lib hgehelpers.lib)
+    SET(LUA_LIB lua.lib)
+    SET(SFML_LIBS
+        optimized sfml-graphics-s.lib debug sfml-graphics-s-d.lib
+        optimized sfml-window-s.lib sfml-window-s-d.lib
+        optimized sfml-system-s.lib sfml-system-s-d.lib
+        )
+    SET(CURL_LIB optimized libcurl_imp.lib debug libcurl-d_imp.lib)
+    SET(ZLIB_LIB optimized zlib.lib debug zlibd.lib)
+    SET(OTHER_LIBS Version.lib Winmm.lib opengl32.lib freetype.lib)
+endif()
 
-add_definitions(-DNOMINMAX -DWAP_MAP -DWAP_TOOLS -DSFML_STATIC)
+add_definitions(-DNOMINMAX -DWAP_MAP -DWAP_TOOLS -DSFML_STATIC -DCURL_STATICLIB)
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
     add_definitions(-DBUILD_DEBUG -DSHOWMEMUSAGE)
 endif ()
@@ -59,19 +74,36 @@ include_directories(
     "${PROJECT_SOURCE_DIR}/incl"
     "${PROJECT_SOURCE_DIR}/shared"
     "${HGE_DIR}/include"
-    "${LUA_DIR}"
+    "${LUA_DIR}/src"
     "${SFML_DIR}/include"
     "${CURL_DIR}/include"
     "${ZLIB_DIR}"
 )
 
-link_directories(
-    "${SFML_DIR}/lib"
-    "${HGE_DIR}/linklib/${CMAKE_BUILD_TYPE}"
-    "${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
-    "${LUA_DIR}/${CMAKE_BUILD_TYPE}"
-	"${DIRECTX_SDK_DIR}/Lib/x86"
-)
+if( MINGW )
+    include_directories(
+        "${FREETYPE_DIR}/include/freetype2"
+        "${FREETYPE_DIR}/include"
+    )
+endif()
+
+if( MINGW )
+    link_directories(
+        "${SFML_DIR}/build-mingw/lib"
+        "${HGE_DIR}/linklib/${CMAKE_BUILD_TYPE}"
+        "${CURL_DIR}/build-mingw/lib"
+        "${LUA_DIR}/src"
+        "${FREETYPE_DIR}/lib"
+    )
+else()
+    link_directories(
+        "${SFML_DIR}/lib"
+        "${HGE_DIR}/linklib/${CMAKE_BUILD_TYPE}"
+        "${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
+        "${LUA_DIR}/${CMAKE_BUILD_TYPE}"
+        "${DIRECTX_SDK_DIR}/Lib/x86"
+    )
+endif()
 
 
 add_executable(WapMap
@@ -101,7 +133,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wContainer.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wContext.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wDropDown.cpp
-	${PROJECT_SOURCE_DIR}/shared/gcnWidgets/wIconListbox.cpp
+	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wIconListbox.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wInventory.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wLabel.cpp
 	${PROJECT_SOURCE_DIR}/shared/gcnwidgets/wLink.cpp
@@ -192,6 +224,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/cRulers.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cSoundPlayer.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cTextureAtlas.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/cUndoManager.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/anims.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/imageSets.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/databanks/logics.cpp
@@ -214,7 +247,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevator.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editElevPath.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editEnemy.cpp
-	${PROJECT_SOURCE_DIR}/WapMap/objEdit/editFloorSpike.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objedit/editFloorSpike.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editHealth.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editLaser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editProjectile.cpp
@@ -232,7 +265,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editWarp.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editLavaHand.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/procPickRect.cpp
-	${PROJECT_SOURCE_DIR}/WapMap/objEdit/procPickXYLockable.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objedit/procPickXYLockable.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/winInventoryPickbox.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objQuadTree.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/rendering/cRenderableItem.cpp
@@ -284,6 +317,7 @@ target_link_libraries(WapMap
     ${SFML_LIBS}
     ${CURL_LIB}
     ${ZLIB_LIB}
+    ${FREETYPE_LIB}
     ${OTHER_LIBS}
 )
 

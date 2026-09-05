@@ -1,12 +1,79 @@
 #include "cGameSimulator.h"
+#include "databanks/imageSets.h"
+#include "databanks/sounds.h"
 #include "states/editing_ww.h"
 #include "cObjectUserData.h"
-#include "../shared/commonFunc.h"
-#include "bodyQuadTree.h"
-#include "version.h"
 
 extern HGE *hge;
 using namespace GameSim;
+
+// Helper: compute collision rects for a TileAttrib (replaces the removed
+// WWD::TileAttrib::GetColRects). Only handles Single and Double types;
+// Mask tiles return no rects (matching the old behavior).
+static std::vector<WWD::CollisionRect> GetTileColRects(WWD::TileAttrib *atr) {
+    std::vector<WWD::CollisionRect> r;
+    if (!atr) return r;
+    int tileW = atr->getWidth(), tileH = atr->getHeight();
+    if (atr->getType() == WWD::AttribType_Single) {
+        WWD::TILE_ATTRIB a = ((WWD::SingleTileAttrib *)atr)->getAttrib();
+        if (a != WWD::Attrib_Clear) {
+            WWD::CollisionRect n;
+            n.WWD_CR_TYPE = a;
+            n.WWD_CR_RECT = WWD::Rect(0, 0, tileW - 1, tileH - 1);
+            r.push_back(n);
+        }
+        return r;
+    }
+    if (atr->getType() == WWD::AttribType_Double) {
+        WWD::DoubleTileAttrib *datr = (WWD::DoubleTileAttrib *)atr;
+        WWD::TILE_ATTRIB inside = datr->getInsideAttrib();
+        WWD::TILE_ATTRIB outside = datr->getOutsideAttrib();
+        WWD::Rect mask = datr->getMask();
+        if (inside == outside) {
+            if (inside != WWD::Attrib_Clear) {
+                WWD::CollisionRect n;
+                n.WWD_CR_TYPE = inside;
+                n.WWD_CR_RECT = WWD::Rect(0, 0, tileW - 1, tileH - 1);
+                r.push_back(n);
+            }
+            return r;
+        }
+        if (inside != WWD::Attrib_Clear) {
+            WWD::CollisionRect n;
+            n.WWD_CR_TYPE = inside;
+            n.WWD_CR_RECT = mask;
+            r.push_back(n);
+        }
+        if (outside != WWD::Attrib_Clear) {
+            if (mask.y1 != 0) {
+                WWD::CollisionRect n;
+                n.WWD_CR_TYPE = outside;
+                n.WWD_CR_RECT = WWD::Rect(0, 0, tileW - 1, mask.y1 - 1);
+                r.push_back(n);
+            }
+            if (mask.y2 != tileH - 1) {
+                WWD::CollisionRect n;
+                n.WWD_CR_TYPE = outside;
+                n.WWD_CR_RECT = WWD::Rect(0, mask.y2 + 1, tileW - 1, tileH - 1);
+                r.push_back(n);
+            }
+            if (mask.x1 != 0) {
+                WWD::CollisionRect n;
+                n.WWD_CR_TYPE = outside;
+                n.WWD_CR_RECT = WWD::Rect(0, mask.y1, mask.x1 - 1, mask.y2);
+                r.push_back(n);
+            }
+            if (mask.x2 != tileW - 1) {
+                WWD::CollisionRect n;
+                n.WWD_CR_TYPE = outside;
+                n.WWD_CR_RECT = WWD::Rect(mask.x2 + 1, mask.y1, tileW - 1, mask.y2);
+                r.push_back(n);
+            }
+        }
+        return r;
+    }
+    return r;
+}
 
 #ifdef REAL_SIM
 
@@ -177,7 +244,7 @@ void cGameSimulator::Init() {
                 n.iDistance = 5;
                 int tileW = pl->GetTileWidth(),
                         tileH = pl->GetTileHeight();
-                WWD::TileAtrib emptyatr(tileW, tileH, WWD::AtribType_Single, WWD::Atrib_Clear);
+                WWD::SingleTileAttrib emptyatr(tileW, tileH, WWD::Attrib_Clear);
                 int tileX = obj->GetParam(WWD::Param_LocationX) / tileW, tileY =
                         obj->GetParam(WWD::Param_LocationY) / tileH;
                 WWD::Rect testrect = GV->editState->SprBank->GetObjectRenderRect(obj);
@@ -199,13 +266,13 @@ void cGameSimulator::Init() {
                     if (tileX < 0 || tileY < 0 || tileX >= pl->GetPlaneWidth() || tileY >= pl->GetPlaneHeight()) break;
                     WWD::Tile *t = GV->editState->GetActivePlane()->GetTile(tileX, tileY);
                     if (!t) break;
-                    WWD::TileAtrib *atr = NULL;
+                    WWD::TileAttrib *atr = NULL;
                     if (t->IsFilled() || t->IsInvisible())
                         atr = &emptyatr;
                     else
-                        atr = GV->editState->hParser->GetTileAtribs(t->GetID());
+                        atr = GV->editState->hParser->GetTileAttribs(t->GetID());
                     if (!atr) break;
-                    std::vector<WWD::CollisionRect> rects = atr->GetColRects();
+                    std::vector<WWD::CollisionRect> rects = GetTileColRects(atr);
                     int offx = tileX * tileW, offy = tileY * tileH;
                     int col = -1;
                     for (int i = 0; i < rects.size(); i++) {
@@ -213,7 +280,7 @@ void cGameSimulator::Init() {
                         rects[i].WWD_CR_RECT.y1 += offy;
                         rects[i].WWD_CR_RECT.x2 += offx;
                         rects[i].WWD_CR_RECT.y2 += offy;
-                        if (rects[i].WWD_CR_TYPE != WWD::Atrib_Climb && testrect.Collide(rects[i].WWD_CR_RECT)) {
+                        if (rects[i].WWD_CR_TYPE != WWD::Attrib_Climb && testrect.Collide(rects[i].WWD_CR_RECT)) {
                             col = i;
                             break;
                         }
@@ -289,7 +356,7 @@ void cGameSimulator::Init() {
 
 #ifdef REAL_SIM
                 if( !strncmp(obj->GetLogic(), "TogglePeg", 8) && bPlay ){
-                 n.bodyMe = new cPhysicBody(hPW, obj->GetParam(WWD::Param_LocationX)-22, obj->GetParam(WWD::Param_LocationY)-8, 45, 40, WWD::Atrib_Ground);
+                 n.bodyMe = new cPhysicBody(hPW, obj->GetParam(WWD::Param_LocationX)-22, obj->GetParam(WWD::Param_LocationY)-8, 45, 40, WWD::Attrib_Ground);
                 }
 #endif
 
@@ -312,7 +379,7 @@ void cGameSimulator::Init() {
                 n.fTimer = 0;
                 n.fTime = 0.001;
                 n.bOn = 0;
-                n.hChan = NULL;
+                n.hChan = 0;
                 vAmbients.push_back(n);
             } else if (!strcmp(obj->GetLogic(), "AniCycle") ||
                        !strcmp(obj->GetLogic(), "BehindAniCandy") ||
@@ -714,7 +781,7 @@ void cGameSimulator::Init() {
                     WWD::Plane *pl = GV->editState->GetActivePlane();
                     int endtile = -1, endoff = 0;
                     for (int y = atiley; y < pl->GetPlaneHeight(); y++) {
-                        endoff = GetTileColY(GV->editState->hParser->GetTileAtribs(pl->GetTile(atilex, y)->GetID()));
+                        endoff = GetTileColY(GV->editState->hParser->GetTileAttribs(pl->GetTile(atilex, y)->GetID()));
                         if (endoff == -1) {
                             endoff = 0;
                         } else {
@@ -737,7 +804,7 @@ void cGameSimulator::Init() {
 
                     int limitmin = 0, limitmax = pl->GetPlaneWidthPx();
                     for (int x = atilex; x < pl->GetPlaneWidth(); x++) {
-                        WWD::TileAtrib *atr = GV->editState->hParser->GetTileAtribs(pl->GetTile(x, endtile)->GetID());
+                        WWD::TileAttrib *atr = GV->editState->hParser->GetTileAttribs(pl->GetTile(x, endtile)->GetID());
                         if (GetTileColY(atr) != endoff) {
                             limitmax = x * GV->editState->GetActivePlane()->GetTileWidth() - spr->GetWidth() * 0.25;
                             break;
@@ -750,7 +817,7 @@ void cGameSimulator::Init() {
                         }
                     }
                     for (int x = atilex; x >= 0; x--) {
-                        WWD::TileAtrib *atr = GV->editState->hParser->GetTileAtribs(pl->GetTile(x, endtile)->GetID());
+                        WWD::TileAttrib *atr = GV->editState->hParser->GetTileAttribs(pl->GetTile(x, endtile)->GetID());
                         if (GetTileColY(atr) != endoff) {
                             limitmin =
                                     (x + 1) * GV->editState->GetActivePlane()->GetTileWidth() + spr->GetWidth() * 0.25;
@@ -910,15 +977,15 @@ void cGameSimulator::Render()
       DWORD dwCol;
       if( bodies[i]->IsHidden() )
        dwCol = 0x77777777;
-      else if( bodies[i]->GetAtrib() == WWD::Atrib_Clear )
+      else if( bodies[i]->GetAtrib() == WWD::Attrib_Clear )
        dwCol = 0xFFFF00FF;
-      else if( bodies[i]->GetAtrib() == WWD::Atrib_Climb )
+      else if( bodies[i]->GetAtrib() == WWD::Attrib_Climb )
        dwCol = COLOR_CLIMB;
-      else if( bodies[i]->GetAtrib() == WWD::Atrib_Death )
+      else if( bodies[i]->GetAtrib() == WWD::Attrib_Death )
        dwCol = COLOR_DEATH;
-      else if( bodies[i]->GetAtrib() == WWD::Atrib_Ground )
+      else if( bodies[i]->GetAtrib() == WWD::Attrib_Ground )
        dwCol = COLOR_GROUND;
-      else if( bodies[i]->GetAtrib() == WWD::Atrib_Solid )
+      else if( bodies[i]->GetAtrib() == WWD::Attrib_Solid )
        dwCol = COLOR_SOLID;
       hge->Gfx_RenderLine(x1, y1, x2, y1, dwCol);
       hge->Gfx_RenderLine(x2, y1, x2, y2, dwCol);
@@ -1099,7 +1166,7 @@ void cGameSimulator::Think() {
      if( hge->Input_KeyDown(HGEK_UP) && !bClimbing && bodyClaw->IsInAir() && bodyClaw->GetCollisionsCount() != 0 ){
       bool bLadder = 0;
       for(int i=0;i<bodyClaw->GetCollisionsCount();i++)
-       if( bodyClaw->GetCollisionBody(i)->GetAtrib() == WWD::Atrib_Climb ){
+       if( bodyClaw->GetCollisionBody(i)->GetAtrib() == WWD::Attrib_Climb ){
         bLadder = 1;
         hLadder = bodyClaw->GetCollisionBody(i);
         break;
@@ -1323,10 +1390,10 @@ void cGameSimulator::Think() {
                 } else if (type == SE_Warp) {
                     cWarp *n = (cWarp *) (((stObjUserDataSimEntity *) GetUserDataFromObj(obj)->GetSpecialData())->hPtr);
                     GV->editState->fCamX =
-                            (n->hObj->GetParam(WWD::Param_SpeedX) - GV->editState->vPort->GetWidth() / 2) *
+                            (n->hObj->GetParam(WWD::Param_SpeedX) - GV->editState->vPort->GetWidth() / 2.0) *
                             GV->editState->fZoom;
                     GV->editState->fCamY =
-                            (n->hObj->GetParam(WWD::Param_SpeedY) - GV->editState->vPort->GetHeight() / 2) *
+                            (n->hObj->GetParam(WWD::Param_SpeedY) - GV->editState->vPort->GetHeight() / 2.0) *
                             GV->editState->fZoom;
                     if (n->hObj->GetParam(WWD::Param_Smarts) == 0) {
                         delete ((stObjUserDataSimEntity *) GetUserDataFromObj(obj)->GetSpecialData());
@@ -1589,10 +1656,10 @@ void cGameSimulator::Think() {
         }
     }
     for (int i = 0; i < vAmbients.size(); i++) {
-        vAmbients[i].bPlaying = (vAmbients[i].hChan == NULL ? 0 : hge->Channel_IsPlaying(vAmbients[i].hChan));
-        if (!vAmbients[i].bPlaying && vAmbients[i].hChan != NULL) {
+        vAmbients[i].bPlaying = (vAmbients[i].hChan == 0 ? 0 : hge->Channel_IsPlaying(vAmbients[i].hChan));
+        if (!vAmbients[i].bPlaying && vAmbients[i].hChan != 0) {
             hge->Channel_Stop(vAmbients[i].hChan);
-            vAmbients[i].hChan = NULL;
+            vAmbients[i].hChan = 0;
         }
 
         vAmbients[i].fTimer += hge->Timer_GetDelta();
@@ -1621,7 +1688,7 @@ void cGameSimulator::Think() {
                                                          ? vAmbients[i].hObj->GetParam(WWD::Param_Damage) : 100));
         } else if (vAmbients[i].bPlaying && !vAmbients[i].bOn) {
             hge->Channel_Stop(vAmbients[i].hChan);
-            vAmbients[i].hChan = NULL;
+            vAmbients[i].hChan = 0;
         }
     }
     for (int i = 0; i < vEnemies.size(); i++) {
@@ -1801,7 +1868,7 @@ void cGameSimulator::Think() {
         }else{
 #endif
         if (el->bSleep) continue;
-        if (el->iMinX != 0 && el->iMaxX != 0)
+        if (el->iMinX != 0 && el->iMaxX != 0) {
             if (el->bDirHor) {
                 el->fPosX += el->fSpeedHor * hge->Timer_GetDelta();
                 if (el->fPosX > el->iMaxX) {
@@ -1823,7 +1890,8 @@ void cGameSimulator::Think() {
                     }
                 }
             }
-        if (el->iMinY != 0 && el->iMaxY != 0)
+        }
+        if (el->iMinY != 0 && el->iMaxY != 0) {
             if (el->bDirVer) {
                 el->fPosY += el->fSpeedHor * hge->Timer_GetDelta();
                 if (el->fPosY > el->iMaxY) {
@@ -1845,6 +1913,7 @@ void cGameSimulator::Think() {
                     }
                 }
             }
+        }
         GetUserDataFromObj(el->hObj)->SetPos(el->fPosX, el->fPosY);
 #ifdef REAL_SIM
         }
@@ -1854,33 +1923,45 @@ void cGameSimulator::Think() {
     mO->vPort->MarkToRedraw();
 }
 
-int cGameSimulator::GetTileColX(WWD::TileAtrib *atr, bool bRight) {
+int cGameSimulator::GetTileColX(WWD::TileAttrib *atr, bool bRight) {
     if (!atr) return -1;
-    if (atr->GetType() == WWD::AtribType_Single ||
-        atr->GetMask().x1 == 0 && atr->GetMask().y1 == 0 && atr->GetMask().x2 == 63 && atr->GetMask().y2 == 63) {
-        if (atr->GetAtribInside() == WWD::Atrib_Ground || atr->GetAtribInside() == WWD::Atrib_Solid) {
+    WWD::TILE_ATTRIB inside, outside;
+    WWD::Rect mask(0, 0, atr->getWidth() - 1, atr->getHeight() - 1);
+    if (atr->getType() == WWD::AttribType_Single) {
+        inside = outside = ((WWD::SingleTileAttrib *)atr)->getAttrib();
+    } else if (atr->getType() == WWD::AttribType_Double) {
+        WWD::DoubleTileAttrib *datr = (WWD::DoubleTileAttrib *)atr;
+        inside = datr->getInsideAttrib();
+        outside = datr->getOutsideAttrib();
+        mask = datr->getMask();
+    } else {
+        return -1;
+    }
+    if (atr->getType() == WWD::AttribType_Single ||
+        (mask.x1 == 0 && mask.y1 == 0 && mask.x2 == 63 && mask.y2 == 63)) {
+        if (inside == WWD::Attrib_Ground || inside == WWD::Attrib_Solid) {
             return 0;
         } else {
             return -1;
         }
     }
-    if (atr->GetMask().x1 == atr->GetMask().x2 || atr->GetMask().y1 == atr->GetMask().y2) {
-        if (atr->GetAtribOutside() == WWD::Atrib_Ground || atr->GetAtribOutside() == WWD::Atrib_Solid) {
+    if (mask.x1 == mask.x2 || mask.y1 == mask.y2) {
+        if (outside == WWD::Attrib_Ground || outside == WWD::Attrib_Solid) {
             return 0;
         } else
             return -1;
     }
     int insidey = GV->editState->GetActivePlane()->GetTileWidth(),
             outsidey = GV->editState->GetActivePlane()->GetTileWidth();
-    if (atr->GetAtribInside() == WWD::Atrib_Ground || atr->GetAtribInside() == WWD::Atrib_Solid) {
+    if (inside == WWD::Attrib_Ground || inside == WWD::Attrib_Solid) {
         if (bRight) {
-            insidey = GV->editState->GetActivePlane()->GetTileWidth() - 1 - atr->GetMask().x2;
+            insidey = GV->editState->GetActivePlane()->GetTileWidth() - 1 - mask.x2;
         } else {
-            insidey = atr->GetMask().x1;
+            insidey = mask.x1;
         }
     }
-    if (atr->GetAtribOutside() == WWD::Atrib_Ground || atr->GetAtribOutside() == WWD::Atrib_Solid) {
-        if (atr->GetMask().y1 != 0 || atr->GetMask().y2 != outsidey - 1)
+    if (outside == WWD::Attrib_Ground || outside == WWD::Attrib_Solid) {
+        if (mask.y1 != 0 || mask.y2 != outsidey - 1)
             outsidey = 0;
     }
     if (insidey != GV->editState->GetActivePlane()->GetTileWidth() ||
@@ -1890,28 +1971,40 @@ int cGameSimulator::GetTileColX(WWD::TileAtrib *atr, bool bRight) {
     return -1;
 }
 
-int cGameSimulator::GetTileColY(WWD::TileAtrib *atr) {
+int cGameSimulator::GetTileColY(WWD::TileAttrib *atr) {
     if (!atr) return -1;
-    if (atr->GetType() == WWD::AtribType_Single ||
-        atr->GetMask().x1 == 0 && atr->GetMask().y1 == 0 && atr->GetMask().x2 == 63 && atr->GetMask().y2 == 63) {
-        if (atr->GetAtribInside() == WWD::Atrib_Ground || atr->GetAtribInside() == WWD::Atrib_Solid) {
+    WWD::TILE_ATTRIB inside, outside;
+    WWD::Rect mask(0, 0, atr->getWidth() - 1, atr->getHeight() - 1);
+    if (atr->getType() == WWD::AttribType_Single) {
+        inside = outside = ((WWD::SingleTileAttrib *)atr)->getAttrib();
+    } else if (atr->getType() == WWD::AttribType_Double) {
+        WWD::DoubleTileAttrib *datr = (WWD::DoubleTileAttrib *)atr;
+        inside = datr->getInsideAttrib();
+        outside = datr->getOutsideAttrib();
+        mask = datr->getMask();
+    } else {
+        return -1;
+    }
+    if (atr->getType() == WWD::AttribType_Single ||
+        (mask.x1 == 0 && mask.y1 == 0 && mask.x2 == 63 && mask.y2 == 63)) {
+        if (inside == WWD::Attrib_Ground || inside == WWD::Attrib_Solid) {
             return 0;
         } else
             return -1;
     }
-    if (atr->GetMask().x1 == atr->GetMask().x2 || atr->GetMask().y1 == atr->GetMask().y2) {
-        if (atr->GetAtribOutside() == WWD::Atrib_Ground || atr->GetAtribOutside() == WWD::Atrib_Solid) {
+    if (mask.x1 == mask.x2 || mask.y1 == mask.y2) {
+        if (outside == WWD::Attrib_Ground || outside == WWD::Attrib_Solid) {
             return 0;
         } else
             return -1;
     }
     int insidey = GV->editState->GetActivePlane()->GetTileHeight(),
             outsidey = GV->editState->GetActivePlane()->GetTileHeight();
-    if (atr->GetAtribInside() == WWD::Atrib_Ground || atr->GetAtribInside() == WWD::Atrib_Solid) {
-        insidey = atr->GetMask().y1;
+    if (inside == WWD::Attrib_Ground || inside == WWD::Attrib_Solid) {
+        insidey = mask.y1;
     }
-    if (atr->GetAtribOutside() == WWD::Atrib_Ground || atr->GetAtribOutside() == WWD::Atrib_Solid) {
-        if (atr->GetMask().x1 != 0 || atr->GetMask().x2 != outsidey - 1)
+    if (outside == WWD::Attrib_Ground || outside == WWD::Attrib_Solid) {
+        if (mask.x1 != 0 || mask.x2 != outsidey - 1)
             outsidey = 0;
     }
     if (insidey != GV->editState->GetActivePlane()->GetTileHeight() ||

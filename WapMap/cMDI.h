@@ -2,7 +2,8 @@
 #define H_C_MDI
 
 #include "../shared/cWWD.h"
-#include "../shared/gcnWidgets/wContext.h"
+#include "../shared/gcnwidgets/wContext.h"
+#include "cUndoManager.h"
 #include <set>
 
 #define MDI_CONTEXT_CLOSEEXCEPTACTIVE 1
@@ -97,6 +98,8 @@ struct DocumentData {
     std::vector<WWD::Object *> vObjectsPicked;
     float fZoom;
     int iTileSelectX1, iTileSelectY1, iTileSelectX2, iTileSelectY2;
+
+    cUndoManager *hUndoMgr;
 
     //meta
     std::vector<stGuideLine> vGuides;

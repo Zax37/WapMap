@@ -116,7 +116,7 @@ void cObjectQuadTree::GetObjectCells(WWD::Object *obj, cObjectQuadTree *cells[4]
     float hsx, hsy;
     hsx = ihx;
     hsy = ihy;
-    float sprw = iw / 2, sprh = ih / 2;
+    float sprw = iw / 2.f, sprh = ih / 2.f;
     hsx -= sprw;
     hsy -= sprh;
     x[0] = posX - sprw - hsx;
@@ -227,6 +227,8 @@ WWD::Object *cObjectQuadTree::GetObjectByWorldPosition(int x, int y) {
             return m_hCells[2]->GetObjectByWorldPosition(x, y);
         else if (lx < m_iCellW && ly > m_iCellH)
             return m_hCells[3]->GetObjectByWorldPosition(x, y);
+        else
+            return NULL;
     }
 }
 

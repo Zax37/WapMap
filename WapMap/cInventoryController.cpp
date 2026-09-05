@@ -2,7 +2,7 @@
 
 #include "states/editing_ww.h"
 #include "globals.h"
-#include "../shared/gcnWidgets/wInventory.h"
+#include "../shared/gcnwidgets/wInventory.h"
 #include "databanks/imageSets.h"
 
 cInventoryController::cInventoryController() {

@@ -1,5 +1,4 @@
 #include "anims.h"
-#include "../shared/commonFunc.h"
 #include "../globals.h"
 #include "../../shared/cProgressInfo.h"
 #include "../cParallelLoop.h"
@@ -82,7 +81,7 @@ cAniBankAsset * cBankAni::AllocateAssetForMountPoint(cDC_MountEntry mountEntry) 
     std::string aniMountPoint(mountEntry.strMountPoint.c_str() + 6);
     aniMountPoint.resize(aniMountPoint.length() - 4);
 
-    std::ranges::transform(aniMountPoint, aniMountPoint.begin(), ::toupper);
+    std::transform(aniMountPoint.begin(), aniMountPoint.end(), aniMountPoint.begin(), ::toupper);
     do {
         const size_t slash = aniMountPoint.find('/');
         if (slash == std::string::npos) break;

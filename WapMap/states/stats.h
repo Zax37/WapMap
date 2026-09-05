@@ -3,9 +3,9 @@
 
 #include "../../shared/cStateMgr.h"
 #include "../../shared/cWWD.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wTabbedArea.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wTabbedArea.h"
 #include "../../shared/cPieChart.h"
 
 namespace State {

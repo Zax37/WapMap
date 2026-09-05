@@ -1,8 +1,7 @@
 #include "cPhysics.h"
-#include "globals.h"
-#include "states/editing_ww.h"
 #include "bodyQuadTree.h"
 #include "cObjectUserData.h"
+#include "hge.h"
 
 extern HGE *hge;
 
@@ -255,7 +254,7 @@ void cPhysicBody::Update() {
                     continue;
                 }
 
-                if (col[i]->GetAtrib() != WWD::Attrib_Climb && col[i]->GetAtrib() != WWD::Attrib_Ground)
+                if (col[i]->GetAtrib() != WWD::Attrib_Climb && col[i]->GetAtrib() != WWD::Attrib_Ground) {
                     if (fSpeedX > 0 && col[i]->GetX() > fX && abs(col[i]->GetY() - (fY + fH)) > 3) {
                         fX = col[i]->GetX() - fW;
                         fSpeedX = 0;
@@ -263,6 +262,7 @@ void cPhysicBody::Update() {
                         fX = col[i]->GetX() + col[i]->GetWidth();
                         fSpeedX = 0;
                     }
+                }
 
                 if (fSpeedY > 0 && col[i]->GetY() > fY) {
                     if (col[i]->GetAtrib() == WWD::Attrib_Ground || col[i]->GetAtrib() == WWD::Attrib_Climb) {

@@ -1,0 +1,291 @@
+#include "wListbox.h"
+#include "guichan/font.hpp"
+#include "guichan/graphics.hpp"
+#include "guichan/key.hpp"
+#include "guichan/listmodel.hpp"
+#include "guichan/selectionlistener.hpp"
+#include "../../WapMap/globals.h"
+
+namespace SHR {
+    ListBox::ListBox()
+            : mSelected(-1),
+              mListModel(NULL),
+              mWrappingEnabled(false) {
+        mHighlighted = -1;
+        setWidth(100);
+        setFocusable(true);
+
+        addMouseListener(this);
+        addKeyListener(this);
+
+        mOpaque = true;
+        mBackgroundColor = 0x131313;
+    }
+
+    ListBox::ListBox(ListModel *listModel)
+            : mSelected(-1),
+              mWrappingEnabled(false) {
+        mHighlighted = -1;
+        setWidth(100);
+        setListModel(listModel);
+        setFocusable(true);
+
+        addMouseListener(this);
+        addKeyListener(this);
+
+        mOpaque = true;
+        mBackgroundColor = 0x131313;
+    }
+
+    void ListBox::drawBackground(Graphics *graphics) {
+        if (mOpaque) {
+            Color color(getBackgroundColor());
+            color.a = getAlpha();
+            graphics->setColor(color);
+            graphics->fillRectangle(gcn::Rectangle(0, 0, getWidth(), getHeight()));
+        }
+    }
+
+    void ListBox::draw(Graphics *graphics) {
+        drawBackground(graphics);
+        // unsigned char alpha = getAlpha();
+        //
+        // if (mOpaque) {
+        //     graphics->setColor(gcn::Color(0x131313, alpha));
+        //     graphics->fillRectangle(mDimension);
+        // }
+
+        if (mListModel == NULL) {
+            return;
+        }
+
+        // Check the current clip area so we don't draw unnecessary items
+        // that are not visible.
+        const ClipRectangle currentClipArea = graphics->getCurrentClipArea();
+        int rowHeight = getRowHeight();
+
+        // Calculate the number of rows to draw by checking the clip area.
+        // The addition of two makes covers a partial visible row at the top
+        // and a partial visible row at the bottom.
+        int numberOfRows = currentClipArea.height / rowHeight + 2;
+
+        // Calculate which row to start drawing. If the list box
+        // has a negative y coordinate value we should check if
+        // we should drop rows in the begining of the list as
+        // they might not be visible. A negative y value is very
+        // common if the list box for instance resides in a scroll
+        // area and the user has scrolled the list box downwards.
+        int startRow;
+        if (getY() < 0) {
+            startRow = -1 * (getY() / rowHeight);
+        } else {
+            startRow = 0;
+        }
+
+		int endRow = startRow + numberOfRows;
+
+		if (endRow > mListModel->getNumberOfElements()) {
+			endRow = mListModel->getNumberOfElements();
+		}
+
+        for (int i = startRow; i < endRow; ++i) {
+            drawRow(graphics, i);
+        }
+    }
+
+    void ListBox::drawRow(Graphics *graphics, int i) {
+        unsigned char alpha = getAlpha();
+        unsigned rowHeight = getRowHeight();
+        int y = i * rowHeight;
+        if (i == mSelected || i == mHighlighted) {
+            graphics->setColor(gcn::Color(i == mSelected ? GV->colActive : 0x454545, alpha));
+            graphics->fillRectangle(gcn::Rectangle(0, y, getWidth(), rowHeight));
+        }
+
+        if (i == mSelected)
+            graphics->setColor(gcn::Color(0xffffff, alpha));
+        else
+            graphics->setColor(gcn::Color(i == mHighlighted ? 0xffffff : 0xe1e1e1, alpha));
+
+        // If the row height is greater than the font height we
+        // draw the text with a center vertical alignment.
+        if (rowHeight > getFont()->getHeight()) {
+            graphics->drawText(mListModel->getElementAt(i), getTextXOffset(), y + rowHeight / 2 - getFont()->getHeight() / 2);
+        } else {
+            graphics->drawText(mListModel->getElementAt(i), getTextXOffset(), y);
+        }
+    }
+
+    void ListBox::logic() {
+        adjustSize();
+    }
+
+    int ListBox::getSelected() const {
+        return mSelected;
+    }
+
+    void ListBox::setSelected(int selected, bool generatingEvent) {
+        if (mListModel == NULL) {
+            mSelected = -1;
+        } else {
+            if (selected < 0) {
+                mSelected = -1;
+            } else if (selected >= mListModel->getNumberOfElements()) {
+                mSelected = mListModel->getNumberOfElements() - 1;
+            } else {
+                mSelected = selected;
+            }
+        }
+
+        gcn::Rectangle scroll;
+
+        if (mSelected < 0) {
+            scroll.y = 0;
+        } else {
+            scroll.y = getRowHeight() * mSelected;
+        }
+
+        scroll.height = getRowHeight();
+        showPart(scroll);
+
+        if (generatingEvent) {
+            distributeValueChangedEvent();
+        }
+    }
+
+    void ListBox::keyPressed(KeyEvent &keyEvent) {
+        Key key = keyEvent.getKey();
+
+        if (key.getValue() == Key::ENTER || key.getValue() == Key::SPACE) {
+            keyEvent.consume();
+            mActionEventId = "CLICK";
+            distributeActionEvent();
+        } else if (key.getValue() == Key::UP) {
+            if (mSelected > 0) {
+                setSelected(mSelected - 1);
+            } else {
+                if (mWrappingEnabled) {
+                    setSelected(getListModel()->getNumberOfElements() - 1);
+                }
+            }
+
+            keyEvent.consume();
+        } else if (key.getValue() == Key::DOWN) {
+            if (mSelected < getListModel()->getNumberOfElements()) {
+                setSelected(mSelected + 1);
+            } else {
+                if (mWrappingEnabled) {
+                    setSelected(0);
+                }
+            }
+
+            keyEvent.consume();
+        } else if (key.getValue() == Key::HOME) {
+            setSelected(0);
+            keyEvent.consume();
+        } else if (key.getValue() == Key::END) {
+            setSelected(getListModel()->getNumberOfElements() - 1);
+            keyEvent.consume();
+        }
+    }
+
+    void ListBox::mouseExited(MouseEvent &mouseEvent) {
+        mHighlighted = -1;
+    }
+
+    void ListBox::mouseMoved(MouseEvent &mouseEvent) {
+        mHighlighted = (mouseEvent.getY() / getRowHeight());
+    }
+
+    void ListBox::mousePressed(MouseEvent &mouseEvent) {
+        if (mouseEvent.getButton() == MouseEvent::LEFT) {
+            setSelected(mouseEvent.getY() / getRowHeight());
+            mActionEventId = "CLICK";
+            distributeActionEvent();
+        }
+    }
+
+    /*void ListBox::mouseWheelMovedUp(MouseEvent &mouseEvent) {
+        if (isFocused()) {
+            if (getSelected() > 0) {
+                setSelected(getSelected() - 1);
+            }
+
+            mouseEvent.consume();
+            mActionEventId = "WHEEL";
+            distributeActionEvent();
+        }
+    }
+
+    void ListBox::mouseWheelMovedDown(MouseEvent &mouseEvent) {
+        if (isFocused()) {
+            setSelected(getSelected() + 1);
+
+            mouseEvent.consume();
+            mActionEventId = "WHEEL";
+            distributeActionEvent();
+        }
+    }*/
+
+    void ListBox::mouseDragged(DragEvent &mouseEvent) {
+        mouseEvent.consume();
+    }
+
+    void ListBox::setListModel(ListModel *listModel) {
+        mSelected = -1;
+        mListModel = listModel;
+        adjustSize();
+    }
+
+    ListModel *ListBox::getListModel() {
+        return mListModel;
+    }
+
+    void ListBox::adjustSize() {
+        if (mListModel != NULL) {
+            setHeight(getRowHeight() * mListModel->getNumberOfElements());
+        }
+    }
+
+    bool ListBox::isWrappingEnabled() const {
+        return mWrappingEnabled;
+    }
+
+    void ListBox::setWrappingEnabled(bool wrappingEnabled) {
+        mWrappingEnabled = wrappingEnabled;
+    }
+
+    void ListBox::addSelectionListener(SelectionListener *selectionListener) {
+        mSelectionListeners.push_back(selectionListener);
+    }
+
+    void ListBox::removeSelectionListener(SelectionListener *selectionListener) {
+        mSelectionListeners.remove(selectionListener);
+    }
+
+    void ListBox::distributeValueChangedEvent() {
+        SelectionListenerIterator iter;
+
+        for (iter = mSelectionListeners.begin(); iter != mSelectionListeners.end(); ++iter) {
+            SelectionEvent event(this);
+            (*iter)->valueChanged(event);
+        }
+    }
+
+    unsigned int ListBox::getRowHeight() const {
+        return getFont()->getHeight() + 4;
+    }
+
+    int ListBox::findIndexOf(const std::string& option) {
+        for (int i = 0; i < mListModel->getNumberOfElements(); ++i) {
+            if (option == mListModel->getElementAt(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void ListBox::setOpaque(bool opaque) {
+        mOpaque = opaque;
+    }
+}

@@ -1,8 +1,6 @@
 #ifndef VP_FOCUS
 #define VP_FOCUS
 
-#include <string>
-
 #include "guichan/mouselistener.hpp"
 #include "guichan/platform.hpp"
 #include "guichan/widgets/container.hpp"

@@ -1,7 +1,6 @@
 #ifndef H_C_LOGICSBANK
 #define H_C_LOGICSBANK
 
-#include <vector>
 #include "../cDataController.h"
 
 class cCustomLogic : public cAsset {

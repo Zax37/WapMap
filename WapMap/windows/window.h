@@ -2,7 +2,7 @@
 #define H_WINDOW
 
 #include "../wViewport.h"
-#include "../../shared/gcnWidgets/wWin.h"
+#include "../../shared/gcnwidgets/wWin.h"
 #include "../globals.h"
 
 extern HGE* hge;

@@ -1,11 +1,10 @@
 #ifndef H_C_COLORPICKER
 #define H_C_COLORPICKER
 
-#include "../shared/gcnWidgets/wWin.h"
-#include "../shared/gcnWidgets/wButton.h"
-#include "../shared/gcnWidgets/wSlider.h"
-#include "../shared/gcnWidgets/wTextField.h"
-#include "../shared/gcnWidgets/wLabel.h"
+#include "../shared/gcnwidgets/wWin.h"
+#include "../shared/gcnwidgets/wSlider.h"
+#include "../shared/gcnwidgets/wTextField.h"
+#include "../shared/gcnwidgets/wLabel.h"
 #include "wViewport.h"
 
 class cColorPicker : public WIDG::VpCallback, public gcn::ActionListener {

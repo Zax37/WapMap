@@ -1,7 +1,7 @@
 #ifndef H_C_TEXTUREATLAS
 #define H_C_TEXTUREATLAS
 
-#include <hgeSprite.h>
+#include <hgesprite.h>
 #include <vector>
 
 class cTextureAtlas {

@@ -1,10 +1,9 @@
 #ifndef H_WIN_TILEBROWSER
 #define H_WIN_TILEBROWSER
 
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wSlider.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
 
 #include "window.h"
 

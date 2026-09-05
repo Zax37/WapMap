@@ -910,6 +910,8 @@ WWD::Object::Object() {
 }
 
 WWD::Object::Object(Object *src) {
+    printf("[WWD::Object] Copy constructor: src=%p, this=%p, src pos=(%d, %d)\n",
+           (void*)src, (void*)this, src->GetParam(Param_LocationX), src->GetParam(Param_LocationY));
     m_iFlagsAdd = src->m_iFlagsAdd;
     m_iFlagsDynamic = src->m_iFlagsDynamic;
     m_iFlagsDraw = src->m_iFlagsDraw;
@@ -939,6 +941,8 @@ WWD::Object::Object(Object *src) {
 
     m_hUserData = NULL;
     m_stMeta = NULL;
+    printf("[WWD::Object] Copy constructor done: this=%p, this pos=(%d, %d)\n",
+           (void*)this, GetParam(Param_LocationX), GetParam(Param_LocationY));
 }
 
 void WWD::Plane::AddObjectAndCalcID(Object *n) {
@@ -963,7 +967,7 @@ void WWD::Plane::AddObjectAndCalcID(Object *n) {
     m_vObjects.push_back(n);
 }
 
-WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) throw(Exception) {
+WWD::GAME WWD::GetGameTypeFromFile(const char *pszFilepath, int *piBaseLevel) {
     const char* dot = strrchr(pszFilepath, '.');
     if (!dot || (dot[1] != 'W' && dot[1] != 'w')) {
         throw WWD_EXCEPTION(Error_UnknownMapExtension);

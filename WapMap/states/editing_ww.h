@@ -5,32 +5,28 @@
 
 #include "../../shared/cStateMgr.h"
 #include "../../shared/cWWD.h"
-#include "../../shared/gcnWidgets/wContainer.h"
-#include "../../shared/gcnWidgets/wSlider.h"
-#include "../../shared/gcnWidgets/wWin.h"
-#include "../../shared/gcnWidgets/wButton.h"
-#include "../../shared/gcnWidgets/wScrollArea.h"
-#include "../../shared/gcnWidgets/wCheckbox.h"
-#include "../../shared/gcnWidgets/wDropDown.h"
-#include "../../shared/gcnWidgets/wLink.h"
-#include "../../shared/gcnWidgets/wLabel.h"
-#include "../../shared/gcnWidgets/wTextBox.h"
-#include "../../shared/gcnWidgets/wTextField.h"
-#include "../../shared/gcnWidgets/wTabbedArea.h"
-#include "../../shared/gcnWidgets/wRadioBut.h"
-#include "../../shared/gcnWidgets/wContext.h"
-#include "../../shared/gcnWidgets/wTree.h"
+#include "../../shared/gcnwidgets/wContainer.h"
+#include "../../shared/gcnwidgets/wSlider.h"
+#include "../../shared/gcnwidgets/wWin.h"
+#include "../../shared/gcnwidgets/wButton.h"
+#include "../../shared/gcnwidgets/wScrollArea.h"
+#include "../../shared/gcnwidgets/wCheckbox.h"
+#include "../../shared/gcnwidgets/wDropDown.h"
+#include "../../shared/gcnwidgets/wLink.h"
+#include "../../shared/gcnwidgets/wLabel.h"
+#include "../../shared/gcnwidgets/wTextField.h"
+#include "../../shared/gcnwidgets/wTabbedArea.h"
+#include "../../shared/gcnwidgets/wRadioBut.h"
+#include "../../shared/gcnwidgets/wContext.h"
 #include "../cMDI.h"
 #include "../cSoundPlayer.h"
 #include "../cColorPicker.h"
 #include "../wViewport.h"
 #include "../cTileGhost.h"
 #include "../vpFocusWidg.h"
-#include "guichan.hpp"
 #include "../cAutoUpdater.h"
 #include "../objQuadTree.h"
 #include "../globals.h"
-#include "../../shared/cPieChart.h"
 #include "objedit.h"
 #include "../cMRUList.h"
 #include "../cInventoryController.h"
@@ -698,35 +694,35 @@ namespace State {
 
         EditingWW(WWD::Parser *phParser);
 
-        virtual bool Opaque();
+        virtual bool Opaque() override;
 
-        virtual void Init();
+        virtual void Init() override;
 
-        virtual void Destroy();
+        virtual void Destroy() override;
 
-        virtual bool Think();
+        virtual bool Think() override;
 
-        virtual void PreRender();
+        virtual void PreRender() override;
 
-        virtual bool Render();
+        virtual bool Render() override;
 
-        virtual void GainFocus(const ReturnCode& code, bool bFlipped);
+        virtual void GainFocus(const ReturnCode& code, bool bFlipped) override;
 
         void ToggleFullscreen();
 
 		void FixInterfacePositions();
 
-        virtual bool PromptExit();
+        virtual bool PromptExit() override;
 
-        virtual void GfxRestore();
+        virtual void GfxRestore() override;
 
-        virtual void FileDraggedIn();
+        virtual void FileDraggedIn() override;
 
-        virtual void FileDraggedOut();
+        virtual void FileDraggedOut() override;
 
-        virtual void FileDropped();
+        virtual void FileDropped() override;
 
-        virtual void AppFocus(bool bGain);
+        virtual void AppFocus(bool bGain) override;
 
         bool bWindowFocused;
 
@@ -1137,6 +1133,18 @@ namespace State {
         void CopyObjects();
         void CutObjects();
         void PasteObjects();
+
+        // --- Undo/Redo helpers ---
+        void UndoBegin(const char* desc = "Edit");
+        void UndoSnapshotTiles(WWD::Plane* pl, int x1, int y1, int x2, int y2);
+        void UndoSnapshotObjects(WWD::Plane* pl, const std::vector<WWD::Object*>& objs, cUndoManager::SnapshotKind kind);
+        void UndoSnapshotObject(WWD::Plane* pl, WWD::Object* obj, cUndoManager::SnapshotKind kind);
+        void UndoEnd();
+        void UndoCancel();
+        bool UndoIsInAction();
+        void PerformUndo();
+        void PerformRedo();
+        bool bUndoStrokeActive = false;
     };
 };
 

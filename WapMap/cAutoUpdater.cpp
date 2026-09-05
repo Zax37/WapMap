@@ -232,7 +232,8 @@ bool cAutoUpdater::Think() {
 
 cAutoUpdater::~cAutoUpdater() {
     if (winActualize != NULL) {
-        delete butYes, butNo;
+        delete butYes;
+        delete butNo;
         delete labActualize;
         delete winActualize;
         delete hAL;

@@ -1,7 +1,5 @@
 #include "bodyQuadTree.h"
 
-#include "globals.h"
-
 cBodyQuadTree::cBodyQuadTree(WWD::Plane *owner) {
     iTypicalCellW = owner->GetPlaneWidthPx();
     iTypicalCellH = owner->GetPlaneHeightPx();
@@ -156,6 +154,7 @@ cPhysicBody *cBodyQuadTree::GetBodyByWorldPosition(int x, int y) {
         else if (lx < m_iCellW && ly > m_iCellH)
             return m_hCells[3]->GetBodyByWorldPosition(x, y);
     }
+    return NULL;
 }
 
 bool cBodyQuadTree::RectsCollideOrOverlap(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {

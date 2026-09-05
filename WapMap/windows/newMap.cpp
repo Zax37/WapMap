@@ -82,6 +82,8 @@ winNewMap::winNewMap()
             case WWD::Game_Claw2:
                 levels = 1;
             break;
+            default:
+            break;
         }
 
         if (levels) {

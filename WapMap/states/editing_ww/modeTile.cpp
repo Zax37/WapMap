@@ -1,6 +1,5 @@
 #include "../editing_ww.h"
 #include "../../globals.h"
-#include "../../../shared/commonFunc.h"
 #include <cmath>
 #include "../../databanks/tiles.h"
 #include "../../cBrush.h"
@@ -13,6 +12,10 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
             conWriteID->setShow(false);
             iTileWriteIDx = iTileWriteIDy = -1;
             vPort->MarkToRedraw();
+        }
+        if (bUndoStrokeActive) {
+            UndoCancel();
+            bUndoStrokeActive = false;
         }
         SetTool(EWW_TOOL_NONE);
         vTileGhosting.clear();
@@ -292,14 +295,14 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                                     }
                                 } else if (abs(y2 - y1) / abs(x2 - x1) < 1) {
                                     double wy = thickness * sqrt(pow((x2 - x1), 2)
-                                              + pow((y2 - y1), 2)) / (2 * fabs(x2 - x1));
+                                              + pow((y2 - y1), 2)) / (2 * abs(x2 - x1));
                                     for (int i = 0; i < wy; i++) {
                                         bline(x1, y1 - i, x2, y2 - i);
                                         bline(x1, y1 + i, x2, y2 + i);
                                     }
                                 } else {
                                     double wx = thickness * sqrt(pow((x2 - x1), 2)
-                                              + pow((y2 - y1), 2)) / (2 * fabs(y2 - y1));
+                                              + pow((y2 - y1), 2)) / (2 * abs(y2 - y1));
                                     for (int i = 0; i < wx; i++) {
                                         bline(x1 - i, y1, x2 - i, y2);
                                         bline(x1 + i, y1, x2 + i, y2);
@@ -427,6 +430,13 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                 }
 
                 if (bPlacing) {
+                    if (!bUndoStrokeActive) {
+                        bUndoStrokeActive = true;
+                        UndoBegin("Draw");
+                        UndoSnapshotTiles(GetActivePlane(), 0, 0,
+                            GetActivePlane()->GetPlaneWidth() - 1,
+                            GetActivePlane()->GetPlaneHeight() - 1);
+                    }
                     bool changes = false;
                     for (auto &t : vTileGhosting) {
                         WWD::Tile *tl = t.pl->GetTile(t.x, t.y);
@@ -508,11 +518,25 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                     lockDrawing = true;
                     RebuildTilePicker();
                 } else if (iActiveTool == EWW_TOOL_FILL) {
+                    if (!bUndoStrokeActive) {
+                        bUndoStrokeActive = true;
+                        UndoBegin("Fill");
+                        UndoSnapshotTiles(GetActivePlane(), 0, 0,
+                            GetActivePlane()->GetPlaneWidth() - 1,
+                            GetActivePlane()->GetPlaneHeight() - 1);
+                    }
                     FloodFill(hx, hy, iTilePicked);
                     hPlaneData[GetActivePlaneID()]->bUpdateBuffer = 1;
                     vPort->MarkToRedraw();
                 } else if (iActiveTool == EWW_TOOL_BRUSH && iTilePicked != EWW_TILE_NONE) {
                     if (iLastBrushPlacedX != hx || iLastBrushPlacedY != hy) {
+                        if (!bUndoStrokeActive) {
+                            bUndoStrokeActive = true;
+                            UndoBegin("Brush");
+                            UndoSnapshotTiles(GetActivePlane(), 0, 0,
+                                GetActivePlane()->GetPlaneWidth() - 1,
+                                GetActivePlane()->GetPlaneHeight() - 1);
+                        }
                         vTileGhosting.clear();
                         cBrush *brush = hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(
                                 iTilePicked);
@@ -524,6 +548,12 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
                         iLastBrushPlacedY = hy;
                     }
                 }
+            }
+
+            // End undo stroke on mouse release
+            if (bUndoStrokeActive && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
+                UndoEnd();
+                bUndoStrokeActive = false;
             }
 
             if (iActiveTool == EWW_TOOL_BRUSH && hx != -1 && hy != -1) {

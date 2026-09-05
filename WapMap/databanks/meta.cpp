@@ -1,5 +1,4 @@
 #include "meta.h"
-#include "../globals.h"
 
 static const std::string prefix = "LEVEL";
 

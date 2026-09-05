@@ -31,8 +31,8 @@ public:
                 "RedTail",
                 "Omar",
             };
-            boss = BossLogicSet.contains(logic) ? YES : NO;
-            if (BossLogicSet.contains(logic)) {
+            boss = BossLogicSet.count(logic) ? YES : NO;
+            if (BossLogicSet.count(logic)) {
                 enemy = YES;
                 humanEnemy = YES;
                 return true;
@@ -59,7 +59,7 @@ public:
                 "TigerGuard",
             };
 
-            if (EnemyLogicSet.contains(logic)) {
+            if (EnemyLogicSet.count(logic)) {
                 boss = NO;
                 enemy = YES;
                 humanEnemy = YES;
