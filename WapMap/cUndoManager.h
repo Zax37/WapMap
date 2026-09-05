@@ -74,6 +74,22 @@ private:
 
         Snapshot() : kind(Snap_Tiles), planeIndex(-1), x1(0), y1(0), x2(0), y2(0) {}
         ~Snapshot();
+
+        // Move constructor - transfer ownership of objects
+        Snapshot(Snapshot&& other) noexcept
+            : kind(other.kind), planeIndex(other.planeIndex),
+              x1(other.x1), y1(other.y1), x2(other.x2), y2(other.y2),
+              tiles(std::move(other.tiles)),
+              objects(std::move(other.objects)),
+              objectIDs(std::move(other.objectIDs)) {
+            // Clear the source to prevent double deletion
+            other.objects.clear();
+        }
+
+        // Delete copy constructor to prevent accidental copying
+        Snapshot(const Snapshot&) = delete;
+        Snapshot& operator=(const Snapshot&) = delete;
+        Snapshot& operator=(Snapshot&&) = delete;
     };
 
     struct Action {
