@@ -11,6 +11,7 @@ namespace ObjEdit {
     cEditObjText::cEditObjText(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
         bAllowDragging = 0;
         iType = ObjEdit::enText;
+        m_bUndoActive = false;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Text", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 400, 270));
         win->setClose(1);
@@ -58,7 +59,7 @@ namespace ObjEdit {
         }
         iAlign = 0;
 
-        GenerateText();
+        GenerateText(false);
 
         win->add(_butSave, 150, 220);
     }
@@ -130,7 +131,7 @@ namespace ObjEdit {
             return -1;
     }
 
-    void cEditObjText::GenerateText() {
+    void cEditObjText::GenerateText(bool bWithUndo) {
         char *text = new char[strlen(tbText->getText().c_str()) + 1];
         strcpy(text, tbText->getText().c_str());
         if (strlen(text) == 0) {
@@ -140,8 +141,19 @@ namespace ObjEdit {
 
         butApply->setEnabled(0);
 
+        auto* plane = GV->editState->GetActivePlane();
+
+        if (bWithUndo) {
+            GV->editState->UndoBegin("Edit Text");
+            std::vector<WWD::Object*> oldObjects(hObjects.begin() + 1, hObjects.end());
+            if (!oldObjects.empty())
+                GV->editState->UndoSnapshotObjects(plane, oldObjects, cUndoManager::Snap_ObjectsDeleted);
+            std::vector<WWD::Object*> tempObjVec = {hTempObj};
+            GV->editState->UndoSnapshotObjects(plane, tempObjVec, cUndoManager::Snap_ObjectsModified);
+        }
+
         for (int i = 1; i < hObjects.size(); i++) {
-            GV->editState->GetActivePlane()->DeleteObject(hObjects[i]);
+            plane->DeleteObject(hObjects[i]);
         }
         hObjects.clear();
         hObjects.push_back(hTempObj);
@@ -179,7 +191,7 @@ namespace ObjEdit {
                 obj->SetParam(WWD::Param_LocationI, frame);
                 obj->SetParam(WWD::Param_LocationX, areaX + offsetx);
                 obj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset - (frame == 38) * 3);
-                GV->editState->GetActivePlane()->AddObjectAndCalcID(obj);
+                plane->AddObjectAndCalcID(obj);
                 obj->SetUserData(new cObjUserData(obj));
                 GV->editState->hPlaneData[GV->editState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
                 hObjects.push_back(obj);
@@ -197,16 +209,29 @@ namespace ObjEdit {
         }
         areaW += 5;
         areaH += 10;
-        ApplyAlign();
+        ApplyAlign(false);
+
+        if (bWithUndo) {
+            std::vector<WWD::Object*> newObjects(hObjects.begin() + 1, hObjects.end());
+            if (!newObjects.empty())
+                GV->editState->UndoSnapshotObjects(plane, newObjects, cUndoManager::Snap_ObjectsAdded);
+            GV->editState->UndoEnd();
+        }
+
         delete[] text;
     }
 
-    void cEditObjText::ApplyAlign() {
+    void cEditObjText::ApplyAlign(bool bWithUndo) {
         char *text = new char[strlen(tbText->getText().c_str()) + 1];
         strcpy(text, tbText->getText().c_str());
         if (strlen(text) == 0) {
             delete[] text;
             return;
+        }
+
+        if (bWithUndo) {
+            GV->editState->UndoBegin("Align Text");
+            GV->editState->UndoSnapshotObjects(GV->editState->GetActivePlane(), hObjects, cUndoManager::Snap_ObjectsModified);
         }
 
         auto asset = GV->editState->SprBank->GetAssetByID("GAME_FONT");
@@ -291,6 +316,8 @@ namespace ObjEdit {
 
         }*/
         GV->editState->vPort->MarkToRedraw();
+        if (bWithUndo)
+            GV->editState->UndoEnd();
         delete[] text;
     }
 
@@ -319,8 +346,19 @@ namespace ObjEdit {
 
     void cEditObjText::_Think(bool bMouseConsumed) {
         if (_bDragging) {
-            if (iDragX != hTempObj->GetParam(WWD::Param_LocationX) ||
+            if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
+                _bDragging = 0;
+                if (m_bUndoActive) {
+                    GV->editState->UndoEnd();
+                    m_bUndoActive = false;
+                }
+            } else if (iDragX != hTempObj->GetParam(WWD::Param_LocationX) ||
                 iDragY != hTempObj->GetParam(WWD::Param_LocationY)) {
+                if (!m_bUndoActive) {
+                    GV->editState->UndoBegin("Move Text");
+                    GV->editState->UndoSnapshotObjects(GV->editState->GetActivePlane(), hObjects, cUndoManager::Snap_ObjectsModified);
+                    m_bUndoActive = true;
+                }
                 int diffx = hTempObj->GetParam(WWD::Param_LocationX) - iDragX,
                         diffy = hTempObj->GetParam(WWD::Param_LocationY) - iDragY;
                 for (int i = 1; i < hObjects.size(); i++) {

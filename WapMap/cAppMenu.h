@@ -22,6 +22,8 @@
 #define APPMEN_EDIT_PLANES      2
 #define APPMEN_EDIT_TILEPROP    3
 #define APPMEN_EDIT_WORLDSCRIPT 4
+#define APPMEN_EDIT_UNDO        10
+#define APPMEN_EDIT_REDO        11
 
 #define APPMEN_VIEW_RULERS     1
 #define APPMEN_VIEW_PLANES     2
@@ -174,6 +176,8 @@ public:
     void SyncPlanes();
 
     void SyncMRU();
+
+    void SyncUndoState();
 
     //implemented
     void SyncPlaneVisibility();
