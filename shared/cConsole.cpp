@@ -378,7 +378,7 @@ void SHR::cConsole::AddModifiableInt(const char *pszName, int *piVar) {
     cConsoleInt *topush = new cConsoleInt();
     topush->m_szID = new char[strlen(pszName) + 1];
     strcpy(topush->m_szID, pszName);
-    topush->m_iPtr = (int) piVar;
+    topush->m_pValue = piVar;
     m_vVars.push_back(topush);
 }
 
@@ -386,7 +386,7 @@ void SHR::cConsole::AddModifiableFloat(const char *pszName, float *pfVar) {
     cConsoleFloat *topush = new cConsoleFloat();
     topush->m_szID = new char[strlen(pszName) + 1];
     strcpy(topush->m_szID, pszName);
-    topush->m_iPtr = (int) pfVar;
+    topush->m_pValue = pfVar;
     m_vVars.push_back(topush);
 }
 
@@ -394,38 +394,38 @@ void SHR::cConsole::AddModifiableBool(const char *pszName, bool *pbVar) {
     cConsoleBool *topush = new cConsoleBool();
     topush->m_szID = new char[strlen(pszName) + 1];
     strcpy(topush->m_szID, pszName);
-    topush->m_iPtr = (int) pbVar;
+    topush->m_pValue = pbVar;
     m_vVars.push_back(topush);
 }
 
 void SHR::cConsoleInt::Set(cConsole *handle, int argc, char **argv) {
     int inval = atoi(argv[1]);
-    handle->Printf("%s: changing ~y~%d ~w~to ~y~%d~w~.", m_szID, *(int *) m_iPtr, inval);
-    *(int *) m_iPtr = inval;
+    handle->Printf("%s: changing ~y~%d ~w~to ~y~%d~w~.", m_szID, *static_cast<int *>(m_pValue), inval);
+    *static_cast<int *>(m_pValue) = inval;
 }
 
 void SHR::cConsoleInt::Print(cConsole *handle) {
-    handle->Printf("%s: ~y~%i~w~", m_szID, *(int *) m_iPtr);
+    handle->Printf("%s: ~y~%i~w~", m_szID, *static_cast<int *>(m_pValue));
 }
 
 void SHR::cConsoleFloat::Set(cConsole *handle, int argc, char **argv) {
     float inval = atof(argv[1]);
-    handle->Printf("%s: changing ~y~%f ~w~to ~y~%f~w~.", m_szID, *(float *) m_iPtr, inval);
-    *(float *) m_iPtr = inval;
+    handle->Printf("%s: changing ~y~%f ~w~to ~y~%f~w~.", m_szID, *static_cast<float *>(m_pValue), inval);
+    *static_cast<float *>(m_pValue) = inval;
 }
 
 void SHR::cConsoleFloat::Print(cConsole *handle) {
-    handle->Printf("%s: ~y~%f~w~", m_szID, *(float *) m_iPtr);
+    handle->Printf("%s: ~y~%f~w~", m_szID, *static_cast<float *>(m_pValue));
 }
 
 void SHR::cConsoleBool::Set(cConsole *handle, int argc, char **argv) {
     bool inval = atoi(argv[1]);
-    handle->Printf("%s: changing ~y~%d ~w~to ~y~%i~w~.", m_szID, *(bool *) m_iPtr, inval);
-    *(bool *) m_iPtr = inval;
+    handle->Printf("%s: changing ~y~%d ~w~to ~y~%i~w~.", m_szID, *static_cast<bool *>(m_pValue), inval);
+    *static_cast<bool *>(m_pValue) = inval;
 }
 
 void SHR::cConsoleBool::Print(cConsole *handle) {
-    handle->Printf("%s: ~y~%i~w~", m_szID, *(bool *) m_iPtr);
+    handle->Printf("%s: ~y~%i~w~", m_szID, *static_cast<bool *>(m_pValue));
 }
 
 void SHR::cConsole::ListVars() {

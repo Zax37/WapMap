@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <hge.h>
-#include <hgeSprite.h>
 
 #ifndef byte
 typedef unsigned char byte;

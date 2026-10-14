@@ -39,7 +39,6 @@ namespace SHR {
         bool bBuffering;
         HTARGET hBuffer;
         hgeSprite *sprBuffer;
-        HSHADER myShader;
 
         friend class cState;
 

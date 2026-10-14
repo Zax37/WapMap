@@ -4,6 +4,9 @@
 #include "databanks/imageSets.h"
 #include "states/editing_ww.h"
 
+#include <algorithm>
+#include <unordered_set>
+
 cObjectQuadTree::cObjectQuadTree(WWD::Plane *owner, cBankImageSet *bank) {
     m_hBank = bank;
     iTypicalCellW = owner->GetPlaneWidthPx() + 4 * WORKSPACE_MARGINS_SIZE;
@@ -290,15 +293,10 @@ std::vector<WWD::Object *> cObjectQuadTree::GetObjectsByArea(int x, int y, int w
                 mainret.push_back(z[i]);
             }
         }
-        for (int a = 0; a < mainret.size(); a++) {
-            for (int b = 0; b < mainret.size(); b++) {
-                if (mainret[a] == mainret[b] && a != b) {
-                    mainret.erase(mainret.begin() + b);
-                    if (a >= b) a--;
-                    b--;
-                }
-            }
-        }
+        std::unordered_set<WWD::Object*> seen;
+        mainret.erase(std::remove_if(mainret.begin(), mainret.end(), [&seen](WWD::Object* object) {
+            return !seen.insert(object).second;
+        }), mainret.end());
         return mainret;
     }
 }

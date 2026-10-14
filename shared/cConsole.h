@@ -24,7 +24,7 @@ namespace SHR {
     class cConsoleVar {
     protected:
         char *m_szID;
-        int m_iPtr;
+        void *m_pValue;
 
         virtual void Set(cConsole *handle, int argc, char **argv) {};
 

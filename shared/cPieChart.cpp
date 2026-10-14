@@ -37,8 +37,8 @@ namespace SHR {
         Cleanup();
         std::sort(vElements.begin(), vElements.end(), cPieChartComparison);
         if (iH == -1) iH = iW / 2;
-        sf::Image hImgGD = sf::Image();
-        hImgGD.create(iW, iH, sf::Color::Transparent);
+        sf::Image hImgGD(sf::Vector2u(static_cast<unsigned>(iW), static_cast<unsigned>(iH)),
+                         sf::Color::Transparent);
         /*int gdcolTransparent = gdImageColorAllocateAlpha(hImgGD, GETR(dwBg), GETG(dwBg), GETB(dwBg), std::min(127, int(GETA((255-dwBg)/2))));
         gdImageAlphaBlending(hImgGD, 0);
         gdImageFilledRectangle(hImgGD, 0, 0, iW, iH, gdcolTransparent);*/

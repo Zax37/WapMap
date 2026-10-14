@@ -344,11 +344,11 @@ cTile *cBankTile::FindTile(short piID) {
 }
 
 cTile *cTileImageSet::GetTile(short piID) {
-    for (auto & m_vTile : m_vTiles) {
-        if (m_vTile->GetID() == piID)
-            return m_vTile;
-    }
-    return NULL;
+    const auto tile = std::lower_bound(m_vTiles.begin(), m_vTiles.end(), piID,
+                                       [](cTile* candidate, short id) {
+                                           return candidate->GetID() < id;
+                                       });
+    return tile != m_vTiles.end() && (*tile)->GetID() == piID ? *tile : NULL;
 }
 
 cTile *cBankTile::GetTile(const char *pszSet, short piID) {

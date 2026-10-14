@@ -315,7 +315,7 @@ void cBankImageSet::BatchProcessEnd() {
     int spritec = 0;
     for (auto & m_vAsset : m_vAssets)
         spritec += m_vAsset->m_vSprites.size();
-    GV->Console->Printf("%d images in %d image sets found. Loading...", spritec, m_vAssets.size());
+    GV->Console->Printf("%d images in %zu image sets found. Loading...", spritec, m_vAssets.size());
 
     int progress = 0;
     for (auto & m_vAsset : m_vAssets) {
@@ -324,7 +324,7 @@ void cBankImageSet::BatchProcessEnd() {
             if (m_vAsset->m_vSprites[x]->IsLoaded())
                 continue;
             char buf[256];
-            sprintf(buf, "Rendering: %s [%d/%d]", m_vAsset->GetID(), x, m_vAsset->m_vSprites.size());
+            sprintf(buf, "Rendering: %s [%zu/%zu]", m_vAsset->GetID(), x, m_vAsset->m_vSprites.size());
             _ghProgressInfo.strDetailedCaption = buf;
             _ghProgressInfo.iDetailedProgress = 50000 + (float(progress) / float(spritec)) * 50000.0f;
             if (looper) looper->Tick();

@@ -1,6 +1,8 @@
 #ifndef H_RETURNCODES
 #define H_RETURNCODES
 
+#include <cstdint>
+
 enum class ReturnCodeType : unsigned char {
     Unset = 0,
     LoadMap,
@@ -12,9 +14,9 @@ enum class ReturnCodeType : unsigned char {
 
 struct ReturnCode {
     ReturnCodeType type = ReturnCodeType::Unset;
-    int value = 0;
+    std::intptr_t value = 0;
 
-    operator int() const { return value; }
+    operator int() const { return static_cast<int>(value); }
 };
 
 #endif

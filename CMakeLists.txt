@@ -1,11 +1,9 @@
+cmake_minimum_required(VERSION 3.22)
 project(WapMap)
-cmake_minimum_required(VERSION 3.10)
 
 ##----------------------------------------
 ## Edit this to match your configuration
 ##----------------------------------------
-
-SET( DIRECTX_SDK_DIR "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)" )
 
 ##----------------------------------------
 ## End of manual configuration section
@@ -26,55 +24,59 @@ ADD_CUSTOM_TARGET(release
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(WAPMAP_OUTPUT_DIR "${PROJECT_SOURCE_DIR}/bin/x64/$<CONFIG>")
+else()
+    set(WAPMAP_OUTPUT_DIR "${PROJECT_SOURCE_DIR}/bin")
+endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${WAPMAP_OUTPUT_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${WAPMAP_OUTPUT_DIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${WAPMAP_OUTPUT_DIR}")
 
-SET(HGE_DIR "${PROJECT_SOURCE_DIR}/../hge")
-SET(LUA_DIR "${PROJECT_SOURCE_DIR}/../lua")
-SET(SFML_DIR "${PROJECT_SOURCE_DIR}/../SFML-2.5.1-2017")
-SET(CURL_DIR "${PROJECT_SOURCE_DIR}/../curl")
-SET(ZLIB_DIR "${HGE_DIR}/src/zlib-1.2.5")
+SET(LUA_DIR "${PROJECT_SOURCE_DIR}/../lua" CACHE PATH "Lua source and build directory")
+SET(LUA_LIBRARY_DIR "${LUA_DIR}" CACHE PATH "Lua library build directory")
+SET(HGE_COMPAT_DIR "${PROJECT_SOURCE_DIR}/WapMap/hgecompat")
+SET(SFML_INSTALL_DIR "${PROJECT_SOURCE_DIR}/../SFML-3.0.2-install" CACHE PATH "SFML 3 install prefix")
+SET(SFML_DIR "${SFML_INSTALL_DIR}/lib/cmake/SFML")
+SET(CURL_DIR "${PROJECT_SOURCE_DIR}/../curl" CACHE PATH "curl source and build directory")
+SET(CURL_BUILD_DIR "${CURL_DIR}/build" CACHE PATH "curl build directory")
 
-SET(D3DX9_LIBS d3d9.lib
-	optimized d3dx9.lib debug d3dx9d.lib
-	)
-SET(HGE_LIBS hge-static.lib hgehelpers.lib)
+set(SFML_STATIC_LIBRARIES ON)
+list(PREPEND CMAKE_PREFIX_PATH "${SFML_INSTALL_DIR}")
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
+find_package(ZLIB REQUIRED)
+
 SET(LUA_LIB lua.lib)
-SET(SFML_LIBS
-	optimized sfml-graphics-s.lib debug sfml-graphics-s-d.lib
-	optimized sfml-window-s.lib sfml-window-s-d.lib
-	optimized sfml-system-s.lib sfml-system-s-d.lib
-	)
-SET(CURL_LIB optimized libcurl_imp.lib debug libcurl-d_imp.lib)
-SET(ZLIB_LIB optimized zlib.lib debug zlibd.lib)
-SET(OTHER_LIBS Version.lib Winmm.lib opengl32.lib freetype.lib)
+SET(SFML_LIBS SFML::Graphics SFML::Window SFML::System SFML::Audio)
+SET(CURL_LIB optimized libcurl.lib debug libcurl-d.lib)
+SET(OTHER_LIBS
+	Version.lib Winmm.lib Ws2_32.lib Dwmapi.lib Crypt32.lib Secur32.lib
+	Wldap32.lib Iphlpapi.lib Bcrypt.lib Ole32.lib Shell32.lib opengl32.lib
+)
 
-add_definitions(-DNOMINMAX -DWAP_MAP -DWAP_TOOLS -DSFML_STATIC)
-if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-    add_definitions(-DBUILD_DEBUG -DSHOWMEMUSAGE)
-endif ()
+add_compile_definitions(NOMINMAX CURL_STATICLIB WAP_MAP WAP_TOOLS SFML_STATIC)
+add_compile_definitions($<$<CONFIG:Debug>:BUILD_DEBUG> $<$<CONFIG:Debug>:SHOWMEMUSAGE>)
 
 include_directories(
+    "${HGE_COMPAT_DIR}/include"
     "${PROJECT_SOURCE_DIR}/incl"
     "${PROJECT_SOURCE_DIR}/shared"
-    "${HGE_DIR}/include"
     "${LUA_DIR}"
-    "${SFML_DIR}/include"
     "${CURL_DIR}/include"
-    "${ZLIB_DIR}"
+    "${CURL_BUILD_DIR}/include"
 )
-
-link_directories(
-    "${SFML_DIR}/lib"
-    "${HGE_DIR}/linklib/${CMAKE_BUILD_TYPE}"
-    "${CURL_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
-    "${LUA_DIR}/${CMAKE_BUILD_TYPE}"
-	"${DIRECTX_SDK_DIR}/Lib/x86"
-)
-
 
 add_executable(WapMap
+	${HGE_COMPAT_DIR}/src/hge_sfml.cpp
+	${HGE_COMPAT_DIR}/src/audio.cpp
+	${HGE_COMPAT_DIR}/src/graphics.cpp
+	${HGE_COMPAT_DIR}/src/system.cpp
+	${HGE_COMPAT_DIR}/src/helpers/hgecolor.cpp
+	${HGE_COMPAT_DIR}/src/helpers/hgefont.cpp
+	${HGE_COMPAT_DIR}/src/helpers/hgerect.cpp
+	${HGE_COMPAT_DIR}/src/helpers/hgesprite.cpp
+	${HGE_COMPAT_DIR}/src/helpers/hgevector.cpp
+	${HGE_COMPAT_DIR}/src/win32.cpp
 	${PROJECT_SOURCE_DIR}/shared/cANI.cpp
 	${PROJECT_SOURCE_DIR}/shared/cConsole.cpp
 	${PROJECT_SOURCE_DIR}/shared/cInterface.cpp
@@ -278,17 +280,20 @@ add_executable(WapMap
 		WapMap/windows/paletteBrowser.h)
 
 target_link_libraries(WapMap
-    ${HGE_LIBS}
-	${D3DX9_LIBS}
     ${LUA_LIB}
     ${SFML_LIBS}
     ${CURL_LIB}
-    ${ZLIB_LIB}
+    ZLIB::ZLIB
     ${OTHER_LIBS}
 )
 
-file(GLOB RESOURCES
-	"res/copy/*"
+target_link_directories(WapMap PRIVATE
+    "${CURL_BUILD_DIR}/lib/$<CONFIG>"
+    "${LUA_LIBRARY_DIR}/$<CONFIG>"
 )
 
-file(COPY ${RESOURCES} DESTINATION ${CMAKE_BINARY_DIR})
+add_custom_command(TARGET WapMap POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/res/copy"
+        "$<TARGET_FILE_DIR:WapMap>"
+)

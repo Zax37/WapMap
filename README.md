@@ -1,41 +1,59 @@
 ![WapMap](logo.png)
 
-## Info
+# WapMap
 
-WapMap is a fanmade WAP32 file editor, originally developped by kijanek6 in 2010-2013.
-It's mostly known as Claw level editor, but it also supports Gruntz and Get Medieval maps (to some extent).
+WapMap is a WAP32 file editor, originally developed by kijanek6 in 2010–2013. It is primarily known as a Claw level editor and also supports Gruntz and Get Medieval maps to some extent.
 
-For the 10th birthday of the editor, I decided to bring it back - starting with bugfixes, then adding some new features,
-and finally doing a full redesign.
+The renderer and platform layer are being migrated from HGE to SFML 3. The application retains its existing editor UI and uses the in-tree HGE compatibility facade; building WapMap no longer requires the HGE library or the DirectX SDK.
 
-WapMap, as most of kijanek's projects at the time, depended on HGE(Haaf's Game Engine), which he edited when needed.
-Sadly, in the package, which I got from him, there was no source files of that version, only linking files, but bit
-after bit, I managed to re-implement most of his changes.
+## Building on Windows
 
-At some point WapMap was meant to be partially rewritten with the usage of SFML, but kijanek failed to
-get it working and abandoned the project. I was considering doing it, but it would probably be easier to
-rewrite the whole thing then, and I decided not to do that, but keep my legacy alive.
+The default build target is x86. An optional x64 target is also available when all dependencies are built for x64. Install Visual Studio 2019 or newer with the C++ desktop workload and CMake 3.22 or newer.
 
-## Building
+### Dependencies
 
-1. Get Visual Studio 2017 (v141) toolset to build HGE and 2019 (v142) for WapMap.
+- SFML 3.0.2, built and installed for x86. The default install prefix is `../SFML-3.0.2-install`; set `SFML_INSTALL_DIR` to override it.
+- zlib for x86. It can be installed with vcpkg (`vcpkg install zlib:x86-windows-static-md`) and discovered through the vcpkg CMake toolchain, or supplied through CMake's `ZLIB_ROOT`.
+- curl, built as a static x86 library with Schannel, in `../curl`. WapMap expects its `include` directory and `build/lib/{Debug,Release}` outputs.
+- Lua, built for x86, in `../lua`. WapMap expects its headers there and `Debug`/`Release` library outputs.
 
-2. Create some directory for the project and its dependencies (e.g. WapMap).
+For x64, use x64 builds of SFML, zlib, curl and Lua. CMake keeps Lua headers (`LUA_DIR`) separate from its library output (`LUA_LIBRARY_DIR`), and curl's source/header root (`CURL_DIR`) separate from its build output (`CURL_BUILD_DIR`). The Visual Studio project defaults to sibling x64 dependency folders (`SFML-3.0.2-x64-install`, `zlib-x64\install`, `curl-x64-install`, and `lua-x64`); override its `SFMLRoot`, `ZlibRoot`, `CurlRoot`, or `LuaRoot` properties if needed. HGE and the DirectX 9 SDK are not required.
 
-3. Clone them:
+### Configure and build
 
+Run these commands from an x86 Visual Studio Developer Command Prompt, with the vcpkg toolchain path adjusted to your installation if using vcpkg:
+
+```powershell
+cmake -S . -B ..\WapMap-sfml3-build -DCMAKE_BUILD_TYPE=Release `
+  -DCMAKE_TOOLCHAIN_FILE=D:\Projects\vcpkg\scripts\buildsystems\vcpkg.cmake `
+  -DVCPKG_TARGET_TRIPLET=x86-windows-static-md
+cmake --build ..\WapMap-sfml3-build --parallel 8
 ```
-git clone https://github.com/Zax37/WapMap
-git clone https://github.com/Zax37/hge
-git clone https://github.com/curl/curl
-git clone https://github.com/lua/lua
+
+If zlib is installed outside vcpkg, omit `CMAKE_TOOLCHAIN_FILE` and set `ZLIB_ROOT` to its x86 installation prefix.
+
+For an x64 build, configure a separate build directory and point CMake to x64 dependency outputs:
+
+```powershell
+cmake -S . -B ..\WapMap-sfml3-x64-build -A x64 `
+  -DSFML_INSTALL_DIR=D:\Projects\SFML-3.0.2-x64-install `
+  -DLUA_DIR=D:\Projects\lua `
+  -DLUA_LIBRARY_DIR=D:\Projects\lua-x64 `
+  -DCURL_DIR=D:\Projects\curl `
+  -DCURL_BUILD_DIR=D:\Projects\curl-x64-build `
+  -DZLIB_ROOT=D:\Projects\zlib-x64\install
+cmake --build ..\WapMap-sfml3-x64-build --config Release --parallel 8
 ```
 
-4. Build the dependencies (I used CMake). You'll need to download DirectX 9 SDK (June 2010), as HGE's readme says.
+### Building the Visual Studio project directly
 
-5. Download [SFML 2.5.1](https://www.sfml-dev.org/files/SFML-2.5.1-windows-vc15-32-bit.zip), unzip it
-next to other dependencies and rename from `SFML-2.5.1` to `SFML-2.5.1-2017`.
+`WapMap\WapMap.vcxproj` defaults `ZlibRoot` to `..\..\zlib` relative to the project directory. To use a vcpkg installation instead, set the MSBuild property to its x86 triplet prefix, for example:
 
-6. Open WapMap/WapMap/WapMap.sln in Visual Studio 2019 and run it!
+```powershell
+msbuild WapMap\WapMap.vcxproj /p:Configuration=Release /p:Platform=Win32 `
+  /p:ZlibRoot=D:\Projects\vcpkg\installed\x86-windows-static-md
+```
 
-7. I've also created CMakeLists for the project, if you'd like to use different toolset. I'll try to keep them up to date. :)
+The selected prefix must contain `include\zlib.h`, `lib\zlib.lib`, and `debug\lib\zlibd.lib` for Debug builds. Set `ZlibRoot` to another x86 zlib prefix if your installation uses a different location.
+
+The solution also provides `x64` configurations. Build them with `/p:Platform=x64`; the project uses separate x64 dependency defaults and writes outputs to `bin\x64` and `obj\x64`.

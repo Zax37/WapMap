@@ -10,12 +10,11 @@ static const int usedLibsCreditsBlockLineSpacing = 6;
 
 static const char* const usedLibsCreditLines[] {
         "HGE 1.81 - Copyright (c) 2003-2008 Relish Games.",
-        "BASS 2.3 - Copyright (c) 2003-2012 un4seen developments. All rights reserved.",
         "Guichan 0.8.3 - Copyright (c) 2004-2007 Olof Naessen and Per Larsson. All rights reserved.",
         "libcurl 7.21.6 - Copyright (c) 1996 - 2012, Daniel Stenberg, <daniel@haxx.se>.",
         "hashlib++ 0.3.2 - Copyright (c) 2007-2011 Benjamin Grudelbach.",
         "Lua 5.1.4 - Copyright (c) 1994-2012 Lua.org, PUC-Rio.",
-        "SFML 2.5.1 - Copyright (c) 2007-2018 Laurent Gomila.",
+        "SFML 3.0.2 - Copyright (c) 2007-2025 Laurent Gomila.",
         "zlib 1.2.5 - Copyright (c) 1995-2012 Jean-loup Gailly and Mark Adler.",
         "ziplib - Copyright (c) 2013 Petr Benes.",
         "JSON for Modern C++ - Copyright (c) 2013-2019 Niels Lohmann <http://nlohmann.me>."

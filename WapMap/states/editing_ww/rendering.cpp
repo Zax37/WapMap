@@ -828,14 +828,13 @@ void State::EditingWW::RenderToViewportBuffer() {
 
     iTilesOnScreen = 0;
     iObjectsOnScreen = 0;
-    while (!vRenderOrders.empty()) {
-        int c = vRenderOrders.front()->Render();
-        if (vRenderOrders.front()->GetType() == cRenderableItem::PlaneWrapper)
+    for (auto* renderItem : vRenderOrders) {
+        int c = renderItem->Render();
+        if (renderItem->GetType() == cRenderableItem::PlaneWrapper)
             iTilesOnScreen += c;
-        else if (vRenderOrders.front()->GetType() == cRenderableItem::ObjectWrapper)
+        else if (renderItem->GetType() == cRenderableItem::ObjectWrapper)
             iObjectsOnScreen += c;
-        delete vRenderOrders.front();
-        vRenderOrders.erase(vRenderOrders.begin());
+        delete renderItem;
     }
 #ifdef DEBUG_DRAW
     hge->Gfx_RenderLine(0, 0, vPort->GetWidth(), 0, 0xFFFF00FF);
@@ -2498,7 +2497,7 @@ bool State::EditingWW::Render() {
         int x = hge->System_GetState(HGE_SCREENWIDTH) / 2, y = hge->System_GetState(HGE_SCREENHEIGHT) / 2 + 18;
 
         if (!files.empty()) {
-            y -= std::min(files.size(), 10u) * 9;
+            y -= static_cast<int>(std::min<std::size_t>(files.size(), 10)) * 9;
             GV->fntMyriad16->Render(x, y, HGETEXT_CENTER, GETL(Lang_FilesDragged_MapsToOpen), 0);
 
             int maxW = 0;

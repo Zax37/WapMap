@@ -13,6 +13,7 @@
 #include "../databanks/meta.h"
 #include "../databanks/palettes.h"
 #include "../version.h"
+#include <cstdint>
 
 structProgressInfo _ghProgressInfo;
 
@@ -328,7 +329,7 @@ bool State::LoadMap::Think() {
                 dd->hParser->GetAuthor(), dd->hParser->GetBaseLevel());
         }
 
-        _popMe({ ReturnCodeType::LoadMap, (int)dd });
+        _popMe({ ReturnCodeType::LoadMap, reinterpret_cast<std::intptr_t>(dd) });
     }
 
     return false;

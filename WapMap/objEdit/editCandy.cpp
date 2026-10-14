@@ -7,7 +7,7 @@
 #include "../databanks/imageSets.h"
 #include "../cInterfaceSheet.h"
 
-#include <SFML/Graphics.hpp>
+#include <cstdint>
 #include <set>
 
 #define IMAGE_TILE_WIDTH 64
@@ -152,7 +152,7 @@ namespace ObjEdit {
 		}
 
 #define EOC_GROUP_Y (CONTAINER_HEIGHT + 90)
-		std::string group = std::to_string((int)this);
+		std::string group = std::to_string(reinterpret_cast<std::uintptr_t>(this));
         rbType[0] = new SHR::RadBut(GV->hGfxInterface, GETL2S("Z_Coord", "Behind"), group, z == 990);
         rbType[0]->adjustSize();
         rbType[0]->addActionListener(hAL);

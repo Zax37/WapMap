@@ -4,6 +4,7 @@
 #include "../shared/commonFunc.h"
 #include "bodyQuadTree.h"
 #include "version.h"
+#include <cstdint>
 
 extern HGE *hge;
 using namespace GameSim;
@@ -17,22 +18,32 @@ static const char * WEAPON_IMGSET[] = {"GAME_INTERFACE_WEAPONS_PISTOL",
                                        "GAME_INTERFACE_WEAPONS_MAGIC",
                                        "GAME_INTERFACE_WEAPONS_DYNAMITE"};
 
+static int callbackIndex(void *user) {
+    return static_cast<int>(reinterpret_cast<std::intptr_t>(user));
+}
+
+static void *callbackUserData(std::size_t index) {
+    return reinterpret_cast<void *>(static_cast<std::intptr_t>(index));
+}
+
 void CheckpointTrigCb(void * user, cPhysicBody * trigger, cPhysicBody * body)
 {
     if( body->GetType() != BODY_PLAYER ) return;
-    GV->Console->Printf("Checkpoint #~y~%d~w~ reached.", (int)user);
-    delete GV->editState->hSim->vCheckpoints[(int)user].bodyMe;
-    GV->editState->hSim->vCheckpoints[(int)user].bodyMe = NULL;
-    GV->editState->hSim->vCheckpoints[(int)user].fTimer = 0;
+    const int index = callbackIndex(user);
+    GV->Console->Printf("Checkpoint #~y~%d~w~ reached.", index);
+    delete GV->editState->hSim->vCheckpoints[index].bodyMe;
+    GV->editState->hSim->vCheckpoints[index].bodyMe = NULL;
+    GV->editState->hSim->vCheckpoints[index].fTimer = 0;
     GV->editState->hSim->PlayAnimSound(GV->editState->hSim->aniFlagRise->GetFrame(0));
 }
 
 void TreasureTrigCb(void * user, cPhysicBody * trigger, cPhysicBody * body)
 {
     if( body->GetType() != BODY_PLAYER ) return;
-    delete GV->editState->hSim->vTreasures[(int)user].bodyMe;
-    GetUserDataFromObj(GV->editState->hSim->vTreasures[(int)user].hObj)->SetVisible(0);
-    //GV->editState->hSim->vTreasures.erase(GV->editState->hSim->vTreasures.begin()+(int)user);
+    const int index = callbackIndex(user);
+    delete GV->editState->hSim->vTreasures[index].bodyMe;
+    GetUserDataFromObj(GV->editState->hSim->vTreasures[index].hObj)->SetVisible(0);
+    //GV->editState->hSim->vTreasures.erase(GV->editState->hSim->vTreasures.begin()+index);
     GV->editState->hSim->AlterScore(100);
 }
 
@@ -40,23 +51,24 @@ void SndTrigCb(void * user, cPhysicBody * trigger, cPhysicBody * body)
 {
     if( body != GV->editState->hSim->bodyClaw ) return;
 
-    GV->Console->Printf("Snd. trig. #~y~%d~w~ launched [~y~%s~w~].", (int)user, GV->editState->hSim->vSndTrig[(int)user].hObj->GetAnim());
-    cSndBankAsset * as = GV->editState->hSndBank->GetAssetByID(GV->editState->hSim->vSndTrig[(int)user].hObj->GetAnim());
+    const int index = callbackIndex(user);
+    GV->Console->Printf("Snd. trig. #~y~%d~w~ launched [~y~%s~w~].", index, GV->editState->hSim->vSndTrig[index].hObj->GetAnim());
+    cSndBankAsset * as = GV->editState->hSndBank->GetAssetByID(GV->editState->hSim->vSndTrig[index].hObj->GetAnim());
     if( as == NULL )
-     GV->Console->Printf("~r~Asset '~y~%s~r~' invalid!", GV->editState->hSim->vSndTrig[(int)user].hObj->GetAnim());
+     GV->Console->Printf("~r~Asset '~y~%s~r~' invalid!", GV->editState->hSim->vSndTrig[index].hObj->GetAnim());
     else{
-     if( GV->editState->hSim->vSndTrig[(int)user].bDialogTrigger )
+     if( GV->editState->hSim->vSndTrig[index].bDialogTrigger )
       GV->editState->hSim->clawDialog = hge->Effect_Play(as->GetSound());
      else
       hge->Effect_Play(as->GetSound());
     }
-    if( GV->editState->hSim->vSndTrig[(int)user].hObj->GetParam(WWD::Param_Smarts) != -1 ){
-     if( trigger == GV->editState->hSim->vSndTrig[(int)user].bodyListener[0] ){
-      delete GV->editState->hSim->vSndTrig[(int)user].bodyListener[0];
-      GV->editState->hSim->vSndTrig[(int)user].bodyListener[0] = NULL;
+    if( GV->editState->hSim->vSndTrig[index].hObj->GetParam(WWD::Param_Smarts) != -1 ){
+     if( trigger == GV->editState->hSim->vSndTrig[index].bodyListener[0] ){
+      delete GV->editState->hSim->vSndTrig[index].bodyListener[0];
+      GV->editState->hSim->vSndTrig[index].bodyListener[0] = NULL;
      }else{
-      delete GV->editState->hSim->vSndTrig[(int)user].bodyListener[1];
-      GV->editState->hSim->vSndTrig[(int)user].bodyListener[1] = NULL;
+      delete GV->editState->hSim->vSndTrig[index].bodyListener[1];
+      GV->editState->hSim->vSndTrig[index].bodyListener[1] = NULL;
      }
     }
 }
@@ -472,7 +484,7 @@ void cGameSimulator::Init() {
                  hgeSprite * spr = GV->editState->SprBank->GetAssetByID(obj->GetImageSet())->GetIMGByNoID(0)->GetSprite();
                  n.bodyMe = new cPhysicBody(hPW, obj->GetParam(WWD::Param_LocationX)-spr->GetWidth()/2,
                                             obj->GetParam(WWD::Param_LocationY)-spr->GetHeight()/2, spr->GetWidth(), spr->GetHeight(),
-                                            TreasureTrigCb, (void*)vTreasures.size(), obj);
+                                            TreasureTrigCb, callbackUserData(vTreasures.size()), obj);
                  vTreasures.push_back(n);
                 }else if( bPlay && strstr(obj->GetLogic(), "Checkpoint") != NULL ){
                  cCheckpoint n;
@@ -481,7 +493,7 @@ void cGameSimulator::Init() {
                  n.iFrame = 0;
                  n.fTimer = -1;
                  n.bodyMe = new cPhysicBody(hPW, obj->GetParam(WWD::Param_LocationX)-28, obj->GetParam(WWD::Param_LocationY)-48, 25, 112,
-                                            CheckpointTrigCb, (void*)vCheckpoints.size(), obj);
+                                            CheckpointTrigCb, callbackUserData(vCheckpoints.size()), obj);
                  vCheckpoints.push_back(n);
                 }else if( bPlay && strstr(obj->GetLogic(), "SoundTrigger") != NULL ){
                  cSoundTrigger n;
@@ -492,7 +504,7 @@ void cGameSimulator::Init() {
                  if( obj->GetHitRect().x1 != 0 || obj->GetHitRect().y1 != 0 || obj->GetHitRect().x2 != 0 || obj->GetHitRect().y2 != 0 ){
                   n.bodyListener[1] = new cPhysicBody(hPW, obj->GetHitRect().x1, obj->GetHitRect().y1,
                                                       obj->GetHitRect().x2-obj->GetHitRect().x1, obj->GetHitRect().y2-obj->GetHitRect().y1,
-                                                      SndTrigCb, (void*)vSndTrig.size(), obj);
+                                                      SndTrigCb, callbackUserData(vSndTrig.size()), obj);
                  }else
                   n.bodyListener[1] = NULL;
                  if( strstr(obj->GetLogic(), "Small") != NULL ){
@@ -526,7 +538,7 @@ void cGameSimulator::Init() {
                   y = obj->GetParam(WWD::Param_LocationY)-64;
                   w = h = 128;
                  }
-                 n.bodyListener[0] = new cPhysicBody(hPW, x, y, w, h, SndTrigCb, (void*)vSndTrig.size(), obj);
+                 n.bodyListener[0] = new cPhysicBody(hPW, x, y, w, h, SndTrigCb, callbackUserData(vSndTrig.size()), obj);
                  vSndTrig.push_back(n);
 #endif
             } else if (strstr(obj->GetLogic(), "Checkpoint") != NULL) {

@@ -13,6 +13,18 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -24,18 +36,34 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -51,7 +79,27 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <ZlibRoot Condition="'$(ZlibRoot)' == '' and '$(Platform)' == 'x64'">$(ProjectDir)..\..\zlib-x64\install</ZlibRoot>
+    <ZlibRoot Condition="'$(ZlibRoot)' == ''">$(ProjectDir)..\..\zlib</ZlibRoot>
+    <SFMLRoot Condition="'$(SFMLRoot)' == '' and '$(Platform)' == 'x64'">$(ProjectDir)..\..\SFML-3.0.2-x64-install</SFMLRoot>
+    <SFMLRoot Condition="'$(SFMLRoot)' == ''">$(ProjectDir)..\..\SFML-3.0.2-install</SFMLRoot>
+    <CurlRoot Condition="'$(CurlRoot)' == '' and '$(Platform)' == 'x64'">$(ProjectDir)..\..\curl-x64-install</CurlRoot>
+    <CurlRoot Condition="'$(CurlRoot)' == ''">$(ProjectDir)..\..\curl</CurlRoot>
+    <LuaIncludeRoot Condition="'$(LuaIncludeRoot)' == ''">$(ProjectDir)..\..\lua</LuaIncludeRoot>
+    <LuaRoot Condition="'$(LuaRoot)' == '' and '$(Platform)' == 'x64'">$(ProjectDir)..\..\lua-x64</LuaRoot>
+    <LuaRoot Condition="'$(LuaRoot)' == ''">$(ProjectDir)..\..\lua</LuaRoot>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildAfterTargets>
@@ -72,11 +120,26 @@
     <OutDir>..\bin\$(Configuration)\</OutDir>
     <IntDir>..\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\x64\$(Configuration)\</OutDir>
+    <IntDir>..\obj\x64\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\x64\$(Configuration)\</OutDir>
+    <IntDir>..\obj\x64\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\x64\$(Configuration)\</OutDir>
+    <IntDir>..\obj\x64\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -90,8 +153,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;lua.lib;zlibd.lib;libcurl-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\debug\lib;$(ZlibRoot)\lib;$(ZlibRoot)\build\$(Configuration);..\..\SFML-3.0.2-install\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;FLACd.lib;vorbisfiled.lib;vorbisencd.lib;vorbisd.lib;oggd.lib;opengl32.lib;freetyped.lib;lua.lib;zlibd.lib;libcurl-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -115,7 +178,7 @@
     <ClCompile>
       <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -130,8 +193,8 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\debug\lib;$(ZlibRoot)\lib;$(ZlibRoot)\build\$(Configuration);..\..\SFML-3.0.2-install\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;sfml-audio-s.lib;FLAC.lib;vorbisfile.lib;vorbisenc.lib;vorbis.lib;ogg.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -154,7 +217,7 @@
     <ClCompile>
       <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;..\..\hge\include;..\..\hge\src\zlib-1.2.5;..\..\SFML-2.5.1-2017\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -168,8 +231,8 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\hge\linklib\$(Configuration);..\..\SFML-2.5.1-2017\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hge-static.lib;hgehelpers.lib;Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;d3d9.lib;d3dx9.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\debug\lib;$(ZlibRoot)\lib;$(ZlibRoot)\build\$(Configuration);..\..\SFML-3.0.2-install\lib;..\..\curl\build\lib\$(Configuration);..\..\lua\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;sfml-audio-s.lib;FLAC.lib;vorbisfile.lib;vorbisenc.lib;vorbis.lib;ogg.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -188,7 +251,101 @@
       <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <EnableModules>true</EnableModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\lib;$(SFMLRoot)\lib;$(CurlRoot)\lib;$(LuaRoot)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;FLACd.lib;vorbisfiled.lib;vorbisencd.lib;vorbisd.lib;oggd.lib;opengl32.lib;freetyped.lib;lua.lib;zlibd.lib;libcurl-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
+    </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <EnableModules>true</EnableModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\lib;$(SFMLRoot)\lib;$(CurlRoot)\lib;$(LuaRoot)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;sfml-audio-s.lib;FLAC.lib;vorbisfile.lib;vorbisenc.lib;vorbis.lib;ogg.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
+    </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <EnableModules>true</EnableModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ZlibRoot)\lib;$(SFMLRoot)\lib;$(CurlRoot)\lib;$(LuaRoot)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;Winmm.lib;Ws2_32.lib;Dwmapi.lib;Crypt32.lib;Secur32.lib;Wldap32.lib;Ole32.lib;Shell32.lib;Bcrypt.lib;Iphlpapi.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;sfml-audio-s.lib;FLAC.lib;vorbisfile.lib;vorbisenc.lib;vorbis.lib;ogg.lib;opengl32.lib;freetype.lib;lua.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy ..\res\copy\* $(TargetDir) /e /y /i /r</Command>
+    </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="hgecompat\src\hge_sfml.cpp" />
+    <ClCompile Include="hgecompat\src\audio.cpp" />
+    <ClCompile Include="hgecompat\src\graphics.cpp">
+      <ObjectFileName>$(IntDir)hgecompat_graphics.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="hgecompat\src\system.cpp" />
+    <ClCompile Include="hgecompat\src\win32.cpp" />
+    <ClCompile Include="hgecompat\src\helpers\hgecolor.cpp" />
+    <ClCompile Include="hgecompat\src\helpers\hgefont.cpp" />
+    <ClCompile Include="hgecompat\src\helpers\hgerect.cpp" />
+    <ClCompile Include="hgecompat\src\helpers\hgesprite.cpp" />
+    <ClCompile Include="hgecompat\src\helpers\hgevector.cpp" />
     <ClCompile Include="..\shared\cANI.cpp" />
     <ClCompile Include="..\shared\cConsole.cpp" />
     <ClCompile Include="..\shared\cInterface.cpp" />
@@ -237,7 +394,9 @@
     <ClCompile Include="..\shared\guichan\focushandler.cpp" />
     <ClCompile Include="..\shared\guichan\font.cpp" />
     <ClCompile Include="..\shared\guichan\genericinput.cpp" />
-    <ClCompile Include="..\shared\guichan\graphics.cpp" />
+    <ClCompile Include="..\shared\guichan\graphics.cpp">
+      <ObjectFileName>$(IntDir)guichan_graphics.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\shared\guichan\gui.cpp" />
     <ClCompile Include="..\shared\guichan\guichan.cpp" />
     <ClCompile Include="..\shared\guichan\hge\hgegraphics.cpp" />

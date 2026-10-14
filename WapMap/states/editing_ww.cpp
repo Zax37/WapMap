@@ -21,6 +21,7 @@
 #include "../databanks/tiles.h"
 #include "../databanks/imageSets.h"
 #include "../cBrush.h"
+#include <cstdint>
 #include <filesystem>
 
 extern HGE *hge;
@@ -2414,7 +2415,7 @@ void State::EditingWW::GainFocus(const ReturnCode& code, bool bFlipped) {
     switch (code.type) {
         case ReturnCodeType::LoadMap:
             if (code.value != 0) {
-                DocumentData *dd = (DocumentData *) code.value;
+                DocumentData *dd = reinterpret_cast<DocumentData *>(code.value);
                 hParser = dd->hParser;
                 SprBank = dd->hSprBank;
                 hTileset = dd->hTilesBank;
@@ -2470,7 +2471,7 @@ void State::EditingWW::GainFocus(const ReturnCode& code, bool bFlipped) {
         break;
         case ReturnCodeType::ObjectProp:
             if (bFlipped) {
-                int *ptr = (int *) code.value;
+                int *ptr = reinterpret_cast<int *>(code.value);
                 toolsaMinX = ptr[0];
                 toolsaMinY = ptr[1];
                 toolsaMaxX = ptr[2];

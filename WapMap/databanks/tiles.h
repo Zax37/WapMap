@@ -31,7 +31,7 @@ protected:
     friend class cBankTile;
 
 public:
-    int GetID() { return iID; }
+    int GetID() const { return iID; }
 
     void Load() override;
 

@@ -68,7 +68,7 @@ void cBankAni::BatchProcessEnd() {
         hDC->GetLooper()->Tick();
     for (size_t i = 0; i < m_vAssets.size(); i++) {
         char buf[256];
-        sprintf(buf, "Loading: %s [%d/%d]", m_vAssets[i]->GetName().c_str(), i, m_vAssets.size());
+        sprintf(buf, "Loading: %s [%zu/%zu]", m_vAssets[i]->GetName().c_str(), i, m_vAssets.size());
         _ghProgressInfo.strDetailedCaption = buf;
         _ghProgressInfo.iDetailedProgress = 50000 + (float(i) / float(m_vAssets.size())) * 50000.0f;
         if (hDC->GetLooper() != 0)

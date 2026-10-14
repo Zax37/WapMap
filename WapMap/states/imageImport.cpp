@@ -341,7 +341,7 @@ namespace State {
                 istartid = (hDestinationIS == 0 ? 1 : hDestinationIS->GetMaxIMGID() + 1);
             for (size_t i = 0; i < vImages.size(); i++) {
                 char tmp[32];
-                sprintf(tmp, "%d", istartid + i);
+                sprintf(tmp, "%zu", istartid + i);
                 vImages[i].tfID->setText(tmp, 1);
             }
             return;

@@ -5,6 +5,7 @@
 #include "../shared/cPID.h"
 #include "cFileSystem.h"
 #include <hge.h>
+#include <hgeSprite.h>
 #include "guichan/listmodel.hpp"
 
 namespace PID {

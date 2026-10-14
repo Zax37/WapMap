@@ -15,6 +15,8 @@
 #include "hgefont.h"
 
 #include <csetjmp>
+#include <atomic>
+#include <thread>
 
 #include "guichan.hpp"
 #include "guichan/hge.hpp"
@@ -439,6 +441,9 @@ public:
     char szMemUsage[64];
     CRITICAL_SECTION csMemUsage;
     float fMemUsageTimer;
+    std::atomic<bool> memUsageThreadRunning{false};
+    std::thread memUsageThread;
+    void StartMemUsageUpdate();
     void UpdateMemUsage();
 #endif
 

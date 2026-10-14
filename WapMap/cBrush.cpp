@@ -22,9 +22,8 @@ int wmAddDropDownOption(lua_State *L) {
         return 0;
     }
 
-    if (lua_tonumber(L, 1) == 0)
-        return 0;
-    cBrushSetting *ptr = (cBrushSetting *) (int) lua_tonumber(L, 1);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
+    cBrushSetting *ptr = static_cast<cBrushSetting *>(lua_touserdata(L, 1));
     const char *opt = lua_tostring(L, 2);
 
     ((cDynamicListModel *) ((SHR::DropDown *) ptr->hWidg)->getListModel())->Add(opt);
@@ -40,7 +39,8 @@ int wmGetSettingValue(lua_State *L) {
         return 1;
     }
 
-    cBrushSetting *ptr = (cBrushSetting *) (int) lua_tonumber(L, 1);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
+    cBrushSetting *ptr = static_cast<cBrushSetting *>(lua_touserdata(L, 1));
     if (!ptr) {
         lua_pushinteger(L, 0);
         return 1;
@@ -120,7 +120,7 @@ int wmAddSetting(lua_State *L) {
 #ifdef BUILD_DEBUG
     GV->Console->Printf("~g~Brush Lua: generated setting widget (0x%p).", set);
 #endif
-    lua_pushinteger(L, (int) set);
+    lua_pushlightuserdata(L, set);
     return 1;
 }
 
@@ -136,7 +136,8 @@ int wmGetTile(lua_State *L) {
         return 0;
     }
 
-    WWD::Plane *plane = (WWD::Plane *) (int) lua_tonumber(L, 1);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
+    WWD::Plane *plane = static_cast<WWD::Plane *>(lua_touserdata(L, 1));
     int x = lua_tonumber(L, 2);
     int y = lua_tonumber(L, 3);
 
@@ -177,7 +178,8 @@ int wmPlaceTile(lua_State *L) {
     }
 
 
-    WWD::Plane *plane = (WWD::Plane *) (int) lua_tonumber(L, 1);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
+    WWD::Plane *plane = static_cast<WWD::Plane *>(lua_touserdata(L, 1));
     int x = lua_tonumber(L, 2);
     int y = lua_tonumber(L, 3);
     int tile = lua_tonumber(L, 4);
@@ -480,7 +482,7 @@ bool cBrush::Apply(WWD::Plane *phPlane, int piX, int piY) {
     if (!GV->jmp_val) {
         lua_getglobal(m_L, "cbBrushPlaced");
 
-        lua_pushnumber(m_L, (int) phPlane);
+        lua_pushlightuserdata(m_L, phPlane);
         lua_pushnumber(m_L, piX);
         lua_pushnumber(m_L, piY);
 
@@ -496,7 +498,7 @@ void cBrush::ApplyGhosting(WWD::Plane *phPlane, int piX, int piY, std::vector<Ti
     if (!GV->jmp_val) {
         lua_getglobal(m_L, "cbBrushPlaced");
 
-        lua_pushnumber(m_L, (int) phPlane);
+        lua_pushlightuserdata(m_L, phPlane);
         lua_pushnumber(m_L, piX);
         lua_pushnumber(m_L, piY);
 

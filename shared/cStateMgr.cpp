@@ -23,28 +23,13 @@ void SHR::cStateMgr::EnableBuffering(bool b) {
 
 void SHR::cStateMgr::ReloadShader() {
 	if (!BufferingEnabled()) EnableBuffering(true);
-	FILE *f = fopen("test.fx", "rb");
-	if (f != NULL) {
-		fclose(f);
-		//myShader = hge->Shader_Create("test.fx", 0);
-		if (myShader == NULL) {
-			GV->Console->Print("~r~Failed to load shader. HGE printout:");
-			GV->Console->Print(hge->System_GetErrorMessage());
-		} else {
-			GV->Console->Print("~g~Shader loaded.");
-		}
-		//HSHTECH tech = hge->Shader_GetTechnique(myShader, "std");
-		//if( tech == NULL )
-		// GV->Console->Print("~r~Failed to load shader technique.");
-		//hge->Shader_SetTechnique(myShader, tech);
-	}
+	GV->Console->Print("~y~Shader support is not available in the SFML renderer.");
 }
 
 void SHR::cStateMgr::Init() {
 	bBuffering = false;
 	hBuffer = NULL;
 	sprBuffer = NULL;
-	myShader = NULL;
 }
 
 SHR::cStateMgr::~cStateMgr() {
@@ -138,22 +123,6 @@ void SHR::cStateMgr::ManualRenderStop() {
 
 		hge->Gfx_BeginScene();
 
-		/*if( myShader != NULL ){
-		 sprBuffer->SetColor(0);
-		 sprBuffer->Render(0,0);
-		 sprBuffer->SetColor(0xFFFFFFFF);
-
-		 hge->Shader_SetTexture(myShader, hge->Shader_GetParam(myShader, "g_myTex"), sprBuffer->GetTexture());
-
-		 int passes = hge->Shader_Begin(myShader, HGESHADER_SAVE);
-		 for(int i=0;i<passes;i++){
-		  hge->Shader_BeginPass(myShader, i);
-		  sprBuffer->Render(0,0);
-		  hge->Gfx_FlushBuffer();
-		  hge->Shader_EndPass(myShader);
-		 }
-		 hge->Shader_End(myShader);
-		}else*/
 		sprBuffer->Render(0, 0);
 		hge->Gfx_EndScene();
 	}

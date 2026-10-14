@@ -60,9 +60,9 @@ Each step ends in a state that builds and can be tested. Do them in order.
 3. Stay on **x86** for the migration so Lua, curl and zlib don't also need rebuilding. Switching to x64 comes later (Step 11).
 
 ### Step 1: Bring in SFML 3
-1. Get **SFML 3.0.x** with CMake `FetchContent` or vcpkg (`sfml:x86-windows-static`). Replace the vendored `SFML-2.5.1` and the `SFML_DIR`/`SFML_LIBS` lines in `CMakeLists.txt`. Link `sfml-graphics`, `sfml-window`, `sfml-system`, `sfml-audio` (static, `SFML_STATIC`).
-2. Fix the 4 files that already use SFML 2 APIs (`states/mapshot.*`, `shared/cPieChart.cpp`, `objEdit/editCandy.cpp`, `windows/about.cpp`). SFML 3 changes: `sf::Vector2u` arguments, `std::optional` returns, `loadFromFile` → constructors or `[[nodiscard]]` bools, and so on (see the SFML 3 migration guide).
-3. ✅ Check: the app still builds and runs **on HGE**, with SFML 3 linked in next to it.
+1. ✅ Build/install **SFML 3.0.2** for x86 and link its graphics, window, system, and audio components from CMake.
+2. ✅ Port the existing SFML call sites (`states/mapshot.*`, `shared/cPieChart.cpp`, `objEdit/editCandy.cpp`, `windows/about.cpp`) to SFML 3 APIs.
+3. ✅ Check: the app builds against SFML 3 and the in-tree compatibility renderer. Runtime checks are tracked in Step 10.
 
 ### Step 2: Create the facade project skeleton
 1. Create `WapMap/hgecompat/` containing:
@@ -104,12 +104,14 @@ In `input.cpp`:
 5. `Input_GetEvent`: push `hgeInputEvent`s (`INPUT_KEYDOWN/KEYUP/MBUTTONDOWN/MBUTTONUP/MOUSEMOVE/MOUSEWHEEL`, with flags SHIFT/CTRL/ALT/REPEAT, `chr`, `x/y`) into a queue. **guichan's `hgeinput.cpp` depends on this matching exactly.** Compare it against `hge/src/core/input.cpp`.
 6. ✅ Check: hotkeys, text fields, mouse wheel zoom, drag-select.
 
-### Step 6: Graphics core and batching (the biggest step)
+### Step 6: Graphics core and batching (implementation complete; runtime validation pending)
+The SFML batcher, primitive rendering, textures and locks, render targets, clipping, and transforms are implemented in `WapMap/hgecompat/src/graphics.cpp`. The x86 Release target builds; the manual rendering and screenshot comparisons below still need to be completed.
+
 In `graphics.cpp`:
-1. **Batcher**: keep an `sf::VertexArray` (Triangles) plus the current texture, blend mode, render target, clip rect and transform. Every `Gfx_RenderQuad/Triple` adds vertices. **Flush** when any of those state values changes, or on `Gfx_EndScene`. (HGE batches the same way; drawing every sprite separately in SFML would be too slow for tile maps.)
+1. **Batcher**: keep a vertex vector (Triangles) plus the current texture, blend mode, render target, clip rect and transform. Every `Gfx_RenderQuad/Triple` adds vertices. **Flush** when any of those state values changes, or on `Gfx_EndScene`. (HGE batches the same way; drawing every sprite separately in SFML would be too slow for tile maps.)
 2. **Lines**: `Gfx_RenderLine` goes to a separate `sf::PrimitiveType::Lines` batch (flush ordering matters: keep a single queue of mixed primitives, or flush the triangles before lines and the other way round). Add **+0.5 px** to coordinates so 1-px lines stay sharp (D3D9 and GL rasterise lines differently).
 3. **Colour**: HGE's `DWORD` is `0xAARRGGBB`. Convert with `sf::Color(c>>16&255, c>>8&255, c&255, c>>24)`. Texture coordinates: HGE uses normalised 0..1 UVs and SFML uses pixels, so multiply by the texture size when emitting vertices.
-4. **Blend modes**: per-vertex colour × texture (`COLORMUL`) is SFML's default. `ALPHABLEND` → `sf::BlendAlpha`, `ALPHAADD` → `sf::BlendAdd`, `NOZWRITE`/Z → ignore. `COLORADD` (1 use) → a 5-line GLSL fragment shader `gl_FragColor = texture2D(tex, uv) + vec4(color.rgb, 0) ` with alpha from the texture × vertex. Alternatively, change that single button hover effect.
+4. **Blend modes**: per-vertex colour × texture (`COLORMUL`) is SFML's default. `ALPHABLEND` → `sf::BlendAlpha`, additive modes including the single `COLORADD` use → `sf::BlendAdd`, `NOZWRITE`/Z → ignore. Verify the button hover appearance during manual regression.
 5. **Textures**: `Texture_Load(mem/file)` → `sf::Texture::loadFromMemory/File`, `setSmooth(false)` (`HGE_TEXTUREFILTER=false`). `Texture_Create(w,h)` → empty texture. **Don't pad to power of two.** `GetWidth(tex, original)` returns the real size in both cases. Check the few spots (`imageImport.cpp`, `tiles.cpp`, `cTextureAtlas.cpp`) that compute strides from `Texture_GetWidth(tex)` without `true`.
 6. **`Texture_Lock/Unlock`**: on lock, `copyToImage()` (or keep a CPU `sf::Image` shadow), convert RGBA → ARGB into a `std::vector<DWORD>`, and return the pointer (respect the region arguments `cDataController.cpp:272` uses). On unlock (if not read-only), convert back and `texture.update(...)`. This is used by the texture atlas, tiles, image import, pie chart and guichan `hgeimage`.
 7. **Render targets**: `Target_Create` → `sf::RenderTexture`. `Gfx_BeginScene(target)` makes it the current draw target (flush first). `Gfx_EndScene` flushes and calls `rt.display()` (this fixes the Y-flip). `Target_GetTexture` returns a `TexEntry` that wraps `rt.getTexture()`. `Target_GetSurface` + `Surface_Lock` → `copyToImage()` + ARGB convert (mapshot). Keep a gfx-restore callback hook, but SFML/GL doesn't lose resources the way D3D9 did, so `GfxRestoreFunc` will mostly never fire.
@@ -118,30 +120,52 @@ In `graphics.cpp`:
 10. `Gfx_Clear(color)` → `target.clear()`.
 11. ✅ Check: map viewport, tile and object rendering, layer buffers (`cLayerRenderBuffer`), state buffer (`cStateMgr`), rulers, selection lines, mapshot export. Compare with the Step 0 screenshots, ideally overlaid.
 
-### Step 7: Sprites, fonts and guichan
+### Step 7: Sprites, fonts and guichan (implementation compiles; runtime validation pending)
+The existing HGE sprite/font helpers and guichan HGE backend compile against the SFML graphics layer without backend changes. Runtime widget and visual checks remain pending until the graphics pass can be exercised with the application's external SFS assets.
 1. `hgeSprite`, `hgeFont` (they parse the existing `.fnt` files), `hgeVector`, `hgeRect` should work as soon as Step 6 is done, because they only call `hge->Gfx_RenderQuad`, `Texture_GetWidth` and so on. Check `Render`, `RenderEx`, `RenderStretch`, `Render4V`, `SetFlip`, `SetHotSpot`, `SetTextureRect`, `SetBlendMode`, `printf/printfb`, `GetStringWidth`.
 2. The guichan backend (`shared/guichan/hge/*.cpp`) needs no changes. Test every widget type: buttons, checkboxes, radio buttons, dropdowns, sliders, scroll areas, tabbed areas, text fields and boxes, trees, context menus, tooltips, windows (drag and focus).
 3. ✅ Check: the whole UI pass from the Step 0 checklist.
 
-### Step 8: Audio (replaces BASS)
+### Step 8: Audio (replaces BASS; implementation complete, runtime validation pending)
+`WapMap/hgecompat/src/audio.cpp` now loads SFML sound buffers from memory or files and provides pooled playback channels with generation-checked handles, volume, pan, pitch, looping, seeking, and FX master volume. The x86 Release build succeeds. The Claw sound browser populated from the installation's loose WAV assets, and a selected sample reported a one-second duration. Audible playback, seek/volume interaction, simulator playback, and packed Claw ADPCM decoding remain unverified.
+
 In `audio.cpp`:
-1. `Effect_Load(mem,len)` → `new sf::SoundBuffer` + `loadFromMemory`. Check the Claw WAV variants (8-bit and 16-bit PCM, mono and stereo all load; ADPCM WAVs don't, so if any exist, decode them with `dr_wav` into samples and use `loadFromSamples`).
+1. `Effect_Load(mem,len)` → `sf::SoundBuffer::loadFromMemory`. Check the Claw WAV variants (8-bit and 16-bit PCM, mono and stereo all load; ADPCM WAVs may not, so if any exist, decode them with `dr_wav` into samples and use `loadFromSamples`).
 2. Channel pool: a `std::vector<std::unique_ptr<sf::Sound>>` with generation-tagged handles so a stale `HCHANNEL` can't hit a reused slot. Reuse finished sounds (SFML/OpenAL caps at roughly 256 voices).
 3. `Effect_PlayEx(eff, volume 0-100, pan -100..100, pitch, loop)` → `setVolume`, `setPan` (SFML 3) or position, `setPitch`, `setLooping`. Channel functions map directly: `stop`, `pause`, `play`, `getStatus()==Playing`, `setVolume`, `setPlayingOffset(sf::seconds(pos))`, `getPlayingOffset`, `buffer.getDuration()`.
-4. Delete `bass.dll` from the distribution.
-5. ✅ Check: sound browser (play, pause, seek, volume, end-of-track icon reset) and game simulator sounds and ambients.
+4. ✅ Delete `res/copy/bass.dll` from the distribution.
+5. ⏳ Check sound browser (play, pause, seek, volume, end-of-track icon reset) and game simulator sounds and ambients; runtime UI displayed the sample list and a valid one-second duration, but playback controls still need direct confirmation.
 
 ### Step 9: Cleanup
-1. Remove the `../hge` dependency, DirectX SDK references, `/NODEFAULTLIB:libci`, and `bass.dll` from both `CMakeLists.txt` and `WapMap.vcxproj`.
-2. Delete the now-unused shader code in `cStateMgr.cpp`.
-3. Update `README.md` build steps (no DirectX SDK, no VS2017 toolset, SFML 3 via vcpkg/FetchContent).
-4. Check the other projects in the repo (`Gif2Pid`, `WMUpdater`, `ShellExtensionHandlers`) for HGE use and point them at `hgecompat` too.
+1. ✅ Remove HGE/DirectX link dependencies from the main CMake and Visual Studio projects. CMake now requires a standalone zlib package.
+2. ✅ Remove inactive shader declarations and implementation while retaining the console command's explicit unsupported message.
+3. ✅ Update the README with the current x86 SFML 3 build prerequisites and CMake instructions.
+4. ✅ Check auxiliary projects: Gif2Pid only needs the compatibility header types, ShellExtensionHandlers had no HGE API calls, and WMUpdater has no HGE dependency. Remove obsolete HGE/zlib link paths where applicable.
+5. ✅ Reconfigure and rebuild the x86 Release target. ⏳ Complete the runtime rendering, input, and audio checks in Step 10.
 
 ### Step 10: Full regression pass
-Run the full Step 0 checklist and compare screenshots. Also check performance on the largest map available (frame time while panning at max zoom-out). If it's slow, look first at batch flush counts. Usually this means texture switching between tiles from different atlases.
+✅ Startup smoke test: the app initializes with the Win32 window hooks and OLE file-drop support enabled, remains responsive for at least 12 seconds, and reaches `Everything OK.` / `All up to date!`. A screenshot confirmed the welcome screen renders.
+
+✅ Claw map smoke test: configured the local Claw install path and opened `Assets/LEVEL1/WORLDS/WORLD.WWD`. After initial asset loading, the level rendered with its real tile and object textures. Mouse-wheel zoom, middle-button panning, and the Ctrl+M tile/object mode toggle all responded without a crash.
+
+✅ Additional runtime checks: the sound browser populated and showed a valid one-second Claw WAV duration; resizing the main window to 1280×720 kept the app responsive and map/assets rendering visible. The largest bundled level map (`Assets/LEVEL13/WORLDS/WORLD.WWD`) eventually rendered with real assets. Its initial load took about two minutes and temporarily showed Windows as not responding, before becoming responsive. At maximum zoom-out, a rough idle sample used 6.95 process CPU seconds over 10 seconds of wall time (~0.70 CPU-core equivalents); no HGE baseline or frame-time measurement is available.
+
+The remaining Step 0 checklist, reference screenshot comparisons, tile/object editing operations, widgets, confirmed audio playback/seek/volume, simulator playback, mapshot/image import, file-drop/window-resize-grip/hotkey/text-input checks, and panning performance measurements are still pending. The long cold-load path was traced to the SFML implementation of `Texture_Lock`/`Texture_Unlock`: every tile copied its entire atlas from the GPU to the CPU and uploaded the full atlas again. The compatibility layer now caches texture pixels on the CPU and uploads only the modified lock rectangle. Follow-up zoomed-out rendering work replaced linear tile-ID lookup with binary search, quadratic vector-front erasure with a linear pass, and quadratic quadtree-result deduplication with hash-based deduplication. Re-time the level-13 cold load and zoomed-out panning/rendering; these source-level changes still need runtime benchmarking.
+
+The x86 exit crash was traced to the debug-only memory-usage worker outliving `cGlobals` and its critical section. The worker is now tracked and joined before teardown; it also cannot overlap another sample. The Visual Studio Win32 Debug build succeeds with this change.
 
 ### Step 11 (optional): x64
-Rebuild Lua and curl for x64, switch the triplet, and fix any `DWORD`/pointer-size casts (`(DWORD)ptr` patterns, HWND stored in `int` via `System_GetState`, and so on).
+✅ Rebuilt Lua 5.5, curl, zlib 1.2.5, and SFML 3.0.2 for x64 in separate dependency prefixes, preserving the x86 builds. Added x64 configurations and isolated output directories to the Visual Studio solution and CMake build.
+
+✅ Fixed pointer-width assumptions in the application, including pointer-valued console variables and state return codes, Lua pointer handles, callback indices, and pointer-derived IDs. Corrected x64 `size_t` formatting in image import and asset-loading progress messages.
+
+✅ Verified CMake Debug and Release x64 builds and a Visual Studio Release x64 build. The produced executables have PE machine type `0x8664` (AMD64).
+
+The Visual Studio build still reports existing `size_t`-to-`int` conversion warnings (C4267) at 181 distinct source locations; these were not comprehensively audited as part of enabling the x64 build. Runtime behavior, including compatibility with third-party Lua brush scripts, still needs validation. Keep the remaining interaction, audio, mapshot/import, and performance checks listed in Step 10 open.
+
+An x64 startup attempt exposed heap corruption in `hgeFont`: its float arrays were zeroed using the byte size of the pointer array, which is twice as large on x64. Each array now uses its own size. The x64 Debug target rebuilds successfully; verify startup at runtime.
+
+An x64 map-click crash in `hgeFont::printf` was caused by manually locating variadic arguments on the stack, which is not valid for the x64 calling convention. `printf` and `printfb` now use `va_list`; the x64 Release target rebuilds successfully. The Debug link could not overwrite its executable/PDB while that build was running, so close the running Debug instance before rebuilding Debug. Verify map interaction in the rebuilt application.
 
 ### Step 12: Dear ImGui alongside guichan, with real window drag-out
 
@@ -160,7 +184,7 @@ Rebuild Lua and curl for x64, switch the triplet, and fix any `DWORD`/pointer-si
 Current state: `origin` = `Zax37/imgui` (your fork), `upstream` = `ocornut/imgui`, checked out on a stale `master` from 2024-05-16. Point it at the live `docking` branch instead:
 
 ```bash
-cd /c/Projects/ai-learning/imgui
+cd imgui
 git fetch upstream docking
 git checkout -b wapmap upstream/docking
 git push -u origin wapmap
@@ -182,7 +206,7 @@ Current state: `origin` = `Zax37/imgui-sfml`, `upstream` = `nocheacosador/imgui-
 **Step 1 — extract the viewport feature as a clean patch**, isolated from its real merge-base (`a80d9547832c57a149cda452ed9456def5bb6328`, verified ancestor of both `upstream/master` and `upstream/viewports`):
 
 ```bash
-cd /c/Projects/ai-learning/imgui-sfml
+cd imgui-sfml
 git fetch upstream viewports
 git diff a80d9547832c57a149cda452ed9456def5bb6328 upstream/viewports \
   -- imgui-SFML.cpp CMakeLists.txt .gitignore > ../imgui-sfml-viewports.patch

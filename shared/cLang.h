@@ -8,7 +8,7 @@ namespace SHR {
     class cLanguage {
     private:
         CSimpleIniW *hINI;
-        char *szName, *szCode;
+        std::string szName, szCode;
         std::unordered_map<uint32_t, std::string> cache;
 
         std::string ws2s(const std::wstring &wstr);
@@ -23,9 +23,9 @@ namespace SHR {
 
         const char *GetStringS(const wchar_t *pszSection, const wchar_t *pszID);
 
-        const char *GetName() { return (const char *) szName; };
+        const char *GetName() { return szName.c_str(); };
 
-        const char *GetCode() { return (const char *) szCode; };
+        const char *GetCode() { return szCode.c_str(); };
     };
 }
 

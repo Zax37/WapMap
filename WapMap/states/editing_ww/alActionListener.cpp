@@ -18,6 +18,7 @@
 #include "../../databanks/imageSets.h"
 #include "../../windows/window.h"
 #include "../../version.h"
+#include <cstdint>
 
 extern HGE *hge;
 
@@ -1113,7 +1114,7 @@ namespace State {
                 ret[2] = m_hOwn->toolsaMaxX;
                 ret[3] = m_hOwn->toolsaMaxY;
 
-                m_hOwn->_flipMe({ ReturnCodeType::ObjPropSelectedValues, (int)(void*)ret });
+                m_hOwn->_flipMe({ ReturnCodeType::ObjPropSelectedValues, reinterpret_cast<std::intptr_t>(ret) });
                 m_hOwn->SetTool(EWW_TOOL_NONE);
             } else if (actionEvent.getSource() == m_hOwn->wintoolSelArea) {
                 m_hOwn->_flipMe({ ReturnCodeType::ObjPropSelectedValues, 0 });

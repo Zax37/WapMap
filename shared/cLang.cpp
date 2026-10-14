@@ -66,8 +66,7 @@ const wchar_t * SHR::cLanguage::Transform(const wchar_t *str) {
 }
 
 SHR::cLanguage::cLanguage(const char *pszName, int piLang) throw(int) {
-    szName = new char(strlen(pszName) + 1);
-    strcpy(szName, pszName);
+    szName = pszName;
     char *path = new char[strlen(pszName) + 10];
     sprintf(path, "lang/%s.ini", pszName);
     hINI = new CSimpleIniW(true);
@@ -80,13 +79,10 @@ SHR::cLanguage::cLanguage(const char *pszName, int piLang) throw(int) {
     if (lver != piLang)
         throw -2;
     std::wstring code = hINI->GetValue(L"Info", L"Code", L"EN");
-    szCode = new char[code.length() + 1];
-    strcpy(szCode, ws2s(code).c_str());
+    szCode = ws2s(code);
 }
 
 SHR::cLanguage::~cLanguage() {
-    delete szName;
-    delete szCode;
     delete hINI;
 }
 

@@ -87,7 +87,8 @@ void State::MapShot::Init() {
     barAction->setEnd(3);
     UpdateScene();
 
-    gdDest.create(totalw, totalh, sf::Color::Transparent);
+    gdDest = sf::Image(sf::Vector2u(static_cast<unsigned>(totalw), static_cast<unsigned>(totalh)),
+                       sf::Color::Transparent);
     GV->Console->Printf("~w~Mapshot: ~g~GD surface allocated (~y~%d~g~x~y~%d ~g~px).", totalw, totalh);
 
     labAction->setCaption(GETL2("Mapshot", Lang_Ms_AllocatingTemporarySurface));
@@ -202,7 +203,9 @@ void State::MapShot::Init() {
                     if (x * tempw + tx >= totalw || y * temph + ty >= totalh) continue;
                     DWORD dwcol = data[ty * tempw + tx];
                     sf::Color col = sf::Color(GETR(dwcol), GETG(dwcol), GETB(dwcol)/*, (255-GETA(dwcol))/2*/);
-                    gdDest.setPixel(x * tempw + tx, y * temph + ty, col);
+                    gdDest.setPixel(sf::Vector2u(static_cast<unsigned>(x * tempw + tx),
+                                                 static_cast<unsigned>(y * temph + ty)),
+                                    col);
                 }
             hge->Texture_Unlock(tmptex);
             hge->Texture_Free(tmptex);

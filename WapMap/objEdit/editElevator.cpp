@@ -5,6 +5,7 @@
 #include "../../shared/commonFunc.h"
 #include "../cObjectUserData.h"
 #include <cmath>
+#include <cstdint>
 
 extern HGE *hge;
 
@@ -108,7 +109,7 @@ namespace ObjEdit {
 
         bool bAutomatic = dir && InCorner(obj->GetX(), rArea.x1, rArea.x2)
                 && InCorner(obj->GetY(), rArea.y1, rArea.y2);
-        std::string group = std::to_string((int)this);
+        std::string group = std::to_string(reinterpret_cast<std::uintptr_t>(this));
 
         automatic = new SHR::RadBut(GV->hGfxInterface, GETL2S("EditObj_Elevator", "Automatic"), group, bAutomatic);
         automatic->adjustSize();

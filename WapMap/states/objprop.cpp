@@ -14,6 +14,7 @@
 #include "../databanks/anims.h"
 #include "dialog.h"
 #include "../version.h"
+#include <cstdint>
 
 extern HGE *hge;
 
@@ -1610,7 +1611,7 @@ bool State::ObjProp::Think() {
         ptr[1] = source->GetRect().y1;
         ptr[2] = source->GetRect().x2;
         ptr[3] = source->GetRect().y2;
-        _flipMe({ ReturnCodeType::ObjectProp, (int)(void*)ptr });
+        _flipMe({ ReturnCodeType::ObjectProp, reinterpret_cast<std::intptr_t>(ptr) });
         hProp->SwapDone();
     }
     return false;
@@ -1632,7 +1633,7 @@ void State::ObjProp::GainFocus(const ReturnCode& code, bool bFlipped) {
     if (bFlipped) {
         if (code.type == ReturnCodeType::ObjPropSelectedValues) {
             if (code.value != 0) {
-                int *ret = (int *) (code.value);
+                int *ret = reinterpret_cast<int *>(code.value);
                 cRectPropGUI *dest;
                 if (hProp->iPickType == PickRect_MinMax) dest = hProp->guirectMinMax;
                 else if (hProp->iPickType == PickRect_User1) dest = hProp->guirectUser[0];

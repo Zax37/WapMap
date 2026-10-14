@@ -7,6 +7,22 @@ extern HGE *hge;
 
 extern std::vector<TileGhost> *hGhostingBank;
 
+namespace {
+template <typename T>
+T *checkLuaHandle(lua_State *state, int index) {
+    luaL_checktype(state, index, LUA_TLIGHTUSERDATA);
+    return static_cast<T *>(lua_touserdata(state, index));
+}
+
+template <typename T>
+void pushLuaHandle(lua_State *state, T *handle) {
+    if (handle)
+        lua_pushlightuserdata(state, handle);
+    else
+        lua_pushinteger(state, 0);
+}
+}
+
 int gv_wmLog(lua_State *L) {
     int argc = lua_gettop(L);
     if (argc < 1) {
@@ -81,7 +97,7 @@ int gv_wmGetMapDate(lua_State *L) {
 } //void; string
 
 int gv_wmGetActivePlane(lua_State *L) {
-    lua_pushinteger(L, (int) GV->editState->GetActivePlane());
+    pushLuaHandle(L, GV->editState->GetActivePlane());
     return 1;
 }
 
@@ -91,7 +107,7 @@ int gv_wmGetPlanesCount(lua_State *L) {
 } //void; int
 
 int gv_wmGetPlaneByIt(lua_State *L) {
-    lua_pushinteger(L, (int) GV->editState->hParser->GetPlane(lua_tonumber(L, 1)));
+    pushLuaHandle(L, GV->editState->hParser->GetPlane(lua_tonumber(L, 1)));
     return 1;
 } //int planeindex; plane
 
@@ -99,7 +115,7 @@ int gv_wmGetPlaneByName(lua_State *L) {
     const char *planename = lua_tostring(L, 1);
     for (int i = 0; i < GV->editState->hParser->GetPlanesCount(); i++)
         if (!strcmp(GV->editState->hParser->GetPlane(i)->GetName(), planename)) {
-            lua_pushinteger(L, (int) GV->editState->hParser->GetPlane(i));
+            pushLuaHandle(L, GV->editState->hParser->GetPlane(i));
             return 1;
         }
     lua_pushinteger(L, 0);
@@ -107,7 +123,10 @@ int gv_wmGetPlaneByName(lua_State *L) {
 }
 
 int gv_wmGetPlaneName(lua_State *L) {
-    lua_pushstring(L, ((WWD::Plane *) (int) lua_tonumber(L, 1))->GetName());
+    auto *plane = checkLuaHandle<WWD::Plane>(L, 1);
+    if (!plane)
+        return luaL_argerror(L, 1, "expected a plane handle");
+    lua_pushstring(L, plane->GetName());
     return 1;
 } //plane ptr; string
 
@@ -130,7 +149,7 @@ int gv_wmIsPlaneMain(lua_State *L) {
         lua_pushinteger(L, 0);
         return 1;
     }
-    WWD::Plane *pl = (WWD::Plane *) int(lua_tonumber(L, 1));
+    WWD::Plane *pl = checkLuaHandle<WWD::Plane>(L, 1);
     for (int i = 0; i < GV->editState->hParser->GetPlanesCount(); i++) {
         if (GV->editState->hParser->GetPlane(i) == pl) {
             bool main = pl->GetFlags() & WWD::Flag_p_MainPlane;
@@ -186,7 +205,7 @@ int gv_wmCreateObject(lua_State *L) //string logic, string imgset, int x, int y,
     pl->AddObjectAndCalcID(obj);
     obj->SetUserData(new cObjUserData(obj));
     GV->editState->hPlaneData[planeid]->ObjectData.hQuadTree->UpdateObject(obj);
-    lua_pushinteger(L, (int) obj);
+    pushLuaHandle(L, obj);
     GV->editState->vPort->MarkToRedraw();
     return 1;
 }
@@ -204,7 +223,7 @@ int gv_wmDeleteObject(lua_State *L) //objptr; void
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {
@@ -260,7 +279,7 @@ int gv_wmGetObjectsInArea(lua_State *L) //int x1, int y1, int x2, int y2; array 
     lua_createtable(L, objs.size(), 0);
     for (int i = 0; i < objs.size(); i++) {
         lua_pushnumber(L, i);
-        lua_pushnumber(L, (int) objs[i]);
+        lua_pushlightuserdata(L, objs[i]);
         lua_settable(L, -3);
     }
     return 1;
@@ -276,7 +295,7 @@ int gv_wmGetObjectName(lua_State *L) //objptr; string
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {
@@ -302,7 +321,7 @@ int gv_wmGetObjectImageSet(lua_State *L) //objptr; string
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {
@@ -328,7 +347,7 @@ int gv_wmGetObjectLogic(lua_State *L) //objptr; string
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {
@@ -354,7 +373,7 @@ int gv_wmGetObjectAnim(lua_State *L) //objptr; string
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {
@@ -380,7 +399,7 @@ int gv_wmGetObjectParam(lua_State *L) //objptr, objparam; int
 
     WWD::Plane *pl = GV->editState->plMain;
 
-    WWD::Object *obj = (WWD::Object *) int(lua_tonumber(L, 1));
+    WWD::Object *obj = checkLuaHandle<WWD::Object>(L, 1);
     bool fnd = 0;
     for (int i = 0; i < pl->GetObjectsCount(); i++) {
         if (pl->GetObjectByIterator(i) == obj) {

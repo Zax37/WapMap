@@ -755,7 +755,7 @@ void State::EditingWW::UpdateSearchResultsWindow() {
         labObjSearchResults->setCaption(GETL2S("ObjectSearch", "NoResults"));
     } else {
         char tmp[128];
-        sprintf(tmp, "%s: ~y~%d~l~", GETL2S("ObjectSearch", "FoundResults"), vObjSearchResults.size());
+        sprintf(tmp, "%s: ~y~%zu~l~", GETL2S("ObjectSearch", "FoundResults"), vObjSearchResults.size());
         labObjSearchResults->setCaption(tmp);
     }
     butObjSearchSelectAll->setVisible(!vObjSearchResults.empty());

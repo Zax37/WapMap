@@ -20,11 +20,10 @@ extern HGE *hge;
 cInterfaceSheet *_ghGfxInterface;
 
 #ifdef SHOWMEMUSAGE
-void _ThreadingMemUsage(void * globals)
+void _ThreadingMemUsage(cGlobals * gv)
 {
-    cGlobals * gv = (cGlobals*)globals;
     char buffer[128];
-    sprintf(buffer, "tasklist /nh /fi \"PID eq %d\" /fo csv", int(GV->dwProcID));
+    sprintf(buffer, "tasklist /nh /fi \"PID eq %lu\" /fo csv", gv->dwProcID);
     FILE * pipe = _popen(buffer, "r");
     if (!pipe) return;
     std::string result = "";
@@ -60,12 +59,27 @@ void _ThreadingMemUsage(void * globals)
     delete[] ret;
 }
 
+void cGlobals::StartMemUsageUpdate()
+{
+    if (memUsageThreadRunning.load(std::memory_order_acquire))
+        return;
+
+    if (memUsageThread.joinable())
+        memUsageThread.join();
+
+    memUsageThreadRunning.store(true, std::memory_order_release);
+    memUsageThread = std::thread([this]() {
+        _ThreadingMemUsage(this);
+        memUsageThreadRunning.store(false, std::memory_order_release);
+    });
+}
+
 void cGlobals::UpdateMemUsage()
 {
     fMemUsageTimer += hge->Timer_GetDelta();
     if (fMemUsageTimer > MEMUSAGEUPDATEDELAY) {
         fMemUsageTimer -= MEMUSAGEUPDATEDELAY;
-        _beginthread(_ThreadingMemUsage, 0, (void*)this);
+        StartMemUsageUpdate();
     }
 }
 #endif
@@ -82,6 +96,8 @@ void cGlobals::GetDesktopResolution(int& horizontal, int& vertical)
 cGlobals::cGlobals() {
     q.blend = BLEND_DEFAULT;
 #ifdef SHOWMEMUSAGE
+    szMemUsage[0] = '\0';
+    InitializeCriticalSection(&csMemUsage);
     fMemUsageTimer = 0.0f;
 #endif
     StateMgr = new SHR::cStateMgr();
@@ -223,6 +239,8 @@ cGlobals::cGlobals() {
 
 cGlobals::~cGlobals() {
 #ifdef SHOWMEMUSAGE
+    if (memUsageThread.joinable())
+        memUsageThread.join();
     DeleteCriticalSection(&csMemUsage);
 #endif
     delete StateMgr;
@@ -288,9 +306,7 @@ BOOL IsWindows11OrGreater()
 
 void cGlobals::Init() {
 #ifdef SHOWMEMUSAGE
-    szMemUsage[0] = '\0';
-    InitializeCriticalSection(&csMemUsage);
-    _beginthread(_ThreadingMemUsage, 0, this);
+    StartMemUsageUpdate();
 #endif
 
     HINSTANCE instance = GetModuleHandle(NULL);

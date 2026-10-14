@@ -10,6 +10,9 @@ Global
 		Debug|x86 = Debug|x86
 		MinSizeRel|x86 = MinSizeRel|x86
 		Release|x86 = Release|x86
+		Debug|x64 = Debug|x64
+		MinSizeRel|x64 = MinSizeRel|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Debug|x86.ActiveCfg = Debug|Win32
@@ -18,6 +21,12 @@ Global
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.MinSizeRel|x86.Build.0 = MinSizeRel|Win32
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x86.ActiveCfg = Release|Win32
 		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x86.Build.0 = Release|Win32
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Debug|x64.ActiveCfg = Debug|x64
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Debug|x64.Build.0 = Debug|x64
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x64.ActiveCfg = Release|x64
+		{EE341A77-D262-4FB3-899D-E89DCE97EEB6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
