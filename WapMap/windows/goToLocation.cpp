@@ -3,6 +3,11 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../states/dialog.h"
+#include <unordered_set>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#endif
 
 #define LOCATIONS_WIN_WIDTH 250
 #define LOCATIONS_WIN_HEIGHT 401
@@ -19,7 +24,9 @@ enum LocNameRet {
 };
 
 bool validateObjectPtr(WWD::Object* object) {
+    if (!object || !GV->editState->hParser) return false;
     auto* mainPlane = GV->editState->hParser->GetMainPlane();
+    if (!mainPlane) return false;
     for (int i = 0; i < mainPlane->GetObjectsCount(); i++) {
         if (mainPlane->GetObjectByIterator(i) == object)
             return 1;
@@ -60,12 +67,12 @@ bool LocationsList::addLocationLinkedToObject(WWD::Object *object) {
 }
 
 void LocationsList::deleteLocation(int i) {
-    if (!v) return;
+    if (!v || i < 0 || i >= getNumberOfElements()) return;
     v->erase(v->begin() + i);
 }
 
 stLocation* LocationsList::getLocation(int i) {
-    if (!v || i >= (int)(v->size())) return NULL;
+    if (!v || i < 0 || i >= (int)(v->size())) return NULL;
     return &(v->at(i));
 }
 
@@ -73,6 +80,7 @@ int LocationsList::renameLocation(int index, std::string& newName) {
     if (!v)
         return LocName_ErrorGeneric;
     auto* location = getLocation(index);
+    if (!location) return LocName_ErrorGeneric;
 
     if (location->Object) {
         if (!validateObjectPtr(location->Object))
@@ -85,7 +93,7 @@ int LocationsList::renameLocation(int index, std::string& newName) {
         return LocName_ErrorEmpty;
 
     for (int i = 0; i < v->size(); ++i) {
-        if (getElementAt(i) == newName)
+        if (i != index && getElementAt(i) == newName)
             return LocName_ErrorDuplicate;
     }
 
@@ -140,14 +148,14 @@ bool LocationsList::moveElement(int index, int move) {
 }
 
 std::string LocationsList::getElementAt(int i) {
-    if (!v || i >= (int)(v->size()))
+    if (!v || i < 0 || i >= (int)(v->size()))
         return "";
     if (!isObjectList)
         return v->at(i).Name;
 
     auto *object = v->at(i).Object;
     if (!validateObjectPtr(object)) {
-        deleteLocation(i);
+        // List rendering must not invalidate indices while it iterates rows.
         return "";
     }
     std::string name = object->GetName();
@@ -260,6 +268,12 @@ void winLocationsBrowser::AddFavLocation(int x, int y) {
 }
 
 void winLocationsBrowser::RefreshLists() {
+    auto* editor = GV->editState;
+    if (!editor->hParser || !editor->MDI->GetActiveDoc() || !editor->hParser->GetMainPlane()) {
+        lmLocs[Locs::Favourites]->v = nullptr;
+        vCheckpoints.clear(); vWarps.clear();
+        return;
+    }
     auto* mainPlane = GV->editState->hParser->GetMainPlane();
 
     lmLocs[Locs::Favourites]->v = &(GV->editState->MDI->GetActiveDoc()->vFavLocations);
@@ -288,14 +302,33 @@ void winLocationsBrowser::RefreshLists() {
 }
 
 void winLocationsBrowser::Open() {
+    if (!GV->editState->hParser) return;
     RefreshLists();
+#ifdef WAPMAP_ENABLE_IMGUI
+    document = GV->editState->hParser;
+    nativeOpen = positionOnOpen = resetScroll = true;
+    pendingAction = nullptr;
+    myWin.setVisible(false);
+#else
     myWin.setPosition(160, LAY_VIEWPORT_Y + 40);
     myWin.setVisible(true);
     myWin.getParent()->moveToTop(&myWin);
+#endif
+}
+
+void winLocationsBrowser::Close() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    nativeOpen = false; document = nullptr; pendingAction = nullptr;
+#endif
+    cWindow::Close();
 }
 
 void winLocationsBrowser::OnDocumentChange() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    Close();
+#endif
     RefreshLists();
+    lbLocs->setSelected(-1);
 }
 
 void winLocationsBrowser::action(const ActionEvent &actionEvent) {
@@ -308,14 +341,19 @@ void winLocationsBrowser::action(const ActionEvent &actionEvent) {
     if (i < 0 || i >= lmLocs[m_selectedTab]->getNumberOfElements())
         return;
     auto* location = lmLocs[m_selectedTab]->getLocation(i);
+    if (!location || (location->Object && !validateObjectPtr(location->Object))) return;
+    if (location->Object) { location->X = location->Object->GetX(); location->Y = location->Object->GetY(); }
 
     if (actionEvent.getSource() == butAddFav) {
         std::string init = lmLocs[m_selectedTab]->getElementAt(i);
         int ret = State::InputDialog(GETL(Lang_WM), getStr(L"DialogInputName"), ST_DIALOG_BUT_OKCANCEL, init.c_str());
-        if (ret == RETURN_OK && init != GV->szLastInputDialogText) {
-            GV->szLastInputDialogText.resize(63);
-            lmLocs[Locs::Favourites]->addLocation(GV->szLastInputDialogText, location->X, location->Y);
-            GV->editState->MarkUnsaved();
+        if (ret == RETURN_OK) {
+            const int result = lmLocs[Locs::Favourites]->addLocation(GV->szLastInputDialogText, location->X, location->Y);
+            if (result == LocName_Success) GV->editState->MarkUnsaved();
+            else {
+                wchar_t key[32]; wsprintfW(key, L"DialogInputNameError_%d", result);
+                State::MessageBox(GETL(Lang_Error), getStr(key), ST_DIALOG_ICON_ERROR);
+            }
         }
         return;
     }
@@ -373,6 +411,48 @@ void winLocationsBrowser::action(const ActionEvent &actionEvent) {
 };
 
 void winLocationsBrowser::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (busy) return;
+    if (nativeOpen && document != GV->editState->hParser) { Close(); return; }
+    if (pendingAction && nativeOpen && GV->editState->_isOnTop()) {
+        auto* widget = pendingAction; pendingAction = nullptr;
+        auto* model = lmLocs[pendingTab];
+        int index = -1;
+        for (int i = 0; i < model->getNumberOfElements(); ++i) {
+            auto* loc = model->getLocation(i);
+            if (pendingLocation.Object ? loc->Object == pendingLocation.Object :
+                (!loc->Object && !strcmp(loc->Name, pendingLocation.Name) && loc->X == pendingLocation.X && loc->Y == pendingLocation.Y)) {
+                index = i; break;
+            }
+        }
+        if (index >= 0 && m_selectedTab == pendingTab) {
+            lbLocs->setSelected(index);
+            busy = true;
+            action(gcn::ActionEvent(widget, ""));
+            busy = false;
+        }
+    }
+#endif
+    // Remove deleted objects before drawing, and keep locations in step with
+    // object movement without rebuilding or reordering the user's selection.
+    if (isOpened()) {
+        auto* selectedLocation = lmLocs[m_selectedTab]->getLocation(lbLocs->getSelected());
+        auto* selectedObject = selectedLocation ? selectedLocation->Object : nullptr;
+        std::unordered_set<WWD::Object*> objects;
+        auto* main = GV->editState->hParser ? GV->editState->hParser->GetMainPlane() : nullptr;
+        if (main)
+            for (int i = 0; i < main->GetObjectsCount(); ++i) objects.insert(main->GetObjectByIterator(i));
+        for (auto* list : {&vCheckpoints, &vWarps}) {
+            list->erase(std::remove_if(list->begin(), list->end(), [&](const stLocation& loc) { return !objects.count(loc.Object); }), list->end());
+            for (auto& loc : *list) { loc.X = loc.Object->GetX(); loc.Y = loc.Object->GetY(); }
+        }
+        if (selectedObject) {
+            int index = -1;
+            for (int i = 0; i < lmLocs[m_selectedTab]->getNumberOfElements(); ++i)
+                if (lmLocs[m_selectedTab]->getLocation(i)->Object == selectedObject) { index = i; break; }
+            lbLocs->setSelected(index);
+        }
+    }
     int tab = tabarLocs->getSelectedTabIndex();
     if (m_selectedTab != tab) {
         lbLocs->setListModel(lmLocs[tab]);
@@ -381,9 +461,95 @@ void winLocationsBrowser::Think() {
     }
     int selected = lbLocs->getSelected();
     butAddFav->setEnabled(selected >= 0 && m_selectedTab != Locs::Favourites);
-    butDelete->setEnabled(selected >= 0);
-    butEdit->setEnabled(selected >= 0);
+    const bool valid = selected >= 0 && selected < lmLocs[m_selectedTab]->getNumberOfElements();
+    butDelete->setEnabled(valid);
+    butEdit->setEnabled(valid);
     butMoveDown->setEnabled(selected >= 0 && selected < lmLocs[m_selectedTab]->getNumberOfElements() - 1);
     butMoveUp->setEnabled(selected >= 1 && selected < lmLocs[m_selectedTab]->getNumberOfElements());
-    butFollowWarp->setEnabled(selected >= 0 && m_selectedTab == Locs::Warps);
+    butFollowWarp->setEnabled(valid && m_selectedTab == Locs::Warps);
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void winLocationsBrowser::DrawImGui() {
+    if (!nativeOpen || busy) return;
+    auto& e = *GV->editState;
+    if (!document || document != e.hParser) { Close(); return; }
+    if (!e._isOnTop()) return;
+    if (positionOnOpen) {
+        const auto* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos({viewport->Pos.x + 160.f, viewport->Pos.y + LAY_VIEWPORT_Y + 40.f}, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowFocus(); positionOnOpen = false;
+    }
+    ImGui::SetNextWindowSize({250, 401}, ImGuiCond_Always);
+    const auto cp = LegacyText::CodePage(GV->Lang->GetCode());
+    const auto title = LegacyText::ToUtf8(getStr(L"WinCaption"), cp) + "###WapMapLocations";
+    bool visible = true;
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton, getStr(L"WinCaption"));
+        const auto area = myWin.getChildrenArea(); const auto origin = ImGui::GetWindowPos();
+        const auto position = [&](float x, float y) { ImGui::SetCursorPos({area.x + x, area.y + y}); };
+        auto* draw = ImGui::GetWindowDrawList();
+        float tabX = 0;
+        for (int i = 0; i < Locs::COUNT; ++i) {
+            wchar_t key[32]; wsprintfW(key, L"Tab_%d", i); const char* caption = getStr(key);
+            const float width = GV->fntMyriad16->GetStringWidth(caption) + 8.f;
+            ImGui::PushID(i); position(tabX, 8);
+            if (ImGui::InvisibleButton("##tab", {width, 25}, ImGuiButtonFlags_EnableNav) && m_selectedTab != i) {
+                tabarLocs->setSelectedTab(i); m_selectedTab = i;
+                lbLocs->setListModel(lmLocs[i]); lbLocs->setSelected(-1);
+                RefreshLists(); resetScroll = true;
+            }
+            const auto p = ImGui::GetItemRectMin();
+            draw->AddRectFilled(p, {p.x + width, p.y + 25}, m_selectedTab == i ? IM_COL32(62, 62, 62, 255) : IM_COL32(35, 35, 35, 255));
+            draw->AddLine({p.x + width - 1, p.y}, {p.x + width - 1, p.y + 25}, IM_COL32(86, 86, 86, 255));
+            WapMapImGui::BitmapText(draw, *hge, *GV->fntMyriad16, {p.x + 4, p.y + 4}, caption);
+            ImGui::PopID(); tabX += width;
+        }
+        const auto queue = [&](gcn::Widget* widget) {
+            auto* loc = lmLocs[m_selectedTab]->getLocation(lbLocs->getSelected());
+            if (!loc) return;
+            pendingAction = widget; pendingLocation = *loc; pendingTab = m_selectedTab;
+        };
+        position(1, 33);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x13));
+        ImGui::PushStyleColor(ImGuiCol_Header, {0.08f, 0.52f, 0.89f, 1.f});
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0, 0});
+        if (ImGui::BeginChild("locations", {246, 310})) {
+            if (resetScroll) { ImGui::SetScrollY(0); resetScroll = false; }
+            auto* model = lmLocs[m_selectedTab];
+            for (int i = 0; i < model->getNumberOfElements(); ++i) {
+                ImGui::PushID(i);
+                const auto p = ImGui::GetCursorScreenPos();
+                const auto text = model->getElementAt(i);
+                if (ImGui::Selectable("##location", lbLocs->getSelected() == i, ImGuiSelectableFlags_None, {0, 20})) {
+                    lbLocs->setSelected(i); queue(lbLocs);
+                }
+                WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {p.x + 2, p.y + 2}, text.c_str());
+                ImGui::PopID();
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleVar(2); ImGui::PopStyleColor(2);
+        SHR::But* buttons[] = {butAddFav, butDelete, butEdit, butMoveDown, butMoveUp, butFollowWarp};
+        const char* tips[] = {GETL(Lang_AddFavLocation), GETL(Lang_Delete), getStr(L"Edit"), GETL(Lang_MoveDown), GETL(Lang_MoveUp), getStr(L"FollowWarp")};
+        const int selected = lbLocs->getSelected(), count = lmLocs[m_selectedTab]->getNumberOfElements();
+        const bool valid = selected >= 0 && selected < count;
+        const bool enabled[] = {valid && m_selectedTab != Locs::Favourites, valid, valid,
+            valid && selected + 1 < count, valid && selected > 0, valid && m_selectedTab == Locs::Warps};
+        for (int i = 0; i < 6; ++i) {
+            ImGui::PushID(i + 10); ImGui::BeginDisabled(!enabled[i]);
+            position(static_cast<float>(buttons[i]->getX()), static_cast<float>(buttons[i]->getY()));
+            if (WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface, "", {32, 30})) queue(buttons[i]);
+            const auto p = ImGui::GetItemRectMin(); const auto* icon = buttons[i]->getIcon();
+            if (icon) WapMapImGui::Sprite(draw, *hge, icon, {p.x + (32 - icon->GetWidth()) / 2, p.y + (30 - icon->GetHeight()) / 2},
+                IM_COL32(255, 255, 255, static_cast<int>(255 * ImGui::GetStyle().Alpha)));
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                const auto tip = LegacyText::ToUtf8(tips[i], cp); ImGui::SetTooltip("%s", tip.c_str());
+            }
+            ImGui::EndDisabled(); ImGui::PopID();
+        }
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) visible = false;
+    }
+    ImGui::End(); if (!visible) Close();
+}
+#endif

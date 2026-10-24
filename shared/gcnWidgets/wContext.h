@@ -123,6 +123,11 @@ namespace SHR {
         int GetSelectedID() { return iSelectedID; };
 
         int GetElementsCount() { return vElements.size(); };
+        ContextEl* GetElementAt(int i) const { return i >= 0 && static_cast<size_t>(i) < vElements.size() ? vElements[i] : nullptr; }
+        bool HasSeparatorBefore(int i) const {
+            for (const int separator : vSeparators) if (separator == i) return true;
+            return false;
+        }
 
         int GetSelectedIt() { return iSelected; };
 

@@ -5,6 +5,9 @@
 #include "winInventoryPickbox.h"
 #include "../databanks/imageSets.h"
 #include "../cObjectUserData.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "nativeInventoryUi.h"
+#endif
 
 namespace ObjEdit {
     cEditObjCrate::cEditObjCrate(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
@@ -228,6 +231,11 @@ namespace ObjEdit {
         hInventory = new cInvPickbox();
         hInventory->SetPosition(win->getX() + win->getWidth() + 10, hState->vPort->GetY() + hState->vPort->GetHeight() - hInventory->GetHeight());
         hInventory->SetVisible(true);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        hInventory->UseNative();
+#endif
     }
 
     cEditObjCrate::~cEditObjCrate() {
@@ -244,6 +252,7 @@ namespace ObjEdit {
         delete butWarpPick;
         delete tfWarpX;
         delete tfWarpY;
+        delete tfCustomZ;
         delete labWarpDest;
         for (auto & invTab : invTabs)
             delete invTab;
@@ -253,7 +262,7 @@ namespace ObjEdit {
     }
 
     void cEditObjCrate::Save() {
-        if (!ddDurability->isEnabled())
+        if (!ddDurability->isLocallyEnabled())
             hTempObj->SetParam(WWD::Param_Health, 0);
     }
 
@@ -278,16 +287,16 @@ namespace ObjEdit {
             tfWarpX->setEnabled(!bPick);
             tfWarpY->setEnabled(!bPick);
             for (auto & i : rbType) i->setEnabled(!bPick);
-            for (auto & invTab : invTabs) invTab->setEnabled(!bPick);
+            for (auto & invTab : invTabs) if (invTab) invTab->setEnabled(!bPick);
             _butSave->setEnabled(!bPick);
             butRandomize->setEnabled(!bPick);
             cbRandomCount->setEnabled(!bPick);
             cbIncludeSpecials->setEnabled(!bPick);
             SetLogic(iCratesCount > 2);
             tfCustomZ->setEnabled(!bPick && alignment == 2);
-            labAlign->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
-            labTreasures->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
-            labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
+            labAlign->setColor(ddDurability->isLocallyEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
+            labTreasures->setColor(ddDurability->isLocallyEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
+            labDurability->setColor(ddDurability->isLocallyEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
             butWarpPick->setCaption(GETL2SV("EditObj_Warp", (bPick ? L"Unpick" : L"Pick")));
         } else if (actionEvent.getSource() == butRandomize) {
             int iRandNum = 1;
@@ -346,14 +355,14 @@ namespace ObjEdit {
             if (bStackable) {
                 for (int i = 0; i < 9; i++) {
                     if (actionEvent.getSource() == invTabs[i]) {
-                        if (invTabs[i]->GetItem().second != -1 && i < 8 && !invTabs[i + 1]->isVisible()) {
+                        if (invTabs[i]->GetItem().second != -1 && i < 8 && !invTabs[i + 1]->isLocallyVisible()) {
                             invTabs[i + 1]->setVisible(true);
                             iCratesCount++;
                             RebuildWindow();
                         } else if (invTabs[i]->GetItem().second == -1 && i < 8) {
                             if (i + 2 == iCratesCount) {
                                 for (int x = 8; x > 1; x--) {
-                                    if (invTabs[x]->isVisible()) {
+                                    if (invTabs[x]->isLocallyVisible()) {
                                         if (invTabs[x]->GetItem().second == -1 &&
                                             invTabs[x - 1]->GetItem().second == -1) {
                                             invTabs[x]->setVisible(false);
@@ -440,12 +449,50 @@ namespace ObjEdit {
 
         if (bStackable) {
             for (int i = 8; i >= 0; i--)
-                if (invTabs[i]->isVisible()) {
+                if (invTabs[i]->isLocallyVisible()) {
                     hState->SprBank->GetObjectSprite(hTempObj)->Render(dx + 132,
                                                                        dy + 180 + i * 43 + WARP_SECTION_HEIGHT * bShowWarpOptions);
                 }
         }
     }
+
+    void cEditObjCrate::_Think(bool bMouseConsumed) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (!nativeWindow || !bPick || bMouseConsumed) return;
+        float mx, my;
+        hge->Input_GetMousePos(&mx, &my);
+        if (hge->Input_KeyDown(HGEK_LBUTTON) && hState->conMain->getWidgetAt(mx, my) == hState->vPort->GetWidget()) {
+            tfWarpX->setText(std::to_string(hState->Scr2WrdX(hState->GetActivePlane(), mx)), true);
+            tfWarpY->setText(std::to_string(hState->Scr2WrdY(hState->GetActivePlane(), my)), true);
+            butWarpPick->simulatePress();
+        }
+#endif
+    }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjCrate::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        const auto origin = ImGui::GetWindowPos();
+        const float top = ImGui::GetFrameHeight();
+        if (bShowWarpOptions) {
+            WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {origin.x + 5, origin.y + top + tfWarpX->getY()}, "X:");
+            WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {origin.x + 5, origin.y + top + tfWarpY->getY()}, "Y:");
+        }
+        if (bStackable) {
+            auto* sprite = hState->SprBank->GetObjectSprite(hTempObj);
+            if (sprite && sprite->GetWidth() > 0 && sprite->GetHeight() > 0) for (auto* slot : invTabs) if (slot && slot->isLocallyVisible()) {
+                const ImVec2 p{origin.x + 78, origin.y + top + slot->getY() - 4};
+                const float scale = std::min(1.f, 40.f / std::max(sprite->GetWidth(), sprite->GetHeight()));
+                WapMapImGui::StretchSprite(ImGui::GetWindowDrawList(), *hge, sprite, p,
+                    {p.x + sprite->GetWidth() * scale, p.y + sprite->GetHeight() * scale}, IM_COL32_WHITE);
+            }
+        }
+        EndNativeWindow();
+        hInventory->DrawImGui(nativeInventorySelection);
+        NativeInventoryUi::PreviewPayload();
+    }
+#endif
 
     void cEditObjCrate::SetLogic(bool bStacked) {
         if (bStackable && !bStacked) {
@@ -464,7 +511,7 @@ namespace ObjEdit {
 
         hTempObj->SetLogic(logic);
         ddDurability->setEnabled(!bStacked && !bPick);
-        labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
+        labDurability->setColor(ddDurability->isLocallyEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
     }
 
     void cEditObjCrate::RebuildWindow() {
@@ -475,7 +522,7 @@ namespace ObjEdit {
         bool bwarpf = false;
         if (bStackable) {
             for (auto & invTab : invTabs)
-                if (invTab->isVisible() && invTab->GetItem().second == 32) //warp
+                if (invTab->isLocallyVisible() && invTab->GetItem().second == 32) //warp
                     bwarpf = true;
         } else
             bwarpf = invTabs[0]->GetItem().second == 32;
@@ -501,9 +548,9 @@ namespace ObjEdit {
         hState->vPort->MarkToRedraw();
 
         SetLogic(iCratesCount > 2);
-        if (!ddDurability->isEnabled())
+        if (!ddDurability->isLocallyEnabled())
             ddDurability->setSelected(0);
-        labDurability->setColor(ddDurability->isEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
+        labDurability->setColor(ddDurability->isLocallyEnabled() ? 0xFFe1e1e1 : 0xFFb2b2b2);
     }
 
     void cEditObjCrate::ApplyInventoryToObject() {
@@ -525,6 +572,6 @@ namespace ObjEdit {
                 hTempObj->SetUserRect(i, r);
             }
         }
-        SetLogic(bStackable && invTabs[2]->isVisible());
+        SetLogic(bStackable && invTabs[2]->isLocallyVisible());
     }
 }

@@ -74,16 +74,20 @@ namespace SHR {
         hge->Gfx_RenderLine(q.v[1].x, q.v[1].y, q.v[2].x, q.v[2].y, 0xFF000000);
         hge->Gfx_RenderLine(q.v[2].x, q.v[2].y, q.v[3].x, q.v[3].y, 0xFF000000);
         hge->Gfx_RenderLine(q.v[3].x, q.v[3].y, q.v[0].x, q.v[0].y, 0xFF000000);
+        const DWORD originalColor = GV->fntMyriad16->GetColor();
         GV->fntMyriad16->SetColor(0xFF000000);
         GV->fntMyriad16->Render(rx + 3, ry + 3, HGETEXT_LEFT, m_szTooltip, 0);
+        GV->fntMyriad16->SetColor(originalColor);
     }
 
     void cTooltip::UpdateTooltip(bool hasmouse) {
         if (!hasmouse) {
-            m_bTooltipVisible = 0;
-            if (m_bTooltipVisible && currentlyDisplayedTooltip == this) {
+            if (currentlyDisplayedTooltip == this) {
                 currentlyDisplayedTooltip = NULL;
             }
+            m_bTooltipVisible = 0;
+            m_fTooltipTimer = 0;
+            m_iTooltipX = m_iTooltipY = -1;
             return;
         }
         float mx, my;
@@ -96,6 +100,9 @@ namespace SHR {
             m_fTooltipTimer = 0;
             m_iTooltipX = -1;
             m_iTooltipY = -1;
+            if (currentlyDisplayedTooltip == this) {
+                currentlyDisplayedTooltip = NULL;
+            }
         } else if (m_fTooltipTimer > SHR_TOOLTIP_DELAY) {
             m_bTooltipVisible = 1;
             currentlyDisplayedTooltip = this;

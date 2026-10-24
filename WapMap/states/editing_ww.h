@@ -44,6 +44,16 @@
 #include "../windows/newMap.h"
 #include "../windows/paletteBrowser.h"
 #include "../windows/goToCoords.h"
+#include "../windows/mapProperties.h"
+#include "../windows/planeProperties.h"
+#include "../windows/tileProperties.h"
+#include "../windows/measureOptions.h"
+#include "../windows/objectToolOptions.h"
+#include "../windows/objectSearchWindow.h"
+#include "../windows/logicBrowser.h"
+#include "../windows/mapShotOptions.h"
+#include "../windows/tilePicker.h"
+#include "../windows/mediaBrowser.h"
 #include "../windows/goToLocation.h"
 
 #ifndef byte
@@ -421,6 +431,8 @@ namespace State {
     private:
         EditingWW *m_hOwn;
         bool lastPressedWasAlt;
+        bool mTitleBarClickPending;
+        DWORD mTitleBarClickTime;
     public:
         explicit EditingWWMainListener(EditingWW *owner);
 
@@ -441,6 +453,9 @@ namespace State {
     private:
         int iX, iY, iW, iH;
         HTARGET target;
+#ifdef WAPMAP_ENABLE_IMGUI
+        HTARGET compositeTarget = nullptr;
+#endif
         hgeSprite *sprViewport;
         bool bRedrawViewport;
         EditingWW *hOwn;
@@ -452,6 +467,11 @@ namespace State {
 
         void Update();
 
+#ifdef WAPMAP_ENABLE_IMGUI
+        void SetCompositeEnabled(bool enabled);
+        void UpdateComposite();
+#endif
+
         void Render();
 
         Viewport(EditingWW *phOwn, int x, int y, int w, int h);
@@ -459,6 +479,8 @@ namespace State {
         ~Viewport();
 
         void Resize(int w, int h);
+        // Temporary export geometry; leaves the editor target/widget intact.
+        void SetRenderBounds(int x, int y, int w, int h) noexcept;
 
         void SetPos(int x, int y);
 
@@ -474,6 +496,10 @@ namespace State {
 
         void GfxLost();
 
+#ifdef WAPMAP_ENABLE_IMGUI
+        unsigned int GetTextureHandle(bool composite = false) const;
+#endif
+
         void ClipScreen();
 
         friend class State::MapShot;
@@ -486,6 +512,9 @@ namespace State {
         SHR::But *website;
         bool bKill;
         bool updatedPosition = false;
+#ifdef WAPMAP_ENABLE_IMGUI
+        int nativeAction = 0;
+#endif
     };
 
     class cTileClipboardEntry {
@@ -790,7 +819,7 @@ namespace State {
         SHR::But *MakeButton(int x, int y, Gfx32Icons icon, SHR::Container *dest, bool enable = 1, bool visible = 1,
                              gcn::ActionListener *actionListener = NULL);
 
-        void RenderToViewportBuffer();
+        void RenderToViewportBuffer(bool exportImage = false);
 
         bool bConstRedraw;
 
@@ -843,6 +872,7 @@ namespace State {
         void NotifyObjectDeletion(WWD::Object *obj, int i);
 
         Viewport *vPort;
+        Viewport *hDefaultViewport = nullptr;
         cBankSound *hSndBank;
         cBankAni *hAniBank;
         cBankLogic *hCustomLogics;
@@ -917,7 +947,7 @@ namespace State {
 
         void DrawPlaneProperties();
 
-        void SavePlaneProperties();
+        bool SavePlaneProperties();
 
         void DeletePlaneProperties();
 
@@ -939,13 +969,22 @@ namespace State {
         void FirstRun_Close();
 
         void FirstRun_Think();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void FirstRun_DrawImGui();
+        struct NativeChrome;
+        NativeChrome* nativeChrome = nullptr;
+        void InitNativeChrome();
+        void DestroyNativeChrome();
+        bool ThinkNativeChrome();
+        void DrawNativeChrome();
+#endif
 
         void FirstRun_Action(bool but);
 
         //world options
         void SyncWorldOptionsWithParser();
 
-        void SaveWorldOptions();
+        bool SaveWorldOptions();
 
         void LockToolSpecificFunctions(bool bLock); //to specific tools
         void SetIconBarVisible(bool b);
@@ -1093,7 +1132,24 @@ namespace State {
         winOptions *hwinOptions;
         winAbout *hwinAbout;
         winPaletteBrowser *hwinPaletteBrowser;
+#ifdef WAPMAP_ENABLE_IMGUI
+        winFillColor* hwinFillColor;
+#endif
         winGoToCoords *hwinGoToCoords;
+#ifdef WAPMAP_ENABLE_IMGUI
+        winMapProperties* hwinMapProperties;
+        winPlaneProperties* hwinPlaneProperties;
+        winTileProperties* hwinTileProperties;
+        winMeasureOptions* hwinMeasureOptions;
+        winObjectToolOptions *hwinDuplicate, *hwinSpacing;
+        winObjectBrushOptions* hwinObjectBrush;
+        winObjectAreaOptions* hwinObjectArea;
+        winObjectSearch* hwinObjectSearch;
+        ::winLogicBrowser* hwinLogicBrowser;
+        winMapShotOptions* hwinMapShotOptions;
+        ::winTilePicker* hwinNativeTilePicker;
+        winMediaBrowser *hwinAnimationBrowser, *hwinSoundBrowser;
+#endif
         winLocationsBrowser *hwinLocationsBrowser;
 
         void TextEditMoveToNextTile(bool saving = false);

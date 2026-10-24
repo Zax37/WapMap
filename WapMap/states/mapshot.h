@@ -36,10 +36,10 @@ namespace State {
         WWD::Plane *pl;
         EditingWW *stMain;
 
-        void UpdateScene() {
-            Think();
-            _ForceRender();
-        };
+        enum class Phase { Allocate, Draw, Save, Finished } phase = Phase::Allocate;
+        int totalWidth{}, totalHeight{}, chunkWidth{}, chunkHeight{}, columns{}, rows{}, nextChunk{};
+        bool cancelRequested{}, firstFrame = true;
+        void RenderChunk();
     public:
         MapShot(State::EditingWW *mainSt, int planeIterator, float scale, const char *dest, int saveoption, DWORD bg,
                 bool drawobj);

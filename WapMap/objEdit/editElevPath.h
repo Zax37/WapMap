@@ -38,7 +38,7 @@ namespace ObjEdit {
         SHR::TextField *tfStepMove, *tfStepWaitTime, *tfSpeed;
         SHR::But *butMoveDir[8];
         SHR::RadBut *rbMove, *rbWait;
-        SHR::Lab *labMove, *labWaitTime, *labType, *labSteps, *labSpeed, *labImgSet, *labDir;
+        SHR::Lab *labMove, *labWaitTime, *labType = nullptr, *labSteps, *labSpeed, *labImgSet, *labDir;
         SHR::TextDropDown *tddImageSet;
         int iDragStartX, iDragStartY;
         bool bDragging;
@@ -60,6 +60,9 @@ namespace ObjEdit {
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         std::vector<std::pair<int, int> > vSteps;
 
@@ -79,7 +82,11 @@ namespace ObjEdit {
 
         void HandleEscape() override {
             if (bDragging) {
+                vSteps[iDragStep] = {iDragStepOrigDir, iDragStepOrigMove};
                 bDragging = false;
+                bAllowDragging = true;
+                SynchronizeObj();
+                ChangeActiveStep();
                 return;
             }
 

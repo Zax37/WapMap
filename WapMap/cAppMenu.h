@@ -74,7 +74,6 @@ private:
     Gfx16Icons iIcon;
     bool bEnabled;
     SHR::Context *hContext;
-    float fTimer;
 public:
     cAppMenu_Entry(std::string lab, Gfx16Icons ico);
 
@@ -92,11 +91,11 @@ public:
 
     void SetLabel(std::string n) { strLabel = n; };
 
-    std::string GetLabel() { return strLabel; };
+    std::string GetLabel() const { return strLabel; };
 
     int Render(int x, int y, bool bFocused);
 
-    int GetWidth();
+    int GetWidth() const;
 };
 
 enum enAppMenu_Entries {
@@ -120,10 +119,28 @@ private:
     cAppMenu_Entry *hEntries[AppMenu_EntryCount];
     SHR::Context *conOpenMRU, *conPlanesVisibilityList, *conPlaneVisibility;
     int iSelected, iHovered, iOpened;
+    int lastMouseX{-1}, lastMouseY{-1};
     bool bEnabled;
+#ifdef WAPMAP_ENABLE_IMGUI
+    SHR::Context* nativeActionContext = nullptr;
+    int nativeActionID = -1, nativeActionPlane = -1;
+    std::string nativeActionCaption;
+    std::string nativeActionValue;
+    const void* nativeDocument = nullptr;
+    bool nativeBusy = false, nativeFocus = false, nativeReleaseFocus = false;
+    void DrawNativeContext(SHR::Context* context, int plane = -1, int depth = 0);
+    void QueueNativeAction(SHR::Context* context, SHR::ContextEl* entry, int plane);
+    int GetNativeMenuWidth() const;
+#endif
+
+    int GetHoveredEntry(int x, int y) const;
 
 public:
     cAppMenu();
+#ifdef WAPMAP_ENABLE_IMGUI
+    bool ThinkNative();
+    void DrawImGui();
+#endif
 
     ~cAppMenu();
 
@@ -158,6 +175,10 @@ public:
     SHR::Context *GetContext(enAppMenu_Entries x) { return hEntries[x]->GetContext(); };
 
     void NotifyRulersSwitch();
+
+    int GetMenuWidth() const;
+
+    bool IsMenuBarPoint(int x, int y) const;
 
     void SyncDocumentSwitched();
 

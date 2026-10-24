@@ -17,12 +17,17 @@
 #include "../wViewport.h"
 #include "../cSoundPlayer.h"
 #include "guichan.hpp"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <array>
+#include <map>
+#endif
 
 namespace State {
     class EditingWW;
 }
 
 class cBankImageSet;
+namespace SHR { class InvTab; }
 
 namespace ObjEdit {
     enum enType {
@@ -87,6 +92,24 @@ namespace ObjEdit {
 
     protected:
         int _iDragOffX, _iDragOffY;
+#ifdef WAPMAP_ENABLE_IMGUI
+        bool nativeWindow = false, nativePosition = true, nativeInputFocused = false, nativeBusy = false;
+        bool nativeValid = true;
+        float nativeHeightLimit = 0, nativeFooterY = -1;
+        struct NativeInteger { std::array<char, 64> text{}; std::string legacy; };
+        std::map<SHR::TextField*, NativeInteger> nativeIntegers;
+        struct NativeText { std::array<char, 4096> text{}; std::string legacy; };
+        std::map<gcn::Widget*, NativeText> nativeTexts;
+        gcn::Widget* nativeAction = nullptr;
+        SHR::InvTab* nativeInventoryTarget = nullptr;
+        int nativeInventoryItem = -1, nativeInventorySelection = -1;
+        bool BeginNativeWindow();
+        void DrawNativeControls(SHR::Container* container = nullptr, int offsetX = 0, int offsetY = 0);
+        void DrawNativeInventory(const int* items, SHR::RadBut* const* choices, int count, float effectY);
+        void DrawNativeSeries(SHR::Win* panel, SHR::TextField* delay, SHR::TextField* increment);
+        void DrawNativeImageChoices(const std::vector<std::string>& sets, SHR::RadBut* const* choices, int frame);
+        void EndNativeWindow();
+#endif
         DWORD dwHighlightColor;
         bool bAllowDragging;
         bool _bDragging;
@@ -118,6 +141,9 @@ namespace ObjEdit {
         cObjEdit(WWD::Object *obj, State::EditingWW *st);
 
         virtual void Draw() {};
+#ifdef WAPMAP_ENABLE_IMGUI
+        virtual void DrawImGui();
+#endif
 
         virtual void RenderObjectOverlay() {};
 

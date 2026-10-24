@@ -7,6 +7,12 @@
 #include "../databanks/imageSets.h"
 #include "../states/dialog.h"
 #include "../version.h"
+#include "elevatorPathGeometry.h"
+#include <cmath>
+#include "../windows/coordinateNavigation.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui.h>
+#endif
 
 extern HGE *hge;
 
@@ -63,21 +69,13 @@ namespace ObjEdit {
     }
 
     int cEditObjElevPath::GetMoveX(int i) {
-        if (vSteps[i].first == 8 || vSteps[i].first == 2) return 0;
-        if (vSteps[i].first == 7 || vSteps[i].first == 4 || vSteps[i].first == 1)
-            return -vSteps[i].second;
-        if (vSteps[i].first == 9 || vSteps[i].first == 6 || vSteps[i].first == 3)
-            return vSteps[i].second;
-        return 0;
+        const auto move = ElevatorPathGeometry::Move(vSteps[i].first, vSteps[i].second);
+        return ElevatorPathGeometry::Fits(move.x) ? static_cast<int>(move.x) : 0;
     }
 
     int cEditObjElevPath::GetMoveY(int i) {
-        if (vSteps[i].first == 4 || vSteps[i].first == 6) return 0;
-        if (vSteps[i].first == 7 || vSteps[i].first == 8 || vSteps[i].first == 9)
-            return -vSteps[i].second;
-        if (vSteps[i].first == 1 || vSteps[i].first == 2 || vSteps[i].first == 3)
-            return vSteps[i].second;
-        return 0;
+        const auto move = ElevatorPathGeometry::Move(vSteps[i].first, vSteps[i].second);
+        return ElevatorPathGeometry::Fits(move.y) ? static_cast<int>(move.y) : 0;
     }
 
     cEditObjElevPath::cEditObjElevPath(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
@@ -153,7 +151,7 @@ namespace ObjEdit {
         win->add(_butSave, 120, 505 - 23 + 40 + 35);
 
         int iOrigX = hTempObj->GetParam(WWD::Param_LocationX), iOrigY = hTempObj->GetParam(WWD::Param_LocationY);
-        int iModX = iOrigX, iModY = iOrigY;
+        std::int64_t iModX = iOrigX, iModY = iOrigY;
         for (int i = 0; i < vSteps.size(); i++) {
             iModX += GetMoveX(i);
             iModY += GetMoveY(i);
@@ -278,6 +276,11 @@ namespace ObjEdit {
         if (vSteps.size() == 1) butStepDel->setEnabled(0);
 
         bDragging = 0;
+        SynchronizeObj();
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     void cEditObjElevPath::ChangeActiveStep() {
@@ -353,74 +356,33 @@ namespace ObjEdit {
     }
 
     void cEditObjElevPath::CloseChain(bool bChangeQuestioned) {
-        bool bOneStep = 1;
-        int iOrigX = hTempObj->GetParam(WWD::Param_LocationX), iOrigY = hTempObj->GetParam(WWD::Param_LocationY);
-        int iEndX = iOrigX, iEndY = iOrigY;
-        for (int i = 0; i < vSteps.size(); i++) {
-            iEndX += GetMoveX(i);
-            iEndY += GetMoveY(i);
-        }
-        int iDiffX = iOrigX - iEndX, iDiffY = iOrigY - iEndY;
-        if (abs(iDiffX) != abs(iDiffY) && iDiffX != 0 && iDiffY != 0)
-            bOneStep = 0;
-        int iNewStepDir = GetMoveDir(iDiffX, iDiffY);
-        if (bOneStep) {
-            if (vSteps.back().first == iNewStepDir) {
-                vSteps.back().first = iNewStepDir;
-                vSteps.back().second += (iDiffX != 0 ? abs(iDiffX) : abs(iDiffY));
-                SynchronizeObj();
-                ChangeActiveStep();
-                return;
-            }
-            if (vSteps.size() == 8) {
-                if (!bChangeQuestioned) {
-                    bChangeQuestioned = true;
-                    if (State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
-                                          ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
-                }
-                vSteps.pop_back();
-                CloseChain(bChangeQuestioned);
-                return;
-            }
-            vSteps.push_back(std::pair<int, int>(iNewStepDir, (iDiffX != 0 ? abs(iDiffX) : abs(iDiffY))));
-            SynchronizeObj();
-            ChangeActiveStep();
-            return;
-        } else {
-            if (vSteps.size() < 7) {
-                int minmove = (abs(iDiffX) > abs(iDiffY) ? abs(iDiffY) : abs(iDiffX));
-                int mindir = GetMoveDir(iDiffX, iDiffY);
-                vSteps.push_back(std::pair<int, int>(mindir, minmove));
-                SynchronizeObj();
-                ChangeActiveStep();
-                CloseChain(bChangeQuestioned);
-                return;
-            }
-            if (!bChangeQuestioned) {
-                bChangeQuestioned = true;
-                if (State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
-                                      ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
-            }
-            vSteps.pop_back();
-            SynchronizeObj();
-            ChangeActiveStep();
-            CloseChain(bChangeQuestioned);
-            return;
-        }
+        auto closure = ElevatorPathGeometry::Close(vSteps, hTempObj->GetX(), hTempObj->GetY());
+        if (!closure) return;
+        if (closure->removed && !bChangeQuestioned &&
+            State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgCloseChainStepCut"),
+                              ST_DIALOG_ICON_QUESTION, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
+        vSteps = std::move(closure->steps);
+        lbSteps->setSelected(std::min(lbSteps->getSelected(), static_cast<int>(vSteps.size()) - 1), false);
+        SynchronizeObj();
+        ChangeActiveStep();
     }
 
     void cEditObjElevPath::Save() {
         int initX = hTempObj->GetParam(WWD::Param_LocationX), initY = hTempObj->GetParam(WWD::Param_LocationY);
-        int endX = initX, endY = initY;
+        if (!ElevatorPathGeometry::End(vSteps, initX, initY)) { _butSave->setEnabled(false); return; }
+        std::int64_t endX = initX, endY = initY;
         for (int i = 0; i < vSteps.size(); i++) {
             endX += GetMoveX(i);
             endY += GetMoveY(i);
         }
         if ((endX != initX || endY != initY) &&
             State::MessageBox(PRODUCT_NAME, GETL2S("EditObj_ElevPath", "MsgDifferentEnd"),
-                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_NO) return;
+                              ST_DIALOG_ICON_WARNING, ST_DIALOG_BUT_YESNO) == RETURN_NO) {
+            _butSave->setEnabled(false);
+            return;
+        }
 
-        int tmp = atoi(tfSpeed->getText().c_str());
+        int tmp = CoordinateNavigation::Parse(tfSpeed->getText()).value_or(0);
         if (tmp <= 0)
             tmp = 125;
         hTempObj->SetParam(WWD::Param_Speed, tmp);
@@ -447,6 +409,7 @@ namespace ObjEdit {
             }
             vSteps.erase(vSteps.begin() + lbSteps->getSelected() + boff);
             SynchronizeObj();
+            ChangeActiveStep();
             if (vSteps.size() < 8) butStepAdd->setEnabled(1);
             if (vSteps.size() == 1) butStepDel->setEnabled(0);
         } else if (actionEvent.getSource() == tfStepMove) {
@@ -469,7 +432,7 @@ namespace ObjEdit {
             hTempObj->SetImageSet(tddImageSet->getText().c_str());
             hState->vPort->MarkToRedraw();
         } else if (actionEvent.getSource() == butGenChain) {
-            int tmp = atoi(tfSpeed->getText().c_str());
+            int tmp = CoordinateNavigation::Parse(tfSpeed->getText()).value_or(0);
             if (tmp <= 0)
                 tmp = 125;
             hTempObj->SetParam(WWD::Param_Speed, tmp);
@@ -570,6 +533,13 @@ namespace ObjEdit {
     }
 
     void cEditObjElevPath::SynchronizeObj() {
+        const bool validPath = ElevatorPathGeometry::End(vSteps, hTempObj->GetX(), hTempObj->GetY()).has_value();
+        if (!validPath) {
+            _butSave->setEnabled(false);
+            butGenChain->setEnabled(false); butCloseChain->setEnabled(false);
+            butInvX->setEnabled(false); butInvY->setEnabled(false); butInvertPath->setEnabled(false);
+            return;
+        }
         hTempObj->SetParam(WWD::Param_Powerup, 0);
         hTempObj->SetMoveRect(WWD::Rect(0, 0, 0, 0));
         hTempObj->SetHitRect(WWD::Rect(0, 0, 0, 0));
@@ -579,7 +549,7 @@ namespace ObjEdit {
         int iRect = 0;
         bool bSwitchRect = 0;
         int iOrigX = hTempObj->GetParam(WWD::Param_LocationX), iOrigY = hTempObj->GetParam(WWD::Param_LocationY);
-        int iModX = iOrigX, iModY = iOrigY;
+        std::int64_t iModX = iOrigX, iModY = iOrigY;
         for (int i = 0; i < vSteps.size(); i++) {
             iModX += GetMoveX(i);
             iModY += GetMoveY(i);
@@ -618,12 +588,18 @@ namespace ObjEdit {
         }
         butGenChain->setEnabled(iModX == iOrigX && iModY == iOrigY);
         butCloseChain->setEnabled(iModX != iOrigX || iModY != iOrigY);
-        butInvX->setEnabled(!butCloseChain->isEnabled());
-        butInvY->setEnabled(!butCloseChain->isEnabled());
-        butInvertPath->setEnabled(!butCloseChain->isEnabled());
+        butInvX->setEnabled(!butCloseChain->isLocallyEnabled());
+        butInvY->setEnabled(!butCloseChain->isLocallyEnabled());
+        butInvertPath->setEnabled(!butCloseChain->isLocallyEnabled());
     }
 
     void cEditObjElevPath::_Think(bool bMouseConsumed) {
+        bAllowDragging = !bDragging;
+        const bool validPath = ElevatorPathGeometry::End(vSteps, hTempObj->GetX(), hTempObj->GetY()).has_value();
+        _butSave->setEnabled(!bDragging && validPath);
+        butStepAdd->setEnabled(vSteps.size() < 8);
+        butStepDel->setEnabled(vSteps.size() > 1);
+        if (!validPath) return;
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
         bool bMouseIn = 1;
@@ -633,8 +609,8 @@ namespace ObjEdit {
             bMouseIn = 0;
         int imgw, imgh;
         hgeSprite *spr = hState->SprBank->GetObjectSprite(hTempObj);
-        imgw = spr->GetWidth();
-        imgh = spr->GetHeight();
+        imgw = spr ? spr->GetWidth() : 32;
+        imgh = spr ? spr->GetHeight() : 32;
         int origx = hTempObj->GetParam(WWD::Param_LocationX),
                 origy = hTempObj->GetParam(WWD::Param_LocationY);
         mx = hState->Scr2WrdX(hState->GetActivePlane(), mx);
@@ -643,43 +619,34 @@ namespace ObjEdit {
             if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
                 bDragging = 0;
                 bAllowDragging = 1;
+                return;
+            }
+            if (hge->Input_KeyDown(HGEK_RBUTTON)) {
+                HandleEscape();
+                return;
             }
             if (!bMouseIn || bMouseConsumed || hge->Input_KeyDown(HGEK_RBUTTON)) {
                 vSteps[iDragStep].first = iDragStepOrigDir;
                 vSteps[iDragStep].second = iDragStepOrigMove;
             } else {
-                int diffx = mx - iDragStartX, diffy = my - iDragStartY;
-                float ratio = float(diffx) / float(diffy);
-                int move = 0, dir = 0;
-                if (ratio > 2.5 || ratio < -2.5) {
-                    dir = diffx > 0 ? 6 : 4;
-                    move = diffx;
-                } else if (ratio < 0.5 && ratio > -0.5) {
-                    dir = diffy > 0 ? 2 : 8;
-                    move = diffy;
-                } else {
-                    if (diffx < 0 && diffy < 0) dir = 7;
-                    else if (diffx > 0 && diffy > 0) dir = 3;
-                    else if (diffx > 0 && diffy < 0) dir = 9;
-                    else if (diffx < 0 && diffy > 0) dir = 1;
-                    diffx = abs(diffx);
-                    diffy = abs(diffy);
-                    if (diffx > diffy) move = diffx;
-                    else if (diffy > diffx) move = diffy;
-                    else if (diffx == diffy) move = diffx;
-                }
-                if (dir != 0) {
-                    vSteps[iDragStep].first = dir;
-                    vSteps[iDragStep].second = abs(move);
-                    SynchronizeObj();
-                    ChangeActiveStep();
-                    hState->vPort->MarkToRedraw();
+                if (std::isfinite(mx) && std::isfinite(my) && mx >= static_cast<double>(INT_MIN) &&
+                    mx <= static_cast<double>(INT_MAX) && my >= static_cast<double>(INT_MIN) && my <= static_cast<double>(INT_MAX)) {
+                    const auto step = ElevatorPathGeometry::Drag(static_cast<std::int64_t>(mx) - iDragStartX,
+                                                                 static_cast<std::int64_t>(my) - iDragStartY);
+                    if (step) {
+                        auto proposed = vSteps;
+                        proposed[iDragStep] = *step;
+                        if (ElevatorPathGeometry::End(proposed, origx, origy)) vSteps = std::move(proposed);
+                    }
                 }
             }
+            SynchronizeObj();
+            ChangeActiveStep();
+            hState->vPort->MarkToRedraw();
             return;
         }
         if (bMouseConsumed || !bMouseIn) return;
-        int modx = 0, mody = 0;
+        std::int64_t modx = 0, mody = 0;
         for (int i = 0; i < vSteps.size(); i++) {
             if (vSteps[i].first == 5) continue;
             modx += GetMoveX(i);
@@ -690,8 +657,14 @@ namespace ObjEdit {
                 bAllowDragging = 0;
                 if (lbSteps->getSelected() == i) {
                     bDragging = 1;
-                    iDragStartX = mx - GetMoveX(i);
-                    iDragStartY = my - GetMoveY(i);
+                    const double startX = static_cast<double>(mx) - GetMoveX(i);
+                    const double startY = static_cast<double>(my) - GetMoveY(i);
+                    if (!std::isfinite(startX) || !std::isfinite(startY) || startX < INT_MIN || startX > INT_MAX || startY < INT_MIN || startY > INT_MAX) {
+                        bDragging = false; bAllowDragging = true; return;
+                    }
+                    _bDragging = false;
+                    iDragStartX = static_cast<int>(startX);
+                    iDragStartY = static_cast<int>(startY);
                     iDragStepOrigDir = vSteps[i].first;
                     iDragStepOrigMove = vSteps[i].second;
                     iDragStep = i;
@@ -746,4 +719,13 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 515 - 23 + 40 + 35, dx + win->getWidth(), dy + 515 - 23 + 40 + 35, 0xFF1f1f1f);
         hge->Gfx_RenderLine(dx, dy + 516 - 23 + 40 + 35, dx + win->getWidth(), dy + 516 - 23 + 40 + 35, 0xFF5c5c5c);
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjElevPath::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        ImGui::BeginDisabled(bDragging);
+        DrawNativeControls();
+        ImGui::EndDisabled();
+        EndNativeWindow();
+    }
+#endif
 }

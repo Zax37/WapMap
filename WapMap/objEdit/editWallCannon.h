@@ -15,7 +15,9 @@ namespace ObjEdit {
         bool bDraggingArrow;
         bool bSkullCannon;
 
-        int CalcAngle(int iX, int iY, bool bOr);
+        bool ReadComponents();
+        void SyncInputs();
+        void SetArrowDragging(bool dragging);
 
         void UpdateAngleInput();
 
@@ -39,24 +41,7 @@ namespace ObjEdit {
 
         virtual void Save();
 
-        void HandleEscape() override {
-            if (bDraggingArrow) {
-                bDraggingArrow = false;
-                bAllowDragging = true;
-                iSpeedX = atoi(tfSpeedX->getText().c_str());
-
-                iRealSpeedX = iSpeedX;
-                if (!bOrient)
-                    iRealSpeedX *= -1;
-
-                iSpeedY = atoi(tfSpeedY->getText().c_str());
-                iLinearSpeed = atoi(tfLinSpeed->getText().c_str());
-                iAngle = CalcAngle(iRealSpeedX, iSpeedY, bOrient);
-                return;
-            }
-
-            cObjEdit::HandleEscape();
-        }
+        void HandleEscape() override;
     };
 
 }

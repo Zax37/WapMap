@@ -372,6 +372,11 @@ namespace gcn
          */
         bool isVisible() const;
 
+        // Adapters may retain a hidden parent while presenting its controls
+        // through a different UI. Expose each control's own flags separately.
+        bool isLocallyVisible() const { return mVisible; }
+        bool isLocallyEnabled() const { return mEnabled; }
+
         /**
          * Sets the base color of the widget.
          *

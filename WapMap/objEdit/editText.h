@@ -21,7 +21,10 @@ namespace ObjEdit {
 
         void ApplyAlign();
 
-        int GetCharFrame(char c);
+        bool CanGenerate();
+#ifdef WAPMAP_ENABLE_IMGUI
+        std::string nativeText;
+#endif
 
         friend class cObjPropVP;
 
@@ -34,10 +37,14 @@ namespace ObjEdit {
         ~cEditObjText();
 
         virtual void Save();
+        void Think(bool bMouseConsumed) override;
 
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         virtual void RenderObjectOverlay();
 

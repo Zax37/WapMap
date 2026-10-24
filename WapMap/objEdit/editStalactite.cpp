@@ -30,6 +30,10 @@ namespace ObjEdit {
         win->add(hRectPick, 5, 30);
 
         _butSave->setEnabled(hRectPick->isValid());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjStalactite::~cEditObjStalactite() {
@@ -51,7 +55,7 @@ namespace ObjEdit {
     }
 
     void cEditObjStalactite::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed)
-            hRectPick->Think();
+        hRectPick->Think(bMouseConsumed);
+        _butSave->setEnabled(hRectPick->isValid() && !hRectPick->IsPicking());
     }
 }

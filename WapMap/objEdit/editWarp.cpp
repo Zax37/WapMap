@@ -4,6 +4,10 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -85,6 +89,10 @@ namespace ObjEdit {
         }
 
         RebuildWindow();
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjWarp::~cEditObjWarp() {
@@ -131,6 +139,9 @@ namespace ObjEdit {
             hState->vPort->MarkToRedraw();
             RebuildWindow();
         } else if (actionEvent.getSource() == butPick) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            nativeIntegers.erase(tfX); nativeIntegers.erase(tfY);
+#endif
             if (!bPick) {
                 bPick = 1;
                 bAllowDragging = 0;
@@ -138,6 +149,7 @@ namespace ObjEdit {
                 tfY->setEnabled(0);
                 rbType[0]->setEnabled(0);
                 rbType[1]->setEnabled(0);
+                rbType[2]->setEnabled(0);
                 _butSave->setEnabled(0);
                 butPick->setCaption(GETL2S("EditObj_Warp", "Unpick"));
             } else {
@@ -147,6 +159,7 @@ namespace ObjEdit {
                 tfY->setEnabled(1);
                 rbType[0]->setEnabled(1);
                 rbType[1]->setEnabled(1);
+                rbType[2]->setEnabled(1);
                 _butSave->setEnabled(1);
                 butPick->setCaption(GETL2S("EditObj_Warp", "Pick"));
             }
@@ -214,7 +227,10 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 295 + 68 - (rbType[2]->isSelected() * 22), dx + win->getWidth(),
                             dy + 295 + 68 - (rbType[2]->isSelected() * 22), GV->colLineBright);
 
-        if (bPick) {
+    }
+
+    void cEditObjWarp::_Think(bool bMouseConsumed) {
+        if (bPick && !bMouseConsumed) {
             float mx, my;
             hge->Input_GetMousePos(&mx, &my);
             if (hge->Input_KeyDown(HGEK_LBUTTON) &&
@@ -225,6 +241,7 @@ namespace ObjEdit {
                 tfY->setEnabled(1);
                 rbType[0]->setEnabled(1);
                 rbType[1]->setEnabled(1);
+                rbType[2]->setEnabled(1);
                 _butSave->setEnabled(1);
                 butPick->setCaption(GETL2S("EditObj_Warp", "Pick"));
                 char tmp[64];
@@ -235,4 +252,31 @@ namespace ObjEdit {
             }
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjWarp::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        fCpAnimTimer += hge->Timer_GetDelta();
+        fScpAnimTimer += hge->Timer_GetDelta();
+        const auto advance = [](float& timer, int& frame) {
+            while (timer > 0.15f) { timer -= 0.1f; if (++frame > 9) frame = 0; }
+        };
+        advance(fCpAnimTimer, iCpAnimFrame); advance(fScpAnimTimer, iScpAnimFrame);
+        const char* sets[] = {"GAME_WARP", "GAME_VERTWARP", "GAME_BOSSWARP"};
+        const float ys[] = {30, 102, 197};
+        const auto origin = ImGui::GetWindowPos();
+        const float top = ImGui::GetFrameHeight();
+        for (int i = 0; i < 3; ++i) {
+            auto* asset = hState->SprBank->GetAssetByID(sets[i]);
+            auto* image = asset && asset->GetSpritesCount() > 0 ? asset->GetIMGByIterator((i ? iScpAnimFrame : iCpAnimFrame) % asset->GetSpritesCount()) : nullptr;
+            auto* sprite = image && image->GetSprite() ? image->GetSprite() : GV->sprSmiley;
+            AssetBrowserUi::Preview(*hge, sprite, {origin.x + 73, origin.y + top + ys[i]}, 50, false, false);
+        }
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16,
+            {origin.x + 5, origin.y + top + 248}, GETL2S("EditObj_Warp", "TeleportDestination"));
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {origin.x + 5, origin.y + top + 275}, "X:");
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {origin.x + 5, origin.y + top + 300}, "Y:");
+        EndNativeWindow();
+    }
+#endif
 }

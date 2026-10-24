@@ -6,6 +6,10 @@
 #include "../cObjectUserData.h"
 #include <cmath>
 #include <cstdint>
+#include <algorithm>
+#include <array>
+#include <limits>
+#include "elevatorGeometry.h"
 
 extern HGE *hge;
 
@@ -51,28 +55,32 @@ namespace ObjEdit {
         else if (!strcmp(hTempObj->GetLogic(), "TriggerElevator") || !strcmp(hTempObj->GetLogic(), "OneWayTriggerElevator"))
             type->setSelectedEntryID(3);
 
+        const auto coordinate = [&](std::int64_t value) {
+            if (!ElevatorGeometry::Fits(value)) validGeometry = false;
+            return static_cast<int>(std::clamp(value, static_cast<std::int64_t>(INT_MIN), static_cast<std::int64_t>(INT_MAX)));
+        };
         int width = hTempObj->GetParam(WWD::Param_Width);
         int height = hTempObj->GetParam(WWD::Param_Height);
 
         if (type->getSelectedEntryID() <= 0) {
             if (width > 0) {
                 int x = hTempObj->GetParam(WWD::Param_LocationX);
-                rArea.x1 = x - width / 2;
-                rArea.x2 = x + width / 2;
+                rArea.x1 = coordinate(static_cast<std::int64_t>(x) - width / 2);
+                rArea.x2 = coordinate(static_cast<std::int64_t>(x) + width / 2);
             } else {
                 rArea.x1 = hTempObj->GetParam(WWD::Param_MinX);
                 rArea.x2 = hTempObj->GetParam(WWD::Param_MaxX);
-                width = rArea.x2 - rArea.x1;
+                width = coordinate(static_cast<std::int64_t>(rArea.x2) - rArea.x1);
             }
 
             if (height > 0) {
                 int y = hTempObj->GetParam(WWD::Param_LocationY);
-                rArea.y1 = y - height / 2;
-                rArea.y2 = y + height / 2;
+                rArea.y1 = coordinate(static_cast<std::int64_t>(y) - height / 2);
+                rArea.y2 = coordinate(static_cast<std::int64_t>(y) + height / 2);
             } else {
                 rArea.y1 = hTempObj->GetParam(WWD::Param_MinY);
                 rArea.y2 = hTempObj->GetParam(WWD::Param_MaxY);
-                height = rArea.y2 - rArea.y1;
+                height = coordinate(static_cast<std::int64_t>(rArea.y2) - rArea.y1);
             }
         } else {
             rArea.x1 = hTempObj->GetParam(WWD::Param_MinX);
@@ -85,8 +93,8 @@ namespace ObjEdit {
             if (!rArea.y1) rArea.y1 = obj->GetY();
             if (!rArea.y2) rArea.y2 = obj->GetY();
 
-            width = rArea.x2 - rArea.x1;
-            height = rArea.y2 - rArea.y1;
+            width = coordinate(static_cast<std::int64_t>(rArea.x2) - rArea.x1);
+            height = coordinate(static_cast<std::int64_t>(rArea.y2) - rArea.y1);
         }
 
         int dir = hTempObj->GetParam(WWD::Param_Direction);
@@ -130,6 +138,7 @@ namespace ObjEdit {
         hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
         hRectPick->setActionListener(hAL);
         hRectPick->setType(PickRect_MinMax);
+        hRectPick->setAllowEmptyAxis(true);
         hRectPick->setEnabled(!bAutomatic);
 
         int manualX = win->getWidth() - hRectPick->getWidth() - 15;
@@ -208,6 +217,10 @@ namespace ObjEdit {
 
         win->add(_butAddNext, 120, 420);
         win->add(_butSave, 233, 420);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     void cEditObjElevator::UpdateOneWayCheckBoxEnabled() {
@@ -282,23 +295,30 @@ namespace ObjEdit {
                 UpdateDirection();
             }
         } else if (actionEvent.getSource() == hTravelDistPick) {
-            if (actionEvent.getId() == "CHANGE_X" && hTravelDistPick->isEnabledX()) {
-                if (iDirection == 1 || iDirection == 4 || iDirection == 7) { // goes left
-                    if (!rArea.x2) rArea.x2 = hTempObj->GetX();
-                    rArea.x1 = rArea.x2 - hTravelDistPick->getValueX();
-                } else {
-                    if (!rArea.x1) rArea.x2 = hTempObj->GetX();
-                    rArea.x2 = rArea.x1 + hTravelDistPick->getValueX();
-                }
+            const bool axisX = actionEvent.getId() == "CHANGE_X";
+            if ((axisX && !hTravelDistPick->isEnabledX()) || (!axisX && !hTravelDistPick->isEnabledY())) return;
+            const bool negative = axisX ? (iDirection == 1 || iDirection == 4 || iDirection == 7) : iDirection < 4;
+            int origin = axisX ? (negative ? rArea.x2 : rArea.x1) : (negative ? rArea.y2 : rArea.y1);
+            if (!origin) origin = axisX ? hTempObj->GetX() : hTempObj->GetY();
+            const auto range = ElevatorGeometry::Range(origin, axisX ? hTravelDistPick->getValueX() : hTravelDistPick->getValueY(), negative);
+            validGeometry = range.has_value();
+            if (axisX && hTravelDistPick->isEnabledY()) {
+                const bool up = iDirection < 4;
+                int otherOrigin = up ? rArea.y2 : rArea.y1;
+                if (!otherOrigin) otherOrigin = hTempObj->GetY();
+                validGeometry = validGeometry && ElevatorGeometry::Range(otherOrigin, hTravelDistPick->getValueY(), up).has_value();
+            } else if (!axisX && hTravelDistPick->isEnabledX()) {
+                const bool left = iDirection == 1 || iDirection == 4 || iDirection == 7;
+                int otherOrigin = left ? rArea.x2 : rArea.x1;
+                if (!otherOrigin) otherOrigin = hTempObj->GetX();
+                validGeometry = validGeometry && ElevatorGeometry::Range(otherOrigin, hTravelDistPick->getValueX(), left).has_value();
+            }
+            if (!range) return;
+            if (axisX) {
+                rArea.x1 = range->first; rArea.x2 = range->second;
                 hRectPick->setValues(rArea.x1, -1, rArea.x2, -1);
-            } else if (actionEvent.getId() == "CHANGE_Y" && hTravelDistPick->isEnabledY()) {
-                if (iDirection < 4) { // goes up
-                    if (!rArea.y2) rArea.y2 = hTempObj->GetY();
-                    rArea.y1 = rArea.y2 - hTravelDistPick->getValueY();
-                } else {
-                    if (!rArea.y1) rArea.y1 = hTempObj->GetY();
-                    rArea.y2 = rArea.y1 + hTravelDistPick->getValueY();
-                }
+            } else {
+                rArea.y1 = range->first; rArea.y2 = range->second;
                 hRectPick->setValues(-1, rArea.y1, -1, rArea.y2);
             }
         } else if (actionEvent.getSource() == hSpeedPick) {
@@ -323,8 +343,15 @@ namespace ObjEdit {
     }
 
     void cEditObjElevator::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed)
-            hRectPick->Think();
+        hRectPick->Think(bMouseConsumed);
+        _bDragging = hRectPick->IsPicking() ? false : _bDragging;
+        _butSave->setEnabled(validGeometry && !hRectPick->IsPicking() &&
+            (!manual->isSelected() || hRectPick->isValid()));
+        bAllowDragging = !hRectPick->IsPicking();
+        if (manual->isSelected()) {
+            rArea = WWD::Rect(hRectPick->getValue(0), hRectPick->getValue(1), hRectPick->getValue(2), hRectPick->getValue(3));
+            validGeometry = hRectPick->isValid();
+        }
     }
 
     void cEditObjElevator::Draw() {
@@ -406,6 +433,12 @@ namespace ObjEdit {
         if (!init && automatic->isSelected()) {
             bool top = iDirection < 4;
             bool left = iDirection % 3 == 1;
+            const int dx = hTravelDistPick->getValueX(), dy = hTravelDistPick->getValueY();
+            const int distanceX = dx ? dx : dy ? dy : 150;
+            const int distanceY = dy ? dy : dx ? dx : 150;
+            validGeometry = (vertical || ElevatorGeometry::Range(hTempObj->GetX(), distanceX, left).has_value()) &&
+                            (horizontal || ElevatorGeometry::Range(hTempObj->GetY(), distanceY, top).has_value());
+            if (!validGeometry) return;
             if (horizontal) {
                 GET_X_MINMAX();
                 hTempObj->SetParam(WWD::Param_MinX, rArea.x1);
@@ -472,29 +505,24 @@ namespace ObjEdit {
 
     void cEditObjElevator::ObjectMovedInsideEasyEdit(int fromX, int fromY) {
         if (automatic->isSelected()) {
-            int diffX = GetUserDataFromObj(hTempObj)->GetX() - fromX,
-                diffY = GetUserDataFromObj(hTempObj)->GetY() - fromY;
-
-            if (hTempObj->GetParam(WWD::Param_MinX) != 0) {
-                rArea.x1 += diffX;
-                hTempObj->SetParam(WWD::Param_MinX,
-                                   hTempObj->GetParam(WWD::Param_MinX) + diffX);
+            const auto diffX = static_cast<std::int64_t>(GetUserDataFromObj(hTempObj)->GetX()) - fromX;
+            const auto diffY = static_cast<std::int64_t>(GetUserDataFromObj(hTempObj)->GetY()) - fromY;
+            const auto params = std::array{WWD::Param_MinX, WWD::Param_MinY, WWD::Param_MaxX, WWD::Param_MaxY};
+            int moved[4];
+            for (int i = 0; i < 4; ++i) {
+                const int value = hTempObj->GetParam(params[i]);
+                const auto result = value ? static_cast<std::int64_t>(value) + (i % 2 ? diffY : diffX) : 0;
+                if (!ElevatorGeometry::Fits(result)) {
+                    hTempObj->SetParam(WWD::Param_LocationX, fromX);
+                    hTempObj->SetParam(WWD::Param_LocationY, fromY);
+                    GetUserDataFromObj(hTempObj)->SetPos(fromX, fromY);
+                    return;
+                }
+                moved[i] = static_cast<int>(result);
             }
-            if (hTempObj->GetParam(WWD::Param_MinY) != 0) {
-                rArea.y1 += diffY;
-                hTempObj->SetParam(WWD::Param_MinY,
-                                   hTempObj->GetParam(WWD::Param_MinY) + diffY);
-            }
-            if (hTempObj->GetParam(WWD::Param_MaxX) != 0) {
-                rArea.x2 += diffX;
-                hTempObj->SetParam(WWD::Param_MaxX,
-                                   hTempObj->GetParam(WWD::Param_MaxX) + diffX);
-            }
-            if (hTempObj->GetParam(WWD::Param_MaxY) != 0) {
-                rArea.y2 += diffY;
-                hTempObj->SetParam(WWD::Param_MaxY,
-                                   hTempObj->GetParam(WWD::Param_MaxY) + diffY);
-            }
+            for (int i = 0; i < 4; ++i) hTempObj->SetParam(params[i], moved[i]);
+            rArea = WWD::Rect(moved[0], moved[1], moved[2], moved[3]);
+            hRectPick->setValues(rArea.x1, rArea.y1, rArea.x2, rArea.y2);
         }
     }
 }

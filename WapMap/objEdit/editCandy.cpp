@@ -6,6 +6,12 @@
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
 #include "../cInterfaceSheet.h"
+#include "candySelection.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 #include <cstdint>
 #include <set>
@@ -71,7 +77,7 @@ namespace ObjEdit {
 
                     int i = obj->GetI();
                     if (i == -1) {
-                        asFramePick = imgSet->GetIMGByIterator(0);
+                        asFramePick = imgSet->GetSpritesCount() > 0 ? imgSet->GetIMGByIterator(0) : nullptr;
                     } else {
                         asFramePick = imgSet->GetIMGByID(i);
                     }
@@ -191,6 +197,12 @@ namespace ObjEdit {
 		animation->setText(anim);
 		animation->addActionListener(hAL);
 		win->add(animation, 16 + animated->getWidth(), CONTAINER_HEIGHT + 162);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        nativeTab = tabWithCurrentSelection;
+        win->setVisible(false);
+        win->setWidth(WINDOW_WIDTH_WITH_SCROLL);
+#endif
     }
 
     cEditObjCandy::~cEditObjCandy() {
@@ -229,12 +241,18 @@ namespace ObjEdit {
 			}
 			UpdateLogic();
 			if (actionEvent.getSource() == animated && asImageSetPick) {
-				if (asFramePick) {
+				if (animated->isSelected()) {
 					asFramePick = NULL;
 					GV->vstrNANIImagesets.erase(asImageSetPick->GetID());
+					hTempObj->SetParam(WWD::Param_LocationI, -1);
+					GetUserDataFromObj(hTempObj)->SetI(-1);
 				} else {
-					asFramePick = asImageSetPick->GetIMGByIterator(0);
+					asFramePick = asImageSetPick->GetSpritesCount() > 0 ? asImageSetPick->GetIMGByIterator(0) : nullptr;
 					GV->vstrNANIImagesets.insert(asImageSetPick->GetID());
+                    if (asFramePick) {
+                        hTempObj->SetParam(WWD::Param_LocationI, asFramePick->GetID());
+                        GetUserDataFromObj(hTempObj)->SetI(asFramePick->GetID());
+                    }
 				}
 				updateDimensions();
 			}
@@ -296,6 +314,7 @@ namespace ObjEdit {
 		int i_off = 0, i_off_sub = 0;
 		for (size_t i = 0; i < count; i++) {
 			cSprBankAsset* imgSet = assets[i];
+            if (imgSet->GetSpritesCount() <= 0) continue;
 			bool nani = false;
 			int add = 0;
 			if (GV->vstrNANIImagesets.contains(imgSet->GetID())) {
@@ -436,19 +455,31 @@ namespace ObjEdit {
 
 	void cEditObjCandy::mouseClicked(MouseEvent & mouseEvent)
 	{
-		if (asImageSetHover) {
-			asImageSetPick = asImageSetHover;
-			asFramePick = asFrameHover;
+		PickImage(asImageSetHover, asFrameHover);
+	}
 
-			if (asFramePick || asImageSetPick->GetSpritesCount() == 1) {
+    void cEditObjCandy::PickImage(cSprBankAsset* asset, cSprBankAssetIMG* frame) {
+        bool live = false;
+        for (int i = 0; i < hState->SprBank->getNumberOfElements(); ++i) if (hState->SprBank->GetAssetByIterator(i) == asset) live = true;
+        if (!live || asset->GetSpritesCount() <= 0) return;
+        if (frame && asset->GetIndexOf(frame) < 0) return;
+        const auto choice = CandySelection::Image(asset->GetSpritesCount(), frame ? std::optional<int>(frame->GetID()) : std::nullopt);
+        if (!choice) return;
+        if (asset) {
+            asImageSetPick = asset;
+            asFramePick = frame;
+
+			if (!choice->animated) {
 				animated->setSelected(false);
-				int frameI = asFramePick ? asFramePick->GetID() : -1;
+				int frameI = choice->frame;
 				GetUserDataFromObj(hTempObj)->SetI(frameI);
 				hTempObj->SetParam(WWD::OBJ_PARAMS::Param_LocationI, frameI);
 				animation->setEnabled(false);
 			}
 			else {
 				animated->setSelected(true);
+                hTempObj->SetParam(WWD::Param_LocationI, -1);
+                GetUserDataFromObj(hTempObj)->SetI(-1);
 				auto it = GV->vstrStandardImagesetAnimations.find(asImageSetPick->GetID());
 				if (it != GV->vstrStandardImagesetAnimations.end()) {
 					animation->setText(it->second);
@@ -462,7 +493,7 @@ namespace ObjEdit {
 			hTempObj->SetImageSet(asImageSetPick->GetID());
 			hState->vPort->MarkToRedraw();
 
-			if (animation->isEnabled() && animation->getText() != "GAME_CYCLE100") {
+			if (animation->isLocallyEnabled() && animation->getText() != "GAME_CYCLE100") {
 				hTempObj->SetAnim(animation->getText().c_str());
 			} else {
                 hTempObj->SetAnim("");

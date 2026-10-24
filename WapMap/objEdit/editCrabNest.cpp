@@ -2,6 +2,9 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "nativeInventoryUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -95,6 +98,11 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(1);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        hInventory->UseNative();
+#endif
     }
 
     cEditObjCrabNest::~cEditObjCrabNest() {
@@ -126,6 +134,7 @@ namespace ObjEdit {
             return;
         } else if (actionEvent.getSource() == tfNumber) {
             int num = atoi(tfNumber->getText().c_str());
+            tfNumber->setMarkedInvalid(num < 0 || num > 9);
             for (int i = 0; i < 9; ++i) {
                 invTabs[i]->SetCrab(num > i);
             }
@@ -148,8 +157,8 @@ namespace ObjEdit {
     }
 
     void cEditObjCrabNest::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed)
-            hRectPick->Think();
+        hRectPick->Think(bMouseConsumed);
+        _butSave->setEnabled(!tfNumber->isMarkedInvalid() && hRectPick->isValid() && !hRectPick->IsPicking());
         hInventory->Think();
     }
 
@@ -174,4 +183,13 @@ namespace ObjEdit {
             hTempObj->SetUserRect(i, r);
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjCrabNest::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        EndNativeWindow();
+        hInventory->DrawImGui(nativeInventorySelection);
+        NativeInventoryUi::PreviewPayload();
+    }
+#endif
 }

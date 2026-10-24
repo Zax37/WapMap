@@ -107,7 +107,7 @@ namespace SHR {
         unsigned char alpha = getAlpha();
 
         graphics->setColor(gcn::Color(0x373737, alpha));
-        graphics->fillRectangle(gcn::Rectangle(1, 0, getWidth() - 1, y + 22));
+        graphics->fillRectangle(gcn::Rectangle(1, 0, getWidth() - 1, 22));
 
         graphics->setColor(gcn::Color(0x2f2f2f, alpha));
         graphics->fillRectangle(gcn::Rectangle(1, 22, getWidth() - 1, getHeight() - 1));
@@ -287,19 +287,6 @@ namespace SHR {
     }
 
     void Win::move(int newX, int newY) {
-        int parentX;
-        int parentY;
-
-        getParent()->getAbsolutePosition(parentX, parentY);
-
-        int screenW = GV->editState->bMaximized ? hge->System_GetState(HGE_SCREENWIDTH) : GV->iScreenW;
-        int screenH = GV->editState->bMaximized ? hge->System_GetState(HGE_SCREENHEIGHT) : GV->iScreenH;
-
-        if (parentX + newX < 0) newX = -parentX;
-        if (parentY + newY < 0) newY = -parentY;
-        if (parentX + newX + mDimension.width > screenW) newX = screenW - parentX - mDimension.width;
-        if (parentY + newY + mDimension.height > screenH) newY = screenH - parentY - mDimension.height;
-
         setPosition(newX, newY);
     }
 }

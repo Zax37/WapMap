@@ -28,6 +28,9 @@ namespace ObjEdit {
 
         void UpdateName();
 
+    protected:
+        void _Think(bool bMouseConsumed) override;
+
     public:
         cEditObjSoundTrigger(WWD::Object *obj, State::EditingWW *st);
 
@@ -38,6 +41,9 @@ namespace ObjEdit {
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         //inherited
         std::string getElementAt(int i);

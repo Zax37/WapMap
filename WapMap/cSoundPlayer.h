@@ -39,6 +39,10 @@ private:
     HCHANNEL hChannel;
     cSndBankAsset *hAsset;
     float fDuration;
+#ifdef WAPMAP_ENABLE_IMGUI
+    std::string nativeAssetName;
+    HEFFECT nativeEffect = nullptr;
+#endif
 public:
     cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as, const char *szTitle = NULL);
 
@@ -53,6 +57,9 @@ public:
     void SetAsset(cSndBankAsset *as, bool bUpdateTitle = 1);
 
     void Play();
+#ifdef WAPMAP_ENABLE_IMGUI
+    void DrawImGui();
+#endif
 };
 
 #endif

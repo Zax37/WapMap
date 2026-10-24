@@ -4,6 +4,9 @@
 #include "../shared/cWWD.h"
 #include "../shared/gcnWidgets/wContext.h"
 #include <set>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui.h>
+#endif
 
 #define MDI_CONTEXT_CLOSEEXCEPTACTIVE 1
 #define MDI_CONTEXT_CLOSEALL          2
@@ -12,6 +15,7 @@
 
 namespace State {
     struct PlaneData;
+    class Viewport;
 };
 
 struct DocumentData;
@@ -84,6 +88,15 @@ struct DocumentData {
     cDataController *hDataCtrl;
 
     cTabMDI *hTab;
+    State::Viewport *hViewport = nullptr;
+    int iViewportWidth = 0;
+    int iViewportHeight = 0;
+#ifdef WAPMAP_ENABLE_IMGUI
+    ImGuiID iImGuiViewportId = 0;
+#endif
+    int iTilesOnScreen = 0;
+    int iObjectsOnScreen = 0;
+    bool bImGuiOpen = true;
 
     WWD::Parser *hParser;
     char *szFileName;
@@ -111,6 +124,30 @@ private:
     std::vector<DocumentData *> m_vhDoc;
     std::vector<std::string> vstrRecentlyClosed;
     int m_iActiveDoc, m_iLastActiveDoc, m_iContextMenuFocusedDoc;
+    int m_iRenderingDoc = -1;
+    DocumentData *m_pRequestedActiveDoc = nullptr;
+    DocumentData *m_pRequestedCloseDoc = nullptr;
+    DocumentData *m_pContextDoc = nullptr;
+    DocumentData *m_pContextActionDoc = nullptr;
+    SHR::Context *m_pContextAction = nullptr;
+    int m_iContextActionId = -1;
+    DocumentData *m_pNavigationDoc = nullptr;
+    float m_fNavigationX = 0, m_fNavigationY = 0;
+    DocumentData *m_pGuideDragDoc = nullptr;
+    bool m_bGuideHorizontal = false;
+    DocumentData *m_pGuideActionDoc = nullptr;
+    stGuideLine m_guideAction{};
+    DocumentData *m_pMapHoveredDoc = nullptr;
+    DocumentData *m_pMapCapturedDoc = nullptr;
+    float m_fMapInputOriginX = 0.0f;
+    float m_fMapInputOriginY = 0.0f;
+    float m_fMapCaptureOriginX = 0.0f;
+    float m_fMapCaptureOriginY = 0.0f;
+    ImGuiID m_iMapInputViewportId = 0;
+    ImGuiID m_iMapCaptureViewportId = 0;
+    unsigned int m_iPendingMapMouseDown = 0;
+    int m_iPendingMapWheel = 0;
+    int m_iMainViewportDockedDocCount = 0;
     bool bBlock;
     bool bUpdateCrashList;
     SHR::Context *hContext;
@@ -120,6 +157,9 @@ private:
     //float fAddTabTimer;
 
     void RebuildContext(bool bForceRebuildBase);
+#ifdef WAPMAP_ENABLE_IMGUI
+    void DrawDocumentNavigation(DocumentData* doc, ImVec2 origin, ImVec2 imageMin, ImVec2 imageSize, bool interactive);
+#endif
 
     friend class cTabMDI;
 public:
@@ -141,8 +181,9 @@ public:
     };
 
     DocumentData *GetActiveDoc() {
-        if (m_iActiveDoc == -1) return NULL;
-        return m_vhDoc[m_iActiveDoc];
+        const int index = m_iRenderingDoc == -1 ? m_iActiveDoc : m_iRenderingDoc;
+        if (index == -1) return NULL;
+        return m_vhDoc[index];
     };
 
     int GetActiveDocIt() { return m_iActiveDoc; };
@@ -164,6 +205,17 @@ public:
     void Think(bool bConsumed);
 
     void Render();
+
+#ifdef WAPMAP_ENABLE_IMGUI
+    void DrawImGuiViews(unsigned int dockspaceId);
+    void ProcessImGuiActions();
+    void RouteImGuiInput();
+    bool HasDockedMainViewportDoc() const { return m_iMainViewportDockedDocCount > 0; }
+    void RequestImGuiActiveDoc(DocumentData *doc) { m_pRequestedActiveDoc = doc; }
+    void RequestImGuiCloseDoc(DocumentData *doc) { m_pRequestedCloseDoc = doc; }
+    void BeginRenderingDoc(int index) { m_iRenderingDoc = index; }
+    void EndRenderingDoc() { m_iRenderingDoc = -1; }
+#endif
 
     bool IsDocumentSelectionBlocked() { return bBlock; };
 

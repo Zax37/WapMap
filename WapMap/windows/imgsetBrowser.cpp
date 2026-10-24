@@ -180,8 +180,11 @@ winImageSetBrowser::winImageSetBrowser() : cWindow(GETL2S("Win_ImageSetBrowser",
 }
 
 void winImageSetBrowser::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    ThinkNative(); return;
+#endif
     cBankImageSet *bank = GV->editState->SprBank;
-    if (bank->getNumberOfElements() == 0)
+    if (!bank || bank->getNumberOfElements() == 0)
         return;
 
     if (bank->GetModFlag()) {
@@ -389,16 +392,20 @@ void winImageSetBrowser::Draw(int piCode) {
 }
 
 void winImageSetBrowser::OnDocumentChange() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    Close();
+#endif
     iSelectedImageSet = iSelectedFrame = 0;
     iHighlightedIS = iHighlightedF = -1;
     Synchronize();
 }
 
 void winImageSetBrowser::Synchronize() {
+    if (!GV->editState->hParser) return;
     cBankImageSet *bank = GV->editState->SprBank;
     cDataController *hDataCtrl = GV->editState->hDataCtrl;
 
-    if (bank->getNumberOfElements() == 0)
+    if (!bank || bank->getNumberOfElements() == 0)
         return;
 
     if (iSelectedImageSet < 0 || iSelectedImageSet >= bank->getNumberOfElements())
@@ -429,6 +436,11 @@ void winImageSetBrowser::Synchronize() {
     butDeleteImageSet->setVisible(bCustomTS);
 
     cSprBankAssetIMG *img = ts->GetIMGByIterator(iSelectedFrame);
+    if (!img) {
+        for (auto& group : vtGroups) group.clear();
+        bSingleGroup = false; hSingleGroup = nullptr;
+        return;
+    }
 
     sprintf(tmp, "%d", img->GetID());
     labFrameIDV->setCaption(tmp);
@@ -534,8 +546,24 @@ void winImageSetBrowser::Synchronize() {
 }
 
 void winImageSetBrowser::Open() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (!GV->editState->hParser) return;
+    native.document = GV->editState->hParser;
+    native.open = native.position = native.resetGrid = true;
+    native.action = nullptr;
+    butImportImageSet->setEnabled(true);
+    butAddFrames->setEnabled(true);
+    myWin.setVisible(false);
+#else
     cWindow::Open();
+#endif
     Synchronize();
+}
+void winImageSetBrowser::Close() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    native.Close();
+#endif
+    cWindow::Close();
 }
 
 void winImageSetBrowser::action(const ActionEvent &actionEvent) {
@@ -699,3 +727,111 @@ int winImageSetBrowser::MouseHandleGroup(std::vector<cSprBankAssetIMG *> tiles, 
     }
     return -1;
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../legacyText.h"
+void winImageSetBrowser::ThinkNative() {
+    if (!native.open || native.busy) return;
+    auto& e = *GV->editState;
+    if (native.document != e.hParser || !native.document) { Close(); return; }
+    if (!e._isOnTop()) return;
+    auto* bank = e.SprBank;
+    if (!bank) { Close(); return; }
+    if (native.action) {
+        auto* widget = native.action; native.action = nullptr;
+        int setIndex = -1, assetIndex = -1;
+        for (int i = 0; i < bank->getNumberOfElements(); ++i) if (bank->GetAssetByIterator(i) == native.set) { setIndex = i; break; }
+        if (setIndex >= 0) {
+            auto* set = bank->GetAssetByIterator(setIndex);
+            for (int i = 0; i < set->GetSpritesCount(); ++i) if (set->GetIMGByIterator(i) == native.asset) { assetIndex = i; break; }
+        }
+        if (widget == butImportImageSet || (setIndex >= 0 && (assetIndex >= 0 || widget == butAddFrames || widget == butDeleteImageSet))) {
+            iSelectedImageSet = setIndex; iSelectedFrame = assetIndex;
+            native.busy = true;
+            action(gcn::ActionEvent(widget, ""));
+            native.busy = false;
+            Synchronize();
+        }
+    }
+    if (bank->GetModFlag()) Synchronize();
+}
+void winImageSetBrowser::DrawImGui() {
+    if (!native.open || native.busy) return;
+    auto& e = *GV->editState;
+    if (native.document != e.hParser || !native.document) { Close(); return; }
+    if (!e._isOnTop()) return;
+    auto* bank = e.SprBank; if (!bank) { Close(); return; }
+    if (native.position) {
+        auto* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_FirstUseEver, {0.5f, 0.5f});
+        ImGui::SetNextWindowFocus(); native.position = false;
+    }
+    ImGui::SetNextWindowSize({950.f, 600}, ImGuiCond_Always);
+    const auto cp = LegacyText::CodePage(GV->Lang->GetCode());
+    const auto title = LegacyText::ToUtf8(GETL2S("Win_ImageSetBrowser", "WinCaption"), cp) + "###winImageSetBrowser";
+    bool visible = true;
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton, GETL2S("Win_ImageSetBrowser", "WinCaption"));
+        auto* draw = ImGui::GetWindowDrawList(); const auto origin = ImGui::GetWindowPos(); const auto area = myWin.getChildrenArea();
+        AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, labImageSets);
+        AssetBrowserUi::Position(area, 5, 35);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x13));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0}); ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0, 0});
+        int pickedSet = -1;
+        if (ImGui::BeginChild("sets", {310.f, 520}, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+            ImGuiListClipper clipper; clipper.Begin(bank->getNumberOfElements(), 90.f);
+            while (clipper.Step()) for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+                auto* set = bank->GetAssetByIterator(i); ImGui::PushID(set); const auto p = ImGui::GetCursorScreenPos();
+                if (ImGui::InvisibleButton("##set", {ImGui::GetContentRegionAvail().x, 90.f}, ImGuiButtonFlags_EnableNav)) pickedSet = i;
+                auto* childDraw = ImGui::GetWindowDrawList();
+                if (iSelectedImageSet == i || ImGui::IsItemHovered() || ImGui::IsItemFocused())
+                    childDraw->AddRectFilled(p, {p.x + ImGui::GetContentRegionAvail().x, p.y + 90.f}, iSelectedImageSet == i ? IM_COL32(23, 150, 255, 51) : IM_COL32(161, 161, 161, 51));
+                cSprBankAssetIMG* first = nullptr;
+                for (int frame = 0; frame < set->GetSpritesCount(); ++frame)
+                    if (set->GetIMGByIterator(frame)->IsLoaded()) { first = set->GetIMGByIterator(frame); break; }
+                AssetBrowserUi::Preview(*hge, first && first->GetImage() ? first->GetImage() : GV->sprSmiley, {p.x + 10, p.y + 10}, 70.f, false, false);
+                WapMapImGui::BitmapText(childDraw, *hge, *GV->fntMyriad16, {p.x + 70.f + 20, p.y + 90.f / 2 - 14}, set->GetID());
+                const auto count = std::to_string(set->GetSpritesCount()) + " " + GETL2S("Win_ImageSetBrowser", "frames");
+                WapMapImGui::BitmapText(childDraw, *hge, *GV->fntMyriad16, {p.x + 70.f + 20, p.y + 90.f / 2}, count.c_str());
+                ImGui::PopID();
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleColor();
+        if (pickedSet >= 0) { iSelectedImageSet = pickedSet; iSelectedFrame = 0; Synchronize(); native.resetGrid = true; }
+        auto* set = iSelectedImageSet >= 0 && iSelectedImageSet < bank->getNumberOfElements() ? bank->GetAssetByIterator(iSelectedImageSet) : nullptr;
+        auto* selected = set && iSelectedFrame >= 0 && iSelectedFrame < set->GetSpritesCount() ? set->GetIMGByIterator(iSelectedFrame) : nullptr;
+        butAddFrames->setEnabled(set && std::string_view(set->GetID()).starts_with("CUSTOM_"));
+        if (set) for (auto* label : {labImageSetName, labImageSetChecksum, labFrameCount, labImageSetNameV, labImageSetChecksumV, labFrameCountV}) AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, label);
+        if (selected) for (auto* label : {labFrameID, labFrameModDate, labFrameChecksum, labFrameOrigin, labFrameIDV, labFrameModDateV, labFrameChecksumV, labFrameOriginV, labImageFileName, labImagePath, labImageDim, labImageFileNameV, labImagePathV, labImageDimV}) AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, label);
+
+        for (auto* button : {butImportImageSet, butAddFrames, butRenameImageSet, butDeleteImageSet, butBrowseFolder, butDeleteFrame, butImageDetails}) if (AssetBrowserUi::Button(*hge, *GV->fntMyriad16, *GV->hGfxInterface, area, button,
+            button == butImportImageSet || (button == butAddFrames || button == butRenameImageSet ? set != nullptr : selected != nullptr))) {
+            native.action = button; native.set = set; native.asset = selected;
+        }
+        AssetBrowserUi::Position(area, 315.f, 269.f);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x2f));
+        cSprBankAssetIMG* picked = nullptr;
+        if (ImGui::BeginChild("assets", {629.f, 311.f}, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+            if (native.resetGrid) { ImGui::SetScrollY(0); native.resetGrid = false; }
+            if (selected) {
+                const char* captions[] = {GETL2S("Win_ImageSetBrowser", "GroupREZ"), GETL2S("Win_ImageSetBrowser", "GroupClaw"), GETL2S("Win_ImageSetBrowser", "GroupCustom")};
+                for (int group = 0; group < 3; ++group) if (!vtGroups[group].empty()) {
+                    if (!bSingleGroup) {
+                        const auto p = ImGui::GetCursorScreenPos();
+                        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, p, captions[group]);
+                        ImGui::Dummy({0, 24});
+                    }
+                    if (auto* hit = AssetBrowserUi::Grid(*hge, *GV->fntMyriad16, vtGroups[group], selected, true)) picked = hit;
+                    if (!bSingleGroup) ImGui::Dummy({0, 20});
+                }
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleColor(); ImGui::PopStyleVar(2);
+        if (picked && set) for (int i = 0; i < set->GetSpritesCount(); ++i) if (set->GetIMGByIterator(i) == picked) { iSelectedFrame = i; Synchronize(); break; }
+        draw->AddLine({origin.x + 323.f, origin.y + 25}, {origin.x + 323.f, origin.y + 600}, IM_COL32(86, 86, 86, 255));
+        for (float y : {100.f, 280.f}) draw->AddLine({origin.x + 323.f, origin.y + y}, {origin.x + 950.f, origin.y + y}, IM_COL32(86, 86, 86, 255));
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) visible = false;
+    }
+    ImGui::End(); if (!visible) Close();
+}
+#endif

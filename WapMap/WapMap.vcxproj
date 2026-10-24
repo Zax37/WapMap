@@ -137,9 +137,9 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -176,9 +176,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -215,9 +215,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
 ;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(ZlibRoot);..\..\SFML-3.0.2-install\include;..\..\curl\include;..\..\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -253,8 +253,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_DEBUG;SFS_COMPILER;SHOWMEMUSAGE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -280,8 +281,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -308,8 +310,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>SFML_STATIC;CURL_STATICLIB;NOMINMAX;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\incl;hgecompat\include;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WAPMAP_ENABLE_IMGUI;IMGUI_USER_CONFIG="imconfig-SFML.h";SFML_STATIC;CURL_STATICLIB;NOMINMAX
+;WIN32;BUILD_RELEASE;WAP_MAP;WAP_TOOLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\incl;hgecompat\include;..\..\imgui;..\..\imgui-sfml;$(ZlibRoot)\include;$(SFMLRoot)\include;$(CurlRoot)\include;$(LuaIncludeRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -334,6 +337,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="..\..\imgui-sfml\imgui-SFML.cpp">
+      <PreprocessorDefinitions>IMGUI_SFML_VIEWPORTS_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="hgecompat\src\hge_sfml.cpp" />
     <ClCompile Include="hgecompat\src\audio.cpp" />
     <ClCompile Include="hgecompat\src\graphics.cpp">
@@ -448,6 +460,7 @@
     <ClCompile Include="..\shared\ZipLib\ZipArchiveEntry.cpp" />
     <ClCompile Include="bodyQuadTree.cpp" />
     <ClCompile Include="cAppMenu.cpp" />
+    <ClCompile Include="cAppMenuNative.cpp" />
     <ClCompile Include="cAutoUpdater.cpp" />
     <ClCompile Include="cBrush.cpp" />
     <ClCompile Include="cColorPicker.cpp" />
@@ -481,6 +494,7 @@
     <ClCompile Include="objedit\editAmbient.cpp" />
     <ClCompile Include="objedit\editBreakPlank.cpp" />
     <ClCompile Include="objedit\editCandy.cpp" />
+    <ClCompile Include="objedit\editCandyImGui.cpp" />
     <ClCompile Include="objedit\editCheckpoint.cpp" />
     <ClCompile Include="objedit\editCrabNest.cpp" />
     <ClCompile Include="objedit\editCrate.cpp" />
@@ -520,6 +534,7 @@
     <ClCompile Include="states\editing_ww\modeObject.cpp" />
     <ClCompile Include="states\editing_ww\modeTile.cpp" />
     <ClCompile Include="states\editing_ww\navigation.cpp" />
+    <ClCompile Include="states\editing_ww\nativeChrome.cpp" />
     <ClCompile Include="states\editing_ww\procHotkeysHandle.cpp" />
     <ClCompile Include="states\editing_ww\rendering.cpp" />
     <ClCompile Include="states\editing_ww\vpCallback.cpp" />
@@ -529,14 +544,28 @@
     <ClCompile Include="states\editing_ww\winPlaneProperties.cpp" />
     <ClCompile Include="states\imageDetails.cpp" />
     <ClCompile Include="states\imageImport.cpp" />
+    <ClCompile Include="states\imageImportNative.cpp" />
     <ClCompile Include="states\loadmap.cpp" />
     <ClCompile Include="states\mapshot.cpp" />
+    <ClCompile Include="states\objpropImGui.cpp" />
     <ClCompile Include="states\objedit.cpp" />
     <ClCompile Include="states\objprop.cpp" />
     <ClCompile Include="states\stats.cpp" />
+    <ClCompile Include="states\statsNative.cpp" />
     <ClCompile Include="vpFocusWidg.cpp" />
     <ClCompile Include="windows\about.cpp" />
     <ClCompile Include="windows\goToCoords.cpp" />
+    <ClCompile Include="windows\mapProperties.cpp" />
+    <ClCompile Include="windows\planeProperties.cpp" />
+    <ClCompile Include="windows\tileProperties.cpp" />
+    <ClCompile Include="windows\measureOptions.cpp" />
+    <ClCompile Include="windows\objectToolOptions.cpp" />
+    <ClCompile Include="windows\objectSearchWindow.cpp" />
+    <ClCompile Include="windows\logicBrowser.cpp" />
+    <ClCompile Include="windows\mapShotOptions.cpp" />
+    <ClCompile Include="windows\tilePicker.cpp" />
+    <ClCompile Include="windows\mapShotImageWriter.cpp" />
+    <ClCompile Include="windows\mediaBrowser.cpp" />
     <ClCompile Include="windows\goToLocation.cpp" />
     <ClCompile Include="windows\imgsetBrowser.cpp" />
     <ClCompile Include="windows\newMap.cpp" />
@@ -670,6 +699,21 @@
     <ClInclude Include="objedit\editWallCannon.h" />
     <ClInclude Include="objedit\editWarp.h" />
     <ClInclude Include="objedit\procPickRect.h" />
+    <ClInclude Include="objedit\nativeInventoryUi.h" />
+    <ClInclude Include="objedit\enemyGeometry.h" />
+    <ClInclude Include="objedit\ambientTiming.h" />
+    <ClInclude Include="objedit\textLayout.h" />
+    <ClInclude Include="objedit\cannonGeometry.h" />
+    <ClInclude Include="objedit\candySelection.h" />
+    <ClInclude Include="objedit\elevatorPathGeometry.h" />
+    <ClInclude Include="objedit\elevatorGeometry.h" />
+    <ClInclude Include="windows\imageImportData.h" />
+    <ClInclude Include="windows\mapStatistics.h" />
+    <ClInclude Include="windows\chromeGeometry.h" />
+    <ClInclude Include="windows\imageImportFiles.h" />
+    <ClInclude Include="objedit\nativeTextInput.h" />
+    <ClInclude Include="objedit\pickRectGeometry.h" />
+    <ClInclude Include="objedit\timedSeries.h" />
     <ClInclude Include="objEdit\procPickXYLockable.h" />
     <ClInclude Include="objedit\winInventoryPickbox.h" />
     <ClInclude Include="objQuadTree.h" />
@@ -689,6 +733,25 @@
     <ClInclude Include="vpFocusWidg.h" />
     <ClInclude Include="windows\about.h" />
     <ClInclude Include="windows\goToCoords.h" />
+    <ClInclude Include="windows\mapProperties.h" />
+    <ClInclude Include="windows\planeProperties.h" />
+    <ClInclude Include="windows\tileProperties.h" />
+    <ClInclude Include="windows\measureOptions.h" />
+    <ClInclude Include="windows\objectToolOptions.h" />
+    <ClInclude Include="windows\objectSearchWindow.h" />
+    <ClInclude Include="windows\logicBrowser.h" />
+    <ClInclude Include="windows\mapShotOptions.h" />
+    <ClInclude Include="windows\tilePicker.h" />
+    <ClInclude Include="hgecompat\src\imguiPointerCapture.h" />
+    <ClInclude Include="windows\mapShotImageWriter.h" />
+    <ClInclude Include="third_party\stb_image_write.h" />
+    <ClInclude Include="windows\mapShotValidation.h" />
+    <ClInclude Include="windows\objectSearch.h" />
+    <ClInclude Include="windows\objectToolGeometry.h" />
+    <ClInclude Include="windows\mediaBrowser.h" />
+    <ClInclude Include="windows\mediaPlayback.h" />
+    <ClInclude Include="windows\assetBrowserUi.h" />
+    <ClInclude Include="windows\tilePropertyGeometry.h" />
     <ClInclude Include="windows\goToLocation.h" />
     <ClInclude Include="windows\imgsetBrowser.h" />
     <ClInclude Include="windows\options.h" />

@@ -6,6 +6,11 @@
 #include "../cInterfaceSheet.h"
 #include "../../shared/gcnWidgets/wIconListbox.h"
 #include "../cNativeController.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#endif
+#include <cstdio>
 
 extern HGE *hge;
 
@@ -108,6 +113,7 @@ winOptions::winOptions() : cWindow(GETL(Lang_Options)) {
                     lmLang->Add(filen);
                 }
             } while (FindNextFile(hFind, &fdata) != 0);
+            FindClose(hFind);
         }
 
         yOffset += 22;
@@ -259,7 +265,19 @@ winOptions::~winOptions() {
 }
 
 void winOptions::Think() {
-
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (!nativeOpen || busy || !GV->editState->_isOnTop()) return;
+    auto* widget = pendingAction; pendingAction = nullptr;
+    if (pendingProbe || widget == butSave) {
+        pendingProbe = false;
+        UpdatedClawExePath();
+    }
+    if (widget) {
+        busy = true;
+        action(gcn::ActionEvent(widget, ""));
+        busy = false;
+    }
+#endif
 }
 
 void winOptions::Draw(int piCode) {
@@ -290,7 +308,14 @@ void winOptions::Draw(int piCode) {
 }
 
 void winOptions::Open(WWD::GAME game) {
+    if (game < WWD::Game_Unknown || game > WWD::Games_Last) game = WWD::Game_Unknown;
+#ifdef WAPMAP_ENABLE_IMGUI
+    myWin.setVisible(false);
+    nativeOpen = positionOnOpen = true;
+    pendingProbe = false; pendingAction = nullptr;
+#else
     cWindow::Open();
+#endif
 
     settingsCategoriesList->setSelected(game);
     optionsForCategory[0]->setVisible(game == WWD::Game_Unknown);
@@ -333,10 +358,21 @@ void winOptions::Open(WWD::GAME game) {
     cboptCrazyHookDebugInfo->setSelected(GV->editState->hNativeController->IsDebugInfoOn());
     cboptCrazyHookGodMode->setSelected(GV->editState->hNativeController->IsGodModeOn());
     cboptCrazyHookArmor->setSelected(GV->editState->hNativeController->IsArmorModeOn());
+#ifdef WAPMAP_ENABLE_IMGUI
+    paths.resize(pathTextFields.size());
+    for (int i = 0; i < static_cast<int>(paths.size()); ++i) UpdateNativePath(i);
+#endif
 }
 
 void winOptions::Close() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    nativeOpen = pendingProbe = false; pendingAction = nullptr;
+#endif
     cWindow::Close();
+    // Executable-change notifications also read these retained fields. Restore
+    // saved paths so a later notification cannot revive a cancelled draft.
+    for (int i = 0; i < static_cast<int>(pathTextFields.size()); ++i)
+        pathTextFields[i]->setText(GV->gamePaths[static_cast<WWD::GAME>(i + WWD::Games_First)]);
     GV->editState->hNativeController->SetPath(GV->gamePaths[WWD::Game_Claw]);
 }
 
@@ -377,6 +413,9 @@ void winOptions::PickAndSetGameLocation(WWD::GAME game) {
     if (GetOpenFileName(&ofn) != 0) {
         char *path = SHR::GetDir(szFileopen);
         pathTextFields[game - WWD::Games_First]->setText(path, true);
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (nativeOpen) UpdateNativePath(game - WWD::Games_First);
+#endif
         GV->SetLastOpenPath(path);
         delete[] path;
     }
@@ -394,6 +433,8 @@ void winOptions::action(const ActionEvent &actionEvent) {
                 !(!strcmp(ddoptLang->getListModel()->getElementAt(ddoptLang->getSelected()).c_str(),
                           GV->Lang->GetName())));
     } else if (actionEvent.getSource() == butSave) {
+        if (ddoptLang->getSelected() < 0 || ddoptLang->getSelected() >= lmLang->getNumberOfElements() ||
+            ddoptGameRes->getSelected() < 0 || ddoptGameRes->getSelected() >= ddoptGameRes->getListModel()->getNumberOfElements()) return;
         for (WWD::GAME i = WWD::Games_First; i <= WWD::Games_Last; ++i) {
             GV->gamePaths[(WWD::GAME)i] = pathTextFields[i - WWD::Games_First]->getText();
             GV->ini->SetValue("Paths", WWD::GAME_NAMES[i], GV->gamePaths[i].c_str());
@@ -451,7 +492,7 @@ void winOptions::action(const ActionEvent &actionEvent) {
         Close();
     } else if (actionEvent.getSource() == pathTextFields[WWD::Game_Claw - WWD::Games_First]) {
         UpdatedClawExePath();
-    } else for (int i = 0; i < WWD::Games_Count; ++i) {
+    } else for (int i = 0; i < static_cast<int>(pathTextFields.size()); ++i) {
         if (actionEvent.getSource() == butPath[i]) {
             PickAndSetGameLocation((WWD::GAME)(i + WWD::Games_First));
             return;
@@ -498,3 +539,153 @@ void winOptions::UpdatedClawExePath(bool forceDetect) {
         labVersion->setVisible(false);
     }
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void winOptions::UpdateNativePath(int index) {
+    if (index < 0 || index >= static_cast<int>(paths.size())) return;
+    const auto text = LegacyText::ToUtf8(pathTextFields[index]->getText(), CP_ACP);
+    std::snprintf(paths[index].data(), paths[index].size(), "%s", text.c_str());
+}
+
+void winOptions::DrawImGui() {
+    if (!nativeOpen || busy || !GV->editState->_isOnTop()) return;
+    const auto area = myWin.getChildrenArea();
+    int width = myWin.getWidth() + 8, height = myWin.getHeight();
+    for (auto* category : optionsForCategory)
+        height = std::max(height, area.y + category->getY() + category->getHeight() + 8);
+    if (positionOnOpen) {
+        const auto* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_FirstUseEver, {0.5f, 0.5f});
+        ImGui::SetNextWindowFocus(); positionOnOpen = false;
+    }
+    ImGui::SetNextWindowSize({static_cast<float>(width), static_cast<float>(height)}, ImGuiCond_Always);
+    const auto cp = LegacyText::CodePage(GV->Lang->GetCode());
+    const auto title = LegacyText::ToUtf8(GETL(Lang_Options), cp) + "###WapMapSettings";
+    bool visible = true;
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton, GETL(Lang_Options));
+        const auto origin = ImGui::GetWindowPos(); auto* draw = ImGui::GetWindowDrawList();
+        const auto position = [&](gcn::Widget* widget) {
+            auto* parent = widget->getParent();
+            const bool inCategory = parent != &myWin;
+            ImGui::SetCursorPos({static_cast<float>(area.x + widget->getX() + (inCategory ? parent->getX() : 0)),
+                static_cast<float>(area.y + widget->getY() + (inCategory ? parent->getY() : 0))});
+        };
+        int selected = std::clamp(settingsCategoriesList->getSelected(), 0, static_cast<int>(optionsForCategory.size()) - 1);
+        ImGui::SetCursorPos({static_cast<float>(area.x), area.y + 8.f});
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x13));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0, 0});
+        if (ImGui::BeginChild("categories", {140.f, static_cast<float>(settingsCategoriesList->getHeight())}, ImGuiChildFlags_NavFlattened)) {
+            for (int i = 0; i < getNumberOfElements(); ++i) {
+                ImGui::PushID(i); const auto p = ImGui::GetCursorScreenPos();
+                const float row = static_cast<float>(settingsCategoriesList->getRowHeight());
+                // The category list is one tab stop; arrows may still visit
+                // every row. Share navigation with the form outside the child.
+                ImGui::PushItemFlag(ImGuiItemFlags_NoTabStop, i != selected);
+                const bool activated = ImGui::InvisibleButton("##category", {140.f, row}, ImGuiButtonFlags_EnableNav);
+                ImGui::PopItemFlag();
+                if (activated || (WapMapImGui::IsKeyboardFocused() && selected != i)) {
+                    selected = i; settingsCategoriesList->setSelected(i);
+                    action(gcn::ActionEvent(settingsCategoriesList, ""));
+                }
+                auto* listDraw = ImGui::GetWindowDrawList();
+                if (selected == i || ImGui::IsItemHovered() || ImGui::IsItemFocused())
+                    listDraw->AddRectFilled(p, {p.x + 140, p.y + row}, selected == i ? IM_COL32(23, 150, 255, 255) : IM_COL32(255, 255, 255, 34));
+                WapMapImGui::Sprite(listDraw, *hge, getIcon(i), {p.x + 4, p.y + 8});
+                const auto caption = getElementAt(i);
+                WapMapImGui::BitmapText(listDraw, *hge, *GV->fntMyriad16, {p.x + 40, p.y + (row - GV->fntMyriad16->GetHeight()) / 2}, caption.c_str());
+                ImGui::PopID();
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleVar(2); ImGui::PopStyleColor();
+        auto* category = optionsForCategory[selected];
+        const auto label = [&](SHR::Lab* lab) {
+            if (lab->getParent() != category || !lab->isLocallyVisible()) return;
+            const ImVec2 p{origin.x + area.x + category->getX() + lab->getX(), origin.y + area.y + category->getY() + lab->getY()};
+            const bool disabled = lab == labGameRes && !ddoptGameRes->isLocallyEnabled();
+            WapMapImGui::BitmapText(draw, *hge, *GV->fntMyriad16, p, lab->getCaption().c_str(), IM_COL32(225, 225, 225, disabled ? 119 : 255));
+        };
+        for (auto* lab : {labLang, labChangesLang, labVersion, labCrazyHookSettings, labGameRes}) label(lab);
+        for (auto* widget : widgetsToDelete) if (auto* lab = dynamic_cast<SHR::Lab*>(widget)) label(lab);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {5.f, std::max(0.f, (20.f - GV->fntMyriad16->GetHeight()) / 2)});
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, WapMapImGui::Grey(0x23));
+        for (auto* dropdown : {ddoptLang, ddoptGameRes}) if (dropdown->getParent() == category) {
+            ImGui::PushID(dropdown); position(dropdown); ImGui::SetNextItemWidth(static_cast<float>(dropdown->getWidth()));
+            auto* model = dropdown->getListModel(); const int index = dropdown->getSelected();
+            const auto preview = index >= 0 && index < model->getNumberOfElements() ? LegacyText::ToUtf8(model->getElementAt(index), cp) : std::string{};
+            ImGui::BeginDisabled(!dropdown->isLocallyEnabled());
+            if (ImGui::BeginCombo("##value", preview.c_str())) {
+                for (int i = 0; i < model->getNumberOfElements(); ++i) {
+                    ImGui::PushID(i); const auto text = LegacyText::ToUtf8(model->getElementAt(i), cp);
+                    if (ImGui::Selectable(text.c_str(), index == i)) {
+                        dropdown->setSelected(i);
+                        if (dropdown == ddoptLang) action(gcn::ActionEvent(ddoptLang, ""));
+                    }
+                    if (index == i) ImGui::SetItemDefaultFocus(); ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::EndDisabled(); ImGui::PopID();
+        }
+        if (selected >= WWD::Games_First && selected <= WWD::Games_Last) {
+            const int index = selected - WWD::Games_First; auto* field = pathTextFields[index];
+            position(field); ImGui::SetNextItemWidth(static_cast<float>(field->getWidth()));
+            const bool entered = ImGui::InputText("##path", paths[index].data(), paths[index].size(), ImGuiInputTextFlags_EnterReturnsTrue);
+            const auto encoded = LegacyText::FromUtf8(paths[index].data(), CP_ACP, 4096);
+            if (!encoded) {
+                draw->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(220, 75, 75, 255));
+                if (ImGui::IsItemHovered()) {
+                    const auto message = LegacyText::ToUtf8(GETL2S("MapProperties", "InvalidText"), cp);
+                    ImGui::SetTooltip("%s", message.c_str());
+                }
+            }
+            if (encoded && (entered || ImGui::IsItemDeactivatedAfterEdit())) {
+                field->setText(*encoded);
+                if (selected == WWD::Game_Claw) pendingProbe = true;
+            }
+        }
+        ImGui::PopStyleColor(); ImGui::PopStyleVar(3);
+        for (auto* checkbox : {cbOptionsAlfaHigherPlanes, cboptSmoothZooming, cboptAutoUpdate, cboptStartMaximized,
+            cboptCrazyHookDebugInfo, cboptCrazyHookGodMode, cboptCrazyHookArmor}) if (checkbox->getParent() == category) {
+            ImGui::PushID(checkbox); position(checkbox); bool value = checkbox->isSelected();
+            ImGui::BeginDisabled(!checkbox->isLocallyEnabled());
+            if (WapMapImGui::BitmapCheckbox(*hge, *GV->fntMyriad16, *GV->hGfxInterface, checkbox->getCaption().c_str(), value)) checkbox->setSelected(value);
+            ImGui::EndDisabled(); ImGui::PopID();
+        }
+        if (selected >= WWD::Games_First && selected <= WWD::Games_Last) {
+            auto* button = butPath[selected - WWD::Games_First]; position(button);
+            ImGui::PushID(button);
+            ImGui::BeginDisabled(pendingAction != nullptr);
+            if (WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface, "", {static_cast<float>(button->getWidth()), static_cast<float>(button->getHeight())})) pendingAction = button;
+            const auto p = ImGui::GetItemRectMin(); const auto* icon = button->getIcon();
+            if (icon) WapMapImGui::Sprite(draw, *hge, icon, {p.x + (button->getWidth() - icon->GetWidth()) / 2, p.y + (button->getHeight() - icon->GetHeight()) / 2});
+            ImGui::EndDisabled();
+            ImGui::PopID();
+        }
+        std::vector<std::optional<std::string>> encodedPaths;
+        bool valid = ddoptLang->getSelected() >= 0 && ddoptLang->getSelected() < lmLang->getNumberOfElements() &&
+            ddoptGameRes->getSelected() >= 0 && ddoptGameRes->getSelected() < ddoptGameRes->getListModel()->getNumberOfElements();
+        for (const auto& path : paths) {
+            encodedPaths.push_back(LegacyText::FromUtf8(path.data(), CP_ACP, 4096));
+            valid = valid && encodedPaths.back().has_value();
+        }
+        ImGui::SetCursorPos({static_cast<float>(width - 108), static_cast<float>(height - 41)});
+        ImGui::BeginDisabled(!valid || pendingAction != nullptr);
+        if (WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface, butSave->getCaption().c_str(), {100, 33})) {
+            for (int i = 0; i < static_cast<int>(pathTextFields.size()); ++i) pathTextFields[i]->setText(*encodedPaths[i]);
+            pendingAction = butSave;
+        }
+        ImGui::EndDisabled();
+        draw->AddLine({origin.x + area.x + 140, origin.y + 25}, {origin.x + area.x + 140, origin.y + height}, IM_COL32(86, 86, 86, 255));
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) visible = false;
+    }
+    ImGui::End();
+    if (!visible) {
+        pendingProbe = false;
+        pendingAction = &myWin;
+    }
+}
+#endif

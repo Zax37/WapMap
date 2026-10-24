@@ -39,19 +39,21 @@ namespace SHR {
         iWidth = 10 + (sprIcon == NULL ? 0 : 16) + (int)GV->fntMyriad16->GetStringWidth(strCaption.c_str());
     }
 
-    ComboBut::ComboBut(cInterfaceSheet *Parts) {
+    ComboBut::ComboBut(cInterfaceSheet *Parts)
+            : hGfx(Parts),
+              mHasMouse(false),
+              mKeyboardFocus(false),
+              mMousePressed(false),
+              iSelectedID(-1),
+              iFocused(-1),
+              fTimer(0) {
         setFocusable(true);
         setFrameSize(0);
 
         addKeyListener(this);
         addMouseListener(this);
         addFocusListener(this);
-        hGfx = Parts;
-        fTimer = 0;
-        iSelectedID = -1;
         adjustSize();
-        mMousePressed = false;
-        iFocused = -1;
     }
 
     void ComboBut::draw(Graphics *graphics) {
@@ -79,6 +81,10 @@ namespace SHR {
             }
             for (++i; i < vEntries.size(); i++) {
                 vEntries[i].UpdateTooltip(false);
+            }
+        } else {
+            for (auto& entry : vEntries) {
+                entry.UpdateTooltip(false);
             }
         }
 

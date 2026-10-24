@@ -14,6 +14,9 @@ namespace ObjEdit {
         WIDG::Viewport *vp;
 
         bool isWarpNotFunctional;
+#ifdef WAPMAP_ENABLE_IMGUI
+        bool native = false, nativeVisible = false, nativePosition = true;
+#endif
     public:
         cInvPickbox(bool isWarpNotFunctional = false);
 
@@ -24,6 +27,10 @@ namespace ObjEdit {
         void SetVisible(bool b);
 
         void SetPosition(int x, int y);
+#ifdef WAPMAP_ENABLE_IMGUI
+        void UseNative();
+        void DrawImGui(int& selection);
+#endif
 
         int GetWidth();
 

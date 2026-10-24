@@ -18,6 +18,7 @@
 #include "../../databanks/tiles.h"
 #include "../../cBrush.h"
 #include "../../cInventoryController.h"
+#include <algorithm>
 
 bool State::ObjSortCoordX(WWD::Object *a, WWD::Object *b) {
     if (GetUserDataFromObj(a)->GetX() == GetUserDataFromObj(b)->GetX())
@@ -789,7 +790,7 @@ int State::EditingWW::RenderPlane(WWD::Plane *plane, int pl) {
     return rcount;
 }
 
-void State::EditingWW::RenderToViewportBuffer() {
+void State::EditingWW::RenderToViewportBuffer(bool exportImage) {
     if (hParser == NULL) {
         q.v[0].z = q.v[1].z = q.v[2].z = q.v[3].z = 1.0f;
         SHR::SetQuad(&q, 0xFF0b0b0b, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
@@ -797,11 +798,14 @@ void State::EditingWW::RenderToViewportBuffer() {
         return;
     }
 
-    GV->sprCheckboard->SetColor(0xFFFFFFFF);
-    for (int y = 0; y <= vPort->GetHeight() / 120; y++)
-        for (int x = 0; x <= vPort->GetWidth() / 120; x++) {
-            GV->sprCheckboard->Render(x * 120, y * 120);
-        }
+    if (exportImage) {
+        hge->Gfx_Clear(dwBG);
+    } else {
+        GV->sprCheckboard->SetColor(0xFFFFFFFF);
+        for (int y = 0; y <= vPort->GetHeight() / 120; y++)
+            for (int x = 0; x <= vPort->GetWidth() / 120; x++)
+                GV->sprCheckboard->Render(x * 120, y * 120);
+    }
 
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
@@ -2308,50 +2312,33 @@ bool State::EditingWW::Render() {
     SHR::SetQuad(&q, 0xFF2f2f2f, 0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT));
     hge->Gfx_RenderQuad(&q);
 
-    GV->sprLogoCaption->Render(8, 5);
-
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
 
-    {
-        // MINIMIZE AND CLOSE BUTTONS
-        int x = hge->System_GetState(HGE_SCREENWIDTH) - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - bMaximized * 2;
-        for (int i = 0; i < LAY_APP_BUTTONS_COUNT; i++) {
-            if (mx > x && mx < x + LAY_APP_BUTTON_W && my > 0 && my < LAY_APPMENU_H) {
-                if (fAppBarTimers[i] < 0.2f) {
-                    fAppBarTimers[i] += hge->Timer_GetDelta();
-                    if (fAppBarTimers[i] > 0.2f) fAppBarTimers[i] = 0.2f;
-                }
-            } else if (fAppBarTimers[i] > 0.0f) {
-                fAppBarTimers[i] -= hge->Timer_GetDelta();
-                if (fAppBarTimers[i] < 0.0f) fAppBarTimers[i] = 0.0f;
-            }
-
-            SHR::SetQuad(&q, SETA(0xFFFFFF, fAppBarTimers[i] * 5.0f * 20.f), x, 0, x + LAY_APP_BUTTON_W, LAY_APPMENU_H);
-            hge->Gfx_RenderQuad(&q);
-
-            int j = (bMaximized && i == 1) ? 3 : i;
-            GV->hGfxInterface->sprAppBar[j]->SetColor(
-                    SETA(0xFFFFFF, (unsigned char) (127.f + fAppBarTimers[i] * 5.0f * 128.f)));
-            GV->hGfxInterface->sprAppBar[j]->Render(x + 10, 5);
-            x += LAY_APP_BUTTON_W;
-        }
-    }
-
     if (hParser != NULL) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        SHR::SetQuad(&q, 0xFF0b0b0b, 0, LAY_MDI_Y,
+                     hge->System_GetState(HGE_SCREENWIDTH),
+                     hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
+        hge->Gfx_RenderQuad(&q);
+#else
         SHR::SetQuad(&q, 0xFF0b0b0b,
                      0, vPort->GetY() + vPort->GetHeight(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
         hge->Gfx_RenderQuad(&q);
         SHR::SetQuad(&q, 0xFF0b0b0b,
                      vPort->GetWidth(), vPort->GetY(), hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - LAY_STATUS_H);
         hge->Gfx_RenderQuad(&q);
+#endif
 
         MDI->Render();
 
+#ifndef WAPMAP_ENABLE_IMGUI
         //mode bar underlay
         hge->Gfx_RenderLine(1, LAY_APPMENU_Y + LAY_APPMENU_H, hge->System_GetState(HGE_SCREENWIDTH) - 1,
                             LAY_APPMENU_Y + LAY_APPMENU_H, GV->colOutline);
+#endif
 
+#ifndef WAPMAP_ENABLE_IMGUI
         if (hmbActive != 0)
             for (int x : hmbActive->vSeparators) {
                 hge->Gfx_RenderLine(x, LAY_MODEBAR_Y + 2,
@@ -2389,6 +2376,7 @@ bool State::EditingWW::Render() {
                                 0);
         GV->fntMyriad16->printf(hge->System_GetState(HGE_SCREENWIDTH) - 170,
                                 y, HGETEXT_RIGHT, "%.1fx", 0, fZoom);
+#endif
     }
 #ifdef SHOWMEMUSAGE
     GV->UpdateMemUsage();
@@ -2410,10 +2398,41 @@ bool State::EditingWW::Render() {
     }
 
     if (!bMaximized) {
-        hge->Gfx_RenderLine(1, 1, hge->System_GetState(HGE_SCREENWIDTH) - 1, 1, GV->colOutline);
-        hge->Gfx_RenderLine(1, 1, 1, hge->System_GetState(HGE_SCREENHEIGHT) - 1, GV->colOutline);
-        hge->Gfx_RenderLine(1, hge->System_GetState(HGE_SCREENHEIGHT), hge->System_GetState(HGE_SCREENWIDTH) - 1, hge->System_GetState(HGE_SCREENHEIGHT), GV->colOutline);
-        hge->Gfx_RenderLine(hge->System_GetState(HGE_SCREENWIDTH), 1, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT) - 1, GV->colOutline);
+        const float width = static_cast<float>(hge->System_GetState(HGE_SCREENWIDTH));
+        const float height = static_cast<float>(hge->System_GetState(HGE_SCREENHEIGHT));
+        hge->Gfx_RenderLine(0, 0, width - 1, 0, GV->colOutline);
+        hge->Gfx_RenderLine(0, 0, 0, height - 1, GV->colOutline);
+        hge->Gfx_RenderLine(0, height - 1, width - 1, height - 1, GV->colOutline);
+        hge->Gfx_RenderLine(width - 1, 0, width - 1, height - 1, GV->colOutline);
+    }
+
+    hge->Gfx_SetTransform(0, 0, 0, 0, 0, 1, 1);
+    hge->Gfx_SetClipping();
+    GV->sprLogoCaption->SetColor(0xFFFFFFFF);
+    GV->sprLogoCaption->Render(8, 5);
+
+    int appBarX = hge->System_GetState(HGE_SCREENWIDTH)
+                  - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - bMaximized * 2;
+    for (int i = 0; i < LAY_APP_BUTTONS_COUNT; i++) {
+        if (mx > appBarX && mx < appBarX + LAY_APP_BUTTON_W
+            && my > 0 && my < LAY_APPMENU_H) {
+            if (fAppBarTimers[i] < 0.2f) {
+                fAppBarTimers[i] += hge->Timer_GetDelta();
+                if (fAppBarTimers[i] > 0.2f) fAppBarTimers[i] = 0.2f;
+            }
+        } else if (fAppBarTimers[i] > 0.0f) {
+            fAppBarTimers[i] -= hge->Timer_GetDelta();
+            if (fAppBarTimers[i] < 0.0f) fAppBarTimers[i] = 0.0f;
+        }
+
+        SHR::SetQuad(&q, SETA(0xFFFFFF, fAppBarTimers[i] * 5.0f * 20.f),
+                     appBarX, 0, appBarX + LAY_APP_BUTTON_W, LAY_APPMENU_H);
+        hge->Gfx_RenderQuad(&q);
+
+        const int iconIndex = (bMaximized && i == 1) ? 3 : i;
+        GV->hGfxInterface->sprAppBar[iconIndex]->SetColor(0xFFFFFFFF);
+        GV->hGfxInterface->sprAppBar[iconIndex]->Render(appBarX + 10, 5);
+        appBarX += LAY_APP_BUTTON_W;
     }
 
     if (hParser == NULL) {
@@ -2450,6 +2469,7 @@ bool State::EditingWW::Render() {
 
             hInvCtrl->DrawDraggedObject();
         } else {
+#ifndef WAPMAP_ENABLE_IMGUI
             q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0x77000000;
 
             q.v[0].x = q.v[3].x = 0;
@@ -2458,10 +2478,11 @@ bool State::EditingWW::Render() {
             q.v[2].y = q.v[3].y = hge->System_GetState(HGE_SCREENHEIGHT);
 
             hge->Gfx_RenderQuad(&q);
+#endif
         }
     }
 
-    if (fade_iAction < 3) {
+    if (_isOnTop() && fade_iAction < 3) {
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = 0xFF000000;
         q.v[0].x = q.v[3].x = 0;
         q.v[0].y = q.v[1].y = LAY_MODEBAR_Y;
@@ -2476,7 +2497,7 @@ bool State::EditingWW::Render() {
 
             hge->Gfx_RenderQuad(&q);
         }
-    } else if (fade_iAction == 3) {
+    } else if (_isOnTop() && fade_iAction == 3) {
         q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = ARGB(255 - int(fade_fAlpha), 0, 0, 0);
         q.v[0].x = q.v[3].x = 0;
         q.v[0].y = q.v[1].y = LAY_MODEBAR_Y;
@@ -2768,6 +2789,76 @@ int State::EditingWW::RenderObject(WWD::Object *hObj, int x, int y, DWORD col) {
 }
 
 void State::EditingWW::PreRender() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (MDI && MDI->GetDocsCount() > 0) {
+        PrepareForDocumentSwitch();
+        DocumentData* const activeDoc = MDI->GetActiveDoc();
+        const int savedActiveTool = iActiveTool;
+        const auto bindDocument = [this](DocumentData* doc) {
+            hParser = doc->hParser;
+            SprBank = doc->hSprBank;
+            hTileset = doc->hTilesBank;
+            hSndBank = doc->hSndBank;
+            hAniBank = doc->hAniBank;
+            hCustomLogics = doc->hCustomLogicBank;
+            hPalettesBank = doc->hPalettesBank;
+            hDataCtrl = doc->hDataCtrl;
+            hPlaneData = doc->hPlaneData;
+            hStartingPosObj = doc->hStartingPosObj;
+            vObjectsPicked = doc->vObjectsPicked;
+            iTileSelectX1 = doc->iTileSelectX1;
+            iTileSelectY1 = doc->iTileSelectY1;
+            iTileSelectX2 = doc->iTileSelectX2;
+            iTileSelectY2 = doc->iTileSelectY2;
+            fCamX = doc->fCamX;
+            fCamY = doc->fCamY;
+            fZoom = doc->fZoom;
+            fDestZoom = doc->fZoom;
+            vPort = doc->hViewport;
+            const int planeCount = hParser->GetPlanesCount();
+            const int selectedPlane = std::clamp(doc->iSelectedPlane, 0, std::max(0, planeCount - 1));
+            doc->iSelectedPlane = selectedPlane;
+            hmbTile->ddActivePlane->setSelected(selectedPlane, false);
+            plMain = hParser->GetMainPlane();
+        };
+
+        int activeTiles = activeDoc ? activeDoc->iTilesOnScreen : 0;
+        int activeObjects = activeDoc ? activeDoc->iObjectsOnScreen : 0;
+        for (int index = 0; index < MDI->GetDocsCount(); ++index) {
+            DocumentData* const doc = MDI->GetDocByIt(index);
+            if (!doc || !doc->hViewport) continue;
+            doc->hViewport->Resize(doc->iViewportWidth, doc->iViewportHeight);
+            bindDocument(doc);
+            MDI->BeginRenderingDoc(index);
+            struct RenderingDocGuard {
+                cMDI* mdi;
+                ~RenderingDocGuard() { mdi->EndRenderingDoc(); }
+            } renderingDocGuard{MDI};
+
+            iActiveTool = doc == activeDoc ? savedActiveTool : EWW_TOOL_NONE;
+            for (auto* plane : hPlaneData) {
+                if (plane->hRB) plane->hRB->Update();
+            }
+            const bool redraw = doc->hViewport->IsMarkedToRedraw();
+            doc->hViewport->Update();
+            if (redraw) {
+                doc->iTilesOnScreen = iTilesOnScreen;
+                doc->iObjectsOnScreen = iObjectsOnScreen;
+            }
+            if (doc == activeDoc) {
+                doc->hViewport->UpdateComposite();
+                activeTiles = doc->iTilesOnScreen;
+                activeObjects = doc->iObjectsOnScreen;
+            }
+        }
+
+        iActiveTool = savedActiveTool;
+        if (activeDoc) bindDocument(activeDoc);
+        iTilesOnScreen = activeTiles;
+        iObjectsOnScreen = activeObjects;
+        return;
+    }
+#endif
     if (hParser != NULL)
         for (int i = 0; i < hParser->GetPlanesCount(); i++) {
             if (hPlaneData[i]->hRB != NULL)
@@ -3379,7 +3470,9 @@ void State::EditingWW::DrawTilePicker() {
                     if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                         iTilePicked = (i < 0 ? i - 1 : i);
                         if (i == -1) {
+#ifndef WAPMAP_ENABLE_IMGUI
                             wintpFillColor->setVisible(1);
+#endif
                         }
                     }
                 } else if (i < 0 && i - 1 == iTilePicked || i >= 0 && i == iTilePicked ||

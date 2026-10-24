@@ -1,4 +1,11 @@
 #include "goToCoords.h"
+#include "coordinateNavigation.h"
+#include "../cInterfaceSheet.h"
+#include <cstdio>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#endif
 #include "../globals.h"
 #include "../langID.h"
 #include "../states/editing_ww.h"
@@ -20,7 +27,7 @@ winGoToCoords::winGoToCoords() : cWindow(GETL2S("Win_GoToCoords", "WinCaption"),
 }
 
 void winGoToCoords::createCoordsInput(const char* label, int i, int offsetY) {
-    static bool isFirst = true;
+    const bool isFirst = i == COORDS_INPUT_WORLD;
 
     char tmp[32];
     sprintf(tmp, "%p", this);
@@ -51,11 +58,17 @@ void winGoToCoords::createCoordsInput(const char* label, int i, int offsetY) {
     tfY[i]->setEnabled(isFirst);
     myWin.add(tfY[i], 25, 65 + offsetY);
 
-    isFirst = false;
 }
 
 void winGoToCoords::Open() {
+    if (!GV->editState->hParser) return;
     setCurCamPos();
+#ifdef WAPMAP_ENABLE_IMGUI
+    syncImGuiFields();
+    myWin.setVisible(false);
+    imguiOpen = imguiPositionOnOpen = true;
+    return;
+#endif
     myWin.setPosition(160, LAY_VIEWPORT_Y + 40);
     myWin.setVisible(true);
     myWin.getParent()->moveToTop(&myWin);
@@ -96,34 +109,19 @@ void winGoToCoords::setCurCamPos() {
 }
 
 void winGoToCoords::goToCoords() {
-    bool worldCoords = rbCoords[COORDS_INPUT_WORLD]->isSelected();
-    auto *editState = GV->editState;
+    const int mode = rbCoords[COORDS_INPUT_WORLD]->isSelected() ? COORDS_INPUT_WORLD : COORDS_INPUT_TILES;
+    navigateToCoords(tfX[mode]->getText().c_str(), tfY[mode]->getText().c_str(), mode == COORDS_INPUT_WORLD);
+}
 
-    WWD::Plane *mainPlane = editState->hParser->GetMainPlane();
-    int tileWidth = mainPlane->GetTileWidth(), tileHeight = mainPlane->GetTileHeight();
+bool winGoToCoords::navigateToCoords(const char* x, const char* y, bool world) {
+    auto* editState = GV->editState;
+    if (!editState->hParser || !editState->_isOnTop()) return false;
+    auto* mainPlane = editState->hParser->GetMainPlane();
+    const int tileWidth = mainPlane->GetTileWidth(), tileHeight = mainPlane->GetTileHeight();
+    const auto point = CoordinateNavigation::Resolve(x, y, world, tileWidth, tileHeight);
+    if (!point) return false;
+    const int pickedX = point->x, pickedY = point->y;
 
-    int pickedX, pickedY;
-    if (!worldCoords) {
-        std::string strX = tfX[COORDS_INPUT_TILES]->getText();
-        if (strX.empty())
-            strX = "0";
-        std::string strY = tfY[COORDS_INPUT_TILES]->getText();
-        if (strY.empty())
-            strY = "0";
-        pickedX = std::stoi(strX.c_str()) * tileWidth + tileWidth/2;
-        pickedY = std::stoi(strY.c_str()) * tileHeight + tileHeight/2;
-
-    } else {
-        std::string strX = tfX[COORDS_INPUT_WORLD]->getText();
-        if (strX.empty())
-            strX = "0";
-        std::string strY = tfY[COORDS_INPUT_WORLD]->getText();
-        if (strY.empty())
-            strY = "0";
-        pickedX = std::stoi(strX.c_str());
-        pickedY = std::stoi(strY.c_str());
-    }
-    
     editState->NavigateToPoint(pickedX, pickedY);
 
     char temp[32];
@@ -137,4 +135,102 @@ void winGoToCoords::goToCoords() {
     tfX[COORDS_INPUT_TILES]->setText(temp);
     sprintf(temp, "%d", (int)(pickedY/tileHeight));
     tfY[COORDS_INPUT_TILES]->setText(temp);
+    return true;
 }
+
+void winGoToCoords::OnDocumentChange() {
+    if (!GV->editState->hParser) {
+        Close();
+    } else if (isOpened()) {
+        setCurCamPos();
+#ifdef WAPMAP_ENABLE_IMGUI
+        syncImGuiFields();
+#endif
+    }
+}
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void winGoToCoords::Close() {
+    imguiOpen = false;
+    cWindow::Close();
+}
+
+void winGoToCoords::syncImGuiFields() {
+    for (int mode = 0; mode < 2; ++mode) {
+        std::snprintf(imguiCoords[mode][0], sizeof(imguiCoords[mode][0]), "%s", tfX[mode]->getText().c_str());
+        std::snprintf(imguiCoords[mode][1], sizeof(imguiCoords[mode][1]), "%s", tfY[mode]->getText().c_str());
+    }
+}
+
+void winGoToCoords::DrawImGui() {
+    if (!imguiOpen) return;
+    if (!GV->editState->hParser) { Close(); return; }
+    if (imguiPositionOnOpen) {
+        auto* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x + 160.f, viewport->Pos.y + LAY_VIEWPORT_Y + 40.f),
+                                ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowFocus();
+        imguiPositionOnOpen = false;
+    }
+    ImGui::SetNextWindowSize(ImVec2(160.f, 228.f), ImGuiCond_Always);
+    const auto label = LegacyText::ToUtf8(GETL2S("Win_GoToCoords", "WinCaption"),
+        LegacyText::CodePage(GV->Lang->GetCode())) + "###WapMapGoToCoords";
+    if (WapMapImGui::BeginFixedWindow(label.c_str(), &imguiOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton,
+                                 GETL2S("Win_GoToCoords", "WinCaption"));
+        const bool canNavigate = GV->editState->_isOnTop();
+        ImGui::BeginDisabled(!canNavigate);
+        const auto children = myWin.getChildrenArea();
+        const float verticalPadding = std::max(0.f, (20.f - GV->fntMyriad16->GetHeight()) * 0.5f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5.f, verticalPadding));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, WapMapImGui::Grey(0x23));
+        bool coordinateSubmitted = false;
+        for (int mode = 0; mode < 2; ++mode) {
+            ImGui::SetCursorPos(ImVec2(children.x + 10.f, children.y + 15.f + mode * 85.f));
+            ImGui::PushID(mode);
+            WapMapImGui::BitmapRadio(*hge, *GV->fntMyriad16, *GV->hGfxInterface,
+                mode == 0 ? GETL2S("Win_GoToCoords", "WorldCoords") : GETL2S("Win_GoToCoords", "TileCoords"),
+                imguiCoordsMode, mode);
+            ImGui::BeginDisabled(imguiCoordsMode != mode);
+            for (int axis = 0; axis < 2; ++axis) {
+                ImGui::PushID(axis);
+                ImGui::SetCursorPos(ImVec2(children.x + 10.f, children.y + 40.f + mode * 85.f + axis * 25.f));
+                WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16,
+                    ImGui::GetCursorScreenPos(), axis == 0 ? "X:" : "Y:",
+                    IM_COL32(225, 225, 225, static_cast<int>(255.f * ImGui::GetStyle().Alpha)));
+                ImGui::SetCursorPos(ImVec2(children.x + 25.f, children.y + 40.f + mode * 85.f + axis * 25.f));
+                ImGui::SetNextItemWidth(120.f);
+                coordinateSubmitted |= ImGui::InputText("##coordinate", imguiCoords[mode][axis], sizeof(imguiCoords[mode][axis]),
+                                 ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll |
+                                 ImGuiInputTextFlags_EnterReturnsTrue);
+                ImGui::PopID();
+            }
+            ImGui::EndDisabled();
+            ImGui::PopID();
+
+        }
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar(3);
+        auto* plane = GV->editState->hParser->GetMainPlane();
+        const bool valid = CoordinateNavigation::Resolve(imguiCoords[imguiCoordsMode][0],
+            imguiCoords[imguiCoordsMode][1], imguiCoordsMode == 0,
+            plane->GetTileWidth(), plane->GetTileHeight()).has_value();
+        ImGui::BeginDisabled(!valid);
+        ImGui::SetCursorPos(ImVec2(children.x + 90.f, children.y + 178.f));
+        const bool go = WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface,
+            GETL2S("Win_GoToCoords", "Go"), ImVec2(60.f, 25.f));
+        ImGui::EndDisabled();
+        if (valid && canNavigate && (go || coordinateSubmitted)) {
+            if (navigateToCoords(imguiCoords[imguiCoordsMode][0], imguiCoords[imguiCoordsMode][1], imguiCoordsMode == 0))
+                syncImGuiFields();
+        }
+        ImGui::EndDisabled();
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
+            imguiOpen = false;
+    }
+    ImGui::End();
+    if (!imguiOpen) cWindow::Close();
+}
+#endif

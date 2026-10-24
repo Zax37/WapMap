@@ -18,6 +18,9 @@ namespace ObjEdit {
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
     };
 
 }

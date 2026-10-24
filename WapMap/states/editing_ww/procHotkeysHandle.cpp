@@ -31,7 +31,7 @@ void State::EditingWW::HandleHotkeys() {
             id += 1;
         objZCoordContext->EmulateClickID(id);
     } else if (iMode == EWW_MODE_OBJECT && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_F) &&
-               hmbObject->butIconSearchObject->isEnabled()) {
+               hmbObject->butIconSearchObject->isLocallyEnabled()) {
         hmbObject->butIconSearchObject->simulatePress();
     } else if (bFocus && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_X) &&
                vObjectsPicked.size() != 0 && iMode == EWW_MODE_OBJECT) {

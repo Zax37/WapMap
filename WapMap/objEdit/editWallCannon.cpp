@@ -5,6 +5,8 @@
 #include "../cObjectUserData.h"
 #include <cmath>
 #include <hgeVector.h>
+#include "cannonGeometry.h"
+#include "../windows/coordinateNavigation.h"
 
 extern HGE *hge;
 
@@ -62,7 +64,8 @@ namespace ObjEdit {
 
         iSpeedX = hTempObj->GetParam(WWD::Param_SpeedX) == 0 ? 500 : hTempObj->GetParam(WWD::Param_SpeedX);
         iSpeedY = hTempObj->GetParam(WWD::Param_SpeedY);
-        iLinearSpeed = sqrt(pow(iSpeedX, 2) + pow(iSpeedY, 2));
+        const auto initial = CannonGeometry::Components(iSpeedX, iSpeedY, bOrient);
+        iLinearSpeed = initial ? initial->magnitude : 500;
 
         labSpeedX = new SHR::Lab(GETL2S("EditObj_WallCannon", "SpeedX"));
         labSpeedX->adjustSize();
@@ -101,11 +104,8 @@ namespace ObjEdit {
         labAngle->adjustSize();
         win->add(labAngle, 5, 110);
 
-        iRealSpeedX = iSpeedX;
-        if (!bOrient)
-            iRealSpeedX *= -1;
-
-        iAngle = CalcAngle(iRealSpeedX, iSpeedY, bOrient);
+        iRealSpeedX = initial ? initial->worldX : bOrient ? 500 : -500;
+        iAngle = initial ? initial->angle : 0;
         sprintf(tmp, "%d", iAngle);
         tfAngle = new SHR::TextField(tmp);
         tfAngle->setDimension(gcn::Rectangle(0, 0, 50, 20));
@@ -120,21 +120,53 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(3990);
             hState->vPort->MarkToRedraw();
         }
+        if (!ReadComponents()) { iSpeedX = 500; iSpeedY = 0; }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
-    int cEditObjWallCannon::CalcAngle(int iX, int iY, bool bOr) {
-        if (!iY) return ((bOr ? iX : -iX) < 0 ? 180 : 0);
-        hgeVector vec(iX, iY);
-        float ret = vec.Angle() * 57.2957795;
-        if (bOr) {
-            if (ret < 0) ret = 360 + ret;
-            return ret;
-        } else {
-            return ret + 180;
+    bool cEditObjWallCannon::ReadComponents() {
+        const auto x = CoordinateNavigation::Parse(tfSpeedX->getText()), y = CoordinateNavigation::Parse(tfSpeedY->getText());
+        const auto velocity = x && y ? CannonGeometry::Components(*x, *y, bOrient) : std::nullopt;
+        tfSpeedX->setMarkedInvalid(!velocity); tfSpeedY->setMarkedInvalid(!velocity);
+        _butSave->setEnabled(velocity.has_value() && !bDraggingArrow);
+        if (!velocity) return false;
+        iSpeedX = velocity->x; iSpeedY = velocity->y; iRealSpeedX = velocity->worldX;
+        iLinearSpeed = velocity->magnitude; iAngle = velocity->angle;
+        tfLinSpeed->setMarkedInvalid(false); tfAngle->setMarkedInvalid(false);
+        UpdateLinearSpeed(); UpdateAngleInput();
+        hState->vPort->MarkToRedraw();
+        return true;
+    }
+
+    void cEditObjWallCannon::SyncInputs() {
+        tfSpeedX->setText(std::to_string(iSpeedX)); tfSpeedY->setText(std::to_string(iSpeedY));
+        tfSpeedX->setMarkedInvalid(false); tfSpeedY->setMarkedInvalid(false);
+        tfLinSpeed->setMarkedInvalid(false); tfAngle->setMarkedInvalid(false);
+        UpdateLinearSpeed(); UpdateAngleInput();
+#ifdef WAPMAP_ENABLE_IMGUI
+        for (auto* field : {tfSpeedX, tfSpeedY, tfLinSpeed, tfAngle}) nativeIntegers.erase(field);
+#endif
+    }
+
+    void cEditObjWallCannon::SetArrowDragging(bool dragging) {
+        bDraggingArrow = dragging; bAllowDragging = !dragging;
+        for (auto* field : {tfSpeedX, tfSpeedY, tfLinSpeed, tfAngle}) field->setEnabled(!dragging);
+        for (auto* radio : rbType) radio->setEnabled(!dragging);
+        _butSave->setEnabled(!dragging);
+    }
+
+    void cEditObjWallCannon::HandleEscape() {
+        if (bDraggingArrow) {
+            SetArrowDragging(false); ReadComponents(); hState->vPort->MarkToRedraw(); return;
         }
+        cObjEdit::HandleEscape();
     }
 
     void cEditObjWallCannon::Save() {
+        if (!ReadComponents()) return;
         hTempObj->SetParam(WWD::Param_SpeedX, atoi(tfSpeedX->getText().c_str()));
         hTempObj->SetParam(WWD::Param_SpeedY, atoi(tfSpeedY->getText().c_str()));
     }
@@ -155,175 +187,70 @@ namespace ObjEdit {
         hState->vPort->MarkToRedraw();
     }
 
-    void cEditObjWallCannon::_Think(bool bConsumed) {
+    void cEditObjWallCannon::_Think(bool consumed) {
+        if (bDraggingArrow && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
+            SetArrowDragging(false); SyncInputs(); ReadComponents(); return;
+        }
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
-        State::EditingWW *mn = GV->editState;
-        if (mn->conMain->getWidgetAt(mx, my) != mn->vPort->GetWidget() || bConsumed) return;
-        int objwx = GetUserDataFromObj(hTempObj)->GetX(),
-            objwy = GetUserDataFromObj(hTempObj)->GetY();
-        int objx = mn->Wrd2ScrX(mn->GetActivePlane(), objwx),
-            objy = mn->Wrd2ScrY(mn->GetActivePlane(), objwy);
-        hgeVector vecDest(iRealSpeedX, iSpeedY);
-        //vecDest.Clamp(200);
+        if (consumed || hState->conMain->getWidgetAt(mx, my) != hState->vPort->GetWidget()) return;
+        const int x = GetUserDataFromObj(hTempObj)->GetX(), y = GetUserDataFromObj(hTempObj)->GetY();
         if (bDraggingArrow) {
-            if (!hge->Input_GetKeyState(HGEK_LBUTTON)) {
-                bDraggingArrow = 0;
-                bAllowDragging = 1;
-
-                char tmp[50];
-                sprintf(tmp, "%d", iSpeedX);
-                tfSpeedX->setText(tmp);
-                sprintf(tmp, "%d", iSpeedY);
-                tfSpeedY->setText(tmp);
-
-                UpdateAngleInput();
-                UpdateLinearSpeed();
-                return;
+            const auto velocity = CannonGeometry::Drag(hState->Scr2WrdX(hState->GetActivePlane(), mx),
+                hState->Scr2WrdY(hState->GetActivePlane(), my), x, y, bOrient, hge->Input_GetKeyState(HGEK_SHIFT));
+            if (velocity) {
+                iSpeedX = velocity->x; iSpeedY = velocity->y; iRealSpeedX = velocity->worldX;
+                iLinearSpeed = velocity->magnitude; iAngle = velocity->angle;
+                hState->vPort->MarkToRedraw();
             }
-            int wmx = mn->Scr2WrdX(mn->GetActivePlane(), mx),
-                wmy = mn->Scr2WrdY(mn->GetActivePlane(), my);
-            int diffX = wmx - objwx, diffY = wmy - objwy;
-            if (hge->Input_GetKeyState(HGEK_SHIFT)) {
-                float ratio;
-                if (diffY != 0) ratio = float(diffX) / float(diffY);
-                else ratio = 2;
-                if (ratio >= -0.50f && ratio <= 0.50)
-                    diffX = 0;
-                else if (ratio > 1.5f || ratio < -1.5f)
-                    diffY = 0;
-                else {
-                    int diff = std::min(abs(diffX), abs(diffY));
-                    if (diffY < 0) {
-                        if (ratio < -0.5f && ratio > -1.5f) {
-                            diffX = diff;
-                            diffY = -diff;
-                        }
-                        else if (ratio > 0.5f && ratio < 1.5f) //upleft
-                        {
-                            diffX = -diff;
-                            diffY = -diff;
-                        }
-                    } else {
-                        if (ratio < -0.5f && ratio > -1.5f) //downleft
-                        {
-                            diffX = -diff;
-                            diffY = diff;
-                        }
-                        else if (ratio > 0.5f && ratio < 1.5f) //downright
-                        {
-                            diffX = diff;
-                            diffY = diff;
-                        }
-                    }
-                }
-            }
-            iSpeedX = diffX;
-            iSpeedY = diffY;
-            iRealSpeedX = iSpeedX;
-            if (!bOrient) {
-                iSpeedX *= -1;
-            }
-            iAngle = CalcAngle(iRealSpeedX, iSpeedY, bOrient);
-            iLinearSpeed = sqrt(pow(iSpeedX, 2) + pow(iSpeedY, 2));
+            return;
         }
-        float z = GV->editState->fZoom;
-        if (mx > objx + (vecDest.x - 30) * z  && mx < objx + (vecDest.x + 30) * z &&
-            my > objy + (vecDest.y - 30) * z && my < objy + (vecDest.y + 30) * z) {
-            if (hge->Input_KeyDown(HGEK_LBUTTON)) {
-                _bDragging = 0;
-                bAllowDragging = 0;
-                bDraggingArrow = 1;
-            }
+        const float screenX = static_cast<float>(hState->Wrd2ScrX(hState->GetActivePlane(), x));
+        const float screenY = static_cast<float>(hState->Wrd2ScrY(hState->GetActivePlane(), y));
+        const float zoom = hState->fZoom;
+        if (mx > screenX + (static_cast<float>(iRealSpeedX) - 30) * zoom && mx < screenX + (static_cast<float>(iRealSpeedX) + 30) * zoom &&
+            my > screenY + (static_cast<float>(iSpeedY) - 30) * zoom && my < screenY + (static_cast<float>(iSpeedY) + 30) * zoom &&
+            hge->Input_KeyDown(HGEK_LBUTTON)) {
+            SyncInputs(); SetArrowDragging(true); _bDragging = false;
         }
     }
 
-    void cEditObjWallCannon::Action(const gcn::ActionEvent &actionEvent) {
-        if (actionEvent.getSource() == win) {
-            bKill = 1;
-            return;
-        } else if (actionEvent.getSource() == rbType[0]) {
+    void cEditObjWallCannon::Action(const gcn::ActionEvent& event) {
+        auto* source = event.getSource();
+        if (source == win) { bKill = true; return; }
+        if (source == rbType[0] || source == rbType[1]) {
+            const bool right = source == rbType[1];
+            const auto x = CoordinateNavigation::Parse(tfSpeedX->getText()), y = CoordinateNavigation::Parse(tfSpeedY->getText());
+            const auto velocity = x && y ? CannonGeometry::Components(*x, *y, right) : std::nullopt;
+            const auto position = std::int64_t(hTempObj->GetParam(WWD::Param_LocationX)) + (right == bOrient || bSkullCannon ? 0 : right ? 49 : -49);
+            if (!velocity || !CannonGeometry::Fits(position)) { rbType[bOrient ? 1 : 0]->setSelected(true); ReadComponents(); return; }
+            bOrient = right;
             if (bSkullCannon) {
-                if (!(hTempObj->GetDrawFlags() & WWD::Flag_dr_Mirror)) {
-                    hTempObj->SetDrawFlags((WWD::OBJ_DRAW_FLAGS) (hTempObj->GetDrawFlags() + WWD::Flag_dr_Mirror));
-                    GetUserDataFromObj(hTempObj)->SyncToObj();
-                }
+                const auto flags = static_cast<int>(hTempObj->GetDrawFlags());
+                hTempObj->SetDrawFlags(static_cast<WWD::OBJ_DRAW_FLAGS>(right ? flags & ~WWD::Flag_dr_Mirror : flags | WWD::Flag_dr_Mirror));
             } else {
-                hTempObj->SetLogic("TowerCannonLeft");
-                hTempObj->SetImageSet("LEVEL_TOWERCANNONLEFT");
+                hTempObj->SetLogic(right ? "TowerCannonRight" : "TowerCannonLeft");
+                hTempObj->SetImageSet(right ? "LEVEL_TOWERCANNONRIGHT" : "LEVEL_TOWERCANNONLEFT");
+                hTempObj->SetParam(WWD::Param_LocationX, static_cast<int>(position));
             }
+            GetUserDataFromObj(hTempObj)->SyncToObj();
+            hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(hTempObj);
+            ReadComponents(); SyncInputs(); return;
+        }
+        if (source == tfSpeedX || source == tfSpeedY) { ReadComponents(); return; }
+        if (source == tfAngle || source == tfLinSpeed) {
+            const auto magnitude = CoordinateNavigation::Parse(tfLinSpeed->getText()), angle = CoordinateNavigation::Parse(tfAngle->getText());
+            const auto velocity = magnitude && angle ? CannonGeometry::Polar(*magnitude, *angle, bOrient) : std::nullopt;
+            tfLinSpeed->setMarkedInvalid(!velocity); tfAngle->setMarkedInvalid(!velocity);
+            _butSave->setEnabled(velocity.has_value());
+            if (!velocity) return;
+            iSpeedX = velocity->x; iSpeedY = velocity->y; iRealSpeedX = velocity->worldX;
+            iLinearSpeed = velocity->magnitude; iAngle = velocity->angle;
+            tfSpeedX->setText(std::to_string(iSpeedX)); tfSpeedY->setText(std::to_string(iSpeedY));
+            tfSpeedX->setMarkedInvalid(false); tfSpeedY->setMarkedInvalid(false);
+            if (source != tfAngle) UpdateAngleInput();
+            if (source != tfLinSpeed) UpdateLinearSpeed();
             hState->vPort->MarkToRedraw();
-            if (bOrient) {
-                if (!bSkullCannon) {
-                    hTempObj->SetParam(WWD::Param_LocationX, hTempObj->GetParam(WWD::Param_LocationX) - 49);
-                    GetUserDataFromObj(hTempObj)->SyncToObj();
-                }
-                bOrient = 0;
-                iRealSpeedX *= -1;
-            }
-        } else if (actionEvent.getSource() == rbType[1]) {
-            if (bSkullCannon) {
-                if (hTempObj->GetDrawFlags() & WWD::Flag_dr_Mirror) {
-                    hTempObj->SetDrawFlags((WWD::OBJ_DRAW_FLAGS) (hTempObj->GetDrawFlags() - WWD::Flag_dr_Mirror));
-                    GetUserDataFromObj(hTempObj)->SyncToObj();
-                }
-            } else {
-                hTempObj->SetLogic("TowerCannonRight");
-                hTempObj->SetImageSet("LEVEL_TOWERCANNONRIGHT");
-            }
-            hState->vPort->MarkToRedraw();
-            if (!bOrient) {
-                if (!bSkullCannon) {
-                    hTempObj->SetParam(WWD::Param_LocationX, hTempObj->GetParam(WWD::Param_LocationX) + 49);
-                    GetUserDataFromObj(hTempObj)->SyncToObj();
-                }
-                bOrient = 1;
-                iRealSpeedX *= -1;
-            }
-        } else if (actionEvent.getSource() == tfAngle) {
-            int v = atoi(tfAngle->getText().c_str());
-            v %= 360;
-            if (v < 0) v += 360;
-            hgeVector vec(iLinearSpeed, 0);
-            vec.Rotate(float(v) / 57.2957795f);
-            iSpeedX = vec.x;
-            iSpeedY = vec.y;
-            iRealSpeedX = iSpeedX;
-            if (!bOrient) iRealSpeedX *= -1;
-            char tmp[50];
-            sprintf(tmp, "%d", iSpeedX);
-            tfSpeedX->setText(tmp);
-            sprintf(tmp, "%d", iSpeedY);
-            tfSpeedY->setText(tmp);
-            iAngle = v;
-        } else if (actionEvent.getSource() == tfSpeedX) {
-            iSpeedX = atoi(tfSpeedX->getText().c_str());
-            iRealSpeedX = iSpeedX;
-            if (!bOrient) iRealSpeedX *= -1;
-            iAngle = CalcAngle(iRealSpeedX, iSpeedY, bOrient);
-            UpdateAngleInput();
-            iLinearSpeed = sqrt(pow(iSpeedX, 2) + pow(iSpeedY, 2));
-            UpdateLinearSpeed();
-        } else if (actionEvent.getSource() == tfSpeedY) {
-            iSpeedY = atoi(tfSpeedY->getText().c_str());
-            iAngle = CalcAngle(iRealSpeedX, iSpeedY, bOrient);
-            UpdateAngleInput();
-            iLinearSpeed = sqrt(pow(iSpeedX, 2) + pow(iSpeedY, 2));
-            UpdateLinearSpeed();
-        } else if (actionEvent.getSource() == tfLinSpeed) {
-            iLinearSpeed = atoi(tfLinSpeed->getText().c_str());
-            hgeVector vec(iLinearSpeed, 0);
-            vec.Rotate(float(iAngle) / 57.2957795f);
-            printf("%f, %f, %d\n", vec.x, vec.y, iAngle);
-            iSpeedX = vec.x;
-            iRealSpeedX = iSpeedX;
-            if (!bOrient) iRealSpeedX *= -1;
-            iSpeedY = vec.y;
-            char tmp[50];
-            sprintf(tmp, "%d", iSpeedX);
-            tfSpeedX->setText(tmp);
-            sprintf(tmp, "%d", iSpeedY);
-            tfSpeedY->setText(tmp);
         }
     }
 

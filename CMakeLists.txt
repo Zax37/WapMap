@@ -40,11 +40,22 @@ SET(SFML_INSTALL_DIR "${PROJECT_SOURCE_DIR}/../SFML-3.0.2-install" CACHE PATH "S
 SET(SFML_DIR "${SFML_INSTALL_DIR}/lib/cmake/SFML")
 SET(CURL_DIR "${PROJECT_SOURCE_DIR}/../curl" CACHE PATH "curl source and build directory")
 SET(CURL_BUILD_DIR "${CURL_DIR}/build" CACHE PATH "curl build directory")
+option(WAPMAP_ENABLE_IMGUI "Enable migrated detachable ImGui panels" OFF)
 
 set(SFML_STATIC_LIBRARIES ON)
 list(PREPEND CMAKE_PREFIX_PATH "${SFML_INSTALL_DIR}")
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
 find_package(ZLIB REQUIRED)
+
+if(WAPMAP_ENABLE_IMGUI)
+    set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/../imgui" CACHE PATH "Dear ImGui source directory")
+    set(IMGUI_SFML_DIR "${PROJECT_SOURCE_DIR}/../imgui-sfml" CACHE PATH "imgui-sfml source directory")
+    if(NOT EXISTS "${IMGUI_DIR}/imgui.h" OR NOT EXISTS "${IMGUI_SFML_DIR}/imgui-SFML.cpp")
+        message(FATAL_ERROR "WAPMAP_ENABLE_IMGUI requires imgui and imgui-sfml checkouts at IMGUI_DIR and IMGUI_SFML_DIR.")
+    endif()
+    set(IMGUI_SFML_ENABLE_VIEWPORTS ON)
+    add_subdirectory("${IMGUI_SFML_DIR}" "${CMAKE_BINARY_DIR}/imgui-sfml")
+endif()
 
 SET(LUA_LIB lua.lib)
 SET(SFML_LIBS SFML::Graphics SFML::Window SFML::System SFML::Audio)
@@ -177,6 +188,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/shared/hashlib/hl_sha512wrapper.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/bodyQuadTree.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cAppMenu.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/cAppMenuNative.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cAutoUpdater.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cBrush.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/cColorPicker.cpp
@@ -208,6 +220,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editAmbient.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editBreakPlank.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCandy.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCandyImGui.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCheckpoint.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCrabNest.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/objedit/editCrate.cpp
@@ -246,6 +259,7 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/modeObject.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/modeTile.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/navigation.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/nativeChrome.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/procHotkeysHandle.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/rendering.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/editing_ww/vpCallback.cpp
@@ -256,15 +270,29 @@ add_executable(WapMap
 	${PROJECT_SOURCE_DIR}/WapMap/states/dialog.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/imageDetails.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/imageImport.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/states/imageImportNative.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/loadmap.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/mapshot.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/states/objpropImGui.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/objedit.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/objprop.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/states/stats.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/states/statsNative.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/vpFocusWidg.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/about.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/imgsetBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/goToCoords.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/mapProperties.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/planeProperties.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/tileProperties.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/measureOptions.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/objectToolOptions.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/objectSearchWindow.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/logicBrowser.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/mapShotOptions.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/tilePicker.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/mapShotImageWriter.cpp
+	${PROJECT_SOURCE_DIR}/WapMap/windows/mediaBrowser.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/goToLocation.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/newMap.cpp
 	${PROJECT_SOURCE_DIR}/WapMap/windows/options.cpp
@@ -279,6 +307,10 @@ add_executable(WapMap
 		WapMap/windows/paletteBrowser.cpp
 		WapMap/windows/paletteBrowser.h)
 
+if(WAPMAP_ENABLE_IMGUI)
+    target_compile_definitions(WapMap PRIVATE WAPMAP_ENABLE_IMGUI)
+endif()
+
 target_link_libraries(WapMap
     ${LUA_LIB}
     ${SFML_LIBS}
@@ -286,6 +318,9 @@ target_link_libraries(WapMap
     ZLIB::ZLIB
     ${OTHER_LIBS}
 )
+if(WAPMAP_ENABLE_IMGUI)
+    target_link_libraries(WapMap ImGui-SFML::ImGui-SFML)
+endif()
 
 target_link_directories(WapMap PRIVATE
     "${CURL_BUILD_DIR}/lib/$<CONFIG>"

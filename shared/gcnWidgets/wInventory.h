@@ -48,6 +48,8 @@ namespace SHR {
         void SetItem(cInventoryItem it) { mItem = it; };
 
         void SetCrab(bool on) { hasCrab = on; }
+        bool HasCrab() const { return hasCrab; }
+        bool IsWarpNotFunctional() const { return isWarpNotFunctional; }
 
     protected:
         guiParts *hGfx;

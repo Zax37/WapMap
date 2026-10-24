@@ -156,7 +156,7 @@ void State::EditingWW::Init() {
 
     vPort = new Viewport(this, 0, LAY_VIEWPORT_Y, hge->System_GetState(HGE_SCREENWIDTH) - 17,
                          hge->System_GetState(HGE_SCREENHEIGHT) - LAY_VIEWPORT_Y - LAY_STATUS_H - 17);
-    vPort->GetWidget()->addMouseListener(this);
+    hDefaultViewport = vPort;
     conMain->add(vPort->GetWidget(), vPort->GetX(), vPort->GetY());
 
     mainListener = new EditingWWMainListener(this);
@@ -167,7 +167,7 @@ void State::EditingWW::Init() {
 
     MDI = new cMDI();
     hAppMenu = new cAppMenu();
-    conMain->add(hAppMenu, LAY_APPMENU_X, LAY_APPMENU_Y);
+    conMain->add(hAppMenu, 0, 0);
 
     hRulers = new cRulers();
 
@@ -329,8 +329,42 @@ void State::EditingWW::Init() {
     hWindows.push_back(hwinImageSetBrowser);
     hWindows.push_back(hwinAbout);
     hWindows.push_back(hwinPaletteBrowser);
+#ifdef WAPMAP_ENABLE_IMGUI
+    hwinFillColor = new winFillColor();
+    hWindows.push_back(hwinFillColor);
+#endif
     hWindows.push_back(hwinGoToCoords);
     hWindows.push_back(hwinLocationsBrowser);
+#ifdef WAPMAP_ENABLE_IMGUI
+    hwinMapProperties = new winMapProperties();
+    hWindows.push_back(hwinMapProperties);
+    hwinPlaneProperties = new winPlaneProperties();
+    hWindows.push_back(hwinPlaneProperties);
+    hwinTileProperties = new winTileProperties();
+    hWindows.push_back(hwinTileProperties);
+    hwinMeasureOptions = new winMeasureOptions();
+    hWindows.push_back(hwinMeasureOptions);
+    hwinDuplicate = new winObjectToolOptions(true);
+    hwinSpacing = new winObjectToolOptions(false);
+    hWindows.push_back(hwinDuplicate);
+    hWindows.push_back(hwinSpacing);
+    hwinObjectBrush = new winObjectBrushOptions();
+    hWindows.push_back(hwinObjectBrush);
+    hwinObjectArea = new winObjectAreaOptions();
+    hWindows.push_back(hwinObjectArea);
+    hwinObjectSearch = new winObjectSearch();
+    hWindows.push_back(hwinObjectSearch);
+    hwinLogicBrowser = new ::winLogicBrowser();
+    hWindows.push_back(hwinLogicBrowser);
+    hwinMapShotOptions = new winMapShotOptions();
+    hWindows.push_back(hwinMapShotOptions);
+    hwinNativeTilePicker = new ::winTilePicker();
+    hWindows.push_back(hwinNativeTilePicker);
+    hwinAnimationBrowser = new winMediaBrowser(false);
+    hwinSoundBrowser = new winMediaBrowser(true);
+    hWindows.push_back(hwinAnimationBrowser);
+    hWindows.push_back(hwinSoundBrowser);
+#endif
 
     for (auto & hWindow : hWindows) {
         SHR::Win *win = hWindow->GetWindow();
@@ -2000,6 +2034,9 @@ void State::EditingWW::SwitchActiveModeMenuBar(cModeMenuBar *n) {
 }
 
 void State::EditingWW::Destroy() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    DestroyNativeChrome();
+#endif
     delete MDI;
     delete hServerIPC;
     if (hParser != NULL) FreeResources();
@@ -2013,7 +2050,7 @@ void State::EditingWW::Destroy() {
     delete sliHor;
     delete conMain;
     delete gui;
-    delete vPort;
+    delete hDefaultViewport;
 }
 
 bool State::EditingWW::Think() {
@@ -2076,6 +2113,15 @@ bool State::EditingWW::Think() {
         if (NewMap_data->bKill)
             NewMap_Close();*/
 
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (FirstRun_data && !FirstRun_data->bKill && FirstRun_data->nativeAction) {
+        const int action = FirstRun_data->nativeAction;
+        FirstRun_data->nativeAction = 0;
+        FirstRun_Action(action == 2);
+    }
+    if (hAppMenu->ThinkNative()) return false;
+    if (ThinkNativeChrome()) return false;
+#endif
     if (FirstRun_data != 0)
         if (FirstRun_data->bKill)
             FirstRun_Close();
@@ -2184,7 +2230,13 @@ bool State::EditingWW::Think() {
     /*if( iMode != EWW_MODE_SIMULATION && hge->Input_GetKeyState(HGEK_CTRL) && hge->Input_KeyDown(HGEK_I) )
 	 hAppMenu->SetFolded(!hAppMenu->IsFolded());*/
 
-    if (hParser == NULL) return false;
+    if (hParser == NULL) {
+        // These windows work on the welcome screen too. Their queued native
+        // actions must run before NewFrame even without a loaded document.
+        hwinOptions->Think();
+        hwinNewMap->Think();
+        return false;
+    }
 
     bool bMouseConsumed = false;
     if (conMain->getWidgetAt(mx, my) != NULL && conMain->getWidgetAt(mx, my) != vPort->GetWidget()) {
@@ -2460,12 +2512,13 @@ void State::EditingWW::GainFocus(const ReturnCode& code, bool bFlipped) {
         break;
         case ReturnCodeType::MapShot:
             if (code.value == 1) {
+#ifdef WAPMAP_ENABLE_IMGUI
+                hwinMapShotOptions->Close();
+#endif
                 winMapShot->setVisible(false);
                 if (cbmsOpenFileDirectory->isSelected()) {
-                    char *command = new char[strlen(tfmsSaveAs->getText().c_str()) + 32];
-                    sprintf(command, "Explorer.exe /select,%s", tfmsSaveAs->getText().c_str());
-                    system(command);
-                    delete[] command;
+                    const auto arguments = std::string("/select,\"") + tfmsSaveAs->getText() + "\"";
+                    ShellExecuteA(hge->System_GetState(HGE_HWND), "open", "explorer.exe", arguments.c_str(), nullptr, SW_SHOWNORMAL);
                 }
             }
         break;
@@ -2517,7 +2570,7 @@ void State::EditingWW::LockToolSpecificFunctions(bool bLock) {
 }
 
 void State::EditingWW::SetTool(int iNewTool) {
-    CloseTool(iActiveTool);
+    CloseTool(iNewTool);
     OpenTool(iNewTool);
     iActiveTool = iNewTool;
 }
@@ -2534,33 +2587,57 @@ void State::EditingWW::OpenTool(int iNewTool) {
         }
         iActiveTool = iNewTool;
         RebuildTilePicker(true);
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinNativeTilePicker->Open();
+#else
         winTilePicker->setVisible(true);
+#endif
     } else if (iNewTool == EWW_TOOL_WRITEID) {
         hmbTile->butIconWriteID->setHighlight(true);
         iTileWriteIDx = iTileWriteIDy = -1;
     } else if (iNewTool == EWW_TOOL_SPACEOBJ) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinSpacing->Open();
+#else
         winSpacing->setVisible(true);
         winSpacing->requestMoveToTop();
+#endif
     } else if (iNewTool == EWW_TOOL_BRUSH) {
         hmbTile->butIconBrush->setHighlight(true);
         iActiveTool = iNewTool;
         iTileDrawMode = EWW_DRAW_POINT;
         RebuildTilePicker(true);
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinNativeTilePicker->Open();
+#else
         if (!winTilePicker->isVisible())
             winTilePicker->setVisible(true);
+#endif
         iLastBrushPlacedX = iLastBrushPlacedY = -1;
     } else if (iNewTool == EWW_TOOL_BRUSHOBJECT) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinObjectBrush->Open();
+#else
         winObjectBrush->setPosition(vPort->GetX(), vPort->GetY() + vPort->GetHeight() - winObjectBrush->getHeight());
         winObjectBrush->setVisible(true);
+#endif
         cbobrApplyScatterSeparately->setEnabled(vObjectsBrushCB.size() > 1);
     } else if (iNewTool == EWW_TOOL_MEASURE) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinMeasureOptions->Open();
+#else
         PutToBottomRight(winMeasureOpt);
         winMeasureOpt->setVisible(true);
+#endif
     } else if (iNewTool == EWW_TOOL_OBJSELAREA) {
         bDragSelection = false;
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinObjectArea->Open();
+#else
         PutToBottomRight(wintoolSelArea);
         wintoolSelArea->setShow(true);
         wintoolSelArea->unDrag();
+#endif
         char label[200];
         sprintf(label, "~w~X1: ~y~%d~w~, Y1: ~y~%d~w~, X2: ~y~%d~w~, Y2: ~y~%d~w~",
                 toolsaMinX, toolsaMinY, toolsaMaxX, toolsaMaxY);
@@ -2608,6 +2685,9 @@ void State::EditingWW::CloseTool(int iNewTool) {
         vTileGhosting.clear();
         vPort->MarkToRedraw();
     } else if (iActiveTool == EWW_TOOL_SPACEOBJ) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinSpacing->Close();
+#endif
         winSpacing->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_BRUSH) {
         hmbTile->butIconBrush->setHighlight(false);
@@ -2615,18 +2695,31 @@ void State::EditingWW::CloseTool(int iNewTool) {
             winTilePicker->setVisible(false);
         }
 
-        if (iTilePicked >= 0 && MDI->GetActiveDoc() != NULL)
-            hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(
-                    iTilePicked)->RemoveSettingsFromContainer(winTilePicker);
+        if (iTilePicked >= 0 && MDI->GetActiveDoc() != NULL) {
+            auto* set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
+            if (set && iTilePicked < set->GetBrushesCount()) set->GetBrushByIterator(iTilePicked)->RemoveSettingsFromContainer(winTilePicker);
+        }
         vTileGhosting.clear();
         iTilePicked = EWW_TILE_NONE;
     } else if (iActiveTool == EWW_TOOL_DUPLICATE) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinDuplicate->Close();
+#endif
         winDuplicate->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_BRUSHOBJECT) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinObjectBrush->Close();
+#endif
         winObjectBrush->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_MEASURE) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinMeasureOptions->Close();
+#endif
         winMeasureOpt->setVisible(false);
     } else if (iActiveTool == EWW_TOOL_OBJSELAREA) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        hwinObjectArea->Close();
+#endif
         wintoolSelArea->setShow(false);
         LockToolSpecificFunctions(false);
     } else if (iActiveTool == EWW_TOOL_EDITOBJ) {
@@ -2694,6 +2787,13 @@ void State::EditingWW::MarkUnsaved(WWD::Parser* context) {
 }
 
 void State::EditingWW::UpdateScrollBars() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    // Each native document owns its scrollbars; these widgets live on the
+    // main window and must never reappear over the welcome screen.
+    sliHor->setVisible(false);
+    sliVer->setVisible(false);
+    return;
+#endif
     if (hParser == NULL) {
         sliHor->setScale(0, 0);
         sliVer->setScale(0, 0);
@@ -2923,13 +3023,19 @@ void State::EditingWW::ToggleFullscreen() {
 
 void State::EditingWW::FixInterfacePositions() {
     conMain->setDimension(gcn::Rectangle(0, 0, hge->System_GetState(HGE_SCREENWIDTH), hge->System_GetState(HGE_SCREENHEIGHT)));
+    hAppMenu->setDimension(gcn::Rectangle(0, 0, hAppMenu->GetMenuWidth(),
+                                          LAY_APPMENU_Y + LAY_APPMENU_H));
     MDI->SetY(LAY_MDI_Y);
     MDI->UpdateMaxTabSize();
     if (hParser) {
         int rulersOffset = hRulers->IsVisible() * 18;
+#ifndef WAPMAP_ENABLE_IMGUI
         vPort->SetPos(1 + rulersOffset, LAY_VIEWPORT_Y + rulersOffset);
         vPort->Resize(hge->System_GetState(HGE_SCREENWIDTH) - 17 - rulersOffset + !bMaximized,
                       hge->System_GetState(HGE_SCREENHEIGHT) - vPort->GetY() - LAY_STATUS_H - 17);
+#else
+        vPort->SetPos(0, 0);
+#endif
         sliHor->setDimension(gcn::Rectangle(vPort->GetX() - rulersOffset - 1, vPort->GetY() + vPort->GetHeight(),
                 vPort->GetWidth() + rulersOffset + 3, 18
         ));
@@ -3182,9 +3288,35 @@ void State::EditingWW::SyncLogicBrowser() {
 }
 
 void State::EditingWW::DocumentSwitched() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    Viewport *nextViewport = MDI->GetActiveDoc()
+        ? MDI->GetActiveDoc()->hViewport
+        : hDefaultViewport;
+    if (vPort && vPort != nextViewport) vPort->SetCompositeEnabled(false);
+    if (nextViewport && MDI->GetActiveDoc()) nextViewport->SetCompositeEnabled(true);
+    if (nextViewport && vPort != nextViewport) {
+        if (vPort && conMain) conMain->remove(vPort->GetWidget());
+        vPort = nextViewport;
+        vPort->SetPos(0, 0);
+        conMain->add(vPort->GetWidget(), 0, 0);
+        conMain->moveToTop(vPort->GetWidget());
+    }
+#else
+    if (vPort != hDefaultViewport) {
+        if (vPort && conMain) conMain->remove(vPort->GetWidget());
+        vPort = hDefaultViewport;
+        vPort->SetPos(0, LAY_VIEWPORT_Y);
+        conMain->add(vPort->GetWidget(), vPort->GetX(), vPort->GetY());
+        conMain->moveToTop(vPort->GetWidget());
+    }
+#endif
     vObjectsHL.clear();
     sliVer->setVisible(MDI->GetActiveDoc() != NULL);
     sliHor->setVisible(MDI->GetActiveDoc() != NULL);
+#ifdef WAPMAP_ENABLE_IMGUI
+    sliVer->setVisible(false);
+    sliHor->setVisible(false);
+#endif
     winWelcome->setVisible(MDI->GetActiveDoc() == NULL);
     sliZoom->setVisible(MDI->GetActiveDoc() != NULL);
     butMicroTileCB->setVisible(MDI->GetActiveDoc() != NULL);
@@ -3474,36 +3606,37 @@ void State::EditingWW::SyncWorldOptionsWithParser() {
     cbwpZCoord->setSelected(hParser->GetFlag(WWD::Flag_w_UseZCoords));
 }
 
-void State::EditingWW::SaveWorldOptions() {
+bool State::EditingWW::SaveWorldOptions() {
+    if (!hParser) return false;
     if (!strlen(tfwpName->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoName"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     if (!strlen(tfwpAuthor->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoAuthor"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     if (!strlen(tfwpREZ->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoRez"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     if (!strlen(tfwpTiles->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoTiles"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     if (!strlen(tfwpPalette->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoPalette"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     if (!strlen(tfwpExe->getText().c_str())) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("MapProperties", "NoExe"), ST_DIALOG_ICON_ERROR, ST_DIALOG_BUT_OK));
-        return;
+        return false;
     }
     winWorld->setVisible(false);
     bool bchange = false;
@@ -3557,6 +3690,7 @@ void State::EditingWW::SaveWorldOptions() {
     }*/
     if (bchange)
         MarkUnsaved();
+    return true;
 }
 
 void State::EditingWW::UpdateSettings() {

@@ -67,11 +67,16 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(1000);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjTreasure::~cEditObjTreasure() {
         for (auto & i : rbType)
             delete i;
+        delete cbAddGlitter;
         delete win;
         hState->vPort->MarkToRedraw();
     }
@@ -156,4 +161,12 @@ namespace ObjEdit {
                 }
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjTreasure::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        DrawNativeInventory(iTreasuresID, rbType, 31, -1);
+        EndNativeWindow();
+    }
+#endif
 }

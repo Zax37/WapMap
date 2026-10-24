@@ -18,6 +18,9 @@ namespace ObjEdit {
 
         friend class cObjPropVP;
 
+    protected:
+        void _Think(bool bMouseConsumed) override;
+
     public:
         cEditObjWarp(WWD::Object *obj, State::EditingWW *st);
 
@@ -28,6 +31,9 @@ namespace ObjEdit {
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         bool bPick;
 

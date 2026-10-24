@@ -361,8 +361,12 @@ WWD::Object *State::EditingWW::GetObjUnderWorldPos(int mx, int my) {
 }
 
 void State::EditingWW::ShowAndUpdateDuplicateMenu() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    hwinDuplicate->Open();
+#else
     winDuplicate->setVisible(1);
     tfdTimes->requestFocus();
+#endif
 }
 
 bool State::EditingWW::IsEditableObject(WWD::Object* obj, ObjEdit::cObjEdit** hEdit) {

@@ -3,6 +3,8 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
+#include "pickRectGeometry.h"
+#include <limits>
 
 extern HGE *hge;
 
@@ -32,12 +34,13 @@ namespace ObjEdit {
         int dir = obj->GetParam(WWD::Param_Direction);
         int speed = hTempObj->GetParam((dir == 8 || dir == 2) ? WWD::Param_SpeedY : WWD::Param_SpeedX);
         if (speed < 0) {
-            speed *= -1;
+            speed = speed == std::numeric_limits<int>::min() ? std::numeric_limits<int>::max() : -speed;
             hTempObj->SetParam((dir == 8 || dir == 2) ? WWD::Param_SpeedY : WWD::Param_SpeedX, speed);
-            if (dir == 8) SetDirection(2);
-            else if (dir == 2) SetDirection(8);
-            else if (dir == 6) SetDirection(4);
-            else if (dir == 4) SetDirection(6);
+            if (dir == 8) dir = 2;
+            else if (dir == 2) dir = 8;
+            else if (dir == 6) dir = 4;
+            else if (dir == 4) dir = 6;
+            SetDirection(dir);
         }
         sprintf(tmp, "%d", speed == 0 ? 100 : speed);
         tfSpeed = new SHR::TextField(tmp);
@@ -95,6 +98,7 @@ namespace ObjEdit {
         butDir[3]->setHighlight(dir == 4);
 
         bPick = 0;
+        bDrag = 0;
 
         xoffset = 0;
 
@@ -157,6 +161,10 @@ namespace ObjEdit {
         }
 
         UpdateRectMarks();
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjProjectile::~cEditObjProjectile() {
@@ -164,6 +172,10 @@ namespace ObjEdit {
         delete labY1;
         delete labX2;
         delete labY2;
+        delete tfX1;
+        delete tfY1;
+        delete tfX2;
+        delete tfY2;
         delete butPick;
         delete labActivRect;
         for (int i = 0; i < 4; i++)
@@ -375,18 +387,11 @@ namespace ObjEdit {
         int ax = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
                 ay = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
 
-        if (ax < iDragX) {
-            hTempObj->SetParam(WWD::Param_MinX, ax);
-            hTempObj->SetParam(WWD::Param_MaxX, iDragX);
-        } else {
-            hTempObj->SetParam(WWD::Param_MaxX, ax);
-        }
-        if (ay < iDragY) {
-            hTempObj->SetParam(WWD::Param_MinY, ay);
-            hTempObj->SetParam(WWD::Param_MaxY, iDragY);
-        } else {
-            hTempObj->SetParam(WWD::Param_MaxY, ay);
-        }
+        const auto bounds = PickRectGeometry::FromDrag(iDragX, iDragY, ax, ay);
+        hTempObj->SetParam(WWD::Param_MinX, bounds.x1);
+        hTempObj->SetParam(WWD::Param_MinY, bounds.y1);
+        hTempObj->SetParam(WWD::Param_MaxX, bounds.x2);
+        hTempObj->SetParam(WWD::Param_MaxY, bounds.y2);
 
         if (iDragmX != mx || iDragmY != my) {
             iDragmX = mx;

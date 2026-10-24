@@ -59,6 +59,10 @@ namespace ObjEdit {
         win->add(tfThrows, xoffset + 145, 40);
 
         _butSave->setEnabled(hRectPick->isValid());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjLavaHand::~cEditObjLavaHand() {
@@ -90,9 +94,8 @@ namespace ObjEdit {
     }
 
     void cEditObjLavaHand::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed)
-            hRectPick->Think();
-        _butSave->setEnabled(hRectPick->isValid());
+        hRectPick->Think(bMouseConsumed);
+        _butSave->setEnabled(hRectPick->isValid() && !hRectPick->IsPicking());
     }
 
     

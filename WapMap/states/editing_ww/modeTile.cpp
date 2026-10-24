@@ -80,8 +80,10 @@ bool State::EditingWW::TileThink(bool pbConsumed) {
         iActiveTool == EWW_TOOL_WRITEID) {
         bool bVPfocused = (conMain->getWidgetAt(mx, my) == vPort->GetWidget() && !pbConsumed);
         int tgSize = vTileGhosting.size();
+#ifndef WAPMAP_ENABLE_IMGUI
         if (wintpFillColor->isVisible() != (iTilePicked == EWW_TILE_FILL))
             wintpFillColor->setVisible((iTilePicked == EWW_TILE_FILL));
+#endif
         if ((iActiveTool == EWW_TOOL_BRUSH && !bVPfocused))
             vTileGhosting.clear();
         if (bVPfocused) {
@@ -682,9 +684,11 @@ void State::EditingWW::RebuildTilePicker(bool forceSliderRefresh) {
     if (iActiveTool == EWW_TOOL_BRUSH) {
         iTilePickerOffUp = 0;
         iTilePickerOffDown = 60;
-        if (iTilePicked != -1) {
-            cBrush *br = hTileset->GetSet(GetActivePlane()->GetImageSet(0))->GetBrushByIterator(iTilePicked);
-            if (iTilePicked >= 0 && br->HasSettings())
+        auto* set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
+        if (!set || iTilePicked < 0 || iTilePicked >= set->GetBrushesCount()) iTilePicked = EWW_TILE_NONE;
+        if (iTilePicked >= 0) {
+            cBrush *br = set->GetBrushByIterator(iTilePicked);
+            if (br->HasSettings())
                 iTilePickerOffDown += 10 + br->GetSettingsHeight();
         }
     } else {
@@ -725,7 +729,8 @@ void State::EditingWW::HandleBrushSwitch(int itOld, int itNew) {
     bool changed = false;
     int oOff = 0, nOff = 0;
     cTileImageSet *set = hTileset->GetSet(GetActivePlane()->GetImageSet(0));
-    if (itOld >= 0 && set->GetBrushByIterator(itOld)->HasSettings()) {
+    if (!set) return;
+    if (itOld >= 0 && itOld < set->GetBrushesCount() && set->GetBrushByIterator(itOld)->HasSettings()) {
         oOff = set->GetBrushByIterator(itOld)->GetSettingsHeight() + 10;
         set->GetBrushByIterator(itOld)->RemoveSettingsFromContainer(winTilePicker);
         changed = true;
@@ -736,7 +741,7 @@ void State::EditingWW::HandleBrushSwitch(int itOld, int itNew) {
             slitpiPicker->setValue(slitpiPicker->getValue() + (nOff - oOff));
         changed = false;
     }
-    if (itNew >= 0 && set->GetBrushByIterator(itNew)->HasSettings()) {
+    if (itNew >= 0 && itNew < set->GetBrushesCount() && set->GetBrushByIterator(itNew)->HasSettings()) {
         nOff = set->GetBrushByIterator(itNew)->GetSettingsHeight() + 10;
         set->GetBrushByIterator(itNew)->AddSettingsToContainer(winTilePicker, 5,
                                                                winTilePicker->getHeight() - 60 -

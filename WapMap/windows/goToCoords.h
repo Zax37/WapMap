@@ -19,11 +19,24 @@ private:
     void createCoordsInput(const char* label, int i, int offsetY);
     void setCurCamPos();
     void goToCoords();
+    bool navigateToCoords(const char* x, const char* y, bool world);
+#ifdef WAPMAP_ENABLE_IMGUI
+    bool imguiOpen{}, imguiPositionOnOpen{};
+    int imguiCoordsMode{};
+    char imguiCoords[2][2][32]{};
+    void syncImGuiFields();
+#endif
 
 public:
     winGoToCoords();
 
     void Open() override;
+    void OnDocumentChange() override;
+#ifdef WAPMAP_ENABLE_IMGUI
+    void Close() override;
+    void DrawImGui() override;
+    bool isOpened() override { return imguiOpen; }
+#endif
 
     void action(const ActionEvent &actionEvent) override;
 };

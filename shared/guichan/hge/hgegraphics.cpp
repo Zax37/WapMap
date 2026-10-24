@@ -100,6 +100,8 @@ namespace gcn {
         Graphics::popClipArea();
 
         if (mClipStack.empty()) {
+            mClipNull = false;
+            hge->Gfx_SetTransform();
             hge->Gfx_SetClipping();
 
             return;

@@ -43,13 +43,13 @@ namespace ObjEdit {
 
         bool isValid();
 
-        bool IsEnabled() { return butPick->isEnabled(); };
+        bool IsEnabled() { return butPick->isLocallyEnabled(); };
 
         void setAllowEmpty(bool b);
 
         void setAllowEmptyAxis(bool b);
 
-        void Think();
+        void Think(bool mouseConsumed = false);
 
         int getValue(int i) { return atoi(tf[i]->getText().c_str()); };
 

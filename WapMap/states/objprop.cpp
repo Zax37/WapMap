@@ -1582,6 +1582,9 @@ void State::ObjProp::Destroy() {
 }
 
 bool State::ObjProp::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    hProp->ThinkImGui();
+#else
     GV->Console->Think();
     try {
         gui->logic();
@@ -1590,6 +1593,7 @@ bool State::ObjProp::Think() {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
     }
+#endif
     if (hProp->Kill()) {
         int value = bMoveObject;
         if ((bMoveObject || mainSt->bEditObjDelete) && hProp->Canceled()) {
@@ -1613,11 +1617,18 @@ bool State::ObjProp::Think() {
         ptr[3] = source->GetRect().y2;
         _flipMe({ ReturnCodeType::ObjectProp, reinterpret_cast<std::intptr_t>(ptr) });
         hProp->SwapDone();
+#ifdef WAPMAP_ENABLE_IMGUI
+        hProp->nativeSuspended = true;
+#endif
     }
     return false;
 }
 
 bool State::ObjProp::Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    hProp->DrawImGui(_isOnTop());
+    return false;
+#endif
     try {
         gui->draw();
     }
@@ -1630,6 +1641,9 @@ bool State::ObjProp::Render() {
 }
 
 void State::ObjProp::GainFocus(const ReturnCode& code, bool bFlipped) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    hProp->nativeSuspended = false;
+#endif
     if (bFlipped) {
         if (code.type == ReturnCodeType::ObjPropSelectedValues) {
             if (code.value != 0) {
@@ -1643,6 +1657,9 @@ void State::ObjProp::GainFocus(const ReturnCode& code, bool bFlipped) {
                 else if (hProp->iPickType == PickRect_Hit) dest = hProp->guirectHit;
                 else if (hProp->iPickType == PickRect_Attack) dest = hProp->guirectAttack;
                 dest->SetRect(WWD::Rect(ret[0], ret[1], ret[2], ret[3]));
+#ifdef WAPMAP_ENABLE_IMGUI
+                for (auto* field : {dest->tfX1, dest->tfY1, dest->tfX2, dest->tfY2}) hProp->nativeFields.erase(field);
+#endif
                 delete[] ret;
             }
         }

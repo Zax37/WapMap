@@ -47,6 +47,8 @@ namespace State {
         int alt_width, alt_height;
         char alt_name[64], alt_author[64];
         bool wasRendered = false;
+        bool finishing = false;
+        int loadError = -1;
 
     public:
         LoadMap(WWD::Parser* parser);

@@ -14,6 +14,11 @@
 #include "../databanks/palettes.h"
 #include "../version.h"
 #include <cstdint>
+#include <cstdio>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#endif
 
 structProgressInfo _ghProgressInfo;
 
@@ -48,7 +53,7 @@ State::LoadMap::LoadMap(WWD::Parser* parser) {
     szFilename[0] = '-';
     szFilename[1] = '\0';
 
-    mapLoading = std::async(std::launch::async, [parser, this]() {
+    mapLoading = std::async(std::launch::async, [parser]() {
         auto* dd = new DocumentData;
         dd->iWapMapBuild = -1;
         dd->iMapBuild = 1;
@@ -58,8 +63,6 @@ State::LoadMap::LoadMap(WWD::Parser* parser) {
         parser->SetCustomMetaSerializer(metaHandler);
         parser->SetFilePath("");
         parser->UpdateDate();
-
-        while (!wasRendered);
 
         return dd;
     });
@@ -97,19 +100,8 @@ DocumentData* State::LoadMap::MapLoadTask() {
             hParser->LoadFromStream(&is);
         }
     } catch (WWD::Exception &exc) {
-#ifdef BUILD_DEBUG
-        GV->Console->Printf("~r~WWD exception: (~y~%s~r~:~y~%d~r~) [~y~%d~r~]", exc.szFile, exc.iLine, exc.iErrorCode);
-#else
-        GV->Console->Printf("~r~WWD exception [~y~%d~r~]", exc.iErrorCode);
-#endif
-        char tmp[256];
-        sprintf(tmp,
-                "%s. \n%s:\n%s: %d",
-                GETL(Lang_ErrorOpeningFile),
-                GETL(Lang_ErrorInfo),
-                GETL(Lang_Number),
-                exc.iErrorCode);
-        GV->StateMgr->Push(new State::Dialog(PRODUCT_NAME, tmp, ST_DIALOG_ICON_ERROR));
+        // Published to Think by future::get; worker code does not touch GUI.
+        loadError = exc.iErrorCode;
 
         delete hParser;
         delete metaHandler;
@@ -118,10 +110,6 @@ DocumentData* State::LoadMap::MapLoadTask() {
     }
 
     dd->hParser = hParser;
-    barWhole->setProgress(100);
-
-    while (!wasRendered) {}
-
     return dd;
 }
 
@@ -175,6 +163,7 @@ void State::LoadMap::Init() {
 }
 
 void State::LoadMap::Destroy() {
+    if (mapLoading.valid()) mapLoading.wait();
     delete winLoad;
     delete barWhole;
     delete barAction;
@@ -192,16 +181,31 @@ void State::LoadMap::Destroy() {
 }
 
 bool State::LoadMap::Think() {
+    if (finishing || !wasRendered) return false;
     GV->Console->Think();
+#ifndef WAPMAP_ENABLE_IMGUI
     try {
         gui->logic();
     } catch (gcn::Exception &exc) {
         GV->Console->Printf("~r~Guichan exception: ~w~%s (%s:%d)", exc.getMessage().c_str(), exc.getFilename().c_str(),
                             exc.getLine());
     }
+#endif
 
     if (mapLoading.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
-        auto dd = mapLoading.get();
+        finishing = true;
+        DocumentData* dd = nullptr;
+        try { dd = mapLoading.get(); }
+        catch (const std::exception& error) {
+            State::MessageBox(PRODUCT_NAME, error.what(), ST_DIALOG_ICON_ERROR);
+        }
+        if (loadError >= 0) {
+            char message[512];
+            std::snprintf(message, sizeof(message), "%s.\n%s:\n%s: %d", GETL(Lang_ErrorOpeningFile),
+                GETL(Lang_ErrorInfo), GETL(Lang_Number), loadError);
+            GV->Console->Printf("~r~WWD exception [~y~%d~r~]", loadError);
+            State::MessageBox(PRODUCT_NAME, message, ST_DIALOG_ICON_ERROR);
+        }
 
         if (dd) {
             if (alt_ptr) {
@@ -336,6 +340,29 @@ bool State::LoadMap::Think() {
 }
 
 bool State::LoadMap::Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    const auto* viewport = ImGui::GetMainViewport();
+    const auto title = LegacyText::ToUtf8(winLoad->getCaption(), LegacyText::CodePage(GV->Lang->GetCode())) + "###WapMapLoadMap";
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_Always, {0.5f, 0.5f});
+    ImGui::SetNextWindowSize({420, 205}, ImGuiCond_Always);
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse, false)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, nullptr, winLoad->getCaption().c_str());
+        ImGui::SetCursorPos({12, 34});
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, ImGui::GetCursorScreenPos(), GETL(Lang_Progress));
+        ImGui::SetCursorPos({12, 59});
+        ImGui::ProgressBar(-1.f - static_cast<float>(ImGui::GetTime()), {396, 28}, "");
+        ImGui::SetCursorPos({12, 101});
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, ImGui::GetCursorScreenPos(), GETL(Lang_ActualOperation));
+        ImGui::SetCursorPos({12, 126});
+        if (ImGui::BeginChild("description", {396, 62}, ImGuiChildFlags_None))
+            WapMapImGui::WrappedBitmapMarkupText(*hge, *GV->fntMyriad16, labDesc->getCaption().c_str(), 380);
+        ImGui::EndChild();
+    }
+    ImGui::End();
+    wasRendered = true;
+    return false;
+#else
     try {
         gui->draw();
         wasRendered = true;
@@ -345,6 +372,7 @@ bool State::LoadMap::Render() {
     }
     GV->Console->Render();
     return false;
+#endif
 }
 
 /*void State::LoadMap::ParallelTrigger() {

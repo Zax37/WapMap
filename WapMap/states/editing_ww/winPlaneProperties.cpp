@@ -249,7 +249,10 @@ void State::EditingWW::SyncPlaneProperties() {
     //conpmPlanes->setHeight(hParser->GetPlanesCount()*19);
 }
 
-void State::EditingWW::SavePlaneProperties() {
+bool State::EditingWW::SavePlaneProperties() {
+    if (!hParser || lbpmPlanes->getSelected() < 0 || lbpmPlanes->getSelected() > hParser->GetPlanesCount()) return false;
+    const int tileset = ddpmTileSet->getSelected();
+    if (!ddpmTileSet->getListModel() || tileset < 0 || tileset >= ddpmTileSet->getListModel()->getNumberOfElements()) return false;
     WWD::Plane *pl = NULL;
     bool bAddingNew = (lbpmPlanes->getSelected() == hParser->GetPlanesCount());
     if (!bAddingNew)
@@ -258,33 +261,33 @@ void State::EditingWW::SavePlaneProperties() {
         if (!strcmp(tfpmName->getText().c_str(), hParser->GetPlane(i)->GetName()) && lbpmPlanes->getSelected() != i) {
             GV->StateMgr->Push(
                     new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "NameTaken"), ST_DIALOG_ICON_ERROR));
-            return;
+            return false;
         }
     }
     if (!bAddingNew && (pl->GetFlags() & WWD::Flag_p_MainPlane) && !cbpmFlagMainPlane->isSelected()) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "MainPlaneUncheck"), ST_DIALOG_ICON_ERROR));
-        return;
+        return false;
     }
     if (tfpmName->getText().length() == 0) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "NoPlaneName"), ST_DIALOG_ICON_ERROR));
-        return;
+        return false;
     }
     if (atoi(tfpmPlaneSizeX->getText().c_str()) <= 0 || atoi(tfpmPlaneSizeY->getText().c_str()) <= 0) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidPlaneSize"), ST_DIALOG_ICON_ERROR));
-        return;
+        return false;
     }
     if (atoi(tfpmMovX->getText().c_str()) < 0 || atoi(tfpmMovY->getText().c_str()) < 0) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidMoveMod"), ST_DIALOG_ICON_ERROR));
-        return;
+        return false;
     }
     if (atoi(tfpmTileSizeX->getText().c_str()) <= 0 || atoi(tfpmTileSizeY->getText().c_str()) <= 0) {
         GV->StateMgr->Push(
                 new State::Dialog(PRODUCT_NAME, GETL2S("PlaneProperties", "InvalidTileSize"), ST_DIALOG_ICON_ERROR));
-        return;
+        return false;
     }
     bool bChange = 0, bZCoordchange = 0, bDimChange = 0;
     if (bAddingNew) {
@@ -488,6 +491,7 @@ void State::EditingWW::SavePlaneProperties() {
         SyncPlaneProperties();
         MarkUnsaved();
     }
+    return true;
 }
 
 void State::EditingWW::DeletePlaneProperties() {

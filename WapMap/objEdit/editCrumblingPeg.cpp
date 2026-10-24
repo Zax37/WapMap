@@ -4,6 +4,10 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -59,6 +63,10 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(2000);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjCrumblingPeg::~cEditObjCrumblingPeg() {
@@ -101,4 +109,31 @@ namespace ObjEdit {
                                                                                                           dy + 105);
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjCrumblingPeg::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        if (rbType[0]) {
+            const auto origin = ImGui::GetWindowPos();
+            const float top = ImGui::GetFrameHeight();
+            WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16,
+                {origin.x + 6, origin.y + top + 6}, GETL2S("EditObj_CrumblingPeg", "Imageset"));
+            for (int i = 0; i < 2; ++i) {
+                auto* asset = hState->SprBank->GetAssetByID(i ? "LEVEL_CRUMBLINPEG1" : "LEVEL_CRUMBLINPEG2");
+                auto* image = asset && asset->GetSpritesCount() > 0 ? asset->GetIMGByIterator(0) : nullptr;
+                auto* sprite = image && image->GetSprite() ? image->GetSprite() : GV->sprSmiley;
+                ImGui::PushID(i);
+                ImGui::SetCursorPos({27.f + i * 90, top + 31});
+                const auto p = ImGui::GetCursorScreenPos();
+                ImGui::BeginDisabled(nativeAction != nullptr);
+                const bool hit = ImGui::InvisibleButton("preview", {48, 48}, ImGuiButtonFlags_EnableNav);
+                AssetBrowserUi::Preview(*hge, sprite, p, 48, false, false, rbType[i]->isSelected(),
+                    ImGui::IsItemHovered() || WapMapImGui::IsKeyboardFocused());
+                if (hit) { rbType[i]->setSelected(true); nativeAction = rbType[i]; }
+                ImGui::EndDisabled(); ImGui::PopID();
+            }
+        }
+        EndNativeWindow();
+    }
+#endif
 }

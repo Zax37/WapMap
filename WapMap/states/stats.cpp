@@ -20,6 +20,10 @@ State::MapStats::MapStats(WWD::Parser *hp) {
 }
 
 void State::MapStats::Init() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    InitNative();
+    return;
+#endif
     gui = new gcn::Gui();
     gui->setGraphics(GV->gcnGraphics);
     gui->setInput(GV->gcnInput);
@@ -172,10 +176,16 @@ void State::MapStats::Init() {
 }
 
 void State::MapStats::Destroy() {
-
+#ifdef WAPMAP_ENABLE_IMGUI
+    DestroyNative();
+#endif
 }
 
 bool State::MapStats::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (bKill) _popMe({});
+    return false;
+#endif
     GV->Console->Think();
     try {
         gui->logic();
@@ -190,6 +200,9 @@ bool State::MapStats::Think() {
 }
 
 bool State::MapStats::Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return RenderNative();
+#endif
     try {
         gui->draw();
     }

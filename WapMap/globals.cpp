@@ -112,7 +112,7 @@ cGlobals::cGlobals() {
     Console->AddCommand("flushlua", "Reloads the interpreter.", ConFlushLua);
     Console->AddCommand("luabuf", "Prints Lua buffer.", ConLuaGetBuf);
     Console->AddCommand("getcwd", "Prints current working directory.", ConCWD);
-#ifdef SHOWMEMUSAGE
+#if defined(BUILD_DEBUG) || defined(SHOWMEMUSAGE)
     Console->AddCommand("memtest", "Checks memory usage.", ConMemInfo);
 #endif
     Console->AddCommand("reloadsh", "Reloads shader.", ConShader);

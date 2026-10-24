@@ -52,7 +52,8 @@ namespace SHR {
 
         int GetID() { return iID; };
 
-        int GetWidth() { return iWidth; };
+        int GetWidth() const { return iWidth; };
+        const char* GetEntryTooltip() const { return GetTooltip(); }
     };
 
     class GCN_CORE_DECLSPEC ComboBut : public gcn::Widget,
@@ -87,6 +88,8 @@ namespace SHR {
         int getSelectedEntryID() { return iSelectedID; };
 
         void setSelectedEntryID(int i, bool bEvent = 0);
+
+        const std::vector<ComboButEntry>& getEntries() const { return vEntries; }
 
     protected:
         cInterfaceSheet *hGfx;

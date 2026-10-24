@@ -18,6 +18,10 @@
 #include "../wViewport.h"
 #include "../cSoundPlayer.h"
 #include "guichan.hpp"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <array>
+#include <unordered_map>
+#endif
 
 class cBankImageSet;
 
@@ -120,6 +124,19 @@ namespace State {
         int iisPickIT, iisFrameIT;
 
         std::string strNameHolder;
+#ifdef WAPMAP_ENABLE_IMGUI
+        struct NativeField { std::array<char, 1025> text{}; std::string legacy; };
+        std::unordered_map<gcn::Widget*, NativeField> nativeFields;
+        gcn::Widget* nativeAction{};
+        gcn::Widget* nativeFocusTarget{};
+        bool nativeBusy{}, nativeSuspended{}, nativePosition = true, nativePicker{};
+        std::string nativeSet;
+        int nativeFrame = -1;
+        std::array<float, 2> nativeWindowPosition{};
+        bool nativeHasPosition{};
+        void DrawImGui(bool interactive = true);
+        void ThinkImGui();
+#endif
 
         friend class cObjPropVP;
 

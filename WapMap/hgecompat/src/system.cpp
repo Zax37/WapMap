@@ -6,6 +6,7 @@
 #include "hge_internal.h"
 #include "win32.h"
 
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/System/String.hpp>
@@ -14,12 +15,132 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui-SFML.h>
+#include <imgui.h>
+#include "../../imguiTheme.h"
+#include "imguiPointerCapture.h"
+#endif
+
 #include <algorithm>
 #include <deque>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace {
+
+#ifdef WAPMAP_ENABLE_IMGUI
+using CreatePlatformWindowFn = void (*)(ImGuiViewport*);
+CreatePlatformWindowFn originalCreatePlatformWindow{};
+#ifdef _WIN32
+HWND mainWindowHandle{};
+std::unordered_map<HWND, WNDPROC> previousViewportWindowProcs;
+LRESULT CALLBACK ViewportWindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+
+LONG_PTR SetWindowLongPtrChecked(HWND window, int index, LONG_PTR value) {
+    SetLastError(ERROR_SUCCESS);
+    const LONG_PTR previous = SetWindowLongPtrW(window, index, value);
+    const DWORD error = GetLastError();
+    if (previous == 0 && error != ERROR_SUCCESS) {
+        throw std::runtime_error("Could not configure an ImGui viewport window (Win32 error " +
+                                 std::to_string(error) + ").");
+    }
+    return previous;
+}
+
+void ConfigurePlatformWindow(ImGuiViewport* viewport) {
+    originalCreatePlatformWindow(viewport);
+    const auto window = static_cast<sf::Window*>(viewport->PlatformHandle)->getNativeHandle();
+    const auto extendedStyle = GetWindowLongPtrW(window, GWL_EXSTYLE);
+    const bool hideFromTaskbar = (viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon) != 0;
+    const LONG_PTR windowStyle = hideFromTaskbar
+        ? (extendedStyle | WS_EX_TOOLWINDOW) & ~static_cast<LONG_PTR>(WS_EX_APPWINDOW)
+        : (extendedStyle | WS_EX_APPWINDOW) & ~static_cast<LONG_PTR>(WS_EX_TOOLWINDOW);
+    SetWindowLongPtrChecked(window, GWL_EXSTYLE, windowStyle);
+    const auto previousProc = reinterpret_cast<WNDPROC>(GetWindowLongPtrW(window, GWLP_WNDPROC));
+    const auto [entry, inserted] = previousViewportWindowProcs.emplace(window, previousProc);
+    if (!inserted) {
+        throw std::runtime_error("An ImGui viewport already has a mouse-activation hook.");
+    }
+    try {
+        SetWindowLongPtrChecked(window, GWLP_WNDPROC,
+                                reinterpret_cast<LONG_PTR>(ViewportWindowProc));
+    } catch (const std::runtime_error&) {
+        previousViewportWindowProcs.erase(entry);
+        throw;
+    }
+    if (!SetWindowPos(window, nullptr, 0, 0, 0, 0,
+                      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED)) {
+        throw std::runtime_error("Could not refresh an ImGui viewport window style (Win32 error " +
+                                 std::to_string(GetLastError()) + ").");
+    }
+}
+
+LRESULT CALLBACK ViewportWindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    const auto found = previousViewportWindowProcs.find(window);
+    if (found == previousViewportWindowProcs.end()) {
+        return DefWindowProcW(window, message, wparam, lparam);
+    }
+    const auto previousProc = found->second;
+    UpdateWin32ResizePreview(window, message, lparam);
+    if (message == WM_MOUSEACTIVATE) {
+        return MA_ACTIVATE;
+    }
+    if (message == WM_NCDESTROY) {
+        previousViewportWindowProcs.erase(found);
+    }
+    return CallWindowProcW(previousProc, window, message, wparam, lparam);
+}
+#endif
+
+void InstallPlatformWindowOwnership(sf::Window& mainWindow) {
+    auto& platformIO = ImGui::GetPlatformIO();
+    originalCreatePlatformWindow = platformIO.Platform_CreateWindow;
+    if (!originalCreatePlatformWindow) {
+        throw std::runtime_error("The ImGui platform backend does not support detached viewports.");
+    }
+#ifdef _WIN32
+    mainWindowHandle = mainWindow.getNativeHandle();
+    platformIO.Platform_CreateWindow = ConfigurePlatformWindow;
+#else
+    (void)mainWindow;
+#endif
+}
+
+void RestorePlatformWindowCreation() {
+#ifdef _WIN32
+    if (originalCreatePlatformWindow) {
+        ImGui::GetPlatformIO().Platform_CreateWindow = originalCreatePlatformWindow;
+    }
+    mainWindowHandle = nullptr;
+#endif
+    originalCreatePlatformWindow = nullptr;
+}
+
+void RaiseAuxiliaryViewportsAboveDocuments() {
+    const HWND foregroundWindow = GetForegroundWindow();
+    DWORD foregroundProcessId = 0;
+    if (!foregroundWindow ||
+        GetWindowThreadProcessId(foregroundWindow, &foregroundProcessId) == 0 ||
+        foregroundProcessId != GetCurrentProcessId()) {
+        return;
+    }
+
+    const auto& viewports = ImGui::GetPlatformIO().Viewports;
+    for (int i = 1; i < viewports.Size; ++i) {
+        const auto* viewport = viewports[i];
+        if ((viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon) == 0 || !viewport->PlatformHandle)
+            continue;
+        const auto window = static_cast<sf::Window*>(viewport->PlatformHandle)->getNativeHandle();
+        if (!SetWindowPos(window, HWND_TOP, 0, 0, 0, 0,
+                          SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE)) {
+            throw std::runtime_error("Could not raise an auxiliary ImGui viewport above map documents (Win32 error " +
+                                     std::to_string(GetLastError()) + ").");
+        }
+    }
+}
+#endif
 
 int MapKeyboardKey(const sf::Keyboard::Key key) {
     using Key = sf::Keyboard::Key;
@@ -127,6 +248,13 @@ void HGE::Release() {}
 
 bool HGE::System_Initiate() {
     auto& state = *impl_;
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (state.imguiInitialized) {
+        RestorePlatformWindowCreation();
+        ImGui::SFML::Shutdown(state.window);
+        state.imguiInitialized = false;
+    }
+#endif
     if (state.window.isOpen()) {
         state.window.close();
     }
@@ -150,6 +278,11 @@ bool HGE::System_Initiate() {
     state.window.setVerticalSyncEnabled(true);
     state.window.setView(sf::View(sf::FloatRect(
         {0.f, 0.f}, {static_cast<float>(width), static_cast<float>(height)})));
+    const auto initialMousePosition = sf::Mouse::getPosition(state.window);
+    state.mouseX = initialMousePosition.x;
+    state.mouseY = initialMousePosition.y;
+    state.mouseOver = initialMousePosition.x >= 0 && initialMousePosition.y >= 0 &&
+                      initialMousePosition.x < width && initialMousePosition.y < height;
 
     if (const auto icon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(100))) {
         const auto handle = state.window.getNativeHandle();
@@ -163,6 +296,35 @@ bool HGE::System_Initiate() {
         state.window.close();
         return false;
     }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (!ImGui::SFML::Init(state.window)) {
+        state.errorMessage = "Could not initialize ImGui-SFML.";
+        ImGui::SFML::Shutdown(state.window);
+        RemoveWin32WindowFeatures(state.window.getNativeHandle());
+        state.window.close();
+        return false;
+    }
+    state.imguiInitialized = true;
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable |
+                                  ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::GetIO().ConfigViewportsNoTaskBarIcon = true;
+    ImGui::GetIO().ConfigViewportsNoAutoMerge = false;
+    ImGui::GetIO().ConfigViewportsNoDecoration = true;
+    try {
+        InstallPlatformWindowOwnership(state.window);
+    } catch (const std::exception& error) {
+        state.errorMessage = error.what();
+        RestorePlatformWindowCreation();
+        ImGui::SFML::Shutdown(state.window);
+        state.imguiInitialized = false;
+        RemoveWin32WindowFeatures(state.window.getNativeHandle());
+        state.window.close();
+        return false;
+    }
+    WapMapImGui::ApplyTheme();
+    state.applicationFocused = state.window.hasFocus();
+#endif
 
     state.applicationClock.restart();
     state.frameClock.restart();
@@ -182,6 +344,13 @@ void HGE::System_Shutdown() {
         }
         ++voice.generation;
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (impl_->imguiInitialized) {
+        RestorePlatformWindowCreation();
+        ImGui::SFML::Shutdown(impl_->window);
+        impl_->imguiInitialized = false;
+    }
+#endif
     if (impl_->window.isOpen()) {
         RemoveWin32WindowFeatures(impl_->window.getNativeHandle());
         impl_->window.close();
@@ -299,15 +468,79 @@ const char* HGE::System_GetState(const hgeStringState state) {
 }
 
 void HGE::Input_GetMousePos(float* x, float* y) {
-    if (x) *x = static_cast<float>(impl_->mouseX);
-    if (y) *y = static_cast<float>(impl_->mouseY);
+    const auto& state = *impl_;
+    if (x) *x = static_cast<float>(state.mouseX);
+    if (y) *y = static_cast<float>(state.mouseY);
 }
 
 void HGE::Input_SetMousePos(const float x, const float y) {
     if (impl_->window.isOpen()) {
         sf::Mouse::setPosition({static_cast<int>(x), static_cast<int>(y)}, impl_->window);
+        impl_->mouseX = static_cast<int>(x);
+        impl_->mouseY = static_cast<int>(y);
     }
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void HGE::Input_SetMouseStateOverride(const float x, const float y, const bool left,
+                                      const bool right, const bool middle, const int wheel) {
+    auto& state = *impl_;
+    const auto isMouseKey = [](const int key) {
+        return key == HGEK_LBUTTON || key == HGEK_RBUTTON || key == HGEK_MBUTTON;
+    };
+    std::erase_if(state.inputEvents, [&](const hgeInputEvent& event) {
+        return event.type == INPUT_MOUSEMOVE || event.type == INPUT_MOUSEWHEEL ||
+               event.type == INPUT_MBUTTONDOWN || event.type == INPUT_MBUTTONUP ||
+               ((event.type == INPUT_KEYDOWN || event.type == INPUT_KEYUP) && isMouseKey(event.key));
+    });
+
+    state.mouseX = static_cast<int>(x);
+    state.mouseY = static_cast<int>(y);
+    state.mouseOver = true;
+    state.mouseWheel = wheel;
+    state.inputEvents.push_back({INPUT_MOUSEMOVE, 0, 0, 0, 0, x, y});
+
+    const int keys[]{HGEK_LBUTTON, HGEK_RBUTTON, HGEK_MBUTTON};
+    const bool buttons[]{left, right, middle};
+    for (int i = 0; i < 3; ++i) {
+        const auto index = static_cast<size_t>(keys[i]);
+        const bool wasDown = state.previousKeys[index];
+        state.currentKeys[index] = buttons[i];
+        state.pressedKeys[index] = buttons[i] && !wasDown;
+        state.releasedKeys[index] = !buttons[i] && wasDown;
+        if (buttons[i] != wasDown) {
+            const int flags = (state.currentKeys[HGEK_SHIFT] ? HGEINP_SHIFT : 0) |
+                              (state.currentKeys[HGEK_CTRL] ? HGEINP_CTRL : 0) |
+                              (state.currentKeys[HGEK_ALT] ? HGEINP_ALT : 0);
+            state.inputEvents.push_back({buttons[i] ? INPUT_MBUTTONDOWN : INPUT_MBUTTONUP,
+                                         keys[i], flags, 0, 0, x, y});
+        }
+    }
+    if (wheel != 0) state.inputEvents.push_back({INPUT_MOUSEWHEEL, 0, 0, 0, wheel, x, y});
+}
+
+void HGE::Input_GetPhysicalMousePos(float* x, float* y) {
+    const auto& state = *impl_;
+    if (x) *x = static_cast<float>(state.physicalMouseX);
+    if (y) *y = static_cast<float>(state.physicalMouseY);
+}
+
+void HGE::Input_GetPhysicalMouseScreenPos(float* x, float* y) {
+    const auto& state = *impl_;
+    if (x) *x = static_cast<float>(state.physicalMouseScreenX);
+    if (y) *y = static_cast<float>(state.physicalMouseScreenY);
+}
+
+void HGE::Input_GetPhysicalMouseButtons(bool* left, bool* right, bool* middle) {
+    if (left) *left = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    if (right) *right = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+    if (middle) *middle = sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle);
+}
+
+void HGE::Input_SetKeyboardCaptureOverride(const bool enabled) {
+    impl_->imguiKeyboardCaptureOverride = enabled;
+}
+#endif
 
 int HGE::Input_GetMouseWheel() {
     return impl_->mouseWheel;
@@ -389,12 +622,6 @@ bool HGE::RunOneFrame() {
     state.inputChar = 0;
     state.mouseWheel = 0;
 
-    const auto width = std::max(1, System_GetState(HGE_SCREENWIDTH));
-    const auto height = std::max(1, System_GetState(HGE_SCREENHEIGHT));
-    const auto clampMousePosition = [width, height](const sf::Vector2i position) {
-        return sf::Vector2i(std::clamp(position.x, 0, width - 1),
-                            std::clamp(position.y, 0, height - 1));
-    };
     const auto queueInputEvent = [&state](const int type, const int key, int flags,
                                           const int chr, const int wheel,
                                           const int x, const int y) {
@@ -447,13 +674,128 @@ bool HGE::RunOneFrame() {
         updateAggregate(HGEK_ALT, state.leftAlt || state.rightAlt);
     };
 
+#ifdef WAPMAP_ENABLE_IMGUI
+    const auto capturePointer = [&](sf::Vector2i position) {
+        // Use the native client origin rather than SFML's decorated window
+        // origin for viewports on Windows.
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            POINT origin{}; ClientToScreen(state.window.getNativeHandle(), &origin);
+            position += sf::Vector2i(origin.x, origin.y);
+        }
+        const bool legacyDragging = state.currentKeys[HGEK_LBUTTON] || state.currentKeys[HGEK_RBUTTON] || state.currentKeys[HGEK_MBUTTON];
+        bool nativeDragging = false;
+        for (int button = 0; button < 3; ++button)
+            nativeDragging |= state.imguiCapturedMouseButtons[button] ||
+                (ImGui::GetIO().MouseDownOwned[button] && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button)));
+        return WapMapImGui::CapturePointerAt({static_cast<float>(position.x), static_cast<float>(position.y)}, legacyDragging, nativeDragging);
+    };
+#endif
     while (const auto event = state.window.pollEvent()) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        ImGui::SFML::ProcessEvent(state.window, *event);
+        const ImGuiIO& imguiIO = ImGui::GetIO();
+        if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>();
+            keyReleased &&
+            state.imguiCapturedKeyCodes.erase(static_cast<int>(keyReleased->code)) != 0) {
+            continue;
+        }
+        if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
+            int button = -1;
+            switch (mouseReleased->button) {
+            case sf::Mouse::Button::Left: button = 0; break;
+            case sf::Mouse::Button::Right: button = 1; break;
+            case sf::Mouse::Button::Middle: button = 2; break;
+            default: break;
+            }
+            if (button >= 0 &&
+                state.imguiCapturedMouseButtons[static_cast<size_t>(button)]) {
+                state.imguiCapturedMouseButtons[static_cast<size_t>(button)] = false;
+                continue;
+            }
+        }
+        if (imguiIO.WantCaptureKeyboard && !state.imguiKeyboardCaptureOverride) {
+            const auto* keyPressed = event->getIf<sf::Event::KeyPressed>();
+            const bool systemShortcut =
+                keyPressed && keyPressed->alt &&
+                (keyPressed->code == sf::Keyboard::Key::Enter ||
+                 keyPressed->code == sf::Keyboard::Key::F4);
+            if (keyPressed && !systemShortcut) {
+                state.imguiCapturedKeyCodes.insert(static_cast<int>(keyPressed->code));
+                const auto key = MapKeyboardKey(keyPressed->code);
+                if (key != HGEK_NO_KEY && state.currentKeys[static_cast<size_t>(key)]) {
+                    const bool isModifier =
+                        key == HGEK_SHIFT || key == HGEK_CTRL || key == HGEK_ALT;
+                    if (isModifier) {
+                        updateModifierState(keyPressed->code, false);
+                        queueInputEvent(INPUT_KEYUP, key, 0, 0, 0,
+                                        state.mouseX, state.mouseY);
+                    } else {
+                        updateKey(key, false, false, INPUT_KEYUP,
+                                  state.mouseX, state.mouseY);
+                    }
+                }
+                continue;
+            }
+            if (event->is<sf::Event::TextEntered>()) {
+                continue;
+            }
+            if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
+                const auto key = MapKeyboardKey(keyReleased->code);
+                if (key == HGEK_NO_KEY || !state.currentKeys[static_cast<size_t>(key)]) {
+                    continue;
+                }
+            }
+        }
+        auto pointerPosition = sf::Mouse::getPosition(state.window);
+        if (const auto* moved = event->getIf<sf::Event::MouseMoved>()) pointerPosition = moved->position;
+        else if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>()) pointerPosition = pressed->position;
+        else if (const auto* released = event->getIf<sf::Event::MouseButtonReleased>()) pointerPosition = released->position;
+        else if (const auto* wheel = event->getIf<sf::Event::MouseWheelScrolled>()) pointerPosition = wheel->position;
+        if (capturePointer(pointerPosition)) {
+            if (event->is<sf::Event::MouseMoved>()) {
+                state.mouseOver = false;
+                state.mouseX = state.mouseY = -1;
+                queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0, -1, -1);
+                continue;
+            }
+            if (event->is<sf::Event::MouseButtonPressed>() ||
+                event->is<sf::Event::MouseWheelScrolled>()) {
+                if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    int button = -1;
+                    switch (mousePressed->button) {
+                    case sf::Mouse::Button::Left: button = 0; break;
+                    case sf::Mouse::Button::Right: button = 1; break;
+                    case sf::Mouse::Button::Middle: button = 2; break;
+                    default: break;
+                    }
+                    if (button >= 0) {
+                        state.imguiCapturedMouseButtons[static_cast<size_t>(button)] = true;
+                    }
+                }
+                continue;
+            }
+            if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
+                int key = HGEK_NO_KEY;
+                switch (mouseReleased->button) {
+                case sf::Mouse::Button::Left: key = HGEK_LBUTTON; break;
+                case sf::Mouse::Button::Right: key = HGEK_RBUTTON; break;
+                case sf::Mouse::Button::Middle: key = HGEK_MBUTTON; break;
+                default: break;
+                }
+                if (key == HGEK_NO_KEY || !state.currentKeys[static_cast<size_t>(key)]) {
+                    continue;
+                }
+            }
+        }
+#endif
         if (event->is<sf::Event::Closed>()) {
             const auto exitCallback = GetCallback(state.callbacks, HGE_EXITFUNC);
             if (!exitCallback || exitCallback()) {
                 state.window.close();
             }
         } else if (event->is<sf::Event::FocusLost>()) {
+            state.imguiCapturedKeyCodes.clear();
+            state.imguiCapturedMouseButtons.fill(false);
             for (size_t key = 1; key < state.currentKeys.size(); ++key) {
                 if (state.currentKeys[key]) {
                     state.currentKeys[key] = false;
@@ -466,13 +808,32 @@ bool HGE::RunOneFrame() {
             state.leftControl = state.rightControl = false;
             state.leftAlt = state.rightAlt = false;
             state.mouseOver = false;
+            state.mouseX = state.mouseY = -1;
+            queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0, -1, -1);
+#ifndef WAPMAP_ENABLE_IMGUI
             if (const auto callback = GetCallback(state.callbacks, HGE_FOCUSLOSTFUNC)) {
                 callback();
             }
+#endif
         } else if (event->is<sf::Event::FocusGained>()) {
+            const auto position = sf::Mouse::getPosition(state.window);
+            state.physicalMouseX = position.x;
+            state.physicalMouseY = position.y;
+            const auto screenPosition = sf::Mouse::getPosition();
+            state.physicalMouseScreenX = screenPosition.x;
+            state.physicalMouseScreenY = screenPosition.y;
+            state.mouseOver = position.x >= 0 && position.y >= 0 &&
+                              position.x < state.window.getSize().x &&
+                              position.y < state.window.getSize().y;
+            state.mouseX = state.mouseOver ? position.x : -1;
+            state.mouseY = state.mouseOver ? position.y : -1;
+            queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0,
+                            state.mouseX, state.mouseY);
+#ifndef WAPMAP_ENABLE_IMGUI
             if (const auto callback = GetCallback(state.callbacks, HGE_FOCUSGAINFUNC)) {
                 callback();
             }
+#endif
         } else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             const auto key = MapKeyboardKey(keyPressed->code);
             if (key == HGEK_NO_KEY) {
@@ -526,16 +887,19 @@ bool HGE::RunOneFrame() {
                 }
             }
         } else if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
-            const auto position = clampMousePosition(mouseMoved->position);
+            const auto position = mouseMoved->position;
             state.mouseX = position.x;
             state.mouseY = position.y;
+            state.mouseOver = true;
             queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0, position.x, position.y);
         } else if (event->is<sf::Event::MouseEntered>()) {
             state.mouseOver = true;
         } else if (event->is<sf::Event::MouseLeft>()) {
             state.mouseOver = false;
+            state.mouseX = state.mouseY = -1;
+            queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0, -1, -1);
         } else if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
-            const auto position = clampMousePosition(mousePressed->position);
+            const auto position = mousePressed->position;
             int key = HGEK_NO_KEY;
             switch (mousePressed->button) {
             case sf::Mouse::Button::Left: key = HGEK_LBUTTON; break;
@@ -548,7 +912,7 @@ bool HGE::RunOneFrame() {
                           INPUT_MBUTTONDOWN, position.x, position.y);
             }
         } else if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
-            const auto position = clampMousePosition(mouseReleased->position);
+            const auto position = mouseReleased->position;
             int key = HGEK_NO_KEY;
             switch (mouseReleased->button) {
             case sf::Mouse::Button::Left: key = HGEK_LBUTTON; break;
@@ -561,7 +925,7 @@ bool HGE::RunOneFrame() {
             }
         } else if (const auto* wheelScrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
             if (wheelScrolled->wheel == sf::Mouse::Wheel::Vertical) {
-                const auto position = clampMousePosition(wheelScrolled->position);
+                const auto position = wheelScrolled->position;
                 state.mouseX = position.x;
                 state.mouseY = position.y;
                 state.wheelRemainder += wheelScrolled->delta;
@@ -585,17 +949,106 @@ bool HGE::RunOneFrame() {
         }
     }
 
+    bool applicationFocused = state.window.hasFocus();
+#ifdef WAPMAP_ENABLE_IMGUI
+    const ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+    for (int i = 1; i < platformIO.Viewports.Size && !applicationFocused; ++i) {
+        const auto* detachedWindow =
+            static_cast<const sf::Window*>(platformIO.Viewports[i]->PlatformHandle);
+        applicationFocused = detachedWindow && detachedWindow->hasFocus();
+    }
+    if (applicationFocused != state.applicationFocused) {
+        state.applicationFocused = applicationFocused;
+        const auto callback = GetCallback(
+            state.callbacks, applicationFocused ? HGE_FOCUSGAINFUNC : HGE_FOCUSLOSTFUNC);
+        if (callback) {
+            callback();
+        }
+    }
+#endif
+
     if (!state.window.isOpen()) {
         return false;
     }
+    // MouseLeft is not sufficient with capture, maximize and overlapping native
+    // viewports. Reconcile once per frame and expose one coherent input snapshot.
+    const auto position = sf::Mouse::getPosition(state.window);
+    const auto size = state.window.getSize();
+    POINT screenPosition{position.x, position.y};
+    ClientToScreen(state.window.getNativeHandle(), &screenPosition);
+    state.physicalMouseX = position.x;
+    state.physicalMouseY = position.y;
+    state.physicalMouseScreenX = screenPosition.x;
+    state.physicalMouseScreenY = screenPosition.y;
+    // A detached modeless viewport may own keyboard focus while the pointer is
+    // over the editor. Hover belongs to the window under the pointer; guichan
+    // still enforces modal focus when distributing these events.
+    bool mouseOver = applicationFocused && position.x >= 0 && position.y >= 0 &&
+                     position.x < static_cast<int>(size.x) &&
+                     position.y < static_cast<int>(size.y) &&
+                     WindowFromPoint(screenPosition) == state.window.getNativeHandle();
+#ifdef WAPMAP_ENABLE_IMGUI
+    mouseOver = mouseOver && !capturePointer(position);
+#endif
+    const bool legacyDragging = state.currentKeys[HGEK_LBUTTON] ||
+                                state.currentKeys[HGEK_RBUTTON] ||
+                                state.currentKeys[HGEK_MBUTTON];
+    const int mouseX = mouseOver || (legacyDragging && state.window.hasFocus()) ? position.x : -1;
+    const int mouseY = mouseOver || (legacyDragging && state.window.hasFocus()) ? position.y : -1;
+    if (mouseX != state.mouseX || mouseY != state.mouseY || mouseOver != state.mouseOver) {
+        queueInputEvent(INPUT_MOUSEMOVE, 0, 0, 0, 0, mouseX, mouseY);
+    }
+    state.mouseX = mouseX;
+    state.mouseY = mouseY;
+    state.mouseOver = mouseOver;
+
     if (const auto frameCallback = GetCallback(state.callbacks, HGE_FRAMEFUNC);
         frameCallback && frameCallback()) {
         state.window.close();
         return false;
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (state.imguiInitialized) {
+        // Legacy frame callbacks can run modal loops. Start NewFrame only after
+        // those callbacks finish, and preserve the cursor selected by guichan.
+        auto& io = ImGui::GetIO();
+        // The SFML backend polls the pointer only while its main window has
+        // focus. Keep the shared ImGui context current when a detached viewport
+        // owns focus too, so capture/hover can leave that viewport again.
+        if (applicationFocused && !state.window.hasFocus() &&
+            (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)) {
+            const auto screenMouse = sf::Mouse::getPosition();
+            io.AddMousePosEvent(static_cast<float>(screenMouse.x),
+                                static_cast<float>(screenMouse.y));
+        }
+        if (applicationFocused && (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)) {
+            constexpr sf::Mouse::Button mouseButtons[] = {
+                sf::Mouse::Button::Left, sf::Mouse::Button::Right, sf::Mouse::Button::Middle};
+            for (int button = 0; button < 3; ++button) {
+                io.AddMouseButtonEvent(button, sf::Mouse::isButtonPressed(mouseButtons[button]));
+            }
+        }
+        const bool preserveLegacyCursor = !capturePointer(sf::Mouse::getPosition(state.window));
+        const auto savedFlags = io.ConfigFlags;
+        if (preserveLegacyCursor) io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+        ImGui::SFML::Update(state.window, sf::seconds(state.delta));
+        WapMapImGui::ClampMovingWindowToMonitorWorkArea();
+        io.ConfigFlags = savedFlags;
+    }
+#endif
+    state.window.clear(sf::Color::Black);
     if (const auto renderCallback = GetCallback(state.callbacks, HGE_RENDERFUNC)) {
         renderCallback();
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (state.imguiInitialized) {
+        ImGui::SFML::Render(state.window);
+        ImGui::SFML::RenderPlatformWindows();
+#ifdef _WIN32
+        RaiseAuxiliaryViewportsAboveDocuments();
+#endif
+    }
+#endif
     state.window.display();
 
     ++state.framesSinceFpsUpdate;

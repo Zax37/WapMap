@@ -3,6 +3,14 @@
 #include "../../../shared/commonFunc.h"
 #include "../../langID.h"
 #include "../../windows/options.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../../imguiTheme.h"
+#include "../../legacyText.h"
+#include "../../cInterfaceSheet.h"
+#include <cstring>
+
+
+#endif
 
 extern HGE *hge;
 extern cAutoUpdater *_AU_GLOBAL_PTR;
@@ -18,7 +26,11 @@ void State::EditingWW::FirstRun_Open() {
         return;
     }
     if (FirstRun_data != 0) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        FirstRun_data->updatedPosition = false;
+#else
         conMain->moveToTop(FirstRun_data->win);
+#endif
         return;
     }
     FirstRun_data = new win_FirstRun;
@@ -43,7 +55,44 @@ void State::EditingWW::FirstRun_Open() {
     FirstRun_data->win->add(FirstRun_data->vp);
 
     FirstRun_data->bKill = 0;
+#ifdef WAPMAP_ENABLE_IMGUI
+    FirstRun_data->win->setVisible(false);
+#endif
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void State::EditingWW::FirstRun_DrawImGui() {
+    if (!FirstRun_data || FirstRun_data->bKill || !_isOnTop()) return;
+    auto& data = *FirstRun_data;
+    const auto* viewport = ImGui::GetMainViewport();
+    if (!data.updatedPosition) {
+        ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_FirstUseEver, {0.5f, 0.5f});
+        ImGui::SetNextWindowFocus();
+        data.updatedPosition = true;
+    }
+    const float height = std::max(220.f, std::min(static_cast<float>(data.win->getHeight()), viewport->WorkSize.y - 20.f));
+    ImGui::SetNextWindowSize({400, height}, ImGuiCond_Always);
+    const auto title = LegacyText::ToUtf8(GETL2S("FirstRun", "Caption"), LegacyText::CodePage(GV->Lang->GetCode())) + "###WapMapFirstRun";
+    bool visible = true;
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse, false)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton, GETL2S("FirstRun", "Caption"));
+        ImGui::SetCursorPos({15, 35});
+        if (ImGui::BeginChild("welcomeText", {370, height - 95}, ImGuiChildFlags_NavFlattened)) {
+            WapMapImGui::WrappedBitmapMarkupText(*hge, *GV->fntMyriad16, GETL2S("FirstRun", "Text"), 350);
+        }
+        ImGui::EndChild();
+        ImGui::SetCursorPos({12, height - 43});
+        ImGui::BeginDisabled(data.nativeAction != 0);
+        if (WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface, GETL2S("FirstRun", "SetClawDir"), {200, 33})) data.nativeAction = 1;
+        ImGui::SetCursorPos({225, height - 43});
+        if (WapMapImGui::BitmapButton(*hge, *GV->fntMyriad16, *GV->hGfxInterface, GETL2S("FirstRun", "JoinDiscord"), {150, 33})) data.nativeAction = 2;
+        ImGui::EndDisabled();
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) visible = false;
+    }
+    ImGui::End();
+    if (!visible) { data.bKill = true; data.nativeAction = 0; }
+}
+#endif
 
 void State::EditingWW::FirstRun_Close() {
     delete FirstRun_data->vp;

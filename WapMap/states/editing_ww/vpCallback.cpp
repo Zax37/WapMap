@@ -7,7 +7,12 @@ extern HGE *hge;
 namespace State {
     void EditingWWvpCallback::Draw(int iCode) {
         if (iCode == VP_VIEWPORT) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            if (!m_hOwn->MDI || m_hOwn->MDI->GetDocsCount() == 0)
+                m_hOwn->DrawViewport();
+#else
             m_hOwn->DrawViewport();
+#endif
         } else if (iCode == VP_WORLD) {
             m_hOwn->DrawWorldP();
         } else if (iCode == VP_DB) {

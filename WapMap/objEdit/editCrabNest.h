@@ -30,6 +30,9 @@ namespace ObjEdit {
         virtual void Save();
 
         virtual void Action(const gcn::ActionEvent &actionEvent);
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         void HandleEscape() override {
             if (hRectPick->IsPicking()) {

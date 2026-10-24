@@ -4,6 +4,8 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#include <cstdint>
+#include "timedSeries.h"
 
 extern HGE *hge;
 
@@ -71,12 +73,7 @@ namespace ObjEdit {
         timeoff = hTempObj->GetParam(WWD::Param_SpeedY);
         if (timeoff <= 0)
             timeoff = 1500;
-        delay = hTempObj->GetParam(WWD::Param_Speed);
-        if (delay < 0)
-            delay = 0;
-        if (!strcmp(hTempObj->GetLogic(), "FloorSpike2") || !strcmp(hTempObj->GetLogic(), "FloorSaw2")) delay = 750;
-        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike3") || !strcmp(hTempObj->GetLogic(), "FloorSaw3")) delay = 750 * 2;
-        else if (!strcmp(hTempObj->GetLogic(), "FloorSpike4") || !strcmp(hTempObj->GetLogic(), "FloorSaw4")) delay = 750 * 3;
+        delay = TimedSeries::Delay(hTempObj->GetLogic(), hTempObj->GetParam(WWD::Param_Speed), isSaw ? "SawBlade" : "FloorSpike");
         damage = hTempObj->GetParam(WWD::Param_Damage);
         if (!damage) {
             damage = 10;
@@ -140,6 +137,11 @@ namespace ObjEdit {
         winSeries->add(_butAddNext, 55, 50);
         st->conMain->add(winSeries, st->vPort->GetX() + win->getWidth(),
                          st->vPort->GetY() + st->vPort->GetHeight() - winSeries->getHeight());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        winSeries->setVisible(false);
+#endif
     }
 
     cEditObjFloorSpike::~cEditObjFloorSpike() {
@@ -247,8 +249,16 @@ namespace ObjEdit {
         sprintf(tmp, "%d", *delay);
         tfnobjDelay->setText(tmp);
         int actdel = atoi(tfOffset->getText().c_str());
-        sprintf(tmp, "%d", actdel + (*delay));
-        tfOffset->setText(tmp);
+        tfOffset->setText(std::to_string(std::int64_t(actdel) + *delay));
         delete delay;
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjFloorSpike::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        DrawNativeImageChoices(vszDefaultImgsets, rbType, isSaw ? 9 : 5);
+        EndNativeWindow();
+        DrawNativeSeries(winSeries, tfOffset, tfnobjDelay);
+    }
+#endif
 }

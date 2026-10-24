@@ -1,6 +1,10 @@
 #include "procPickXYLockable.h"
 #include "../globals.h"
 #include <algorithm>
+#include <charconv>
+#include <cmath>
+#include <limits>
+#include "elevatorGeometry.h"
 
 extern HGE *hge;
 
@@ -60,63 +64,35 @@ cProcPickXYLockable::~cProcPickXYLockable() {
 
 void cProcPickXYLockable::action(const gcn::ActionEvent &actionEvent) {
     if (actionEvent.getSource() == lockBut) {
-        locked = !locked;
-        lockBut->setRenderBG(locked);
-
-        if (locked) {
-            lockedRatio = std::stof(tfX->getText()) / std::stof(tfY->getText());
-        } else if (tfX->getText().empty() || tfY->getText().empty() || tfX->getText()[0] == '0' ||
-                   tfY->getText()[0] == '0') {
-            allowLocking(false);
-        }
-    } else if (actionEvent.getSource() == tfX || actionEvent.getSource() == tfY) {
-        const std::string &strX = tfX->getText();
-        const std::string &strY = tfY->getText();
-
-        bool sourceX = actionEvent.getSource() == tfX;
-        if (sourceX) {
-            if (strX.empty() || strX[0] == '0') {
-                if (!locked) allowLocking(false);
-                return;
-            }
-        } else if (strY.empty() || strY[0] == '0') {
-            if (!locked) allowLocking(false);
-            return;
-        }
-
-        if (locked) {
-            float fValX, fValY;
-            if (sourceX) {
-                fValX = std::stof(tfX->getText());
-                fValY = round(fValX / lockedRatio);
-                tfY->setText(std::to_string((int) fValY));
-            } else {
-                fValY = std::stof(tfY->getText());
-                fValX = round(fValY * lockedRatio);
-                tfX->setText(std::to_string((int) fValX));
-            }
-            valX = fValX;
-            valY = fValY;
-            mActionEventId = "CHANGE_X";
-            distributeActionEvent();
-            mActionEventId = "CHANGE_Y";
-            distributeActionEvent();
-        } else if (sourceX) {
-            valX = atoi(tfX->getText().c_str());
-            mActionEventId = "CHANGE_X";
-            distributeActionEvent();
-            allowLocking(strY[0] != '0');
-        } else {
-            valY = atoi(tfY->getText().c_str());
-            mActionEventId = "CHANGE_Y";
-            distributeActionEvent();
-            allowLocking(strX[0] != '0');
-        }
+        setLocked(!locked);
+        return;
     }
+    const bool sourceX = actionEvent.getSource() == tfX;
+    if (!sourceX && actionEvent.getSource() != tfY) return;
+    auto* source = sourceX ? tfX : tfY;
+    const auto& text = source->getText();
+    int value = 0;
+    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value);
+    if (parsed.ec != std::errc() || parsed.ptr != text.data() + text.size() ||
+        (!source->AllowsNegative() && value < 0)) { source->setMarkedInvalid(true); return; }
+    int other = sourceX ? valY : valX;
+    if (locked) {
+        const auto result = ElevatorGeometry::Scale(value, lockedRatio, sourceX);
+        if (!result) { source->setMarkedInvalid(true); return; }
+        other = *result;
+    }
+    source->setMarkedInvalid(false);
+    if (locked) { tfX->setMarkedInvalid(false); tfY->setMarkedInvalid(false); }
+    if (sourceX) { valX = value; if (locked) { valY = other; tfY->setText(std::to_string(other)); } }
+    else { valY = value; if (locked) { valX = other; tfX->setText(std::to_string(other)); } }
+    if (locked || sourceX) { mActionEventId = "CHANGE_X"; distributeActionEvent(); }
+    if (locked || !sourceX) { mActionEventId = "CHANGE_Y"; distributeActionEvent(); }
+    if (!locked) allowLocking(valX != 0 && valY != 0);
 }
 
 void cProcPickXYLockable::allowLocking(bool allow) {
-    if (lockBut->isEnabled() == allow) return;
+    allow = allow && enabledMaster && xEnabled && yEnabled;
+    if (lockBut->isLocallyEnabled() == allow) return;
 
     lockBut->setEnabled(allow);
     if (!allow) {
@@ -150,19 +126,20 @@ void cProcPickXYLockable::draw(Graphics *graphics) {
 void cProcPickXYLockable::setValueX(int val, bool generatesChangeEvent) {
     valX = val;
     tfX->setText(std::to_string(val));
-    mActionEventId = "CHANGE_X";
-    distributeActionEvent();
+    tfX->setMarkedInvalid(false);
+    if (generatesChangeEvent) { mActionEventId = "CHANGE_X"; distributeActionEvent(); }
 }
 
 void cProcPickXYLockable::setValueY(int val, bool generatesChangeEvent) {
     valY = val;
     tfY->setText(std::to_string(val));
-    mActionEventId = "CHANGE_Y";
-    distributeActionEvent();
+    tfY->setMarkedInvalid(false);
+    if (generatesChangeEvent) { mActionEventId = "CHANGE_Y"; distributeActionEvent(); }
 }
 
 void cProcPickXYLockable::setEnabled(bool enabled) {
     enabledMaster = enabled;
+    lockBut->setEnabled(enabledMaster && xEnabled && yEnabled && (locked || (valX != 0 && valY != 0)));
     labMain->setColor(SETA(GV->colFontWhite, enabledMaster ? 0xFF : 0x77));
     tfX->setEnabled(enabledMaster && xEnabled);
     labX->setColor(SETA(GV->colFontWhite, enabledMaster && xEnabled ? 0xFF : 0x77));
@@ -172,12 +149,14 @@ void cProcPickXYLockable::setEnabled(bool enabled) {
 
 void cProcPickXYLockable::setEnabledX(bool enabled) {
     xEnabled = enabled;
+    lockBut->setEnabled(enabledMaster && xEnabled && yEnabled && (locked || (valX != 0 && valY != 0)));
     tfX->setEnabled(enabledMaster && xEnabled);
     labX->setColor(SETA(GV->colFontWhite, enabledMaster && xEnabled ? 0xFF : 0x77));
 }
 
 void cProcPickXYLockable::setEnabledY(bool enabled) {
     yEnabled = enabled;
+    lockBut->setEnabled(enabledMaster && xEnabled && yEnabled && (locked || (valX != 0 && valY != 0)));
     tfY->setEnabled(enabledMaster && yEnabled);
     labY->setColor(SETA(GV->colFontWhite, enabledMaster && yEnabled ? 0xFF : 0x77));
 }

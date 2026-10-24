@@ -23,7 +23,9 @@ void ConFlushLua(int argc, char *argv[]);
 
 void ConLuaGetBuf(int argc, char *argv[]);
 
+#if defined(BUILD_DEBUG) || defined(SHOWMEMUSAGE)
 void ConMemInfo(int argc, char *argv[]);
+#endif
 
 void ConShader(int argc, char *argv[]);
 

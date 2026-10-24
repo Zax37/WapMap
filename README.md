@@ -4,7 +4,7 @@
 
 WapMap is a WAP32 file editor, originally developed by kijanek6 in 2010–2013. It is primarily known as a Claw level editor and also supports Gruntz and Get Medieval maps to some extent.
 
-The renderer and platform layer are being migrated from HGE to SFML 3. The application retains its existing editor UI and uses the in-tree HGE compatibility facade; building WapMap no longer requires the HGE library or the DirectX SDK.
+The renderer and platform layer use SFML 3 through the in-tree HGE compatibility facade; building WapMap no longer requires the HGE library or the DirectX SDK. The ImGui-enabled build also provides migrated editor windows, application menus, toolbar, status strip, context menus and dockable/detachable map documents. The guichan UI remains available when ImGui is disabled. Full runtime regression and performance validation are still open; see HGE_MIGRATION_PLAN.md.
 
 ## Building on Windows
 
@@ -16,6 +16,7 @@ The default build target is x86. An optional x64 target is also available when a
 - zlib for x86. It can be installed with vcpkg (`vcpkg install zlib:x86-windows-static-md`) and discovered through the vcpkg CMake toolchain, or supplied through CMake's `ZLIB_ROOT`.
 - curl, built as a static x86 library with Schannel, in `../curl`. WapMap expects its `include` directory and `build/lib/{Debug,Release}` outputs.
 - Lua, built for x86, in `../lua`. WapMap expects its headers there and `Debug`/`Release` library outputs.
+- ImGui integration: use the WapMap `wapmap` branches of [ImGui](https://github.com/Zax37/imgui) and [imgui-sfml](https://github.com/Zax37/imgui-sfml) as sibling directories (`../imgui` and `../imgui-sfml`). The tested source revisions are ImGui `778992face67ecefaa5c2932db4b2101545ea4df` (1.93.0 WIP, docking) and imgui-sfml `8851118` (SFML 3 multi-viewport port). CMake defaults `WAPMAP_ENABLE_IMGUI` to `OFF`; the Visual Studio project enables ImGui in all configurations. With ImGui enabled, auxiliary windows and specialized object editors use native ImGui entry paths, and persistent panels can dock alongside map documents, including detached map windows. Legacy widget objects still supply models and action callbacks.
 
 For x64, use x64 builds of SFML, zlib, curl and Lua. CMake keeps Lua headers (`LUA_DIR`) separate from its library output (`LUA_LIBRARY_DIR`), and curl's source/header root (`CURL_DIR`) separate from its build output (`CURL_BUILD_DIR`). The Visual Studio project defaults to sibling x64 dependency folders (`SFML-3.0.2-x64-install`, `zlib-x64\install`, `curl-x64-install`, and `lua-x64`); override its `SFMLRoot`, `ZlibRoot`, `CurlRoot`, or `LuaRoot` properties if needed. HGE and the DirectX 9 SDK are not required.
 
@@ -44,6 +45,16 @@ cmake -S . -B ..\WapMap-sfml3-x64-build -A x64 `
   -DZLIB_ROOT=D:\Projects\zlib-x64\install
 cmake --build ..\WapMap-sfml3-x64-build --config Release --parallel 8
 ```
+
+Prepare the matching dependency revisions (the existing `../imgui` checkout must contain the ImGui revision above):
+
+```powershell
+git clone --branch wapmap https://github.com/Zax37/imgui-sfml.git ../imgui-sfml
+git -C ../imgui-sfml checkout 8851118
+git -C ../imgui checkout 778992face67ecefaa5c2932db4b2101545ea4df
+```
+
+To build the ImGui integration with CMake, add `-DWAPMAP_ENABLE_IMGUI=ON` when configuring. If the ImGui checkouts are not in the sibling directories, also set `IMGUI_DIR` and `IMGUI_SFML_DIR`.
 
 ### Building the Visual Studio project directly
 

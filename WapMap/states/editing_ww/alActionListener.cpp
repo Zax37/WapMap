@@ -1,4 +1,7 @@
 #include "../editing_ww.h"
+#include "../../windows/mapShotValidation.h"
+#include "../../windows/mapShotImageWriter.h"
+#include "../../windows/chromeGeometry.h"
 #include "../../globals.h"
 #include "../../../shared/commonFunc.h"
 #include "../loadmap.h"
@@ -165,12 +168,7 @@ namespace State {
             m_hOwn->labtpiSprayDensity->setCaption(tmp);
             m_hOwn->labtpiSprayDensity->adjustSize();
         } else if (actionEvent.getSource() == m_hOwn->sliZoom) {
-            float sliz = 1;
-            if (m_hOwn->sliZoom->getValue() > 1) {
-                sliz += m_hOwn->sliZoom->getValue() / 5.0f;
-            } else if (m_hOwn->sliZoom->getValue() < 1) {
-                sliz += m_hOwn->sliZoom->getValue() / 5.0f * 0.9f;
-            }
+            const float sliz = ChromeGeometry::Zoom(static_cast<float>(m_hOwn->sliZoom->getValue()));
             if (GV->bSmoothZoom) {
                 m_hOwn->fDestZoom = sliz;
             } else {
@@ -416,13 +414,7 @@ namespace State {
                 if (m_hOwn->slimsCompression->getScaleEnd() == 9) {
                     complevel = m_hOwn->slimsCompression->getValue();
                 } else {
-                    int val = m_hOwn->slimsCompression->getValue();
-                    if (val == 0)
-                        val = 50;
-                    else if (val <= 7)
-                        val = 0;
-
-                    complevel = 100 - (val + 7);
+                    complevel = MapShotImageWriter::JpegQuality(static_cast<int>(m_hOwn->slimsCompression->getValue()));
                 }
                 bool dobjects = (m_hOwn->cbmsDrawObjects->isSelected() &&
                                  m_hOwn->hParser->GetPlane(m_hOwn->ddmsPlane->getSelected())->GetObjectsCount() != 0);
@@ -474,6 +466,7 @@ namespace State {
                     m_hOwn->labmsCompression->adjustSize();
                 } //else wtf
             } else if (actionEvent.getSource() == m_hOwn->tfmsSaveAs) {
+                m_hOwn->butmsSave->setEnabled(false);
                 char *ext = SHR::GetExtension(m_hOwn->tfmsSaveAs->getText().c_str());
                 if (ext == NULL) {
                     m_hOwn->labmsCompDisc->setVisible(0);
@@ -489,6 +482,9 @@ namespace State {
                     m_hOwn->labmsCompression->setVisible(0);
                     m_hOwn->slimsCompression->setVisible(0);
                     m_hOwn->butmsSave->setEnabled(0);
+                    delete[] ext;
+                    delete[] extl;
+                    return;
                 } else if (!strcmp(extl, "jpg") || !strcmp(extl, "jpeg")) {
                     m_hOwn->labmsCompDisc->setCaption(GETL2("Mapshot", Lang_Ms_DisclaimerJPG));
                     m_hOwn->slimsCompression->setScale(0, 100);
@@ -525,12 +521,9 @@ namespace State {
                 delete[] ext;
                 delete[] extl;
 
-                FILE *f = fopen(m_hOwn->tfmsSaveAs->getText().c_str(), "a");
-                m_hOwn->butmsSave->setEnabled(f != NULL);
-                if (f != NULL) {
-                    fclose(f);
-                    unlink(m_hOwn->tfmsSaveAs->getText().c_str());
-                }
+                // Validate without touching the destination: the old fopen +
+                // unlink probe could delete an existing image on path edits.
+                m_hOwn->butmsSave->setEnabled(MapShotValidation::CanSave(m_hOwn->tfmsSaveAs->getText()));
             } else if (actionEvent.getSource() == m_hOwn->butwpSave) {
                 m_hOwn->SaveWorldOptions();
             } else if (actionEvent.getSource() == m_hOwn->butwpCancel) {
@@ -839,8 +832,8 @@ namespace State {
                     sort(objs.begin(), objs.end(), State::ObjSortCoordX);
                 bool bchange = 0;
                 for (int i = 1; i < objs.size(); i++) {
-                    if (objs[i - 1]->GetParam(WWD::Param_LocationX) + diff != objs[i]->GetParam(WWD::Param_LocationX) ||
-                        objs[i - 1]->GetParam(WWD::Param_LocationY) + diff != objs[i]->GetParam(WWD::Param_LocationY))
+                    const auto axis = m_hOwn->bObjectAlignAxis ? WWD::Param_LocationY : WWD::Param_LocationX;
+                    if (objs[i - 1]->GetParam(axis) + diff != objs[i]->GetParam(axis))
                         bchange = 1;
                     if (m_hOwn->bObjectAlignAxis)
                         objs[i]->SetParam(WWD::Param_LocationY, objs[i - 1]->GetParam(WWD::Param_LocationY) + diff);
@@ -1009,7 +1002,12 @@ namespace State {
             } else if (actionEvent.getSource() == m_hOwn->buttpShow) {
                 m_hOwn->hAppMenu->GetContext(AppMenu_View)->EmulateClickID(APPMEN_VIEW_TILEPROP);
             } else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconSearchObject) {
+#ifdef WAPMAP_ENABLE_IMGUI
+                if (m_hOwn->hwinObjectSearch->isOpened()) m_hOwn->hwinObjectSearch->Close();
+                else m_hOwn->hwinObjectSearch->Open();
+#else
                 m_hOwn->winSearchObj->setVisible(!m_hOwn->winSearchObj->isVisible());
+#endif
             } else if (actionEvent.getSource() == m_hOwn->hmbObject->butIconNewObjEmpty) {
                 WWD::Object *obj = new WWD::Object();
                 bool bFromContext = false;
@@ -1157,6 +1155,8 @@ namespace State {
     EditingWWMainListener::EditingWWMainListener(EditingWW *owner) {
         m_hOwn = owner;
         lastPressedWasAlt = false;
+        mTitleBarClickPending = false;
+        mTitleBarClickTime = 0;
     }
 
     void EditingWWMainListener::focusLost(const FocusEvent& event) {
@@ -1455,22 +1455,31 @@ namespace State {
     void EditingWWMainListener::mousePressed(MouseEvent &mouseEvent) {
         lastPressedWasAlt = false;
         if (mouseEvent.getY() > 0 && mouseEvent.getY() < LAY_APPMENU_H) {
+            if (m_hOwn->hAppMenu->IsMenuBarPoint(mouseEvent.getX(), mouseEvent.getY())) {
+                mTitleBarClickPending = false;
+                return;
+            }
             int rx = mouseEvent.getX() - (hge->System_GetState(HGE_SCREENWIDTH) - LAY_APP_BUTTONS_COUNT * LAY_APP_BUTTON_W - m_hOwn->bMaximized * 2);
             if (rx < 0) {
-                if (mouseEvent.getX() > LAY_APPMENU_X + m_hOwn->hAppMenu->getWidth()) {
-                    if (mouseEvent.getClickCount() >= 2) {
-                        m_hOwn->ToggleFullscreen();
-                    } else {
-                        m_hOwn->bDragWindow = true;
-                        GV->SetCursor(DRAG);
-                        POINT mouse;
-                        GetCursorPos(&mouse);
-                        m_hOwn->iWindowDragX = mouse.x;
-                        m_hOwn->iWindowDragY = mouse.y;
-                        GetWindowRect(hge->System_GetState(HGE_HWND), &m_hOwn->windowDragStartRect);
-                    }
+                const DWORD now = GetTickCount();
+                if (mTitleBarClickPending &&
+                    now - mTitleBarClickTime <= GetDoubleClickTime()) {
+                    mTitleBarClickPending = false;
+                    m_hOwn->bDragWindow = false;
+                    m_hOwn->ToggleFullscreen();
+                } else {
+                    mTitleBarClickPending = true;
+                    mTitleBarClickTime = now;
+                    m_hOwn->bDragWindow = true;
+                    GV->SetCursor(DRAG);
+                    POINT mouse;
+                    GetCursorPos(&mouse);
+                    m_hOwn->iWindowDragX = mouse.x;
+                    m_hOwn->iWindowDragY = mouse.y;
+                    GetWindowRect(hge->System_GetState(HGE_HWND), &m_hOwn->windowDragStartRect);
                 }
             } else {
+                mTitleBarClickPending = false;
                 int i = rx / LAY_APP_BUTTON_W;
                 switch (i) {
                     case 0:
@@ -1486,6 +1495,8 @@ namespace State {
                         break;
                 }
             }
+        } else {
+            mTitleBarClickPending = false;
         }
     }
 

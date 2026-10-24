@@ -3,6 +3,11 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../databanks/imageSets.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "nativeInventoryUi.h"
+#include "../legacyText.h"
+#include <imgui_internal.h>
+#endif
 
 namespace ObjEdit {
     cInvPickbox::cInvPickbox(bool isWarpNotFunctional): isWarpNotFunctional(isWarpNotFunctional) {
@@ -31,6 +36,9 @@ namespace ObjEdit {
     }
 
     void cInvPickbox::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (native) return;
+#endif
         if (!win->isVisible()) return;
         int dx, dy;
         win->getAbsolutePosition(dx, dy);
@@ -148,11 +156,17 @@ namespace ObjEdit {
     }
 
     void cInvPickbox::SetVisible(bool b) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (native) { nativeVisible = b; return; }
+#endif
         win->setVisible(b);
     }
 
     void cInvPickbox::SetPosition(int x, int y) {
         win->setPosition(x, y);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativePosition = true;
+#endif
     }
 
     int cInvPickbox::GetWidth() {
@@ -162,4 +176,75 @@ namespace ObjEdit {
     int cInvPickbox::GetHeight() {
         return win->getHeight();
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cInvPickbox::UseNative() {
+        if (native) return;
+        nativeVisible = win->isLocallyVisible();
+        native = true;
+        win->setVisible(false);
+        win->setY(win->getY() - 30);
+        win->setHeight(376);
+    }
+
+    void cInvPickbox::DrawImGui(int& selection) {
+        if (!native || !nativeVisible) return;
+        const auto title = LegacyText::ToUtf8(win->getCaption(), LegacyText::CodePage(GV->Lang->GetCode())) +
+            "###InventoryPicker" + std::to_string(reinterpret_cast<std::uintptr_t>(this));
+        if (nativePosition) {
+            const auto* viewport = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos({viewport->Pos.x + win->getX(), viewport->Pos.y + win->getY()}, ImGuiCond_FirstUseEver);
+            nativePosition = false;
+        }
+        ImGui::SetNextWindowSize({254, 376}, ImGuiCond_Always);
+        if (WapMapImGui::BeginFixedWindow(title.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoFocusOnAppearing)) {
+            WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, nullptr, win->getCaption().c_str());
+            int preview = selection;
+            ImGui::SetCursorPos({5, 32});
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+            if (ImGui::BeginChild("items", {244, 272}, ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened)) {
+                const auto start = ImGui::GetCursorPos();
+                ImGuiListClipper clipper;
+                clipper.Begin((InventoryItemsCount + 3) / 4, 56);
+                while (clipper.Step()) for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+                    for (int column = 0; column < 4; ++column) {
+                        const int index = row * 4 + column;
+                        if (index >= InventoryItemsCount) break;
+                        const auto item = GV->editState->hInvCtrl->GetItemByIt(index);
+                        ImGui::PushID(index);
+                        ImGui::SetCursorPos({start.x + column * 56 + 1, start.y + row * 56 + 1});
+                        const auto p = ImGui::GetCursorScreenPos();
+                        if (ImGui::InvisibleButton("item", {54, 54}, ImGuiButtonFlags_EnableNav)) selection = item.second;
+                        const bool hovered = ImGui::IsItemHovered() || WapMapImGui::IsKeyboardFocused();
+                        if (hovered) preview = item.second;
+                        auto* draw = ImGui::GetWindowDrawList();
+                        draw->AddRect(p, {p.x + 54, p.y + 54}, hovered || selection == item.second ? IM_COL32(23, 150, 255, 255) : IM_COL32(75, 75, 75, 255));
+                        NativeInventoryUi::Image(item, {p.x + 3, p.y + 3}, 48, isWarpNotFunctional && item.second == 32);
+                        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoPreviewTooltip)) {
+                            selection = -1;
+                            ImGui::SetDragDropPayload(NativeInventoryUi::Payload, &item.second, sizeof(item.second));
+                            ImGui::EndDragDropSource();
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::SetCursorPos({start.x, start.y + (row + 1) * 56});
+                }
+                ImGui::Dummy({1, 0});
+            }
+            ImGui::EndChild(); ImGui::PopStyleVar();
+            if (preview >= 0) {
+                const auto origin = ImGui::GetWindowPos();
+                const std::string info = std::string(GETL2S("EditObj_Inventory", "Effect")) + ": (" + GETL2S("EditObj_Inventory", "ItemID") + " #" + std::to_string(preview) + ")";
+                WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {origin.x + 5, origin.y + 312}, info.c_str());
+                wchar_t key[32]; wsprintfW(key, isWarpNotFunctional && preview == 32 ? L"E_%dB" : L"E_%d", preview);
+                ImGui::SetCursorPos({5, 332});
+                WapMapImGui::WrappedBitmapText(*hge, *GV->fntMyriad16, GETL2SV("EditObj_Inventory", key), 244);
+            }
+            if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+                selection = -1;
+                if (const auto* payload = ImGui::GetDragDropPayload(); payload && payload->IsDataType(NativeInventoryUi::Payload)) ImGui::ClearDragDrop();
+            }
+        }
+        ImGui::End();
+    }
+#endif
 }

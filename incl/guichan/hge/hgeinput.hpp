@@ -99,7 +99,7 @@ namespace gcn
          * This function directly deal with the mouse input , and it avoid 
          * the odd things in HGE.
          */
-        void pollMouseInput();
+        void pollMouseInput(const hgeInputEvent* event = nullptr);
 
         /**
          * Converts the keycode and characters to a Key object.

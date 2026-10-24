@@ -40,6 +40,10 @@ namespace ObjEdit {
         tfWidth->setWidth(50);
         tfWidth->addActionListener(hAL);
         win->add(tfWidth, 100, 45);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjBreakPlank::~cEditObjBreakPlank() {

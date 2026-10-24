@@ -57,6 +57,7 @@ namespace SHR {
 
     void Context::draw(Graphics *graphics) {
         if (vElements.empty()) return;
+        const DWORD originalFontColor = hFont->GetColor();
 
         if (!bHide && fShowTimer < 0.2f) {
             fShowTimer += hge->Timer_GetDelta();
@@ -163,6 +164,7 @@ namespace SHR {
         hge->Gfx_RenderLine(x, y, x + getWidth(), y, SETA(borderColor, galpha));
         hge->Gfx_RenderLine(x, yOff, x, y, SETA(borderColor, galpha));
         hge->Gfx_RenderLine(x + getWidth(), yOff, x + getWidth(), y, SETA(borderColor, galpha));
+        hFont->SetColor(originalFontColor);
     }
 
     void Context::hide() {

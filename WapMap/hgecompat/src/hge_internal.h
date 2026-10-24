@@ -90,6 +90,8 @@ struct HGE::Impl {
     std::array<bool, 256> previousKeys{};
     std::array<bool, 256> pressedKeys{};
     std::array<bool, 256> releasedKeys{};
+    std::unordered_set<int> imguiCapturedKeyCodes;
+    std::array<bool, 3> imguiCapturedMouseButtons{};
     bool leftShift{};
     bool rightShift{};
     bool leftControl{};
@@ -100,9 +102,16 @@ struct HGE::Impl {
     int inputChar{};
     int mouseX{};
     int mouseY{};
+    int physicalMouseX{};
+    int physicalMouseY{};
+    int physicalMouseScreenX{};
+    int physicalMouseScreenY{};
     int mouseWheel{};
     float wheelRemainder{};
     bool mouseOver{};
+    bool imguiInitialized{};
+    bool imguiKeyboardCaptureOverride{};
+    bool applicationFocused{};
     float delta{};
     int fps{};
     unsigned framesSinceFpsUpdate{};

@@ -4,6 +4,10 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -18,6 +22,10 @@ namespace ObjEdit {
         win->addActionListener(hAL);
         win->add(vpAdv);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
 
         win->add(_butAddNext, win->getWidth() - 210, 227);
         win->add(_butSave, win->getWidth() - 110, 227);
@@ -131,4 +139,44 @@ namespace ObjEdit {
         GV->fntMyriad16->printf(dx + 5, dy + 28 + 267 - 90 + 15, HGETEXT_LEFT, "%s: ~y~%s", 0,
                                 GETL2S("EditObj_Inventory", "Effect"), GETL2SV("EditObj_Inventory", tmp));
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjHealth::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        int picked = 0;
+        for (int i = 0; i < 11; ++i) if (rbType[i]->isSelected()) picked = i;
+        int preview = picked;
+        const float top = ImGui::GetFrameHeight();
+        for (int i = 0; i < 11; ++i) {
+            ImGui::PushID(i);
+            const float x = 5.f + i % 4 * 71, y = top + 5.f + i / 4 * 60;
+            ImGui::SetCursorPos({x, y + 22});
+            int choice = picked;
+            bool hit = WapMapImGui::BitmapRadio(*hge, *GV->fntMyriad16, *GV->hGfxInterface, "", choice, i);
+            ImGui::SetCursorPos({x + 20, y});
+            const auto p = ImGui::GetCursorScreenPos();
+            hit |= ImGui::InvisibleButton("preview", {48, 54}, ImGuiButtonFlags_EnableNav);
+            const bool hover = ImGui::IsItemHovered() || WapMapImGui::IsKeyboardFocused();
+            if (hover) preview = i;
+            auto* asset = hState->SprBank->GetAssetByID(hState->hInvCtrl->GetItemByID(iHealthID[i]).first.c_str());
+            auto* sprite = GV->sprSmiley;
+            if (asset && asset->GetSpritesCount() > 0) {
+                auto* image = asset->GetIMGByIterator(hState->hInvCtrl->GetAnimFrame() % asset->GetSpritesCount());
+                if (image && image->GetSprite()) sprite = image->GetSprite();
+            }
+            AssetBrowserUi::Preview(*hge, sprite, {p.x, p.y + 3}, 44, false, false, picked == i, hover);
+            if (hit && !nativeAction) {
+                rbType[i]->setSelected(true);
+                nativeAction = rbType[i];
+            }
+            ImGui::PopID();
+        }
+        wchar_t key[32];
+        wsprintfW(key, L"E_%d", hState->hInvCtrl->GetItemByID(iHealthID[preview]).second);
+        const std::string effect = std::string(GETL2S("EditObj_Inventory", "Effect")) + ": " + GETL2SV("EditObj_Inventory", key);
+        const auto origin = ImGui::GetWindowPos();
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16,
+            {origin.x + 5, origin.y + top + 202}, effect.c_str());
+        EndNativeWindow();
+    }
+#endif
 }

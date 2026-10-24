@@ -55,6 +55,7 @@ namespace SHR {
         void keyReleased(KeyEvent &keyEvent) override;
 
         bool IsNumericalOnly() { return bNumerical; };
+        bool AllowsNegative() const { return bAllowNegative; }
 
         void SetNumerical(bool b, bool n = 1) {
             bNumerical = b;

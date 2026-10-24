@@ -18,6 +18,7 @@ void cRulers::SetVisible(bool b) {
     if (bVisible != b) {
         bVisible = b;
         GV->editState->hAppMenu->NotifyRulersSwitch();
+#ifndef WAPMAP_ENABLE_IMGUI
         if (GV->editState->hParser != NULL) {
             if (b) {
                 GV->editState->fCamX += 19 * GV->editState->fZoom;
@@ -27,10 +28,14 @@ void cRulers::SetVisible(bool b) {
                 GV->editState->fCamY -= 19 * GV->editState->fZoom;
             }
         }
+#endif
     }
 }
 
 void cRulers::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return; // Native document rulers create guides in their own coordinates.
+#endif
     if (GV->editState->hParser == NULL || !bVisible || GV->editState->iActiveTool != EWW_TOOL_NONE ||
         !GV->editState->bShowGuideLines)
         return;
@@ -75,6 +80,9 @@ void cRulers::Think() {
 }
 
 void cRulers:: Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return;
+#endif
     if (!bVisible || !GV->editState->hParser) return;
     float zoom = GV->editState->fZoom;
     int iStartX, iStartY;

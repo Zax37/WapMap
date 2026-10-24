@@ -52,6 +52,10 @@ namespace ObjEdit {
         win->add(tfDmg, 165, 30 + yoffset);
 
         _butSave->setEnabled(!tfDmg->isMarkedInvalid() && !tfTimeOff->isMarkedInvalid());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjLaser::~cEditObjLaser() {

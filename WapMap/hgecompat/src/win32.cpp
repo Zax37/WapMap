@@ -9,6 +9,11 @@
 #include <Shellapi.h>
 #include <Ole2.h>
 #include <ShlObj.h>
+#include <dwmapi.h>
+
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui_internal.h>
+#endif
 
 #include <string>
 #include <vector>
@@ -20,6 +25,13 @@ WNDPROC previousWindowProc{};
 bool oleInitialized{};
 POINTL droppedFilesPosition{};
 IDropTarget* registeredDropTarget{};
+
+void DisableNativeFrame(HWND window) {
+    // WS_THICKFRAME is needed for native resizing, but DWM must not draw its
+    // own frame over the editor's custom chrome on hover/activation changes.
+    const DWMNCRENDERINGPOLICY policy = DWMNCRP_DISABLED;
+    DwmSetWindowAttribute(window, DWMWA_NCRENDERING_POLICY, &policy, sizeof(policy));
+}
 
 std::string WideToNarrow(const std::wstring& value) {
     if (value.empty()) {
@@ -146,11 +158,20 @@ private:
 };
 
 LRESULT CALLBACK WapProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    UpdateWin32ResizePreview(window, message, lparam);
     switch (message) {
+    case WM_MOUSEACTIVATE:
+        return MA_ACTIVATE;
     case WM_NCHITTEST: {
         if (!activeHge) {
             break;
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (ImGui::GetCurrentContext() &&
+            ImGui::GetCurrentContext()->MovingWindow) {
+            return HTCLIENT;
+        }
+#endif
         const auto border = activeHge->System_GetState(HGE_BORDER_WIDTH);
         if (border <= 0) {
             return HTCLIENT;
@@ -182,6 +203,12 @@ LRESULT CALLBACK WapProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam
     case WM_NCCALCSIZE:
     case WM_NCPAINT:
         return 0;
+    case WM_NCACTIVATE:
+        return TRUE;
+    case WM_DWMCOMPOSITIONCHANGED:
+    case WM_THEMECHANGED:
+        DisableNativeFrame(window);
+        break;
     case WM_GETMINMAXINFO:
         if (const auto info = reinterpret_cast<MINMAXINFO*>(lparam)) {
             info->ptMinTrackSize.x = 1024;
@@ -190,6 +217,9 @@ LRESULT CALLBACK WapProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam
         return 0;
     case WM_SETCURSOR:
         if (LOWORD(lparam) == HTCLIENT) {
+            // Legacy widgets only override the cursor for special cases.
+            // Restore the default before dispatching each new mouse movement.
+            SetCursor(LoadCursor(nullptr, IDC_ARROW));
             return TRUE;
         }
         break;
@@ -224,24 +254,74 @@ LRESULT CALLBACK WapProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam
 
 }
 
+void UpdateWin32ResizePreview(HWND window, UINT message, LPARAM lparam) {
+    // The native sizing loop blocks SFML's render loop. Use an owned overlay
+    // with a hollow region so previewing the bounds never redraws the editor.
+    constexpr wchar_t property[] = L"WapMap.ResizePreview";
+    auto preview = static_cast<HWND>(GetPropW(window, property));
+    if (message == WM_EXITSIZEMOVE || message == WM_NCDESTROY) {
+        if (preview) {
+            RemovePropW(window, property);
+            DestroyWindow(preview);
+        }
+        return;
+    }
+    if (message != WM_SIZING || !lparam) return;
+
+    const auto& bounds = *reinterpret_cast<const RECT*>(lparam);
+    const int width = bounds.right - bounds.left;
+    const int height = bounds.bottom - bounds.top;
+    if (width <= 0 || height <= 0) return;
+    if (!preview) {
+        preview = CreateWindowExW(
+            WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
+            L"STATIC", nullptr, WS_POPUP | SS_WHITERECT,
+            bounds.left, bounds.top, width, height, window, nullptr,
+            GetModuleHandleW(nullptr), nullptr);
+        if (!preview) return;
+        if (!SetPropW(window, property, preview)) {
+            DestroyWindow(preview);
+            return;
+        }
+        SetLayeredWindowAttributes(preview, 0, 230, LWA_ALPHA);
+    }
+    const int border = GetSystemMetrics(SM_CXSIZEFRAME);
+    const int thickness = border > 2 ? border : 3;
+    const auto region = CreateRectRgn(0, 0, width, height);
+    const auto interior = CreateRectRgn(thickness, thickness,
+                                       width - thickness, height - thickness);
+    if (region && interior) {
+        CombineRgn(region, region, interior, RGN_DIFF);
+        if (!SetWindowRgn(preview, region, TRUE)) DeleteObject(region);
+    } else if (region) {
+        DeleteObject(region);
+    }
+    if (interior) DeleteObject(interior);
+    SetWindowPos(preview, HWND_TOP, bounds.left, bounds.top, width, height,
+                 SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
 bool InstallWin32WindowFeatures(HWND window, HGE* hge, const bool acceptFiles) {
     if (!window || !hge || previousWindowProc) {
         return false;
     }
 
     activeHge = hge;
-    const auto style = GetWindowLongPtr(window, GWL_STYLE);
-    SetWindowLongPtr(window, GWL_STYLE,
-                     style | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
-    SetWindowPos(window, nullptr, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-
     previousWindowProc = reinterpret_cast<WNDPROC>(
         SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WapProc)));
     if (!previousWindowProc) {
         activeHge = nullptr;
         return false;
     }
+
+    // Install the custom-frame handler before requesting a frame recalculation
+    // so Windows never briefly paints the standard frame during setup.
+    DisableNativeFrame(window);
+    const auto style = GetWindowLongPtr(window, GWL_STYLE);
+    SetWindowLongPtr(window, GWL_STYLE,
+                     style | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
+    SetWindowPos(window, nullptr, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 
     if (acceptFiles) {
         const auto oleResult = OleInitialize(nullptr);
@@ -263,6 +343,7 @@ bool InstallWin32WindowFeatures(HWND window, HGE* hge, const bool acceptFiles) {
 }
 
 void RemoveWin32WindowFeatures(HWND window) {
+    UpdateWin32ResizePreview(window, WM_EXITSIZEMOVE, 0);
     if (window && registeredDropTarget) {
         RevokeDragDrop(window);
         registeredDropTarget = nullptr;

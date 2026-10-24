@@ -39,6 +39,14 @@ namespace ObjEdit {
 		std::function<void()> updateDimensions;
 
 		void UpdateLogic();
+        void PickImage(cSprBankAsset* asset, cSprBankAssetIMG* frame);
+#ifdef WAPMAP_ENABLE_IMGUI
+        int nativeTab = 0;
+        bool nativeTabFocus = true, nativePick = false;
+        std::string nativeSet;
+        int nativeFrame = -1;
+        bool nativeIndividual = false;
+#endif
 		std::vector<cSprBankAsset*>& CurrentlyDisplayedImgSet();
 		int CountActualImagesToDisplay(std::vector<cSprBankAsset*>& assets);
     public:
@@ -52,6 +60,10 @@ namespace ObjEdit {
 
         //virtual void Think(bool bMouseConsumed) override;
 		virtual void Draw() override;
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+        void Think(bool consumed) override;
+#endif
 
 		virtual void mouseClicked(MouseEvent& mouseEvent);
 

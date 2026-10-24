@@ -4,6 +4,12 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#include "textLayout.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../legacyText.h"
+#include "nativeTextInput.h"
+#endif
 
 extern HGE *hge;
 
@@ -23,6 +29,7 @@ namespace ObjEdit {
 
         areaX = hTempObj->GetParam(WWD::Param_LocationX);
         areaY = hTempObj->GetParam(WWD::Param_LocationY);
+        areaW = areaH = 20;
 
         tbText = new SHR::TextBox(GETL2S("EditObj_Text", "Sample"));
         tbText->setFont(GV->gcnParts.gcnfntMyriad16);
@@ -52,6 +59,7 @@ namespace ObjEdit {
         butAlign[2] = GV->editState->MakeButton(15 + labAlign->getWidth() + 64, 170, Icon_TextAlign_Right, win);
         butAlign[1]->setIconColor(0x55FFFFFF);
         butAlign[2]->setIconColor(0x55FFFFFF);
+        butAlign[0]->setHighlight(true);
         for (int i = 0; i < 3; i++) {
             butAlign[i]->removeActionListener(GV->editState->mainListener);
             butAlign[i]->addActionListener(hAL);
@@ -59,8 +67,15 @@ namespace ObjEdit {
         iAlign = 0;
 
         GenerateText();
+        iDragX = hTempObj->GetParam(WWD::Param_LocationX);
+        iDragY = hTempObj->GetParam(WWD::Param_LocationY);
 
         win->add(_butSave, 150, 220);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        nativeText = LegacyText::ToUtf8(tbText->getText(), LegacyText::CodePage(GV->Lang->GetCode()));
+#endif
     }
 
     cEditObjText::~cEditObjText() {
@@ -81,217 +96,64 @@ namespace ObjEdit {
         hState->vPort->MarkToRedraw();
     }
 
-    int cEditObjText::GetCharFrame(char c) {
-        if (c > 64 && c < 91)
-            return c - 64;
-        else if (c > 96 && c < 123)
-            return c - 96;
-        else if (c > 47 && c < 58)
-            return c - 21;
-        else if (c == 44)
-            return 37;
-        else if (c == 96 || c == 39)
-            return 37;
-        else if (c == 46)
-            return 38;
-        else if (c == 33)
-            return 39;
-        else if (c == 63)
-            return 40;
-        else if (c == 61)
-            return 41;
-        else if (c == 60)
-            return 42;
-        else if (c == 62)
-            return 43;
-        else if (c == 40)
-            return 44;
-        else if (c == 41)
-            return 45;
-        else if (c == 91)
-            return 46;
-        else if (c == 93)
-            return 47;
-        else if (c == 64)
-            return 48;
-        else if (c == '#')
-            return 49;
-        else if (c == '$')
-            return 50;
-        else if (c == '%')
-            return 51;
-        else if (c == '^')
-            return 52;
-        else if (c == '&')
-            return 53;
-        else if (c == '*')
-            return 54;
-        else
-            return -1;
+    bool cEditObjText::CanGenerate() {
+        auto* asset = hState->SprBank->GetAssetByID("GAME_FONT");
+        return MapTextLayout::Build(tbText->getText(), areaX, areaY, iAlign, [asset](int frame) {
+            auto* image = asset ? asset->GetIMGByID(frame) : nullptr;
+            return image && image->GetSprite() ? static_cast<int>(image->GetSprite()->GetWidth()) : 0;
+        }).has_value();
     }
 
     void cEditObjText::GenerateText() {
-        char *text = new char[strlen(tbText->getText().c_str()) + 1];
-        strcpy(text, tbText->getText().c_str());
-        if (strlen(text) == 0) {
-            delete[] text;
-            return;
-        }
-
-        butApply->setEnabled(0);
-
-        for (int i = 1; i < hObjects.size(); i++) {
-            GV->editState->GetActivePlane()->DeleteObject(hObjects[i]);
-        }
+        auto* asset = hState->SprBank->GetAssetByID("GAME_FONT");
+        const auto layout = MapTextLayout::Build(tbText->getText(), areaX, areaY, iAlign, [asset](int frame) {
+            auto* image = asset ? asset->GetIMGByID(frame) : nullptr;
+            return image && image->GetSprite() ? static_cast<int>(image->GetSprite()->GetWidth()) : 0;
+        });
+        if (!layout) { _butSave->setEnabled(false); butApply->setEnabled(false); return; }
+        for (size_t i = 1; i < hObjects.size(); ++i) hState->GetActivePlane()->DeleteObject(hObjects[i]);
         hObjects.clear();
-        hObjects.push_back(hTempObj);
-
-        areaW = 0;
-        areaH = 10;
-
-        int offsetx = 10, offsety = 10;
-        for (int i = 0; i < strlen(text); i++) {
-            int frame = GetCharFrame(text[i]), yoffset = 0;
-            if (text[i] == 46 || text[i] == 44) {
-                yoffset = 6;
+        for (const auto& glyph : layout->glyphs) {
+            auto* object = hObjects.empty() ? hTempObj : new WWD::Object();
+            object->SetLogic("DoNothing");
+            object->SetImageSet("GAME_FONT");
+            object->SetParam(WWD::Param_LocationI, glyph.frame);
+            object->SetParam(WWD::Param_LocationX, glyph.x);
+            object->SetParam(WWD::Param_LocationY, glyph.y);
+            if (object != hTempObj) {
+                hState->GetActivePlane()->AddObjectAndCalcID(object);
+                object->SetUserData(new cObjUserData(object));
             }
-
-            if (text[i] == ' ') {
-                offsetx += 5;
-                continue;
-            } else if (text[i] == '\n') {
-                offsetx = 10;
-                offsety += 10;
-                areaH += 10;
-                continue;
-            } else if (frame == -1)
-                continue;
-
-            if (i == 0) {
-                hTempObj->SetParam(WWD::Param_LocationI, frame);
-                hTempObj->SetParam(WWD::Param_LocationX, areaX + offsetx);
-                hTempObj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset);
-                GetUserDataFromObj(hTempObj)->SyncToObj();
-            } else {
-                auto obj = new WWD::Object();
-                obj->SetLogic("DoNothing");
-                obj->SetImageSet("GAME_FONT");
-                obj->SetParam(WWD::Param_LocationI, frame);
-                obj->SetParam(WWD::Param_LocationX, areaX + offsetx);
-                obj->SetParam(WWD::Param_LocationY, areaY + offsety + yoffset - (frame == 38) * 3);
-                GV->editState->GetActivePlane()->AddObjectAndCalcID(obj);
-                obj->SetUserData(new cObjUserData(obj));
-                GV->editState->hPlaneData[GV->editState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(obj);
-                hObjects.push_back(obj);
-            }
-            auto asset = GV->editState->SprBank->GetAssetByID("GAME_FONT");
-            if (asset) {
-                auto img = asset->GetIMGByID(frame);
-                if (img) {
-                    auto sprite = img->GetSprite();
-                    offsetx += sprite->GetWidth();
-                }
-            }
-            if (offsetx > areaW)
-                areaW = offsetx;
+            GetUserDataFromObj(object)->SyncToObj();
+            hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(object);
+            hObjects.push_back(object);
         }
-        areaW += 5;
-        areaH += 10;
-        ApplyAlign();
-        delete[] text;
+        areaW = layout->width;
+        areaH = layout->height;
+        iDragX = hTempObj->GetParam(WWD::Param_LocationX);
+        iDragY = hTempObj->GetParam(WWD::Param_LocationY);
+        butApply->setEnabled(false);
+        _butSave->setEnabled(true);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjText::ApplyAlign() {
-        char *text = new char[strlen(tbText->getText().c_str()) + 1];
-        strcpy(text, tbText->getText().c_str());
-        if (strlen(text) == 0) {
-            delete[] text;
-            return;
+        auto* asset = hState->SprBank->GetAssetByID("GAME_FONT");
+        const auto layout = MapTextLayout::Build(tbText->getText(), areaX, areaY, iAlign, [asset](int frame) {
+            auto* image = asset ? asset->GetIMGByID(frame) : nullptr;
+            return image && image->GetSprite() ? static_cast<int>(image->GetSprite()->GetWidth()) : 0;
+        });
+        if (!layout || layout->glyphs.size() != hObjects.size()) { GenerateText(); return; }
+        for (size_t i = 0; i < hObjects.size(); ++i) {
+            hObjects[i]->SetParam(WWD::Param_LocationX, layout->glyphs[i].x);
+            hObjects[i]->SetParam(WWD::Param_LocationY, layout->glyphs[i].y);
+            GetUserDataFromObj(hObjects[i])->SyncToObj();
+            hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(hObjects[i]);
         }
-
-        auto asset = GV->editState->SprBank->GetAssetByID("GAME_FONT");
-        int linew = 0;
-        int chridx = 0;
-        int objit = 0;
-        for (int i = 0; i <= strlen(text); i++) {
-            if (i == strlen(text) || text[i] == '\n') {
-                int offset = 10;
-                for (int z = chridx; z < i; z++) {
-                    if (text[z] == ' ') {
-                        offset += 5;
-                        continue;
-                    } else {
-                        int fr = GetCharFrame(text[z]);
-                        if (fr != -1) {
-                            int frmod = 0;
-                            if (fr == 9)
-                                frmod = -2;
-                            if (iAlign == 0)
-                                hObjects[objit]->SetParam(WWD::Param_LocationX, areaX + offset + frmod);
-                            else if (iAlign == 1)
-                                hObjects[objit]->SetParam(WWD::Param_LocationX,
-                                                          areaX + (areaW - linew) / 2 + offset - 5 + frmod);
-                            else if (iAlign == 2)
-                                hObjects[objit]->SetParam(WWD::Param_LocationX,
-                                                          areaX + areaW - linew + offset - 10 + frmod);
-                            if (asset) {
-                                auto img = asset->GetIMGByID(fr);
-                                if (img) {
-                                    auto sprite = img->GetSprite();
-                                    if (sprite) offset += sprite->GetWidth();
-                                }
-                            }
-                            GetUserDataFromObj(hObjects[objit])->SyncToObj();
-                            objit++;
-                        }
-                    }
-                }
-                linew = 0;
-                chridx = i + 1;
-                continue;
-            } else if (text[i] == ' ') {
-                linew += 5;
-                continue;
-            } else {
-                int frame = GetCharFrame(text[i]);
-                if (frame == -1) continue;
-                if (asset) {
-                    auto img = asset->GetIMGByID(frame);
-                    if (img) {
-                        auto sprite = img->GetSprite();
-                        if (sprite) linew += sprite->GetWidth();
-                    }
-                }
-            }
-        }
-
-        /*if( iAlign == 0 ){
-         int offset = 10;
-         int objit = 0;
-         for(int i=0;i<strlen(text);i++){
-          int frame = GetCharFrame(text[i]);
-          if( text[i] == ' ' ){
-           offset += 5;
-           continue;
-          }else if( text[i] == '\n' ){
-           offset = 0;
-           continue;
-          }else if( frame == -1 ){
-           continue;
-          }else{
-           hObjects[objit]->SetParam(WWD::Param_LocationX, areaX+offset);
-           GetUserDataFromObj(hObjects[objit])->SyncToObj();
-           objit++;
-           offset += GV->editState->SprBank->GetAssetByID("GAME_FONT")->GetIMGByID(frame)->GetSprite()->GetWidth();
-          }
-         }
-        }else if( iAlign == 1 ){
-         int center =
-        }else if( iAlign == 2 ){
-
-        }*/
-        GV->editState->vPort->MarkToRedraw();
-        delete[] text;
+        areaW = layout->width; areaH = layout->height;
+        iDragX = hTempObj->GetParam(WWD::Param_LocationX);
+        iDragY = hTempObj->GetParam(WWD::Param_LocationY);
+        hState->vPort->MarkToRedraw();
     }
 
     void cEditObjText::Action(const gcn::ActionEvent &actionEvent) {
@@ -299,7 +161,9 @@ namespace ObjEdit {
             bKill = 1;
             return;
         } else if (actionEvent.getSource() == tbText) {
-            butApply->setEnabled(strlen(tbText->getText().c_str()) > 0);
+            const bool valid = CanGenerate();
+            butApply->setEnabled(valid);
+            _butSave->setEnabled(valid);
         } else if (actionEvent.getSource() == butApply) {
             GenerateText();
             return;
@@ -308,8 +172,8 @@ namespace ObjEdit {
             if (actionEvent.getSource() == butAlign[i]) {
                 iAlign = i;
                 for (int y = 0; y < 3; y++)
-                    butAlign[y]->setIconColor(y == i ? 0xFFFFFFFF : 0x55FFFFFF);
-                if (butApply->isEnabled())
+                    { butAlign[y]->setIconColor(y == i ? 0xFFFFFFFF : 0x55FFFFFF); butAlign[y]->setHighlight(y == i); }
+                if (butApply->isLocallyEnabled())
                     GenerateText();
                 else
                     ApplyAlign();
@@ -318,34 +182,18 @@ namespace ObjEdit {
     }
 
     void cEditObjText::_Think(bool bMouseConsumed) {
-        if (_bDragging) {
-            if (iDragX != hTempObj->GetParam(WWD::Param_LocationX) ||
-                iDragY != hTempObj->GetParam(WWD::Param_LocationY)) {
-                int diffx = hTempObj->GetParam(WWD::Param_LocationX) - iDragX,
-                        diffy = hTempObj->GetParam(WWD::Param_LocationY) - iDragY;
-                for (int i = 1; i < hObjects.size(); i++) {
-                    hObjects[i]->SetParam(WWD::Param_LocationX, hObjects[i]->GetParam(WWD::Param_LocationX) + diffx);
-                    hObjects[i]->SetParam(WWD::Param_LocationY, hObjects[i]->GetParam(WWD::Param_LocationY) + diffy);
-                    GetUserDataFromObj(hObjects[i])->SyncToObj();
-                }
-                iDragX = hTempObj->GetParam(WWD::Param_LocationX);
-                iDragY = hTempObj->GetParam(WWD::Param_LocationY);
-                areaX += diffx;
-                areaY += diffy;
-                GV->editState->vPort->MarkToRedraw();
-            }
-        }
         if (!bMouseConsumed) {
             float mx, my;
             hge->Input_GetMousePos(&mx, &my);
+            if (hState->conMain->getWidgetAt(mx, my) != hState->vPort->GetWidget()) return;
             int wmx = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
                 wmy = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
             bool mouseOver = (wmx > areaX && wmy > areaY && wmx < areaX + areaW && wmy < areaY + areaH);
             if (mouseOver) {
                 if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                     _bDragging = 1;
-                    _iMoveInitX = wmx;
-                    _iMoveInitY = wmy;
+                    _iMoveInitX = hTempObj->GetParam(WWD::Param_LocationX);
+                    _iMoveInitY = hTempObj->GetParam(WWD::Param_LocationY);
                     _iDragOffX = wmx - hTempObj->GetParam(WWD::Param_LocationX);
                     _iDragOffY = wmy - hTempObj->GetParam(WWD::Param_LocationY);
                     iDragX = hTempObj->GetParam(WWD::Param_LocationX);
@@ -356,9 +204,56 @@ namespace ObjEdit {
     }
 
     void cEditObjText::Save() {
-        if (butApply->isEnabled())
+        if (butApply->isLocallyEnabled())
             GenerateText();
     }
+
+    void cEditObjText::Think(bool consumed) {
+        cObjEdit::Think(consumed);
+        if (bKill) return;
+        if (_bDragging && !hge->Input_GetKeyState(HGEK_LBUTTON)) _bDragging = false;
+        const auto dx = std::int64_t(hTempObj->GetParam(WWD::Param_LocationX)) - iDragX;
+        const auto dy = std::int64_t(hTempObj->GetParam(WWD::Param_LocationY)) - iDragY;
+        if (!dx && !dy) return;
+        bool valid = MapTextLayout::Fits(std::int64_t(areaX) + dx) && MapTextLayout::Fits(std::int64_t(areaY) + dy) &&
+            MapTextLayout::Fits(std::int64_t(areaX) + dx + areaW) && MapTextLayout::Fits(std::int64_t(areaY) + dy + areaH);
+        for (size_t i = 1; i < hObjects.size(); ++i)
+            valid = valid && MapTextLayout::Fits(std::int64_t(hObjects[i]->GetParam(WWD::Param_LocationX)) + dx) &&
+                MapTextLayout::Fits(std::int64_t(hObjects[i]->GetParam(WWD::Param_LocationY)) + dy);
+        if (!valid) {
+            hTempObj->SetParam(WWD::Param_LocationX, iDragX); hTempObj->SetParam(WWD::Param_LocationY, iDragY);
+            GetUserDataFromObj(hTempObj)->SyncToObj();
+            hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(hTempObj);
+            hState->vPort->MarkToRedraw(); _bDragging = false; return;
+        }
+        for (size_t i = 1; i < hObjects.size(); ++i) {
+            hObjects[i]->SetParam(WWD::Param_LocationX, static_cast<int>(hObjects[i]->GetParam(WWD::Param_LocationX) + dx));
+            hObjects[i]->SetParam(WWD::Param_LocationY, static_cast<int>(hObjects[i]->GetParam(WWD::Param_LocationY) + dy));
+            GetUserDataFromObj(hObjects[i])->SyncToObj();
+            hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(hObjects[i]);
+        }
+        iDragX = hTempObj->GetParam(WWD::Param_LocationX); iDragY = hTempObj->GetParam(WWD::Param_LocationY);
+        hState->hPlaneData[hState->GetActivePlaneID()]->ObjectData.hQuadTree->UpdateObject(hTempObj);
+        areaX = static_cast<int>(areaX + dx); areaY = static_cast<int>(areaY + dy);
+        hState->vPort->MarkToRedraw();
+    }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjText::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        ImGui::SetCursorPos({4, ImGui::GetFrameHeight() + 13});
+        ImGui::BeginDisabled(nativeAction != nullptr);
+        const bool edited = MapTextInput::Multiline("##mapText", nativeText, {388, 150});
+        const auto encoded = LegacyText::FromUtf8(nativeText, LegacyText::CodePage(GV->Lang->GetCode()), nativeText.size());
+        if (!encoded || (!edited && !_butSave->isLocallyEnabled())) {
+            nativeValid = false;
+            ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(220, 75, 75, 255));
+        }
+        if (edited && encoded) { tbText->setText(*encoded); nativeAction = tbText; }
+        ImGui::EndDisabled();
+        DrawNativeControls();
+        EndNativeWindow();
+    }
+#endif
 
     void cEditObjText::RenderObjectOverlay() {
         int ax1 = GV->editState->Wrd2ScrX(GV->editState->GetActivePlane(), areaX),

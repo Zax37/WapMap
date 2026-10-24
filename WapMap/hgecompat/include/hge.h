@@ -240,6 +240,14 @@ public:
 
     void HGE_CALL Input_GetMousePos(float* x, float* y);
     void HGE_CALL Input_SetMousePos(float x, float y);
+#ifdef WAPMAP_ENABLE_IMGUI
+    void HGE_CALL Input_SetMouseStateOverride(float x, float y, bool left, bool right,
+                                              bool middle, int wheel);
+    void HGE_CALL Input_GetPhysicalMousePos(float* x, float* y);
+    void HGE_CALL Input_GetPhysicalMouseScreenPos(float* x, float* y);
+    void HGE_CALL Input_GetPhysicalMouseButtons(bool* left, bool* right, bool* middle);
+    void HGE_CALL Input_SetKeyboardCaptureOverride(bool enabled);
+#endif
     int HGE_CALL Input_GetMouseWheel();
     bool HGE_CALL Input_IsMouseOver();
     bool HGE_CALL Input_KeyDown(int key);
@@ -273,6 +281,7 @@ public:
     void HGE_CALL Texture_Free(HTEXTURE texture);
     int HGE_CALL Texture_GetWidth(HTEXTURE texture, bool original = false);
     int HGE_CALL Texture_GetHeight(HTEXTURE texture, bool original = false);
+    unsigned int HGE_CALL Texture_GetNativeHandle(HTEXTURE texture) const;
     DWORD* HGE_CALL Texture_Lock(HTEXTURE texture, bool readOnly = true,
                                  int left = 0, int top = 0, int width = 0, int height = 0);
     void HGE_CALL Texture_Unlock(HTEXTURE texture);

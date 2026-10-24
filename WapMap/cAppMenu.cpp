@@ -23,12 +23,10 @@ cAppMenu_Entry::cAppMenu_Entry(std::string lab, Gfx16Icons ico) {
     hContext = new SHR::Context(&GV->gcnParts, GV->fntMyriad16);
     hContext->hide();
     GV->editState->conMain->add(hContext, 400, 400);
-    fTimer = 0;
 }
 
 cAppMenu::cAppMenu() {
     bEnabled = true;
-    mDimension.height = LAY_APPMENU_H;
     iHovered = iOpened = iSelected = -1;
 
     setTabInEnabled(false);
@@ -50,6 +48,9 @@ cAppMenu::cAppMenu() {
     hEntries[AppMenu_Assets] = new cAppMenu_Entry(GETL2S("AppMenu", "Main_Assets"), Icon16_Database);
     hEntries[AppMenu_Assets]->SetEnabled(false);
     hEntries[AppMenu_WapMap] = new cAppMenu_Entry(GETL2S("AppMenu", "Main_WapMap"), Icon16_Settings);
+
+    setDimension(gcn::Rectangle(0, 0, GetMenuWidth(),
+                                LAY_APPMENU_Y + LAY_APPMENU_H));
 
     for (auto & hEntry : hEntries) {
         hEntry->GetContext()->addActionListener(this);
@@ -130,7 +131,7 @@ cAppMenu::cAppMenu() {
     workcon->AddElement(APPMEN_TOOLS_MEASURE, GETL2S("AppMenu", "Tools_Measure"), GV->sprIcons16[Icon16_Measure]);
     workcon->AddElement(APPMEN_TOOLS_STATS, GETL2S("AppMenu", "Tools_Stats"), GV->sprIcons16[Icon16_Stats]);
     workcon->adjustSize();
-    workcon->GetElementByID(APPMEN_TOOLS_MAPSHOT)->SetEnabled(0);
+    workcon->GetElementByID(APPMEN_TOOLS_MAPSHOT)->SetEnabled(true);
     workcon->GetElementByID(APPMEN_TOOLS_STATS)->SetEnabled(0);
 
     workcon = hEntries[AppMenu_Assets]->GetContext();
@@ -306,6 +307,14 @@ void cAppMenu::SyncPlanes() {
 }
 
 void cAppMenu::switchTo(int i) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    nativeFocus = true;
+    return;
+#endif
+    if (i < 0 || i >= AppMenu_EntryCount || !hEntries[i]->IsEnabled()) {
+        return;
+    }
+
     if (iOpened != i) {
         closeCurrent();
         hEntries[i]->GetContext()->setVisible(true);
@@ -326,33 +335,71 @@ void cAppMenu::closeCurrent() {
 }
 
 void cAppMenu::draw(Graphics* graphics) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return;
+#endif
     hge->Gfx_SetClipping();
-    float mx, my;
-    hge->Input_GetMousePos(&mx, &my);
+    if (!hge->Input_IsMouseOver()) {
+        iHovered = -1;
+        iSelected = -1;
+        closeCurrent();
+    } else {
+        float mouseX, mouseY;
+        int menuX, menuY;
+        getAbsolutePosition(menuX, menuY);
+        hge->Input_GetMousePos(&mouseX, &mouseY);
+        // Keyboard selection persists only while the pointer stays still.
+        // In maximized mode movement can bypass this widget's mouse listener.
+        if (lastMouseX != static_cast<int>(mouseX) || lastMouseY != static_cast<int>(mouseY)) {
+            iSelected = -1;
+        }
+        lastMouseX = static_cast<int>(mouseX);
+        lastMouseY = static_cast<int>(mouseY);
+        iHovered = GetHoveredEntry(static_cast<int>(mouseX) - menuX,
+                                   static_cast<int>(mouseY) - menuY);
+
+        if (iHovered >= 0 && iOpened != -1 && iHovered != iOpened) {
+            switchTo(iHovered);
+        }
+    }
     int xOffset = LAY_APPMENU_X;
     for (int i = 0; i < AppMenu_EntryCount; ++i) {
-        xOffset += hEntries[i]->Render(xOffset, LAY_APPMENU_Y, (iSelected == -1 && iHovered == i) || iSelected == i);
+        xOffset += hEntries[i]->Render(
+            xOffset, LAY_APPMENU_Y,
+            iOpened == i || (iSelected == -1 && iHovered == i) || iSelected == i);
     }
 }
 
-int cAppMenu_Entry::GetWidth() {
+int cAppMenu::GetMenuWidth() const {
+    int width = LAY_APPMENU_X;
+    for (auto* entry : hEntries) {
+        width += entry->GetWidth();
+    }
+    return width;
+}
+
+bool cAppMenu::IsMenuBarPoint(const int x, const int y) const {
+#ifdef WAPMAP_ENABLE_IMGUI
+    const int menuWidth = GetNativeMenuWidth();
+#else
+    const int menuWidth = GetMenuWidth() - LAY_APPMENU_X;
+#endif
+    return y >= LAY_APPMENU_Y && y < LAY_APPMENU_Y + LAY_APPMENU_H
+           && x >= LAY_APPMENU_X && x < LAY_APPMENU_X + menuWidth;
+}
+
+int cAppMenu_Entry::GetWidth() const {
     return GV->fntMyriad16->GetStringWidth(GetLabel().c_str()) + 20;
 }
 
 int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
     int w = GetWidth(), h = LAY_APPMENU_H;
-    bool unfolded = (hContext != 0 && hContext->getAlpha() > 0);
-    if ((unfolded || bFocused) && fTimer < 0.2f) {
-        fTimer += hge->Timer_GetDelta();
-        if (fTimer > 0.2f) fTimer = 0.2f;
-    } else if (!(unfolded || bFocused) && fTimer > 0.0f) {
-        fTimer -= hge->Timer_GetDelta();
-        if (fTimer < 0.0f) fTimer = 0.0f;
-    }
-
-    if (fTimer > 0.0f) {
+    const bool unfolded = hContext != nullptr && hContext->isVisible();
+    bFocused = bFocused && IsEnabled();
+    if (bFocused) {
         SHR::SetQuad(&q, 0xFFFFFFFF, x, y + 2, x + w, y + h - 2 * (!unfolded));
-        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col = unfolded ? SETA(0x0F0F0F, hContext->getAlpha()) : SETA(0xFFFFFF, fTimer * 0x50 / 0.4f);
+        q.v[0].col = q.v[1].col = q.v[2].col = q.v[3].col =
+            unfolded ? SETA(0x0F0F0F, hContext->getAlpha()) : 0xFF454545;
         hge->Gfx_RenderQuad(&q);
 
         if (unfolded) {
@@ -360,8 +407,6 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
             hge->Gfx_RenderLine(x, y + 2, x, y + LAY_APPMENU_H, borderColor);
             hge->Gfx_RenderLine(x, y + 2, x + w - 1, y + 2, borderColor);
             hge->Gfx_RenderLine(x + w, y + 2, x + w, y + LAY_APPMENU_H, borderColor);
-
-            fTimer = hContext->getAlpha() / 255.f;
         }
     }
 
@@ -375,8 +420,11 @@ int cAppMenu_Entry::Render(int x, int y, bool bFocused) {
         GV->sprIcons16[GetIcon()]->SetBlendMode(BLEND_DEFAULT);
     }
     GV->sprIcons16[GetIcon()]->SetColor(0xFFFFFFFF);*/
-    GV->fntMyriad16->SetColor(SETA(0xe1e1e1, IsEnabled() ? 0xFF : 0x77));
-    GV->fntMyriad16->Render(x + w / 2, y + h / 2 - 1, HGETEXT_CENTER | HGETEXT_MIDDLE, GetLabel().c_str(), 0);
+    const DWORD originalColor = GV->fntMyriad16->GetColor();
+    GV->fntMyriad16->SetColor(IsEnabled() ? 0xFFE1E1E1 : 0xFF777777);
+    GV->fntMyriad16->Render(x + w / 2, y + h / 2 - 1, HGETEXT_CENTER | HGETEXT_MIDDLE,
+                            GetLabel().c_str(), 1);
+    GV->fntMyriad16->SetColor(originalColor);
 
     //hge->Gfx_RenderLine(x + w - 1, y, x + w - 1, y + LAY_APPMENU_H, 0xFF111111);
     return w;
@@ -409,6 +457,13 @@ void cAppMenu::focusLost(const FocusEvent &event) {
 }
 
 void cAppMenu::keyPressed(KeyEvent &keyEvent) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (keyEvent.getKey().getValue() == Key::LEFT_ALT && bEnabled && mEnabled) {
+        nativeFocus = true;
+        GV->editState->vPort->GetWidget()->requestFocus();
+    }
+    return;
+#endif
     if (!mEnabled) return;
 
     int key = keyEvent.getKey().getValue();
@@ -547,22 +602,34 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
     } else if (actionEvent.getSource() == hEntries[AppMenu_Edit]->GetContext()) {
         int id = hEntries[AppMenu_Edit]->GetContext()->GetSelectedID();
         if (id == APPMEN_EDIT_WORLD) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            GV->editState->hwinMapProperties->Open();
+#else
             if (GV->editState->winWorld->isVisible()) GV->editState->SyncWorldOptionsWithParser();
             GV->editState->winWorld->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winWorld->getWidth() / 2,
                                                     hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winWorld->getHeight() / 2);
             GV->editState->winWorld->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winWorld);
+#endif
         } else if (id == APPMEN_EDIT_PLANES) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            GV->editState->hwinPlaneProperties->Open();
+#else
             GV->editState->winpmMain->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winpmMain->getWidth() / 2,
                                                   hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winpmMain->getHeight() / 2);
             GV->editState->conMain->moveToTop(GV->editState->winpmMain);
             GV->editState->winpmMain->setVisible(true);
             GV->editState->SyncPlaneProperties();
+#endif
         } else if (id == APPMEN_EDIT_TILEPROP) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            GV->editState->hwinTileProperties->Open();
+#else
             GV->editState->winTileProp->setPosition(hge->System_GetState(HGE_SCREENWIDTH) / 2 - GV->editState->winTileProp->getWidth() / 2,
                                                   hge->System_GetState(HGE_SCREENHEIGHT) / 2 - GV->editState->winTileProp->getHeight() / 2);
             GV->editState->winTileProp->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winTileProp);
+#endif
         } else if (id == APPMEN_EDIT_WORLDSCRIPT) {
             if (strlen(GV->editState->hParser->GetFilePath()) == 0) {
                 State::MessageBox(PRODUCT_NAME, GETL2S("Win_LogicBrowser", "GlobalScriptDocumentSave"),
@@ -665,8 +732,12 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_TOOLS_MEASURE)
             GV->editState->SetTool(EWW_TOOL_MEASURE);
         else if (id == APPMEN_TOOLS_MAPSHOT) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            GV->editState->hwinMapShotOptions->Open();
+#else
             GV->editState->winMapShot->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winMapShot);
+#endif
         } else if (id == APPMEN_TOOLS_STATS) {
             GV->StateMgr->Push(new State::MapStats(GV->editState->hParser));
         }
@@ -678,16 +749,25 @@ void cAppMenu::action(const gcn::ActionEvent &actionEvent) {
         } else if (id == APPMEN_ASSETS_IMAGESETS) {
             GV->editState->hwinImageSetBrowser->Open();
         } else if (id == APPMEN_ASSETS_LOGICS) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            GV->editState->hwinLogicBrowser->Open();
+#else
             GV->editState->winLogicBrowser->setPosition((hge->System_GetState(HGE_SCREENWIDTH) - GV->editState->winLogicBrowser->getWidth()) / 2,
                                                         (hge->System_GetState(HGE_SCREENHEIGHT) - GV->editState->winLogicBrowser->getHeight()) / 2);
             GV->editState->winLogicBrowser->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winLogicBrowser);
+#endif
         } else if (id == APPMEN_ASSETS_PALETTES) {
             GV->editState->hwinPaletteBrowser->Open();
         } else {
+#ifdef WAPMAP_ENABLE_IMGUI
+            if (id == APPMEN_ASSETS_SOUNDS) GV->editState->hwinSoundBrowser->Open();
+            else GV->editState->hwinAnimationBrowser->Open();
+#else
             GV->editState->winDB->setVisible(true);
             GV->editState->conMain->moveToTop(GV->editState->winDB);
             GV->editState->tadbTabs->setSelectedTab(id == APPMEN_ASSETS_SOUNDS);
+#endif
         }
         hEntries[AppMenu_Assets]->GetContext()->setVisible(false);
     }
@@ -709,44 +789,49 @@ void cAppMenu::NotifyRulersSwitch() {
 
 void cAppMenu::mouseExited(MouseEvent &mouseEvent) {
     iHovered = -1;
+    iSelected = -1;
 }
 
 void cAppMenu::mouseMoved(MouseEvent& mouseEvent) {
-    float mx, my;
-    hge->Input_GetMousePos(&mx, &my);
-
-    if (my < LAY_APPMENU_Y || my > LAY_APPMENU_Y + LAY_APPMENU_H) {
-        iHovered = -1;
-        return;
-    }
-
-    mx -= LAY_APPMENU_X;
-
-    for (int i = 0; i < AppMenu_EntryCount; i++) {
-        mx -= hEntries[i]->GetWidth();
-        if (mx < 0) {
-            if (hEntries[i]->IsEnabled()) {
-                if (iHovered != i) {
-                    iHovered = i;
-
-                    if (iSelected != -1) iSelected = i;
-                    if (iOpened != -1) switchTo(i);
-                }
-            } else {
-                iHovered = -1;
-            }
-
-            return;
+#ifdef WAPMAP_ENABLE_IMGUI
+    return;
+#endif
+    const int hovered = GetHoveredEntry(mouseEvent.getX(), mouseEvent.getY());
+    iSelected = -1;
+    if (hovered != iHovered) {
+        iHovered = hovered;
+        if (iOpened != -1 && iHovered != -1) {
+            switchTo(iHovered);
         }
     }
 }
 
 void cAppMenu::mousePressed(MouseEvent &mouseEvent) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return;
+#endif
     int opened = iOpened;
     closeCurrent();
 
     iSelected = -1;
-    if (iHovered >= 0 && iHovered != opened) {
-        switchTo(iHovered);
+    const int hovered = GetHoveredEntry(mouseEvent.getX(), mouseEvent.getY());
+    if (hovered >= 0 && hovered != opened) {
+        switchTo(hovered);
     }
+}
+
+int cAppMenu::GetHoveredEntry(const int x, const int y) const {
+    if (y < LAY_APPMENU_Y || y >= LAY_APPMENU_Y + LAY_APPMENU_H ||
+        x < LAY_APPMENU_X) {
+        return -1;
+    }
+
+    int entryX = x - LAY_APPMENU_X;
+    for (int i = 0; i < AppMenu_EntryCount; ++i) {
+        entryX -= hEntries[i]->GetWidth();
+        if (entryX < 0) {
+            return hEntries[i]->IsEnabled() ? i : -1;
+        }
+    }
+    return -1;
 }

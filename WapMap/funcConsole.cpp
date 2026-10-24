@@ -1,7 +1,7 @@
 #include "funcConsole.h"
 #include "globals.h"
 
-#ifdef BUILD_DEBUG
+#if defined(BUILD_DEBUG) || defined(SHOWMEMUSAGE)
 #include <psapi.h>
 #endif
 
@@ -106,7 +106,7 @@ void ConShader(int argc, char *argv[]) {
     GV->StateMgr->ReloadShader();
 }
 
-#ifdef BUILD_DEBUG
+#if defined(BUILD_DEBUG) || defined(SHOWMEMUSAGE)
 void ConMemInfo(int argc, char * argv[])
 {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GV->dwProcID);

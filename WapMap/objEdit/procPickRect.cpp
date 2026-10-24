@@ -2,6 +2,7 @@
 #include "../langID.h"
 #include "../globals.h"
 #include "../states/editing_ww.h"
+#include "pickRectGeometry.h"
 
 extern HGE *hge;
 
@@ -60,14 +61,8 @@ namespace ObjEdit {
     }
 
     void cProcPickRect::validate() {
-        int v[4];
-        for (int i = 0; i < 4; i++)
-            v[i] = atoi(tf[i]->getText().c_str());
-        bool allownull = v[0] == 0 && v[1] == 0 && v[2] == 0 && v[3] == 0 && bAllowEmpty;
-        tf[0]->setMarkedInvalid(v[0] == 0 && !allownull && !(bAllowEmptyAxis && v[2] == 0) || v[0] > v[2]);
-        tf[1]->setMarkedInvalid(v[1] == 0 && !allownull && !(bAllowEmptyAxis && v[3] == 0) || v[1] > v[3]);
-        tf[2]->setMarkedInvalid(v[2] == 0 && !allownull && !(bAllowEmptyAxis && v[0] == 0) || v[0] > v[2]);
-        tf[3]->setMarkedInvalid(v[3] == 0 && !allownull && !(bAllowEmptyAxis && v[1] == 0) || v[1] > v[3]);
+        const auto invalid = PickRectGeometry::Invalid({tf[0]->getText(), tf[1]->getText(), tf[2]->getText(), tf[3]->getText()}, bAllowEmpty, bAllowEmptyAxis);
+        for (int i = 0; i < 4; ++i) tf[i]->setMarkedInvalid(invalid[i]);
     }
 
     void cProcPickRect::setAllowEmpty(bool b) {
@@ -89,7 +84,7 @@ namespace ObjEdit {
         butPick->setEnabled(b);
     }
 
-    void cProcPickRect::Think() {
+    void cProcPickRect::Think(bool mouseConsumed) {
         if (!bPicking) return;
 
         if (bDrag && !hge->Input_GetKeyState(HGEK_LBUTTON)) {
@@ -97,6 +92,8 @@ namespace ObjEdit {
             butPick->simulatePress();
             return;
         }
+
+        if (mouseConsumed) return;
 
         float mx, my;
         hge->Input_GetMousePos(&mx, &my);
@@ -120,16 +117,8 @@ namespace ObjEdit {
         int ax = GV->editState->Scr2WrdX(GV->editState->GetActivePlane(), mx),
             ay = GV->editState->Scr2WrdY(GV->editState->GetActivePlane(), my);
 
-        if (ax < iDragX) {
-            setValues(ax, -1, iDragX);
-        } else {
-            setValues(-1, -1, ax);
-        }
-        if (ay < iDragY) {
-            setValues(-1, ay, -1, iDragY);
-        } else {
-            setValues(-1, -1, -1, ay);
-        }
+        const auto bounds = PickRectGeometry::FromDrag(iDragX, iDragY, ax, ay);
+        setValues(bounds.x1, bounds.y1, bounds.x2, bounds.y2);
     }
 
     void cProcPickRect::action(const gcn::ActionEvent &actionEvent) {

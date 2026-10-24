@@ -5,6 +5,9 @@
 #include "../../shared/gcnWidgets/wScrollArea.h"
 #include "../shared/cWWD.h"
 #include "window.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <array>
+#endif
 
 namespace SHR {
     class Lab;
@@ -39,7 +42,7 @@ private:
     std::vector<SHR::Container*> optionsForCategory;
     std::vector<SHR::TextField*> pathTextFields;
     SHR::Lab *labChangesLang, *labLang, *labGameRes, *labCrazyHookSettings, *labVersion;
-    SHR::But *butPath[WWD::Games_Count], *butSave;
+    SHR::But *butPath[WWD::Games_Count]{}, *butSave;
     SHR::DropDown *ddoptLang, *ddoptGameRes;
     SHR::CBox *cbOptionsAlfaHigherPlanes, *cboptCrazyHookGodMode, *cboptCrazyHookArmor, *cboptCrazyHookDebugInfo,
             *cboptAutoUpdate, *cboptSmoothZooming, *cboptStartMaximized;
@@ -47,6 +50,13 @@ private:
     cDynamicListModel *lmLang;
     SHR::ScrollArea *scrollAreaCategories;
     SHR::ListBox *settingsCategoriesList;
+#ifdef WAPMAP_ENABLE_IMGUI
+    bool nativeOpen{}, positionOnOpen{}, busy{}, pendingProbe{};
+    gcn::Widget* pendingAction{};
+    std::vector<std::array<char, 4097>> paths;
+    void UpdateNativePath(int index);
+    void DrawImGui() override;
+#endif
 public:
     winOptions();
 
@@ -59,6 +69,9 @@ public:
     void Open(WWD::GAME game = WWD::Game_Unknown);
 
     void Close() override;
+#ifdef WAPMAP_ENABLE_IMGUI
+    bool isOpened() override { return nativeOpen; }
+#endif
 
     void action(const ActionEvent &actionEvent) override;
 

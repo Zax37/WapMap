@@ -26,6 +26,7 @@ namespace ObjEdit {
         std::vector<SHR::RadBut*> rbType;
 
         void RebuildWindow();
+        void UpdateSave();
 
         void ApplyInventoryToObject();
 
@@ -44,6 +45,9 @@ namespace ObjEdit {
         virtual void Action(const gcn::ActionEvent &actionEvent);
 
         virtual void Draw();
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+#endif
 
         virtual void RenderObjectOverlay();
 

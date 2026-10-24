@@ -193,6 +193,10 @@ bool IsValidTextureSize(const int width, const int height) {
 
 bool HGE::Gfx_BeginScene(HTARGET target) {
     auto& state = *impl_;
+    if (state.sceneOpen) {
+        state.errorMessage = "A graphics scene is already open.";
+        return false;
+    }
     if (target && (!target->renderTexture.getSize().x || !target->renderTexture.getSize().y)) {
         state.errorMessage = "Cannot begin a scene on an invalid render target.";
         return false;
@@ -204,8 +208,16 @@ bool HGE::Gfx_BeginScene(HTARGET target) {
     Flush(state);
     state.currentTarget = target;
     state.sceneOpen = true;
+    // A new pass must not inherit the previous GUI's scissor or transform.
+    state.clipX = state.clipY = state.clipWidth = state.clipHeight = 0;
+    state.transform = sf::Transform::Identity;
     state.batchTexture = nullptr;
     state.batchVertices.clear();
+    // ImGui-SFML's pushGLStates/popGLStates restores the previous GL scissor
+    // after resetting SFML's cache. A full view alone cannot disable that
+    // scissor when the cache already believes it is disabled. Reconcile the
+    // actual GL state once per scene, before any background or widget draws.
+    GetRenderTarget(state)->resetGLStates();
     ApplyClipping(state);
     return true;
 }
@@ -300,11 +312,21 @@ void HGE::Gfx_SetClipping(const int x, const int y, const int width, const int h
 }
 
 void HGE::Gfx_GetClipping(int* x, int* y, int* width, int* height) {
-    const auto& state = *impl_;
-    if (x) *x = state.clipX;
-    if (y) *y = state.clipY;
-    if (width) *width = state.clipWidth;
-    if (height) *height = state.clipHeight;
+    auto& state = *impl_;
+    const auto size = GetTargetSize(state);
+    // HGE reports the effective bounds, including after SetClipping() resets
+    // to the full target. Selection borders use these bounds for each slice.
+    const bool reset = state.clipWidth <= 0 || state.clipHeight <= 0;
+    const int left = reset ? 0 : std::clamp(state.clipX, 0, static_cast<int>(size.x));
+    const int top = reset ? 0 : std::clamp(state.clipY, 0, static_cast<int>(size.y));
+    const int right = reset ? static_cast<int>(size.x)
+        : std::clamp(state.clipX + state.clipWidth, left, static_cast<int>(size.x));
+    const int bottom = reset ? static_cast<int>(size.y)
+        : std::clamp(state.clipY + state.clipHeight, top, static_cast<int>(size.y));
+    if (x) *x = left;
+    if (y) *y = top;
+    if (width) *width = right - left;
+    if (height) *height = bottom - top;
 }
 
 void HGE::Gfx_SetTransform(const float x, const float y, const float dx, const float dy,
@@ -312,10 +334,13 @@ void HGE::Gfx_SetTransform(const float x, const float y, const float dx, const f
     auto& state = *impl_;
     Flush(state);
     state.transform = sf::Transform::Identity;
-    state.transform.translate({x + dx, y + dy});
-    state.transform.rotate(sf::degrees(rotation * 180.f / static_cast<float>(M_PI)));
-    state.transform.scale({hscale == 0.f ? 1.f : hscale, vscale == 0.f ? 1.f : vscale});
-    state.transform.translate({-x, -y});
+    // HGE uses vscale == 0 as the identity sentinel and clockwise-negative rotation.
+    if (vscale != 0.f) {
+        state.transform.translate({x + dx, y + dy});
+        state.transform.rotate(sf::degrees(-rotation * 180.f / static_cast<float>(M_PI)));
+        state.transform.scale({hscale, vscale});
+        state.transform.translate({-x, -y});
+    }
 }
 
 HTARGET HGE::Target_Create(const int width, const int height, const bool) {
@@ -459,6 +484,10 @@ int HGE::Texture_GetWidth(HTEXTURE texture, bool) {
 
 int HGE::Texture_GetHeight(HTEXTURE texture, bool) {
     return texture && texture->texture ? static_cast<int>(texture->texture->getSize().y) : 0;
+}
+
+unsigned int HGE::Texture_GetNativeHandle(HTEXTURE texture) const {
+    return texture && texture->texture ? texture->texture->getNativeHandle() : 0;
 }
 
 DWORD* HGE::Texture_Lock(HTEXTURE texture, const bool readOnly, const int left, const int top,

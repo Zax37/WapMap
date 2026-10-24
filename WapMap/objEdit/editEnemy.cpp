@@ -3,6 +3,10 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../databanks/imageSets.h"
+#include "enemyGeometry.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "nativeInventoryUi.h"
+#endif
 
 
 extern HGE *hge;
@@ -191,6 +195,11 @@ namespace ObjEdit {
         bPickSpeedXY = 0;
 
         RebuildWindow();
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        hInventory->UseNative();
+#endif
     }
 
     cEditObjEnemy::~cEditObjEnemy() {
@@ -211,23 +220,25 @@ namespace ObjEdit {
         for (auto &t: rbType)
             delete t;
         delete labType;
+        delete labTreasures;
+        for (auto* slot : invTabs) delete slot;
         delete win;
     }
 
     void cEditObjEnemy::ApplyInventoryToObject() {
-        if (!invTabs[0]->isVisible() || invTabs[0]->GetItem().second == -1)
+        if (!invTabs[0]->isLocallyVisible() || invTabs[0]->GetItem().second == -1)
             hTempObj->SetParam(WWD::Param_Powerup, 0);
         else
             hTempObj->SetParam(WWD::Param_Powerup, invTabs[0]->GetItem().second);
         for (int i = 0; i < 2; i++) {
             WWD::Rect r;
-            if (!invTabs[i * 4 + 1]->isVisible() || invTabs[i * 4 + 1]->GetItem().second == -1) r.x1 = 0;
+            if (!invTabs[i * 4 + 1]->isLocallyVisible() || invTabs[i * 4 + 1]->GetItem().second == -1) r.x1 = 0;
             else r.x1 = invTabs[i * 4 + 1]->GetItem().second;
-            if (!invTabs[i * 4 + 2]->isVisible() || invTabs[i * 4 + 2]->GetItem().second == -1) r.y1 = 0;
+            if (!invTabs[i * 4 + 2]->isLocallyVisible() || invTabs[i * 4 + 2]->GetItem().second == -1) r.y1 = 0;
             else r.y1 = invTabs[i * 4 + 2]->GetItem().second;
-            if (!invTabs[i * 4 + 3]->isVisible() || invTabs[i * 4 + 3]->GetItem().second == -1) r.x2 = 0;
+            if (!invTabs[i * 4 + 3]->isLocallyVisible() || invTabs[i * 4 + 3]->GetItem().second == -1) r.x2 = 0;
             else r.x2 = invTabs[i * 4 + 3]->GetItem().second;
-            if (!invTabs[i * 4 + 4]->isVisible() || invTabs[i * 4 + 4]->GetItem().second == -1) r.y2 = 0;
+            if (!invTabs[i * 4 + 4]->isLocallyVisible() || invTabs[i * 4 + 4]->GetItem().second == -1) r.y2 = 0;
             else r.y2 = invTabs[i * 4 + 4]->GetItem().second;
             hTempObj->SetUserRect(i, r);
         }
@@ -289,18 +300,18 @@ namespace ObjEdit {
             invTabs[i]->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
 
         bool dmgvis = !strcmp(hTempObj->GetLogic(), "Fish") || !strcmp(hTempObj->GetLogic(), "HermitCrab");
-        if (dmgvis && !labDamage->isVisible()) {
+        if (dmgvis && !labDamage->isLocallyVisible()) {
             tfDamage->setText(!strcmp(hTempObj->GetLogic(), "Fish") ? "10" : "5");
         }
         labDamage->setVisible(dmgvis);
         tfDamage->setVisible(dmgvis);
 
         tfDamage->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labDamage->setColor(SETA(GV->colFontWhite, tfDamage->isEnabled() ? 0xFF : 0x77));
+        labDamage->setColor(SETA(GV->colFontWhite, tfDamage->isLocallyEnabled() ? 0xFF : 0x77));
 
         bool warpvis = 0;
         for (int i = 0; i < 9; i++)
-            if (invTabs[i]->GetItem().second == 32 && invTabs[i]->isVisible()) {
+            if (invTabs[i]->GetItem().second == 32 && invTabs[i]->isLocallyVisible()) {
                 warpvis = 1;
                 break;
             }
@@ -323,7 +334,7 @@ namespace ObjEdit {
         tfSpeedY->setVisible(warpvis || gemvis);
         tfSpeedX->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
         tfSpeedY->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
-        labWarpDest->setColor(SETA(GV->colFontWhite, tfSpeedX->isEnabled() ? 0xFF : 0x77));
+        labWarpDest->setColor(SETA(GV->colFontWhite, tfSpeedX->isLocallyEnabled() ? 0xFF : 0x77));
         butPickSpeedXY->setVisible(warpvis || gemvis);
         butPickSpeedXY->setEnabled(!hRectPick->IsPicking());
         if (warpvis || gemvis) {
@@ -336,8 +347,6 @@ namespace ObjEdit {
         _butSave->setY(win->getHeight() - 55);
         _butAddNext->setY(win->getHeight() - 55);
 
-        _butSave->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY &&
-                             !tfSpeedX->isMarkedInvalid() && !tfSpeedY->isMarkedInvalid());
 
         for (auto &t: rbType)
             t->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY);
@@ -356,7 +365,6 @@ namespace ObjEdit {
                     cbPatrol->setSelected(0);
                     cbPatrol->setEnabled(0);
                 } else {
-                    cbPatrol->setSelected(1);
                     cbPatrol->setEnabled(1);
                 }
             }
@@ -370,6 +378,18 @@ namespace ObjEdit {
         hTempObj->SetParam(WWD::Param_MinY, cbPatrol->isSelected() ? hRectPick->getValue(1) : 0);
         hTempObj->SetParam(WWD::Param_MaxX, cbPatrol->isSelected() ? hRectPick->getValue(2) : 0);
         hTempObj->SetParam(WWD::Param_MaxY, cbPatrol->isSelected() ? hRectPick->getValue(3) : 0);
+        bAllowDragging = !hRectPick->IsPicking() && !bPickSpeedXY;
+        if (!bAllowDragging) _bDragging = false;
+        UpdateSave();
+    }
+
+    void cEditObjEnemy::UpdateSave() {
+        auto* plane = hState->GetActivePlane();
+        const auto invalid = EnemyGeometry::InvalidDestination(speedX, speedY, plane->GetPlaneWidthPx(), plane->GetPlaneHeightPx());
+        tfSpeedX->setMarkedInvalid(tfSpeedX->isLocallyVisible() && invalid[0]);
+        tfSpeedY->setMarkedInvalid(tfSpeedY->isLocallyVisible() && invalid[1]);
+        _butSave->setEnabled(!hRectPick->IsPicking() && !bPickSpeedXY &&
+            (!cbPatrol->isSelected() || hRectPick->isValid()) && !tfSpeedX->isMarkedInvalid() && !tfSpeedY->isMarkedInvalid());
     }
 
     void cEditObjEnemy::Save() {
@@ -390,7 +410,7 @@ namespace ObjEdit {
 
         int iWarpIndex = -1;
         for (int i = 0; i < 9; i++)
-            if (invTabs[i]->GetItem().second == 32) {
+            if (invTabs[i]->isLocallyVisible() && invTabs[i]->GetItem().second == 32) {
                 iWarpIndex = i;
                 break;
             }
@@ -401,8 +421,8 @@ namespace ObjEdit {
             invTabs[iWarpIndex]->SetItem(tmp);
         }
         ApplyInventoryToObject();
-        hTempObj->SetParam(WWD::Param_Damage, tfDamage->isVisible() ? atoi(tfDamage->getText().c_str()) : 0);
-        if (tfSpeedX->isVisible()) {
+        hTempObj->SetParam(WWD::Param_Damage, tfDamage->isLocallyVisible() ? atoi(tfDamage->getText().c_str()) : 0);
+        if (tfSpeedX->isLocallyVisible()) {
             hTempObj->SetParam(WWD::Param_SpeedX, speedX);
             hTempObj->SetParam(WWD::Param_SpeedY, speedY);
         } else {
@@ -417,6 +437,10 @@ namespace ObjEdit {
             return;
         } else if (actionEvent.getSource() == butClearArea) {
             hRectPick->setValues(0, 0, 0, 0);
+#ifdef WAPMAP_ENABLE_IMGUI
+            for (int i = 0; i < 4; ++i) nativeIntegers.erase(hRectPick->getTextField(i));
+#endif
+            UpdateSave();
             return;
         } else if (actionEvent.getSource() == cbPatrol) {
             RebuildWindow();
@@ -425,6 +449,9 @@ namespace ObjEdit {
             RebuildWindow();
             return;
         } else if (actionEvent.getSource() == butPickSpeedXY) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            nativeIntegers.erase(tfSpeedX); nativeIntegers.erase(tfSpeedY);
+#endif
             bPickSpeedXY = !bPickSpeedXY;
             if (!bPickSpeedXY) {
                 char tmp[50];
@@ -436,22 +463,17 @@ namespace ObjEdit {
             RebuildWindow();
         } else if (actionEvent.getSource() == tfSpeedX) {
             speedX = atoi(tfSpeedX->getText().c_str());
-            bool marked = tfSpeedX->isMarkedInvalid();
-            tfSpeedX->setMarkedInvalid(speedX == 0 || speedX >= GV->editState->GetActivePlane()->GetPlaneWidthPx());
-            if (tfSpeedX->isMarkedInvalid() != marked)
-                RebuildWindow();
+            UpdateSave();
             return;
         } else if (actionEvent.getSource() == tfSpeedY) {
             speedY = atoi(tfSpeedY->getText().c_str());
-            bool marked = tfSpeedX->isMarkedInvalid();
-            tfSpeedY->setMarkedInvalid(speedY == 0 || speedY >= GV->editState->GetActivePlane()->GetPlaneWidthPx());
-            if (tfSpeedY->isMarkedInvalid() != marked)
-                RebuildWindow();
+            UpdateSave();
             return;
         }
         for (int i = 0; i < rbType.size(); ++i)
             if (actionEvent.getSource() == rbType[i]) {
                 UpdateEnemyObject(hTempObj, vstrpTypes[i]);
+                cbPatrol->setSelected(hTempObj->GetUserValue(0) == 0);
                 GV->editState->vPort->MarkToRedraw();
                 RebuildWindow();
                 return;
@@ -463,8 +485,7 @@ namespace ObjEdit {
     }
 
     void cEditObjEnemy::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed)
-            hRectPick->Think();
+        hRectPick->Think(bMouseConsumed);
         hInventory->Think();
         if (bPickSpeedXY) {
             float mx, my;
@@ -487,7 +508,34 @@ namespace ObjEdit {
                 RebuildWindow();
             }
         }
+        UpdateSave();
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjEnemy::DrawImGui() {
+        const float available = ImGui::GetMainViewport()->WorkSize.y - 16 - std::max(0, win->getY());
+        nativeHeightLimit = std::max(180.f, available);
+        if (!BeginNativeWindow()) return;
+        const bool scroll = ImGui::GetWindowHeight() < win->getHeight();
+        nativeFooterY = ImGui::GetWindowHeight() - 43;
+        ImGui::SetCursorPos({0, ImGui::GetFrameHeight()});
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+        if (!scroll) ImGui::SetNextWindowScroll({0, 0});
+        ImGui::BeginChild("form", {0, nativeFooterY - ImGui::GetFrameHeight() - 5}, ImGuiChildFlags_NavFlattened,
+            scroll ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::PopStyleVar();
+        DrawNativeControls(nullptr, 0, -static_cast<int>(ImGui::GetFrameHeight()));
+        if (tfSpeedX->isLocallyVisible()) {
+            const auto p = ImGui::GetWindowPos();
+            const float offset = -ImGui::GetScrollY();
+            WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {p.x + 5, p.y + offset + tfSpeedX->getY()}, "X:");
+            WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, {p.x + 5, p.y + offset + tfSpeedY->getY()}, "Y:");
+        }
+        ImGui::EndChild();
+        EndNativeWindow();
+        hInventory->DrawImGui(nativeInventorySelection);
+        NativeInventoryUi::PreviewPayload();
+    }
+#endif
 
     void cEditObjEnemy::RenderObjectOverlay() {
         float mx, my;
@@ -544,20 +592,20 @@ namespace ObjEdit {
         hge->Gfx_RenderLine(dx, dy + 161 + 178 + 5 + vstrpTypes.size() * 20, dx + win->getWidth(),
                             dy + 161 + 178 + 5 + vstrpTypes.size() * 20, GV->colLineBright);
 
-        if (labTreasures->isVisible()) {
+        if (labTreasures->isLocallyVisible()) {
             hge->Gfx_RenderLine(dx + 137, dy + 160 + vstrpTypes.size() * 20, dx + 137,
                                 dy + 161 + 178 + 3 + vstrpTypes.size() * 20, GV->colLineDark);
             hge->Gfx_RenderLine(dx + 138, dy + 160 + vstrpTypes.size() * 20, dx + 138,
                                 dy + 161 + 178 + 3 + vstrpTypes.size() * 20, GV->colLineBright);
         }
 
-        if (tfDamage->isVisible()) {
+        if (tfDamage->isLocallyVisible()) {
             hge->Gfx_RenderLine(dx, dy + 160 + 178 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
                                 dy + 160 + 28 + 178 + 8 + vstrpTypes.size() * 20, GV->colLineDark);
             hge->Gfx_RenderLine(dx, dy + 161 + 178 + 28 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),
                                 dy + 161 + 28 + 178 + 8 + vstrpTypes.size() * 20, GV->colLineBright);
-        } else if (tfSpeedX->isVisible()) {
-            GV->fntMyriad16->SetColor(SETA(GV->colFontWhite, tfSpeedX->isEnabled() ? 0xFF : 0x77));
+        } else if (tfSpeedX->isLocallyVisible()) {
+            GV->fntMyriad16->SetColor(SETA(GV->colFontWhite, tfSpeedX->isLocallyEnabled() ? 0xFF : 0x77));
             GV->fntMyriad16->Render(dx + 8, dy + 160 + 170 + 28 + 10 + vstrpTypes.size() * 20, HGETEXT_LEFT, "X:", 0);
             GV->fntMyriad16->Render(dx + 8, dy + 160 + 170 + 48 + 12 + vstrpTypes.size() * 20, HGETEXT_LEFT, "Y:", 0);
             hge->Gfx_RenderLine(dx, dy + 160 + 178 + 68 + 8 + vstrpTypes.size() * 20, dx + win->getWidth(),

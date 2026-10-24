@@ -150,8 +150,11 @@ winTileBrowser::winTileBrowser() : cWindow(GETL2S("Win_TileBrowser", "WinCaption
 }
 
 void winTileBrowser::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    ThinkNative(); return;
+#endif
     cBankTile *hTileset = GV->editState->hTileset;
-    if (hTileset->GetSetsCount() == 0) {
+    if (!hTileset || hTileset->GetSetsCount() == 0) {
         return;
     }
 
@@ -332,16 +335,20 @@ void winTileBrowser::Draw(int piCode) {
 }
 
 void winTileBrowser::OnDocumentChange() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    Close();
+#endif
     iSelectedTileSet = iSelectedTile = 0;
     iHighlightedTS = iHighlightedT = -1;
     Synchronize();
 }
 
 void winTileBrowser::Synchronize() {
+    if (!GV->editState->hParser) return;
     cBankTile *hTileset = GV->editState->hTileset;
     cDataController *hDataCtrl = GV->editState->hDataCtrl;
 
-    if (hTileset->GetSetsCount() == 0)
+    if (!hTileset || hTileset->GetSetsCount() == 0)
         return;
 
     if (iSelectedTileSet < 0 || iSelectedTileSet >= hTileset->GetSetsCount())
@@ -373,6 +380,11 @@ void winTileBrowser::Synchronize() {
     butDeleteTileSet->setVisible(bCustomTS);
 
     cTile *pickedtile = ts->GetTileByIterator(iSelectedTile);
+    if (!pickedtile) {
+        for (auto& group : vtGroups) group.clear();
+        bSingleGroup = false; hSingleGroup = nullptr;
+        return;
+    }
 
     sprintf(tmp, "%d", pickedtile->GetID());
     labTileIDV->setCaption(tmp);
@@ -455,8 +467,24 @@ void winTileBrowser::Synchronize() {
 }
 
 void winTileBrowser::Open() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (!GV->editState->hParser) return;
+    native.document = GV->editState->hParser;
+    native.open = native.position = native.resetGrid = true;
+    native.action = nullptr;
+    butImportTileSet->setEnabled(true);
+    butAddTiles->setEnabled(true);
+    myWin.setVisible(false);
+#else
     cWindow::Open();
+#endif
     Synchronize();
+}
+void winTileBrowser::Close() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    native.Close();
+#endif
+    cWindow::Close();
 }
 
 void winTileBrowser::action(const ActionEvent &actionEvent) {
@@ -580,3 +608,108 @@ int winTileBrowser::MouseHandleGroup(std::vector<cTile *> tiles, int x, int y, i
     }
     return -1;
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../legacyText.h"
+void winTileBrowser::ThinkNative() {
+    if (!native.open || native.busy) return;
+    auto& e = *GV->editState;
+    if (native.document != e.hParser || !native.document) { Close(); return; }
+    if (!e._isOnTop()) return;
+    auto* bank = e.hTileset;
+    if (!bank) { Close(); return; }
+    if (native.action) {
+        auto* widget = native.action; native.action = nullptr;
+        int setIndex = -1, assetIndex = -1;
+        for (int i = 0; i < bank->GetSetsCount(); ++i) if (bank->GetSet(i) == native.set) { setIndex = i; break; }
+        if (setIndex >= 0) {
+            auto* set = bank->GetSet(setIndex);
+            for (int i = 0; i < set->GetTilesCount(); ++i) if (set->GetTileByIterator(i) == native.asset) { assetIndex = i; break; }
+        }
+        if (widget == butImportTileSet || (setIndex >= 0 && (assetIndex >= 0 || widget == butAddTiles || widget == butDeleteTileSet))) {
+            iSelectedTileSet = setIndex; iSelectedTile = assetIndex;
+            native.busy = true;
+            action(gcn::ActionEvent(widget, ""));
+            native.busy = false;
+            Synchronize();
+        }
+    }
+    if (bank->GetModFlag()) Synchronize();
+}
+void winTileBrowser::DrawImGui() {
+    if (!native.open || native.busy) return;
+    auto& e = *GV->editState;
+    if (native.document != e.hParser || !native.document) { Close(); return; }
+    if (!e._isOnTop()) return;
+    auto* bank = e.hTileset; if (!bank) { Close(); return; }
+    if (native.position) {
+        auto* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_FirstUseEver, {0.5f, 0.5f});
+        ImGui::SetNextWindowFocus(); native.position = false;
+    }
+    ImGui::SetNextWindowSize({800.f, 600}, ImGuiCond_Always);
+    const auto cp = LegacyText::CodePage(GV->Lang->GetCode());
+    const auto title = LegacyText::ToUtf8(GETL2S("Win_TileBrowser", "WinCaption"), cp) + "###winTileBrowser";
+    bool visible = true;
+    if (WapMapImGui::BeginFixedWindow(title.c_str(), &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar)) {
+        WapMapImGui::WindowChrome(*hge, *GV->fntMyriad16, GV->sprTabCloseButton, GETL2S("Win_TileBrowser", "WinCaption"));
+        auto* draw = ImGui::GetWindowDrawList(); const auto origin = ImGui::GetWindowPos(); const auto area = myWin.getChildrenArea();
+        AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, labTileSets);
+        AssetBrowserUi::Position(area, 5, 35);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x13));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0}); ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0, 0});
+        int pickedSet = -1;
+        if (ImGui::BeginChild("sets", {215.f, 520}, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+            ImGuiListClipper clipper; clipper.Begin(bank->GetSetsCount(), 68.f);
+            while (clipper.Step()) for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+                auto* set = bank->GetSet(i); ImGui::PushID(set); const auto p = ImGui::GetCursorScreenPos();
+                if (ImGui::InvisibleButton("##set", {ImGui::GetContentRegionAvail().x, 68.f}, ImGuiButtonFlags_EnableNav)) pickedSet = i;
+                auto* childDraw = ImGui::GetWindowDrawList();
+                if (iSelectedTileSet == i || ImGui::IsItemHovered() || ImGui::IsItemFocused())
+                    childDraw->AddRectFilled(p, {p.x + ImGui::GetContentRegionAvail().x, p.y + 68.f}, iSelectedTileSet == i ? IM_COL32(23, 150, 255, 51) : IM_COL32(161, 161, 161, 51));
+                auto* first = set->GetTilesCount() ? set->GetTileByIterator(0) : nullptr;
+                AssetBrowserUi::Preview(*hge, first && first->GetImage() ? first->GetImage() : GV->sprSmiley, {p.x + 10, p.y + 10}, 48.f, true, false);
+                WapMapImGui::BitmapText(childDraw, *hge, *GV->fntMyriad16, {p.x + 48.f + 20, p.y + 68.f / 2 - 14}, set->GetName());
+                const auto count = std::to_string(set->GetTilesCount()) + " " + GETL2S("Win_TileBrowser", "tiles");
+                WapMapImGui::BitmapText(childDraw, *hge, *GV->fntMyriad16, {p.x + 48.f + 20, p.y + 68.f / 2}, count.c_str());
+                ImGui::PopID();
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleColor();
+        if (pickedSet >= 0) { iSelectedTileSet = pickedSet; iSelectedTile = 0; Synchronize(); native.resetGrid = true; }
+        auto* set = iSelectedTileSet >= 0 && iSelectedTileSet < bank->GetSetsCount() ? bank->GetSet(iSelectedTileSet) : nullptr;
+        auto* selected = set && iSelectedTile >= 0 && iSelectedTile < set->GetTilesCount() ? set->GetTileByIterator(iSelectedTile) : nullptr;
+        if (set) for (auto* label : {labTileSetName, labTileSetChecksum, labTileCount, labTileSetNameV, labTileSetChecksumV, labTileCountV}) AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, label);
+        if (selected) for (auto* label : {labTileID, labTileModDate, labTileChecksum, labTileOrigin, labTileIDV, labTileModDateV, labTileChecksumV, labTileOriginV}) AssetBrowserUi::Label(*hge, *GV->fntMyriad16, origin, area, label);
+        if (selected) AssetBrowserUi::Preview(*hge, selected->GetImage(), {origin.x + 230.f, origin.y + 110.f}, 64.f, true, true);
+        for (auto* button : {butImportTileSet, butAddTiles, butRenameTileSet, butDeleteTileSet, butBrowseFolder, butDeleteTile, butChangeTileID, butImageDetails}) if (AssetBrowserUi::Button(*hge, *GV->fntMyriad16, *GV->hGfxInterface, area, button,
+            button == butImportTileSet || (button == butAddTiles || button == butDeleteTileSet || button == butRenameTileSet ? set != nullptr : selected != nullptr))) {
+            native.action = button; native.set = set; native.asset = selected;
+        }
+        AssetBrowserUi::Position(area, 220.f, 190.f);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, WapMapImGui::Grey(0x2f));
+        cTile* picked = nullptr;
+        if (ImGui::BeginChild("assets", {574.f, 389.f}, ImGuiChildFlags_None, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+            if (native.resetGrid) { ImGui::SetScrollY(0); native.resetGrid = false; }
+            if (selected) {
+                const char* captions[] = {GETL2S("Win_TileBrowser", "GroupREZ"), GETL2S("Win_TileBrowser", "GroupClaw"), GETL2S("Win_TileBrowser", "GroupCustom")};
+                for (int group = 0; group < 3; ++group) if (!vtGroups[group].empty()) {
+                    if (!bSingleGroup) {
+                        const auto p = ImGui::GetCursorScreenPos();
+                        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16, p, captions[group]);
+                        ImGui::Dummy({0, 24});
+                    }
+                    if (auto* hit = AssetBrowserUi::Grid(*hge, *GV->fntMyriad16, vtGroups[group], selected, false)) picked = hit;
+                    if (!bSingleGroup) ImGui::Dummy({0, 20});
+                }
+            }
+        }
+        ImGui::EndChild(); ImGui::PopStyleColor(); ImGui::PopStyleVar(2);
+        if (picked && set) for (int i = 0; i < set->GetTilesCount(); ++i) if (set->GetTileByIterator(i) == picked) { iSelectedTile = i; Synchronize(); break; }
+        draw->AddLine({origin.x + 228.f, origin.y + 25}, {origin.x + 228.f, origin.y + 600}, IM_COL32(86, 86, 86, 255));
+        for (float y : {100.f, 200.f}) draw->AddLine({origin.x + 228.f, origin.y + y}, {origin.x + 800.f, origin.y + y}, IM_COL32(86, 86, 86, 255));
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape)) visible = false;
+    }
+    ImGui::End(); if (!visible) Close();
+}
+#endif

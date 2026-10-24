@@ -21,6 +21,9 @@
     <ClCompile Include="cAppMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cAppMenuNative.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cAutoUpdater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,6 +126,9 @@
     <ClCompile Include="objedit\editCandy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="objedit\editCandyImGui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="objedit\editCheckpoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -207,10 +213,16 @@
     <ClCompile Include="states\imageImport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="states\imageImportNative.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="states\loadmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\mapshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\objpropImGui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\objedit.cpp">
@@ -220,6 +232,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\stats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\statsNative.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\editing_ww\alActionListener.cpp">
@@ -591,6 +606,39 @@
     <ClCompile Include="windows\goToCoords.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windows\mapProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\planeProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\tileProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\measureOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\objectToolOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\objectSearchWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\logicBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\mapShotOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\tilePicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\mapShotImageWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\mediaBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="windows\goToLocation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -598,6 +646,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\editing_ww\navigation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="states\editing_ww\nativeChrome.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states\editing_ww\clipboards.cpp">
@@ -819,6 +870,51 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objedit\procPickRect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\nativeInventoryUi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\enemyGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\ambientTiming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\textLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\cannonGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\candySelection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\elevatorPathGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\elevatorGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\imageImportData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapStatistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\chromeGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\imageImportFiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\nativeTextInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\pickRectGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objedit\timedSeries.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objedit\winInventoryPickbox.h">
@@ -1080,6 +1176,63 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="windows\goToCoords.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\planeProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\tileProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\measureOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\objectToolOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\objectSearchWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\logicBrowser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapShotOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\tilePicker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hgecompat\src\imguiPointerCapture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapShotImageWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mapShotValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\objectSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\objectToolGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mediaBrowser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\mediaPlayback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\assetBrowserUi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\tilePropertyGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objEdit\editLavaHand.h">

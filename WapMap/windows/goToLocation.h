@@ -61,6 +61,13 @@ class winLocationsBrowser : public cWindow {
         SHR::But *butDelete, *butEdit, *butAddFav, *butMoveDown, *butMoveUp, *butFollowWarp;
 
         int m_selectedTab = Locs::Favourites;
+#ifdef WAPMAP_ENABLE_IMGUI
+        bool nativeOpen{}, positionOnOpen{}, resetScroll{}, busy{};
+        WWD::Parser* document{};
+        gcn::Widget* pendingAction{};
+        stLocation pendingLocation{};
+        int pendingTab{};
+#endif
 
         void RefreshLists();
 
@@ -70,6 +77,11 @@ class winLocationsBrowser : public cWindow {
         void AddFavLocation(int x, int y);
 
         void Open() override;
+        void Close() override;
+#ifdef WAPMAP_ENABLE_IMGUI
+        void DrawImGui() override;
+        bool isOpened() override { return nativeOpen; }
+#endif
 
         void OnDocumentChange() override;
 

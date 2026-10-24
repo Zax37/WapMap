@@ -82,6 +82,8 @@ public:
     cBrush *GetBrushByIterator(int it) { return m_vBrushes[it]; }
 
     const char *GetName() { return m_szName; }
+    int GetTileWidth() const { return tileWidth; }
+    int GetTileHeight() const { return tileHeight; }
 
     void UpdateHash();
 

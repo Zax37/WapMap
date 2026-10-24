@@ -77,6 +77,7 @@ namespace SHR {
 
         unsigned char p = 161.0f + (fFocusTimer * 5.0f * 94.0f);
 
+        const DWORD originalColor = fnt->GetColor();
         fnt->SetColor(ARGB(255, p, p, p));
 
         int textx = (sprIcon == nullptr ? 0 : sprIcon->GetWidth() + 6);
@@ -89,6 +90,7 @@ namespace SHR {
         }
 
         fnt->Render(dx + textX + textx, dy + textY, HGETEXT_LEFT, getCaption().c_str(), 0);
+        fnt->SetColor(originalColor);
     }
 
     void Link::adjustSize() {

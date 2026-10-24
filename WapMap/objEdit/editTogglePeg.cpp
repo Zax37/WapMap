@@ -4,6 +4,8 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#include <cstdint>
+#include "timedSeries.h"
 
 extern HGE *hge;
 
@@ -68,12 +70,7 @@ namespace ObjEdit {
         timeoff = hTempObj->GetParam(WWD::Param_SpeedY);
         if (timeoff <= 0)
             timeoff = 1500;
-        delay = hTempObj->GetParam(WWD::Param_Speed);
-        if (delay < 0)
-            delay = 0;
-        if (!strcmp(hTempObj->GetLogic(), "TogglePeg2")) delay = 750;
-        else if (!strcmp(hTempObj->GetLogic(), "TogglePeg3")) delay = 750 * 2;
-        else if (!strcmp(hTempObj->GetLogic(), "TogglePeg4")) delay = 750 * 3;
+        delay = TimedSeries::Delay(hTempObj->GetLogic(), hTempObj->GetParam(WWD::Param_Speed), "TogglePeg");
 
         sprintf(tmp, "%d", timeon);
         tfTimeOn = new SHR::TextField(tmp);
@@ -134,6 +131,11 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(2000);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        winSeries->setVisible(false);
+#endif
     }
 
     cEditObjTogglePeg::~cEditObjTogglePeg() {
@@ -235,8 +237,16 @@ namespace ObjEdit {
         sprintf(tmp, "%d", *delay);
         tfnobjDelay->setText(tmp);
         int actdel = atoi(tfOffset->getText().c_str());
-        sprintf(tmp, "%d", actdel + (*delay));
-        tfOffset->setText(tmp);
+        tfOffset->setText(std::to_string(std::int64_t(actdel) + *delay));
         delete delay;
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjTogglePeg::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        DrawNativeImageChoices(vszDefaultImgsets, rbType, 0);
+        EndNativeWindow();
+        DrawNativeSeries(winSeries, tfOffset, tfnobjDelay);
+    }
+#endif
 }

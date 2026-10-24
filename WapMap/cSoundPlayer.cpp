@@ -3,6 +3,12 @@
 #include "langID.h"
 
 #include "databanks/sounds.h"
+#include <cstdio>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "states/editing_ww.h"
+#include "imguiTheme.h"
+#include "windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -15,11 +21,12 @@ void SoundPlayerVpCB::Draw(int iCode) {
 }
 
 void cSoundPlayer::Play() {
+    if (!hAsset || !hAsset->IsLoaded() || !hAsset->GetSound()) return;
     if (hChannel == NULL)
         hChannel = hge->Effect_PlayEx(hAsset->GetSound(), sliVolume->getValue());
     else
         hge->Channel_Resume(hChannel);
-    butPlay->setIcon(GV->sprIcons[Icon_Pause]);
+    if (hChannel) butPlay->setIcon(GV->sprIcons[Icon_Pause]);
 }
 
 cSoundPlayer::cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as, const char *szTitle) {
@@ -69,6 +76,9 @@ cSoundPlayer::cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as
 
     hChannel = NULL;
     hAsset = as;
+#ifdef WAPMAP_ENABLE_IMGUI
+    nativeAssetName = as ? as->GetName() : "";
+#endif
 
     vpCB = new SoundPlayerVpCB(this);
     vp = new WIDG::Viewport(vpCB, 0);
@@ -78,6 +88,9 @@ cSoundPlayer::cSoundPlayer(SHR::Container *dest, int x, int y, cSndBankAsset *as
 }
 
 cSoundPlayer::~cSoundPlayer() {
+    if (hChannel) hge->Channel_Stop(hChannel);
+    delete sliTime;
+    delete sliVolume;
     delete butPlay;
     delete butStop;
     delete vp;
@@ -87,7 +100,19 @@ cSoundPlayer::~cSoundPlayer() {
 }
 
 void cSoundPlayer::Update() {
-
+    if (!hChannel) return;
+    if (fDuration == 0) {
+        fDuration = hge->Channel_GetLength(hChannel);
+        sliTime->setScaleEnd(fDuration);
+        sliTime->setEnabled(fDuration > 0);
+    }
+    sliTime->setValue(hge->Channel_GetPos(hChannel));
+    if (!hge->Channel_IsPlaying(hChannel) && butPlay->getIcon() == GV->sprIcons[Icon_Pause]) {
+        hge->Channel_Stop(hChannel);
+        hChannel = nullptr;
+        sliTime->setValue(fDuration);
+        butPlay->setIcon(GV->sprIcons[Icon_Play]);
+    }
 }
 
 void cSoundPlayer::Render() {
@@ -123,6 +148,7 @@ void cSoundPlayer::Action(const gcn::ActionEvent &actionEvent) {
     } else if (actionEvent.getSource() == butStop) {
         hge->Channel_Stop(hChannel);
         hChannel = NULL;
+        sliTime->setValue(0);
         butPlay->setIcon(GV->sprIcons[Icon_Play]);
     } else if (actionEvent.getSource() == sliVolume) {
         if (hChannel != NULL)
@@ -135,6 +161,10 @@ void cSoundPlayer::Action(const gcn::ActionEvent &actionEvent) {
 
 void cSoundPlayer::SetAsset(cSndBankAsset *as, bool bUpdateTitle) {
     hAsset = as;
+#ifdef WAPMAP_ENABLE_IMGUI
+    nativeAssetName = as ? as->GetName() : "";
+    nativeEffect = as ? as->GetSound() : nullptr;
+#endif
     fDuration = 0;
     if (hChannel != NULL) {
         hge->Channel_Stop(hChannel);
@@ -152,3 +182,43 @@ void cSoundPlayer::SetAsset(cSndBankAsset *as, bool bUpdateTitle) {
     butPlay->setEnabled(as != NULL);
     butStop->setEnabled(as != NULL);
 }
+#ifdef WAPMAP_ENABLE_IMGUI
+void cSoundPlayer::DrawImGui() {
+    auto* bank = GV->editState->hSndBank;
+    auto* asset = bank && !nativeAssetName.empty() ? bank->GetAssetByID(nativeAssetName.c_str()) : nullptr;
+    const auto effect = asset && asset->IsLoaded() ? asset->GetSound() : nullptr;
+    if (asset != hAsset || effect != nativeEffect) {
+        const auto name = nativeAssetName;
+        SetAsset(asset, false);
+        nativeAssetName = name; // A temporarily missing file can become available again.
+    }
+    Update();
+    ImGui::PushID(this);
+    const float x = static_cast<float>(winPlayer->getX()), y = ImGui::GetFrameHeight() + winPlayer->getY();
+    const auto origin = ImGui::GetWindowPos();
+    auto* draw = ImGui::GetWindowDrawList();
+    draw->AddRect({origin.x + x, origin.y + y}, {origin.x + x + 350, origin.y + y + 73}, IM_COL32(75, 75, 75, 255));
+    WapMapImGui::BitmapText(draw, *hge, *GV->fntMyriad16, {origin.x + x + 5, origin.y + y + 2}, winPlayer->getCaption().c_str());
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {4, 0});
+    ImGui::SetCursorPos({x + 5, y + 19}); ImGui::SetNextItemWidth(340);
+    float position = static_cast<float>(sliTime->getValue());
+    ImGui::BeginDisabled(!hChannel || fDuration <= 0);
+    if (ImGui::SliderFloat("##position", &position, 0, std::max(0.001f, fDuration), "", ImGuiSliderFlags_AlwaysClamp)) {
+        sliTime->setValue(position); hge->Channel_SetPos(hChannel, position);
+    }
+    ImGui::EndDisabled();
+    const gcn::Rectangle area(static_cast<int>(x), static_cast<int>(y + 13), 350, 73);
+    for (auto* button : {butPlay, butStop})
+        if (AssetBrowserUi::Button(*hge, *GV->fntMyriad16, *GV->hGfxInterface, area, button, effect != nullptr)) Action(gcn::ActionEvent(button, ""));
+    char time[64]; const int current = static_cast<int>(position), duration = static_cast<int>(fDuration);
+    std::snprintf(time, sizeof(time), "%02d:%02d / %02d:%02d", current / 60, current % 60, duration / 60, duration % 60);
+    WapMapImGui::BitmapText(draw, *hge, *GV->fntMyriad16, {origin.x + x + 74, origin.y + y + 44}, time);
+    WapMapImGui::Sprite(draw, *hge, GV->sprIcons[Icon_Sound], {origin.x + x + 257, origin.y + y + 39});
+    ImGui::SetCursorPos({x + 293, y + 43}); ImGui::SetNextItemWidth(50);
+    float volume = static_cast<float>(sliVolume->getValue());
+    if (ImGui::SliderFloat("##volume", &volume, 0, 100, "", ImGuiSliderFlags_AlwaysClamp)) {
+        sliVolume->setValue(volume); if (hChannel) hge->Channel_SetVolume(hChannel, static_cast<int>(volume));
+    }
+    ImGui::PopStyleVar(); ImGui::PopID();
+}
+#endif

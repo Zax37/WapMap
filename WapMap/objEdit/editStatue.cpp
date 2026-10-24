@@ -3,6 +3,9 @@
 #include "../states/editing_ww.h"
 #include "winInventoryPickbox.h"
 #include "../cObjectUserData.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "nativeInventoryUi.h"
+#endif
 
 namespace ObjEdit {
     std::string lmEditObjStatueDurability::getElementAt(int i) {
@@ -175,6 +178,11 @@ namespace ObjEdit {
         hInventory = new cInvPickbox(true);
         hInventory->SetPosition(win->getX() + win->getWidth() + 10, hState->vPort->GetY() + hState->vPort->GetHeight() - hInventory->GetHeight());
         hInventory->SetVisible(true);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+        hInventory->UseNative();
+#endif
     }
 
 #define FIRST_SECTION_HEIGHT 120
@@ -216,6 +224,10 @@ namespace ObjEdit {
         delete lmDurability;
         delete labAlign;
         delete labTreasures;
+        delete butRandomize;
+        delete cbIncludeSpecials;
+        delete cbRandomCount;
+        delete tfCustomZ;
         for (auto & invTab : invTabs)
             delete invTab;
         delete win;
@@ -241,6 +253,15 @@ namespace ObjEdit {
             hTempObj->SetUserRect(i, r);
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjStatue::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        EndNativeWindow();
+        hInventory->DrawImGui(nativeInventorySelection);
+        NativeInventoryUi::PreviewPayload();
+    }
+#endif
 
     void cEditObjStatue::Action(const gcn::ActionEvent &actionEvent) {
         if (actionEvent.getSource() == win) {

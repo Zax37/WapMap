@@ -10,7 +10,7 @@ extern HGE *hge;
 
 namespace ObjEdit {
     cEditObjRope::cEditObjRope(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
-        iType = ObjEdit::enTreasure;
+        iType = ObjEdit::enRope;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_Rope", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 200, 160));
         win->setClose(1);
@@ -57,6 +57,7 @@ namespace ObjEdit {
         tfOffset->setVisible(cbAnimated->isSelected());
         if (!cbAnimated->isSelected()) {
             _butSave->setY(40);
+            _butAddNext->setY(40);
             win->setHeight(100);
             win->setY(win->getY() - 60);
         }
@@ -66,6 +67,10 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(3990);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjRope::~cEditObjRope() {
@@ -103,6 +108,7 @@ namespace ObjEdit {
             labOffset->setVisible(cbAnimated->isSelected());
             tfOffset->setVisible(cbAnimated->isSelected());
             _butSave->setY(40 + cbAnimated->isSelected() * 60);
+            _butAddNext->setY(40 + cbAnimated->isSelected() * 60);
             win->setHeight(100 + cbAnimated->isSelected() * 60);
             win->setY(hState->vPort->GetY() + hState->vPort->GetHeight() - win->getHeight());
         }

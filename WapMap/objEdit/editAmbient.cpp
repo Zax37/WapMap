@@ -4,6 +4,7 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/sounds.h"
+#include "ambientTiming.h"
 
 extern HGE *hge;
 
@@ -31,7 +32,7 @@ namespace ObjEdit {
         tfVolume->setDimension(gcn::Rectangle(0, 0, 100, 20));
         win->add(tfVolume, 125, 15);
 
-        if (!strlen(hTempObj->GetAnim())) {
+        if (!strlen(hTempObj->GetAnim()) && hState->hSndBank->getNumberOfElements() > 0) {
             hTempObj->SetAnim(hState->hSndBank->getElementAt(0).c_str());
         }
 
@@ -40,6 +41,7 @@ namespace ObjEdit {
         tddSound->SetGfx(&GV->gcnParts);
         tddSound->addActionListener(hAL);
         tddSound->setText(hTempObj->GetAnim());
+        tddSound->setMarkedInvalid(hState->hSndBank->GetAssetByID(hTempObj->GetAnim()) == nullptr);
         win->add(tddSound, 5, 15 + 25);
 
         hPlayer = new cSoundPlayer(win, 5, 37 + 25,
@@ -158,6 +160,10 @@ namespace ObjEdit {
         win->add(_butSave, 257, 500 - 19);
 
         EnableControlsSync();
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjAmbient::~cEditObjAmbient() {
@@ -194,6 +200,23 @@ namespace ObjEdit {
 
     void cEditObjAmbient::EnableControlsSync() {
         bool bRectPick = hPickArea[0]->IsPicking() || hPickArea[1]->IsPicking();
+        const bool validOn = AmbientTiming::ValidInterval(atoi(tfTimeOn[0]->getText().c_str()), atoi(tfTimeOn[1]->getText().c_str()));
+        const bool validOff = AmbientTiming::ValidInterval(atoi(tfTimeOff[0]->getText().c_str()), atoi(tfTimeOff[1]->getText().c_str()));
+        for (int i = 0; i < 2; ++i) {
+            tfTimeOn[i]->setMarkedInvalid(!validOn);
+            tfTimeOff[i]->setMarkedInvalid(!validOff);
+        }
+        auto* sound = hState->hSndBank->GetAssetByID(tddSound->getText().c_str());
+        const bool wasMissing = tddSound->isMarkedInvalid();
+        tddSound->setMarkedInvalid(sound == nullptr);
+        if (wasMissing && sound) {
+            hTempObj->SetAnim(tddSound->getText().c_str());
+            hPlayer->SetAsset(sound, false);
+        }
+        bAllowDragging = !bRectPick;
+        if (bRectPick) _bDragging = false;
+        const bool firstArea = rbAreaType[1]->isSelected() && cbArea[0]->isSelected();
+        const bool secondArea = firstArea && cbArea[1]->isSelected();
         for (int i = 0; i < 2; i++) {
             tfTimeOff[i]->setEnabled(rbPlayPolicy[1]->isSelected());
             tfTimeOn[i]->setEnabled(rbPlayPolicy[1]->isSelected());
@@ -206,7 +229,8 @@ namespace ObjEdit {
         cbArea[0]->setEnabled(rbAreaType[1]->isSelected() && !bRectPick);
         cbArea[1]->setEnabled(rbAreaType[1]->isSelected() && cbArea[0]->isSelected() && !bRectPick);
         _butSave->setEnabled(
-                !bRectPick && hPickArea[0]->isValid() && hPickArea[1]->isValid() && !tddSound->isMarkedInvalid());
+                !bRectPick && (!firstArea || hPickArea[0]->isValid()) && (!secondArea || hPickArea[1]->isValid()) && !tddSound->isMarkedInvalid() &&
+                (!rbPlayPolicy[1]->isSelected() || (validOn && validOff)));
         DWORD dwCol = (rbPlayPolicy[1]->isSelected() ? 0xFFe1e1e1 : 0xFF000000);
         labTurnOnTime->setColor(dwCol);
         labTurnOffTime->setColor(dwCol);
@@ -248,7 +272,7 @@ namespace ObjEdit {
                 hTempObj->SetLogic("SpotAmbientSound");
             } else
                 hTempObj->SetLogic("AmbientSound");
-            if (cbArea[0]->isSelected() && cbArea[0]->isEnabled()) {
+            if (cbArea[0]->isSelected() && cbArea[0]->isLocallyEnabled()) {
                 hTempObj->SetParam(WWD::Param_MinX, hPickArea[0]->getValue(0));
                 hTempObj->SetParam(WWD::Param_MinY, hPickArea[0]->getValue(1));
                 hTempObj->SetParam(WWD::Param_MaxX, hPickArea[0]->getValue(2));
@@ -262,7 +286,7 @@ namespace ObjEdit {
             EnableControlsSync();
             Action(gcn::ActionEvent(cbArea[1], ""));
         } else if (actionEvent.getSource() == cbArea[1]) {
-            if (cbArea[1]->isSelected() && cbArea[1]->isEnabled()) {
+            if (cbArea[1]->isSelected() && cbArea[1]->isLocallyEnabled()) {
                 hTempObj->SetAttackRect(WWD::Rect(hPickArea[1]->getValue(0),
                                                   hPickArea[1]->getValue(1),
                                                   hPickArea[1]->getValue(2),
@@ -287,7 +311,7 @@ namespace ObjEdit {
             if (!tddSound->isMarkedInvalid()) {
                 hTempObj->SetAnim(tddSound->getText().c_str());
                 hPlayer->SetAsset(hState->hSndBank->GetAssetByID(tddSound->getText().c_str()), 0);
-            }
+            } else hPlayer->SetAsset(nullptr, false);
             EnableControlsSync();
         }
         for (int i = 0; i < 2; i++)
@@ -331,9 +355,16 @@ namespace ObjEdit {
     }
 
     void cEditObjAmbient::_Think(bool bMouseConsumed) {
-        if (!bMouseConsumed) {
-            hPickArea[0]->Think();
-            hPickArea[1]->Think();
-        }
+        hPickArea[0]->Think(bMouseConsumed);
+        hPickArea[1]->Think(bMouseConsumed);
+        EnableControlsSync();
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjAmbient::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        hPlayer->DrawImGui();
+        EndNativeWindow();
+    }
+#endif
 }

@@ -11,12 +11,19 @@
 #include "../langID.h"
 #include "../version.h"
 #include "dialog.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../legacyText.h"
+#endif
 
 extern HGE *hge;
 
 namespace State {
 
     ImageImport::ImageImport(ImageImportType type, void *hDest) {
+#ifdef WAPMAP_ENABLE_IMGUI
+        InitNative(type, hDest);
+        return;
+#endif
         hAtlaser = new cTextureAtlaser();
         iImportType = type;
         iListElementHeight = 90;
@@ -143,6 +150,10 @@ namespace State {
     }
 
     ImageImport::~ImageImport() {
+#ifdef WAPMAP_ENABLE_IMGUI
+        DestroyNative();
+        return;
+#endif
         while (!vImages.empty())
             DeleteFile(0);
 
@@ -184,6 +195,9 @@ namespace State {
     }
 
     bool ImageImport::Think() {
+#ifdef WAPMAP_ENABLE_IMGUI
+        return ThinkNative();
+#endif
         if (iFileToDelete != -1) {
             DeleteFile(iFileToDelete);
             iFileToDelete = -1;
@@ -199,6 +213,9 @@ namespace State {
     }
 
     bool ImageImport::Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+        return RenderNative();
+#endif
         try {
             gui->draw();
         }
@@ -482,6 +499,10 @@ namespace State {
     }
 
     void ImageImport::FileDropped() {
+#ifdef WAPMAP_ENABLE_IMGUI
+        if (_isOnTop()) for (const auto& path : hge->System_GetDraggedFiles()) AddNativeFile(LegacyText::ToUtf8(path, CP_ACP));
+        return;
+#endif
         /*std::vector<char*> vszFiles = hge->System_GetDroppedFiles();
         GV->Console->Printf("~w~Importing ~y~%d ~w~images.", int(vszFiles.size()));
         for(size_t i=0;i<vszFiles.size();i++)

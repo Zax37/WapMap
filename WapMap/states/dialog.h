@@ -7,6 +7,9 @@
 #include "../../shared/gcnWidgets/wTextField.h"
 #include "../../shared/cWWD.h"
 #include "guichan.hpp"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <vector>
+#endif
 
 #define ST_DIALOG_ICON_QUESTION 1
 #define ST_DIALOG_ICON_INFO     2
@@ -64,6 +67,12 @@ namespace State {
         char *szMessage, *szTitle;
         int messageHeight;
         const char *initialText;
+#ifdef WAPMAP_ENABLE_IMGUI
+        std::vector<char> nativeText;
+        int nativeResult = -1;
+        bool nativePosition = true, nativeFocus = true;
+        bool RenderImGui();
+#endif
     };
 }
 

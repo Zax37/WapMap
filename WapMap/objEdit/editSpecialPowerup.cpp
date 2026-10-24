@@ -12,7 +12,7 @@ namespace ObjEdit {
     static const int nOfItems = sizeof(iSpecialPowerupID)/sizeof(iSpecialPowerupID[0]);
 
     cEditObjSpecialPowerup::cEditObjSpecialPowerup(WWD::Object *obj, State::EditingWW *st) : cObjEdit(obj, st) {
-        iType = ObjEdit::enHealth;
+        iType = ObjEdit::enSpecialPowerup;
         win = new SHR::Win(&GV->gcnParts, GETL2S("EditObj_SpecialPowerup", "WinCaption"));
         win->setDimension(gcn::Rectangle(0, 0, 287, 235 + 15));
         win->setClose(1);
@@ -75,6 +75,10 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(1000);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjSpecialPowerup::~cEditObjSpecialPowerup() {
@@ -88,8 +92,8 @@ namespace ObjEdit {
     }
 
     void cEditObjSpecialPowerup::Save() {
-        hTempObj->SetParam(WWD::Param_Smarts, tfTime->isEnabled() ? atoi(tfTime->getText().c_str()) : 0);
-        hTempObj->SetParam(WWD::Param_Damage, cbDontDisappear->isEnabled() ? cbDontDisappear->isSelected() : 0);
+        hTempObj->SetParam(WWD::Param_Smarts, tfTime->isLocallyEnabled() ? atoi(tfTime->getText().c_str()) : 0);
+        hTempObj->SetParam(WWD::Param_Damage, cbDontDisappear->isLocallyEnabled() ? cbDontDisappear->isSelected() : 0);
     }
 
     void cEditObjSpecialPowerup::Action(const gcn::ActionEvent &actionEvent) {
@@ -172,4 +176,12 @@ namespace ObjEdit {
         GV->fntMyriad16->printf(dx + 7, dy + 28 + 267 - 125 - 19, HGETEXT_LEFT, "%s: ~y~%s", 0,
                                 GETL2S("EditObj_Inventory", "Effect"), GETL2SV("EditObj_Inventory", tmp));
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjSpecialPowerup::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        DrawNativeInventory(iSpecialPowerupID, rbType, nOfItems, 123);
+        EndNativeWindow();
+    }
+#endif
 }

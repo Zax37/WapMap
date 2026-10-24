@@ -4,6 +4,10 @@
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
 #include "../databanks/imageSets.h"
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -47,12 +51,14 @@ namespace ObjEdit {
         rbType[3]->adjustSize();
         rbType[3]->addActionListener(hAL);
         win->add(rbType[3], 5, 325);
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjCheckpoint::~cEditObjCheckpoint() {
-        for (int i = 0; i < 2; i++) {
-            delete rbType[i];
-        }
+        for (auto* radio : rbType) delete radio;
         delete win;
         hState->vPort->MarkToRedraw();
     }
@@ -116,4 +122,25 @@ namespace ObjEdit {
             }
         }
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjCheckpoint::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        fCpAnimTimer += hge->Timer_GetDelta();
+        fScpAnimTimer += hge->Timer_GetDelta();
+        const auto advance = [](float& timer, int& frame) {
+            while (timer > 0.15f) { timer -= 0.1f; if (++frame > 12) frame = 8; }
+        };
+        advance(fCpAnimTimer, iCpAnimFrame); advance(fScpAnimTimer, iScpAnimFrame);
+        const float top = ImGui::GetFrameHeight();
+        for (int i = 0; i < 2; ++i) {
+            auto* asset = hState->SprBank->GetAssetByID(i ? "GAME_SUPERCHECKPOINT" : "GAME_CHECKPOINTFLAG");
+            auto* image = asset ? asset->GetIMGByID(i ? iScpAnimFrame : iCpAnimFrame) : nullptr;
+            auto* sprite = image && image->GetSprite() ? image->GetSprite() : GV->sprSmiley;
+            const auto origin = ImGui::GetWindowPos();
+            AssetBrowserUi::Preview(*hge, sprite, {origin.x + 70, origin.y + top + (i ? 200 : 40)}, 110, false, false);
+        }
+        EndNativeWindow();
+    }
+#endif
 }

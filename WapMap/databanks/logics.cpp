@@ -166,6 +166,9 @@ cCustomLogic *cBankLogic::AllocateAssetForMountPoint(cDC_MountEntry mountEntry) 
         for (int i = 0; i < m_vAssets.size(); ++i) {
             if (m_vAssets[i] == customLogic) {
                 GV->editState->lbbrlLogicList->setSelected(i);
+#ifdef WAPMAP_ENABLE_IMGUI
+                GV->editState->hwinLogicBrowser->SelectLogic(customLogic->GetName());
+#endif
                 selectWhenAdding = false;
                 GV->editState->SyncLogicBrowser();
                 break;

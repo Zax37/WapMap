@@ -26,6 +26,13 @@ namespace State {
     };
 
     class MapStats : public SHR::cState {
+#ifdef WAPMAP_ENABLE_IMGUI
+        struct Native;
+        Native* native = nullptr;
+        void InitNative();
+        void DestroyNative();
+        bool RenderNative();
+#endif
     public:
         MapStats(WWD::Parser *hp);
 

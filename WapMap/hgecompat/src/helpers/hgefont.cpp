@@ -169,6 +169,7 @@ hgeFont::~hgeFont() {
 }
 
 void hgeFont::Render(const float x, float y, int align, const char* string, BOOL pbDisableColors) {
+    DWORD renderColor = col_;
     float fx = x;
 
     switch (align & HGETEXT_HORZMASK) {
@@ -221,35 +222,35 @@ void hgeFont::Render(const float x, float y, int align, const char* string, BOOL
                 if (!pbDisableColors) {
                     switch (string[1]) {
                         case 'a':
-                            SetColor(0xFF777777);
+                            renderColor = 0xFF777777;
                             string += 3;
                             continue;
                         case 'b':
-                            SetColor(0xFF0000FF);
+                            renderColor = 0xFF0000FF;
                             string += 3;
                             continue;
                         case 'g':
-                            SetColor(0xFF4CD68F);
+                            renderColor = 0xFF4CD68F;
                             string += 3;
                             continue;
                         case 'l':
-                            SetColor(0xFF000000);
+                            renderColor = 0xFF000000;
                             string += 3;
                             continue;
                         case 'p':
-                            SetColor(0xFFFF00FF);
+                            renderColor = 0xFFFF00FF;
                             string += 3;
                             continue;
                         case 'r':
-                            SetColor(0xFFFF0000);
+                            renderColor = 0xFFFF0000;
                             string += 3;
                             continue;
                         case 'w':
-                            SetColor(0xFFe1e1e1);
+                            renderColor = 0xFFe1e1e1;
                             string += 3;
                             continue;
                         case 'y':
-                            SetColor(0xFFFFFF00);
+                            renderColor = 0xFFFFFF00;
                             string += 3;
                             continue;
                         case ' ':
@@ -264,9 +265,16 @@ void hgeFont::Render(const float x, float y, int align, const char* string, BOOL
                 i = '?';
             }
             if (letters_[i]) {
+                const DWORD glyphColor = letters_[i]->GetColor();
+                if (glyphColor != renderColor) {
+                    letters_[i]->SetColor(renderColor);
+                }
                 fx += pre_[i] * scale_ * proportion_;
                 letters_[i]->RenderEx(fx, y, rot_, scale_ * proportion_, scale_);
                 fx += (realw_[i] + post_[i] + tracking_) * scale_ * proportion_;
+                if (glyphColor != renderColor) {
+                    letters_[i]->SetColor(glyphColor);
+                }
             }
         }
         string++;

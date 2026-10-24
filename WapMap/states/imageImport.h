@@ -66,6 +66,15 @@ namespace State {
         virtual void FileDropped();
 
     private:
+#ifdef WAPMAP_ENABLE_IMGUI
+        struct Native;
+        Native* native = nullptr;
+        void InitNative(ImageImportType type, void* destination);
+        void DestroyNative();
+        bool ThinkNative();
+        bool RenderNative();
+        void AddNativeFile(const std::string& path);
+#endif
         gcn::Gui *gui;
         SHR::Win *myWin;
         SHR::ScrollArea *saFileList;

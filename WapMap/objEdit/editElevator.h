@@ -29,6 +29,7 @@ namespace ObjEdit {
 
         int iDirection;
         WWD::Rect rArea;
+        bool validGeometry = true;
 
         void UpdateDirection(bool init = false);
 

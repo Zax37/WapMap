@@ -24,6 +24,9 @@ public:
     ~cWindow() override = default;
 
     virtual void Think() {};
+#ifdef WAPMAP_ENABLE_IMGUI
+    virtual void DrawImGui() {};
+#endif
 
     virtual void OnDocumentChange() {};
 
@@ -42,7 +45,7 @@ public:
 
     void action(const gcn::ActionEvent &) override {};
 
-    bool isOpened() { return myWin.isVisible();}
+    virtual bool isOpened() { return myWin.isVisible();}
 };
 
 #endif // H_WINDOW

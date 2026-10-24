@@ -409,6 +409,7 @@ namespace ObjEdit {
 
         sprintf(tmp, "1");
         tfRespawnTimes = new SHR::TextField(tmp);
+        tfRespawnTimes->SetNumerical(true, false);
         tfRespawnTimes->setDimension(gcn::Rectangle(0, 0, 50, 20));
         tfRespawnTimes->setEnabled(0);
         tfRespawnTimes->addActionListener(hAL);
@@ -462,10 +463,15 @@ namespace ObjEdit {
         hPlayer = new cSoundPlayer(win, 5, 78 + 25,
                                    hState->hSndBank->GetAssetByID(hTempObj->GetAnim()),
                                    GETL2S("EditObj_Dialog", "Preview"));
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjSoundTrigger::~cEditObjSoundTrigger() {
         for (int i = 0; i < 3; i++) delete rbActivate[i];
+        delete ddActivationArea;
         delete lmSizes;
         delete cbDialog;
         delete labActivationArea;
@@ -513,6 +519,7 @@ namespace ObjEdit {
             ddStandardDialogs->setEnabled(0);
             tddOtherDialogs->setEnabled(1);
             tddOtherDialogs->setMarkedInvalid(hState->hSndBank->GetAssetByID(tddOtherDialogs->getText().c_str()) == 0);
+            Action(gcn::ActionEvent(tddOtherDialogs, ""));
         } else if (actionEvent.getSource() == ddStandardDialogs) {
             int x = ddStandardDialogs->getSelected();
             hTempObj->SetAnim(vsStandardSounds[x].first.c_str());
@@ -522,7 +529,7 @@ namespace ObjEdit {
             if (!tddOtherDialogs->isMarkedInvalid()) {
                 hTempObj->SetAnim(tddOtherDialogs->getText().c_str());
                 hPlayer->SetAsset(hState->hSndBank->GetAssetByID(tddOtherDialogs->getText().c_str()), 0);
-            }
+            } else hPlayer->SetAsset(nullptr, false);
         } else if (actionEvent.getSource() == rbActivate[2]) {
             tfRespawnTimes->setEnabled(1);
         } else if (actionEvent.getSource() == rbActivate[0] || actionEvent.getSource() == rbActivate[1]) {
@@ -561,6 +568,26 @@ namespace ObjEdit {
         sprintf(nname, "%s%sSoundTrigger", dial.c_str(), size.c_str());
         hTempObj->SetLogic(nname);
     }
+
+    void cEditObjSoundTrigger::_Think(bool) {
+        auto* sound = hState->hSndBank->GetAssetByID(tddOtherDialogs->getText().c_str());
+        const bool wasMissing = tddOtherDialogs->isMarkedInvalid();
+        tddOtherDialogs->setMarkedInvalid(sound == nullptr);
+        if (wasMissing && sound && tddOtherDialogs->isLocallyEnabled()) {
+            hTempObj->SetAnim(tddOtherDialogs->getText().c_str());
+            hPlayer->SetAsset(sound, false);
+        }
+        tfRespawnTimes->setMarkedInvalid(tfRespawnTimes->isLocallyEnabled() && atoi(tfRespawnTimes->getText().c_str()) <= 0);
+        _butSave->setEnabled((!tddOtherDialogs->isLocallyEnabled() || !tddOtherDialogs->isMarkedInvalid()) && !tfRespawnTimes->isMarkedInvalid());
+    }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjSoundTrigger::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        DrawNativeControls();
+        hPlayer->DrawImGui();
+        EndNativeWindow();
+    }
+#endif
 
     void cEditObjSoundTrigger::Draw() {
         int dx, dy;

@@ -9,6 +9,17 @@
 #include "version.h"
 #include "states/loadmap.h"
 #include "states/dialog.h"
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui.h>
+#include "legacyText.h"
+#include "nativeContextMenu.h"
+#include "cRulers.h"
+#include <imgui_internal.h>
+#endif
 
 extern HGE *hge;
 
@@ -189,6 +200,12 @@ DocumentData *cMDI::AddDocument(DocumentData *dd) {
         dd->hTab->index = m_vhDoc.size();
         m_vhDoc.push_back(dd);
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    dd->iViewportWidth = std::max(1, GV->editState->vPort->GetWidth());
+    dd->iViewportHeight = std::max(1, GV->editState->vPort->GetHeight());
+    dd->hViewport = new State::Viewport(GV->editState, 0, 0,
+                                        dd->iViewportWidth, dd->iViewportHeight);
+#endif
     GV->Console->Printf("~g~Document added.");
     UpdateCrashList();
     GV->anyMapLoaded = true;
@@ -282,6 +299,10 @@ void cMDI::DeleteDocByIt(int i) {
     }
 
     DocumentData *dd = m_vhDoc[i];
+    if (m_pRequestedActiveDoc == dd) m_pRequestedActiveDoc = nullptr;
+    if (m_pRequestedCloseDoc == dd) m_pRequestedCloseDoc = nullptr;
+    if (m_pMapHoveredDoc == dd) m_pMapHoveredDoc = nullptr;
+    if (m_pMapCapturedDoc == dd) m_pMapCapturedDoc = nullptr;
 
     m_vhDoc.erase(m_vhDoc.begin() + i);
     if (m_vhDoc.empty()) SetActiveDocIt(-1);
@@ -296,6 +317,7 @@ void cMDI::DeleteDocByIt(int i) {
     cIO_WWDx *meta = (cIO_WWDx *) dd->hParser->GetCustomMetaSerializer();
     delete meta;
     delete dd->hTab;
+    delete dd->hViewport;
     delete dd->hTilesBank;
     delete dd->hSprBank;
     delete dd->hSndBank;
@@ -328,6 +350,10 @@ void cMDI::DeleteDocByIt(int i) {
 }
 
 void cMDI::Think(bool bConsumed) {
+#ifdef WAPMAP_ENABLE_IMGUI
+    ProcessImGuiActions();
+    return;
+#endif
     if (bBlock) return;
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
@@ -464,6 +490,9 @@ bool cMDI::CloseDocByIt(int i) {
 }
 
 void cMDI::Render() {
+#ifdef WAPMAP_ENABLE_IMGUI
+    return;
+#endif
     float mx, my;
     hge->Input_GetMousePos(&mx, &my);
     hge->Gfx_RenderLine(0, m_iPosY, hge->System_GetState(HGE_SCREENWIDTH), m_iPosY, GV->colOutline);
@@ -483,6 +512,371 @@ void cMDI::Render() {
         GV->sprTabAddButtonFocused->Render(xOffset, m_iPosY + m_iAddTabButtonOffset);
     }*/
 }
+
+#ifdef WAPMAP_ENABLE_IMGUI
+void cMDI::DrawDocumentNavigation(DocumentData* doc, ImVec2 origin, ImVec2 imageMin, ImVec2 size, bool interactive) {
+    auto* editor=GV->editState;
+    auto* plane=doc->hParser->GetMainPlane();
+    const float zoom=std::max(0.001f,doc->fZoom);
+    const float bar=ImGui::GetStyle().ScrollbarSize;
+    const ImVec2 end{imageMin.x+size.x,imageMin.y+size.y};
+    auto* draw=ImGui::GetWindowDrawList();
+    const auto background=IM_COL32(45,45,45,255),line=IM_COL32(145,145,145,255);
+    ImGui::BeginDisabled(!interactive || (bBlock && doc!=GetActiveDoc()));
+    float camera[2]{doc->fCamX,doc->fCamY};
+    bool changed=false;
+    for(int axis=0;axis<2;++axis) {
+        const float visible=(axis?size.y:size.x)/zoom;
+        const float extent=static_cast<float>(axis?plane->GetPlaneHeightPx():plane->GetPlaneWidthPx());
+        const ImS64 contents=static_cast<ImS64>(std::ceil(std::max(visible,extent+2.f*WORKSPACE_MARGINS_SIZE)));
+        const ImS64 page=std::max<ImS64>(1,static_cast<ImS64>(visible));
+        ImS64 scroll=static_cast<ImS64>(std::round(camera[axis]+WORKSPACE_MARGINS_SIZE));
+        const ImRect bounds=axis?ImRect(end.x,imageMin.y,end.x+bar,end.y):
+                                     ImRect(imageMin.x,end.y,end.x,end.y+bar);
+        if(ImGui::ScrollbarEx(bounds,ImGui::GetID(axis?"##map-scroll-y":"##map-scroll-x"),
+                              axis?ImGuiAxis_Y:ImGuiAxis_X,&scroll,page,contents)) {
+            camera[axis]=static_cast<float>(scroll)-WORKSPACE_MARGINS_SIZE;
+            changed=true;
+        }
+    }
+    draw->AddRectFilled(end,{end.x+bar,end.y+bar},background);
+    if(changed) {
+        m_pNavigationDoc=doc;
+        m_fNavigationX=camera[0]; m_fNavigationY=camera[1];
+    }
+    if(editor->hRulers->IsVisible()) {
+        draw->AddRectFilled(origin,{end.x,imageMin.y},background);
+        draw->AddRectFilled(origin,{imageMin.x,end.y},background);
+        for(int axis=0;axis<2;++axis) {
+            const bool vertical=axis==1;
+            const ImVec2 start=vertical?ImVec2(origin.x,imageMin.y):ImVec2(imageMin.x,origin.y);
+            const ImVec2 rulerSize=vertical?ImVec2(imageMin.x-origin.x,size.y):ImVec2(size.x,imageMin.y-origin.y);
+            ImGui::SetCursorScreenPos(start);
+            ImGui::InvisibleButton(vertical?"##ruler-y":"##ruler-x",rulerSize);
+            if(interactive && !bBlock && editor->bShowGuideLines && editor->iActiveTool==EWW_TOOL_NONE && ImGui::IsItemActivated()) {
+                m_pGuideDragDoc=doc;
+                m_bGuideHorizontal=!vertical;
+                m_pRequestedActiveDoc=doc;
+            }
+            const float tile=static_cast<float>(vertical?plane->GetTileHeight():plane->GetTileWidth());
+            const bool tiles=editor->GetActiveMode()==EWW_MODE_TILE;
+            float step=tiles?std::max(1.f,tile):10.f;
+            while(step*zoom<60.f) step*=2.f;
+            const float cam=vertical?doc->fCamY:doc->fCamX;
+            const float length=vertical?size.y:size.x;
+            draw->PushClipRect(start,{start.x+rulerSize.x,start.y+rulerSize.y},true);
+            const int first=static_cast<int>(std::floor(cam/step));
+            for(int tick=first;tick<=first+static_cast<int>(length/(step*zoom))+2;++tick) {
+                const float world=tick*step;
+                const float offset=(world-cam)*zoom;
+                const ImVec2 mark=vertical?ImVec2(imageMin.x,start.y+offset):ImVec2(start.x+offset,imageMin.y);
+                draw->AddLine(vertical?ImVec2(mark.x-6,mark.y):ImVec2(mark.x,mark.y-6),mark,line);
+                char text[32];
+                const float value=tiles?world/std::max(1.f,tile):world;
+                if(vertical && std::abs(value)>=1000.f) std::snprintf(text,sizeof(text),"%.1fk",value/1000.f);
+                else std::snprintf(text,sizeof(text),"%.0f",value);
+                if(vertical) draw->AddText({origin.x+2,mark.y+2},line,text);
+                else draw->AddText({mark.x+3,origin.y+2},line,text);
+            }
+            draw->PopClipRect();
+        }
+        draw->AddLine({imageMin.x,origin.y},{imageMin.x,end.y},IM_COL32(80,80,80,255));
+        draw->AddLine({origin.x,imageMin.y},{end.x,imageMin.y},IM_COL32(80,80,80,255));
+    }
+    ImGui::EndDisabled();
+    if(m_pGuideDragDoc==doc) {
+        const auto mouse=ImGui::GetMousePos();
+        const bool inside=mouse.x>=imageMin.x && mouse.x<end.x && mouse.y>=imageMin.y && mouse.y<end.y;
+        if(!interactive) m_pGuideDragDoc=nullptr;
+        else if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+            if(inside) {
+                m_pGuideActionDoc=doc;
+                m_guideAction.bOrient=m_bGuideHorizontal;
+                m_guideAction.iPos=static_cast<int>(std::round(m_bGuideHorizontal?
+                    doc->fCamY+(mouse.y-imageMin.y)/zoom:doc->fCamX+(mouse.x-imageMin.x)/zoom));
+                if(m_guideAction.iPos<0) m_pGuideActionDoc=nullptr;
+            }
+            m_pGuideDragDoc=nullptr;
+        } else if(ImGui::IsMouseDown(ImGuiMouseButton_Left) && inside) {
+            draw->AddLine(m_bGuideHorizontal?ImVec2(imageMin.x,mouse.y):ImVec2(mouse.x,imageMin.y),
+                          m_bGuideHorizontal?ImVec2(end.x,mouse.y):ImVec2(mouse.x,end.y),IM_COL32(40,190,255,255));
+        } else if(!ImGui::IsMouseDown(ImGuiMouseButton_Left)) m_pGuideDragDoc=nullptr;
+    }
+}
+
+void cMDI::DrawImGuiViews(const unsigned int dockspaceId) {
+    const bool interactive=GV->editState->_isOnTop();
+    DocumentData* requestedContextDoc=nullptr;
+    m_pMapHoveredDoc = nullptr;
+    m_iMainViewportDockedDocCount = 0;
+    const auto& io = ImGui::GetIO();
+    const auto codePage = LegacyText::CodePage(GV->Lang->GetCode());
+    const ImGuiID mainViewportId = ImGui::GetMainViewport()->ID;
+    bool mapWindowFocused = false;
+    ImGuiWindowClass documentViewportClass;
+    documentViewportClass.ViewportFlagsOverrideSet = ImGuiViewportFlags_CanHostOtherWindows;
+    documentViewportClass.ViewportFlagsOverrideClear = ImGuiViewportFlags_NoTaskBarIcon;
+    const auto& platformViewports = ImGui::GetPlatformIO().Viewports;
+    for (int viewportIndex = 0; viewportIndex < platformViewports.Size; ++viewportIndex) {
+        const auto* viewport = platformViewports[viewportIndex];
+        if (viewport->ID == mainViewportId) continue;
+        const bool containsMap = std::any_of(m_vhDoc.begin(), m_vhDoc.end(),
+            [viewport](const DocumentData* doc) { return doc->iImGuiViewportId == viewport->ID; });
+        if (containsMap) {
+            ImGui::DockSpaceOverViewport(0, viewport, ImGuiDockNodeFlags_PassthruCentralNode,
+                                         &documentViewportClass);
+        }
+    }
+    for (auto* doc : m_vhDoc) {
+        const char* filePath = doc->hParser->GetFilePath();
+        std::string stableId;
+        if (filePath && *filePath) stableId = filePath;
+        else stableId = "untitled-" + std::to_string(reinterpret_cast<std::uintptr_t>(doc));
+        auto title = LegacyText::ToUtf8(doc->szFileName, codePage);
+        if (!doc->bSaved) title.push_back('*');
+        title += "###MapView-" + stableId;
+
+        ImGui::PushID(stableId.c_str());
+        ImGuiWindowClass documentWindowClass;
+        documentWindowClass.ViewportFlagsOverrideSet = ImGuiViewportFlags_CanHostOtherWindows;
+        documentWindowClass.ViewportFlagsOverrideClear = ImGuiViewportFlags_NoTaskBarIcon;
+        ImGui::SetNextWindowClass(&documentWindowClass);
+        ImGui::SetNextWindowDockID(dockspaceId, ImGuiCond_FirstUseEver);
+        bool open = doc->bImGuiOpen;
+        ImGui::PushStyleColor(ImGuiCol_ResizeGrip, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ResizeGripHovered, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ResizeGripActive, IM_COL32(0, 0, 0, 0));
+        const auto flags=ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | (interactive?0:
+            ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,{0,0});
+        const bool visible = ImGui::Begin(title.c_str(), interactive?&open:nullptr, flags);
+        ImGui::PopStyleVar();
+        // Begin exposes the title bar or dock tab even for inactive tabs.
+        if(interactive && !bBlock && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+            requestedContextDoc=doc;
+        doc->iImGuiViewportId = ImGui::GetWindowViewport()->ID;
+        doc->bImGuiOpen = open;
+        if (open && ImGui::IsWindowDocked() &&
+            ImGui::GetWindowViewport()->ID == mainViewportId)
+            ++m_iMainViewportDockedDocCount;
+        if (visible && open) {
+            if (interactive && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
+                mapWindowFocused = true;
+                m_pRequestedActiveDoc = doc;
+            }
+            const ImVec2 available = ImGui::GetContentRegionAvail();
+            const ImVec2 origin=ImGui::GetCursorScreenPos();
+            const float ruler=GV->editState->hRulers->IsVisible()?24.f:0.f;
+            const float scrollbar=ImGui::GetStyle().ScrollbarSize;
+            const ImVec2 imageSize{std::max(1.f,available.x-ruler-scrollbar),std::max(1.f,available.y-ruler-scrollbar)};
+            doc->iViewportWidth = static_cast<int>(imageSize.x);
+            doc->iViewportHeight = static_cast<int>(imageSize.y);
+            ImGui::SetCursorScreenPos({origin.x+ruler,origin.y+ruler});
+            const bool composite = doc == GetActiveDoc();
+            const unsigned int texture = doc->hViewport
+                ? doc->hViewport->GetTextureHandle(composite)
+                : 0;
+            if (texture) {
+                ImGui::Image(static_cast<ImTextureID>(texture),
+                             imageSize,
+                             {0.0f, 1.0f}, {1.0f, 0.0f});
+                const ImVec2 imageMin = ImGui::GetItemRectMin();
+                if (interactive && ImGui::IsItemHovered()) {
+                    m_pMapHoveredDoc = doc;
+                    m_fMapInputOriginX = imageMin.x;
+                    m_fMapInputOriginY = imageMin.y;
+                    m_iMapInputViewportId = ImGui::GetWindowViewport()->ID;
+                    if (io.MouseWheel != 0.0f) {
+                        m_iPendingMapWheel += static_cast<int>(std::round(io.MouseWheel));
+                    }
+                    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) ||
+                        ImGui::IsMouseClicked(ImGuiMouseButton_Right) ||
+                        ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+                        m_pMapCapturedDoc = doc;
+                        m_fMapCaptureOriginX = imageMin.x;
+                        m_fMapCaptureOriginY = imageMin.y;
+                        m_iMapCaptureViewportId = ImGui::GetWindowViewport()->ID;
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                            m_iPendingMapMouseDown |= 1u << ImGuiMouseButton_Left;
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                            m_iPendingMapMouseDown |= 1u << ImGuiMouseButton_Right;
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+                            m_iPendingMapMouseDown |= 1u << ImGuiMouseButton_Middle;
+                    }
+                }
+            } else {
+                ImGui::TextUnformatted("Map viewport texture is unavailable.");
+            }
+            DrawDocumentNavigation(doc,origin,{origin.x+ruler,origin.y+ruler},imageSize,interactive);
+        }
+        ImGui::End();
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+        if (interactive && !open) m_pRequestedCloseDoc = doc;
+    }
+    if(requestedContextDoc) {
+        m_pContextDoc=requestedContextDoc;
+        ImGui::OpenPopup("###DocumentContext");
+    }
+    if(ImGui::BeginPopup("###DocumentContext")) {
+        if(std::find(m_vhDoc.begin(),m_vhDoc.end(),m_pContextDoc)==m_vhDoc.end() || !interactive || bBlock) {
+            ImGui::CloseCurrentPopup();
+        } else {
+            hContext->GetElementByID(MDI_CONTEXT_CLOSEEXCEPTACTIVE)->SetEnabled(m_vhDoc.size()>1 && !bBlock);
+            hContext->GetElementByID(MDI_CONTEXT_CLOSEALL)->SetEnabled(!bBlock);
+            hContext->GetElementByID(MDI_CONTEXT_RELOAD)->SetEnabled(!bBlock && strlen(m_pContextDoc->hParser->GetFilePath())>0);
+            ImGui::BeginDisabled(bBlock || m_pContextAction!=nullptr);
+            WapMapImGui::ContextMenu(hContext,*hge,[&](SHR::Context* context,int id) {
+                m_pContextAction=context;
+                m_iContextActionId=id;
+                m_pContextActionDoc=m_pContextDoc;
+            });
+            ImGui::EndDisabled();
+        }
+        ImGui::EndPopup();
+    }
+    hge->Input_SetKeyboardCaptureOverride(mapWindowFocused);
+    if (!mapWindowFocused) m_pRequestedActiveDoc = nullptr;
+}
+
+void cMDI::RouteImGuiInput() {
+    // The map input widget is placed at (0,0) in legacy coordinates. Leaving
+    // it visible over the main window intercepts welcome-screen links.
+    struct MapInputVisibility {
+        cMDI* mdi;
+        bool visible=false;
+        ~MapInputVisibility() {
+            if(auto* viewport=GV->editState->vPort)
+                viewport->GetWidget()->setVisible(visible);
+        }
+    } inputVisibility{this};
+    DocumentData* doc = m_pMapCapturedDoc ? m_pMapCapturedDoc : m_pMapHoveredDoc;
+    if (!doc) return;
+    if (std::find(m_vhDoc.begin(), m_vhDoc.end(), doc) == m_vhDoc.end()) {
+        m_pMapCapturedDoc = nullptr;
+        m_pMapHoveredDoc = nullptr;
+        return;
+    }
+    if (!doc->hViewport) return;
+
+    const auto& io = ImGui::GetIO();
+    bool left = io.MouseDown[ImGuiMouseButton_Left];
+    bool right = io.MouseDown[ImGuiMouseButton_Right];
+    bool middle = io.MouseDown[ImGuiMouseButton_Middle];
+    if (bBlock && doc != GetActiveDoc()) {
+        if (m_pMapCapturedDoc && !left && !right && !middle) m_pMapCapturedDoc = nullptr;
+        return;
+    }
+    const float originX = m_pMapCapturedDoc ? m_fMapCaptureOriginX : m_fMapInputOriginX;
+    const float originY = m_pMapCapturedDoc ? m_fMapCaptureOriginY : m_fMapInputOriginY;
+    float mouseX = io.MousePos.x;
+    float mouseY = io.MousePos.y;
+    const auto* mainViewport = ImGui::GetMainViewport();
+    hge->Input_GetPhysicalMouseButtons(&left, &right, &middle);
+    left = left || (m_iPendingMapMouseDown & (1u << ImGuiMouseButton_Left));
+    right = right || (m_iPendingMapMouseDown & (1u << ImGuiMouseButton_Right));
+    middle = middle || (m_iPendingMapMouseDown & (1u << ImGuiMouseButton_Middle));
+    if (m_pMapCapturedDoc
+            ? m_iMapCaptureViewportId == mainViewport->ID
+            : m_iMapInputViewportId == mainViewport->ID) {
+        hge->Input_GetPhysicalMousePos(&mouseX, &mouseY);
+        mouseX += mainViewport->Pos.x - originX;
+        mouseY += mainViewport->Pos.y - originY;
+    } else {
+        hge->Input_GetPhysicalMouseScreenPos(&mouseX, &mouseY);
+        mouseX -= originX;
+        mouseY -= originY;
+    }
+    if (!m_pMapCapturedDoc &&
+        (mouseX < 0.0f || mouseY < 0.0f ||
+         mouseX >= static_cast<float>(doc->iViewportWidth) ||
+         mouseY >= static_cast<float>(doc->iViewportHeight))) {
+        m_pMapHoveredDoc = nullptr;
+        m_iPendingMapWheel = 0;
+        return;
+    }
+    const float scaleX = static_cast<float>(doc->hViewport->GetWidth()) /
+                         std::max(1, doc->iViewportWidth);
+    const float scaleY = static_cast<float>(doc->hViewport->GetHeight()) /
+                         std::max(1, doc->iViewportHeight);
+    inputVisibility.visible=doc==GetActiveDoc();
+    hge->Input_SetMouseStateOverride(mouseX * scaleX, mouseY * scaleY,
+                                     left, right, middle, m_iPendingMapWheel);
+    m_iPendingMapMouseDown = 0;
+    m_iPendingMapWheel = 0;
+
+    if (m_pMapCapturedDoc && !left && !right && !middle) m_pMapCapturedDoc = nullptr;
+}
+
+void cMDI::ProcessImGuiActions() {
+    if(m_pNavigationDoc && !bBlock) m_pRequestedActiveDoc=m_pNavigationDoc;
+    if(m_pContextAction) {
+        auto* context=m_pContextAction;
+        auto* doc=m_pContextActionDoc;
+        const int id=m_iContextActionId;
+        m_pContextAction=nullptr;
+        m_pContextActionDoc=nullptr;
+        const auto it=std::find(m_vhDoc.begin(),m_vhDoc.end(),doc);
+        if(!bBlock && it!=m_vhDoc.end() && (context==hContext || context==hContextClosed)) {
+            auto* entry=context->GetElementByID(id);
+            if(entry && entry->IsEnabled()) {
+                const int index=static_cast<int>(it-m_vhDoc.begin());
+                if(index!=m_iActiveDoc) {
+                    GV->editState->PrepareForDocumentSwitch();
+                    SetActiveDocIt(index);
+                }
+                m_iContextMenuFocusedDoc=index;
+                m_pRequestedActiveDoc=nullptr;
+                context->EmulateClickID(id);
+                hContext->hide();
+                hContextClosed->hide();
+                return;
+            }
+        }
+    }
+    if (m_pRequestedActiveDoc) {
+        const auto it = std::find(m_vhDoc.begin(), m_vhDoc.end(), m_pRequestedActiveDoc);
+        if (!bBlock && it != m_vhDoc.end()) {
+            const int requestedIndex = static_cast<int>(it - m_vhDoc.begin());
+            if (requestedIndex != m_iActiveDoc) {
+                GV->editState->PrepareForDocumentSwitch();
+                SetActiveDocIt(requestedIndex);
+            }
+            if (m_pRequestedActiveDoc->hViewport &&
+                (m_pMapHoveredDoc==m_pRequestedActiveDoc || m_pMapCapturedDoc==m_pRequestedActiveDoc)) {
+                m_pRequestedActiveDoc->hViewport->GetWidget()->setVisible(true);
+                m_pRequestedActiveDoc->hViewport->GetWidget()->requestFocus();
+            }
+        }
+        m_pRequestedActiveDoc = nullptr;
+    }
+
+    if(m_pNavigationDoc) {
+        auto* doc=m_pNavigationDoc;
+        m_pNavigationDoc=nullptr;
+        if(doc==GetActiveDoc()) {
+            doc->fCamX=GV->editState->fCamX=m_fNavigationX;
+            doc->fCamY=GV->editState->fCamY=m_fNavigationY;
+            doc->hViewport->MarkToRedraw();
+        }
+    }
+    if(m_pGuideActionDoc) {
+        if(std::find(m_vhDoc.begin(),m_vhDoc.end(),m_pGuideActionDoc)!=m_vhDoc.end())
+            m_pGuideActionDoc->vGuides.push_back(m_guideAction);
+        m_pGuideActionDoc=nullptr;
+    }
+    if (m_pRequestedCloseDoc) {
+        DocumentData* closingDoc = m_pRequestedCloseDoc;
+        const auto it = std::find(m_vhDoc.begin(), m_vhDoc.end(), closingDoc);
+        m_pRequestedCloseDoc = nullptr;
+        if (it != m_vhDoc.end()) {
+            const int closingIndex = static_cast<int>(it - m_vhDoc.begin());
+            if (!CloseDocByIt(closingIndex)) closingDoc->bImGuiOpen = true;
+        }
+    }
+}
+#endif
 
 void cMDI::SetActiveDoc(DocumentData *doc) {
     for (int i = 0; i < m_vhDoc.size(); i++) {

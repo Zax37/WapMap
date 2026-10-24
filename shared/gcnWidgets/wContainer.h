@@ -30,6 +30,7 @@ namespace SHR {
         virtual void remove(Widget *widget);
 
         virtual void clear();
+        const std::list<gcn::Widget*>& getChildren() const { return mWidgets; }
 
         virtual Widget *findWidgetById(const std::string &id);
 

@@ -3,6 +3,8 @@
 #include "../langID.h"
 #include "../states/editing_ww.h"
 #include "../cObjectUserData.h"
+#include <cstdint>
+#include <limits>
 
 extern HGE *hge;
 
@@ -45,6 +47,10 @@ namespace ObjEdit {
             GetUserDataFromObj(hTempObj)->SetZ(z);
             hState->vPort->MarkToRedraw();
         }
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
     }
 
     cEditObjSpringboard::~cEditObjSpringboard() {
@@ -60,6 +66,9 @@ namespace ObjEdit {
             bKill = 1;
             return;
         } else if (actionEvent.getSource() == butPick) {
+#ifdef WAPMAP_ENABLE_IMGUI
+            nativeIntegers.erase(tfJumpHeight);
+#endif
             bPicking = !bPicking;
             bAllowDragging = !bPicking;
             iPickY = (hTempObj->GetParam(WWD::Param_MaxY) == 0 ? 450 : hTempObj->GetParam(WWD::Param_MaxY));
@@ -82,10 +91,10 @@ namespace ObjEdit {
             return;
         }
 
-        int newpick = hTempObj->GetParam(WWD::Param_LocationY) - hState->Scr2WrdY(hState->GetActivePlane(), my);
+        const auto newpick = std::int64_t(hTempObj->GetParam(WWD::Param_LocationY)) - hState->Scr2WrdY(hState->GetActivePlane(), my);
 
-        if (newpick > 0) {
-            iPickY = newpick;
+        if (newpick > 0 && newpick <= std::numeric_limits<int>::max()) {
+            iPickY = static_cast<int>(newpick);
             if (hge->Input_KeyDown(HGEK_LBUTTON)) {
                 char tmp[32];
                 sprintf(tmp, "%d", iPickY);

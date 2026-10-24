@@ -38,6 +38,11 @@ namespace State {
         virtual void Draw(int piCode);
 
     private:
+#ifdef WAPMAP_ENABLE_IMGUI
+        bool RenderImGui();
+        bool nativeClose = false;
+        int nativeZoom = 0;
+#endif
         gcn::Gui *gui;
         SHR::Win *myWin;
         SHR::ScrollArea *saPreview;

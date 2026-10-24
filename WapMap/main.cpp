@@ -2,10 +2,20 @@
 #include "version.h"
 #include "globals.h"
 #include "states/editing_ww.h"
+#include "windows/about.h"
 #include "cDataController.h"
 #include "../shared/commonFunc.h"
 #include <tlhelp32.h>
 #include <direct.h>
+
+#ifdef WAPMAP_ENABLE_IMGUI
+#include <imgui.h>
+#include <imgui-SFML.h>
+#include "imguiTheme.h"
+#include "legacyText.h"
+#include "states/objedit.h"
+#include "cAppMenu.h"
+#endif
 
 HGE *hge = 0;
 
@@ -28,7 +38,24 @@ bool FrameFunc() {
 }
 
 bool RenderFunc() {
-    return GV->StateMgr->Render();
+    const bool shouldClose = GV->StateMgr->Render();
+#ifdef WAPMAP_ENABLE_IMGUI
+    if (!GV->editState->_isOnTop())
+        hge->Input_SetKeyboardCaptureOverride(false);
+    // Keep submitting document windows while a modal state owns input. Missing
+    // a frame destroys detached platform windows and leaves docked maps blank.
+    if (GV->editState->fade_iAction >= 5 &&
+        (GV->editState->_isOnTop() || !GV->StateMgr->GetState()->Opaque()))
+        GV->editState->DrawNativeChrome();
+    if (GV->editState->_isOnTop()) {
+        for (auto* window : GV->editState->hWindows) window->DrawImGui();
+        GV->editState->FirstRun_DrawImGui();
+        if (GV->editState->iActiveTool == EWW_TOOL_EDITOBJ && GV->editState->hEditObj)
+            GV->editState->hEditObj->DrawImGui();
+    }
+    GV->editState->hAppMenu->DrawImGui();
+#endif
+    return shouldClose;
 }
 
 bool ExitFunc() {
@@ -201,6 +228,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR cmdline, int) {
 
     if (hge->System_Initiate()) {
         GV->Init();
+#ifdef WAPMAP_ENABLE_IMGUI
+        auto* bitmapFont = WapMapImGui::ImportBitmapFont(*hge, *GV->fntMyriad16, LegacyText::CodePage(GV->Lang->GetCode()));
+        ImGui::GetIO().FontDefault = bitmapFont;
+        ImGui::GetStyle().FontSizeBase = bitmapFont->LegacySize;
+        ImGui::GetStyle().FramePadding.y = std::max(0.f, (24.f - bitmapFont->LegacySize) * 0.5f);
+        ImGui::SFML::UpdateFontTexture();
+#endif
         GV->StateMgr->Init();
         GV->StateMgr->Push(new State::EditingWW());
         hge->System_Start();

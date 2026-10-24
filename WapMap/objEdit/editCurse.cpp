@@ -4,6 +4,11 @@
 #include "../states/editing_ww.h"
 #include "../databanks/imageSets.h"
 #include "../cObjectUserData.h"
+#include <cstdio>
+#ifdef WAPMAP_ENABLE_IMGUI
+#include "../imguiTheme.h"
+#include "../windows/assetBrowserUi.h"
+#endif
 
 extern HGE *hge;
 
@@ -23,6 +28,10 @@ namespace ObjEdit {
         win->addActionListener(hAL);
         win->add(vpAdv);
         st->conMain->add(win, st->vPort->GetX(), st->vPort->GetY() + st->vPort->GetHeight() - win->getHeight());
+#ifdef WAPMAP_ENABLE_IMGUI
+        nativeWindow = true;
+        win->setVisible(false);
+#endif
 
         win->add(_butAddNext, 810 - 11 - 215, 108);
         win->add(_butSave, 810 - 11 - 115, 108);
@@ -30,8 +39,8 @@ namespace ObjEdit {
         iFrame = 0;
 
         for (int i = 0; i < 6; i++) {
-            char tmp[12];
-            sprintf(tmp, "%p", this);
+            char tmp[2 * sizeof(void*) + 3];
+            std::snprintf(tmp, sizeof(tmp), "%p", static_cast<void*>(this));
             wchar_t tmp2[32];
             wsprintfW(tmp2, L"Curse%d", i);
             rbCurses[i] = new SHR::RadBut(GV->hGfxInterface, GETL2SV("EditObj_Curse", tmp2), tmp,
@@ -119,4 +128,50 @@ namespace ObjEdit {
         GV->fntMyriad16->printf(dx + 15, dy + 132, HGETEXT_LEFT, "%s: ~y~%s~l~", 0,
                                 GETL2S("EditObj_Curse", "CurseEffect"), GETL2SV("EditObj_Curse", tmp), 0);
     }
+#ifdef WAPMAP_ENABLE_IMGUI
+    void cEditObjCurse::DrawImGui() {
+        if (!BeginNativeWindow()) return;
+        fCurseAnim += hge->Timer_GetDelta();
+        if (fCurseAnim >= 0.1f) {
+            const int steps = static_cast<int>(fCurseAnim / 0.1f);
+            iFrame = (iFrame + steps) % 4;
+            fCurseAnim -= steps * 0.1f;
+        }
+        int picked = 0;
+        for (int i = 0; i < 6; ++i) if (rbCurses[i]->isSelected()) picked = i;
+        const float top = ImGui::GetFrameHeight();
+        int preview = picked;
+        for (int i = 0; i < 6; ++i) {
+            ImGui::PushID(i);
+            const float x = i * 131.f;
+            ImGui::SetCursorPos({x + 35, top + 5});
+            const auto p = ImGui::GetCursorScreenPos();
+            bool hit = ImGui::InvisibleButton("preview", {60, 64}, ImGuiButtonFlags_EnableNav);
+            const bool hover = ImGui::IsItemHovered() || WapMapImGui::IsKeyboardFocused();
+            if (hover) preview = i;
+            auto* asset = hState->SprBank->GetAssetByID(CURSES[i]);
+            auto* sprite = GV->sprSmiley;
+            if (asset && asset->GetSpritesCount() > 0) {
+                auto* image = asset->GetIMGByIterator((iFrame + i) % asset->GetSpritesCount());
+                if (image && image->GetSprite()) sprite = image->GetSprite();
+            }
+            AssetBrowserUi::Preview(*hge, sprite, {p.x, p.y}, 60, false, false, picked == i, hover);
+            ImGui::SetCursorPos({x + (131 - rbCurses[i]->getWidth()) / 2.f, top + 80});
+            int choice = picked;
+            hit |= WapMapImGui::BitmapRadio(*hge, *GV->fntMyriad16, *GV->hGfxInterface,
+                rbCurses[i]->getCaption().c_str(), choice, i);
+            if (hit && !nativeAction) {
+                rbCurses[i]->setSelected(true);
+                nativeAction = rbCurses[i];
+            }
+            ImGui::PopID();
+        }
+        wchar_t key[32]; wsprintfW(key, L"CurseDesc%d", preview);
+        const std::string effect = std::string(GETL2S("EditObj_Curse", "CurseEffect")) + ": " + GETL2SV("EditObj_Curse", key);
+        const auto origin = ImGui::GetWindowPos();
+        WapMapImGui::BitmapText(ImGui::GetWindowDrawList(), *hge, *GV->fntMyriad16,
+            {origin.x + 15, origin.y + top + 108}, effect.c_str());
+        EndNativeWindow();
+    }
+#endif
 }

@@ -46,6 +46,7 @@
  */
 
 #include "guichan/hge/hgeinput.hpp"
+#include <cstdlib>
 #include "guichan/exception.hpp"
 
 extern HGE *hge;
@@ -100,96 +101,49 @@ namespace gcn {
         hgeInputEvent ie;
 
         while (hge->Input_GetEvent(&ie)) {
-            pollMouseInput();
+            pollMouseInput(&ie);
             pollKeyInput(ie);
         }
     }
 
-    void HGEInput::pollMouseInput() {
-        float curMouseX, curMouseY;
-        int mouseWheel;
+    void HGEInput::pollMouseInput(const hgeInputEvent* event) {
+        if (!event) return;
 
-        bool leftBtn, rightBtn, centerBtn;
-
-        hge->Input_GetMousePos(&curMouseX, &curMouseY);
-        mouseWheel = hge->Input_GetMouseWheel();
-
-        leftBtn = hge->Input_GetKeyState(HGEK_LBUTTON);
-        rightBtn = hge->Input_GetKeyState(HGEK_RBUTTON);
-        centerBtn = hge->Input_GetKeyState(HGEK_MBUTTON);
-
-        unsigned int time = hge->Timer_GetDeltaRealtime();
-
-        // Check mouse movement
-        if (mMouseX != curMouseX
-            || mMouseY != curMouseY) {
-            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-                                             MouseInput::MOVED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-
-            mMouseX = curMouseX;
-            mMouseY = curMouseY;
+        const int x = static_cast<int>(event->x);
+        const int y = static_cast<int>(event->y);
+        const unsigned int time = static_cast<unsigned int>(hge->Timer_GetTime() * 1000.f);
+        if (event->type == INPUT_MOUSEMOVE || event->type == INPUT_MBUTTONDOWN ||
+            event->type == INPUT_MBUTTONUP || event->type == INPUT_MOUSEWHEEL) {
+            if (mMouseX != x || mMouseY != y) {
+                mMouseInputQueue.push(MouseInput(MouseInput::EMPTY, MouseInput::MOVED, x, y, time));
+                mMouseX = x;
+                mMouseY = y;
+            }
         }
 
-        // Check mouse wheel
-        if (mouseWheel > 0) {
-            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-                                             MouseInput::WHEEL_MOVED_UP,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (mouseWheel < 0) {
-            mMouseInputQueue.push(MouseInput(MouseInput::EMPTY,
-                                             MouseInput::WHEEL_MOVED_DOWN,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
+        if (event->type == INPUT_MOUSEWHEEL) {
+            const int type = event->wheel > 0 ? MouseInput::WHEEL_MOVED_UP : MouseInput::WHEEL_MOVED_DOWN;
+            for (int step = 0; step < std::abs(event->wheel); ++step)
+                mMouseInputQueue.push(MouseInput(MouseInput::EMPTY, type, x, y, time));
         }
 
-        //check mouse buttons
-        if (!mLeftMouseButtonDown && leftBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
-                                             MouseInput::PRESSED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (mLeftMouseButtonDown && !leftBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::LEFT,
-                                             MouseInput::RELEASED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (!mRightMouseButtonDown && rightBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
-                                             MouseInput::PRESSED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (mRightMouseButtonDown && !rightBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::RIGHT,
-                                             MouseInput::RELEASED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (!mMiddleMouseButtonDown && centerBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
-                                             MouseInput::PRESSED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
-        } else if (mMiddleMouseButtonDown && !centerBtn) {
-            mMouseInputQueue.push(MouseInput(MouseInput::MIDDLE,
-                                             MouseInput::RELEASED,
-                                             curMouseX,
-                                             curMouseY,
-                                             time));
+        // Consume transitions in order, including press + release in a single frame.
+        if (event->type != INPUT_MBUTTONDOWN && event->type != INPUT_MBUTTONUP &&
+            event->type != INPUT_KEYUP) return;
+        int button;
+        bool* held;
+        switch (event->key) {
+        case HGEK_LBUTTON: button = MouseInput::LEFT; held = &mLeftMouseButtonDown; break;
+        case HGEK_RBUTTON: button = MouseInput::RIGHT; held = &mRightMouseButtonDown; break;
+        case HGEK_MBUTTON: button = MouseInput::MIDDLE; held = &mMiddleMouseButtonDown; break;
+        default: return;
         }
-
-        mLeftMouseButtonDown = leftBtn;
-        mRightMouseButtonDown = rightBtn;
-        mMiddleMouseButtonDown = centerBtn;
+        const bool down = event->type == INPUT_MBUTTONDOWN;
+        if (*held != down) {
+            mMouseInputQueue.push(MouseInput(button, down ? MouseInput::PRESSED : MouseInput::RELEASED,
+                                             x, y, time));
+            *held = down;
+        }
     }
 
     void HGEInput::pollKeyInput(hgeInputEvent &ki) {

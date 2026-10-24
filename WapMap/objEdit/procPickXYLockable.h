@@ -9,7 +9,7 @@
 
 class cProcPickXYLockable : public gcn::ActionListener, public SHR::Container {
     int valX, valY;
-    float lockedRatio;
+    double lockedRatio = 1;
     bool locked, enabledMaster = true, xEnabled = true, yEnabled = true;
     SHR::Lab *labMain, *labX, *labY;
     SHR::TextField *tfX, *tfY;
@@ -50,13 +50,13 @@ public:
     void setAllowNegative(bool allowNegative) { tfX->SetNumerical(true, allowNegative); tfY->SetNumerical(true, allowNegative); }
 
     void setLocked(bool lock) {
-        locked = lock;
-        lockBut->setRenderBG(lock);
+        locked = lock && valX != 0 && valY != 0;
+        lockBut->setRenderBG(locked);
 
         if (locked) {
-            lockedRatio = (float) valX / (float) valY;
-            lockBut->setEnabled(true);
+            lockedRatio = static_cast<double>(valX) / valY;
         }
+        lockBut->setEnabled(enabledMaster && xEnabled && yEnabled && valX != 0 && valY != 0);
     }
 };
 

@@ -8,5 +8,6 @@ class HGE;
 bool InstallWin32WindowFeatures(HWND window, HGE* hge, bool acceptFiles);
 void RemoveWin32WindowFeatures(HWND window);
 void GetWin32DroppedFilesPosition(int* x, int* y);
+void UpdateWin32ResizePreview(HWND window, UINT message, LPARAM lparam);
 
 #endif
